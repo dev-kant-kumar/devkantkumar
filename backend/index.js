@@ -70,11 +70,32 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://devkantkumar.vercel.app',
+  'https://www.devkantkumar.com',
+  'https://devkantkumar.com',
+  'https://api.devkantkumar.com'
+];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-environment'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 // Body parsing middleware

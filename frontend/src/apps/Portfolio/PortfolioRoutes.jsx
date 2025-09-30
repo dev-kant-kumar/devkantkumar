@@ -15,6 +15,10 @@ const Blog = React.lazy(() => import("./pages/Blog/Blog.jsx"));
 const BlogPost = React.lazy(() => import("./pages/Blog/BlogPost.jsx"));
 const Contact = React.lazy(() => import("./pages/Contact/Contact.jsx"));
 
+// Legal pages
+const PrivacyPolicy = React.lazy(() => import("./pages/Legal/PrivacyPolicy.jsx"));
+const TermsOfService = React.lazy(() => import("./pages/Legal/TermsOfService.jsx"));
+
 const PortfolioRoutes = () => {
   return (
     <Routes>
@@ -45,6 +49,10 @@ const PortfolioRoutes = () => {
 
         {/* Contact page - Form + alternative methods */}
         <Route path="contact" element={<Contact />} />
+
+        {/* Legal pages */}
+        <Route path="privacy" element={<PrivacyPolicy />} />
+        <Route path="terms" element={<TermsOfService />} />
       </Route>
     </Routes>
   );
