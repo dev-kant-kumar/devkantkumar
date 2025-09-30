@@ -6,10 +6,11 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest"
+    "test": "jest",
+    "create-admin": "node scripts/createAdmin.js"
   },
   "keywords": ["portfolio", "marketplace", "backend", "api"],
-  "author": "DevKant Kumar",
+  "author": "Dev Kant Kumar",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

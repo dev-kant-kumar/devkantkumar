@@ -308,37 +308,41 @@ const Hero = () => {
               variants={itemVariants}
               className="flex flex-wrap gap-4 pt-4"
             >
-              <motion.button
-                className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl text-white font-semibold overflow-hidden shadow-lg shadow-cyan-500/25 cursor-pointer"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  View My Work
-                  <motion.span
-                    animate={{ x: isHovered ? 5 : 0 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    →
-                  </motion.span>
-                </span>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.button>
+              <Link to="/projects">
+                <motion.button
+                  className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl text-white font-semibold overflow-hidden shadow-lg shadow-cyan-500/25 cursor-pointer"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    View My Work
+                    <motion.span
+                      animate={{ x: isHovered ? 5 : 0 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      →
+                    </motion.span>
+                  </span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.button>
+              </Link>
 
-              <motion.button
-                className="px-8 py-4 border-2 border-slate-600 rounded-2xl text-white font-semibold hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all backdrop-blur-xl cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Let's Talk
-              </motion.button>
+              <Link to="/contact">
+                <motion.button
+                  className="px-8 py-4 border-2 border-slate-600 rounded-2xl text-white font-semibold hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all backdrop-blur-xl cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Let's Talk
+                </motion.button>
+              </Link>
             </motion.div>
 
             {/* Status Bar */}

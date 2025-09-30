@@ -3,9 +3,10 @@ import { baseApiSlice } from "./api/baseApiSlice";
 
 // Import UI slices from different panels
 import portfolioUIReducer from "../apps/Portfolio/store/ui/portfolioUISlice";
+import adminUIReducer from '../apps/AdminPanel/store/ui/adminUISlice';
+import adminAuthReducer from '../apps/AdminPanel/store/auth/adminAuthSlice';
 // Add other panel reducers here as they're implemented
 // import marketplaceUIReducer from '../apps/MarketPlace/store/ui/marketplaceUISlice';
-// import adminUIReducer from '../apps/AdminPanel/store/ui/adminUISlice';
 
 /**
  * Root Redux Store Configuration
@@ -22,9 +23,10 @@ export const store = configureStore({
 
     // Panel-specific UI slices
     portfolioUI: portfolioUIReducer,
+    adminUI: adminUIReducer,
+    adminAuth: adminAuthReducer,
     // Add other panel UI slices here
     // marketplaceUI: marketplaceUIReducer,
-    // adminUI: adminUIReducer,
   },
 
   middleware: (getDefaultMiddleware) =>

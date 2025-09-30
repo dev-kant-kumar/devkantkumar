@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import AdminPanelLayout from "./AdminPanelLayout.jsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 // Lazy load all pages for optimal performance and code splitting
 const Dashboard = React.lazy(() => import("./pages/Dashboard/Dashboard.jsx"));
@@ -16,34 +17,36 @@ const Settings = React.lazy(() => import("./pages/Settings/Settings.jsx"));
 
 const AdminPanelRoutes = () => {
   return (
-    <Routes>
-      {/* All admin routes wrapped in common layout */}
-      <Route path="/" element={<AdminPanelLayout />}>
-        {/* Dashboard - Analytics and overview */}
-        <Route index element={<Dashboard />} />
+    <ProtectedRoute>
+      <Routes>
+        {/* All admin routes wrapped in common layout */}
+        <Route path="/" element={<AdminPanelLayout />}>
+          {/* Dashboard - Analytics and overview */}
+          <Route index element={<Dashboard />} />
 
-        {/* Content Management - General content editing */}
-        <Route path="content" element={<ContentManagement />} />
+          {/* Content Management - General content editing */}
+          <Route path="content" element={<ContentManagement />} />
 
-        {/* Projects Management - CRUD operations for projects */}
-        <Route path="projects" element={<ProjectsManagement />} />
+          {/* Projects Management - CRUD operations for projects */}
+          <Route path="projects" element={<ProjectsManagement />} />
 
-        {/* Individual project management */}
-        <Route path="projects/:projectId" element={<ProjectDetail />} />
+          {/* Individual project management */}
+          <Route path="projects/:projectId" element={<ProjectDetail />} />
 
-        {/* Skills Management - Technical expertise management */}
-        <Route path="skills" element={<SkillsManagement />} />
+          {/* Skills Management - Technical expertise management */}
+          <Route path="skills" element={<SkillsManagement />} />
 
-        {/* Blog Management - Blog posts CRUD */}
-        <Route path="blog" element={<BlogManagement />} />
+          {/* Blog Management - Blog posts CRUD */}
+          <Route path="blog" element={<BlogManagement />} />
 
-        {/* Individual blog post management */}
-        <Route path="blog/:slug" element={<BlogPost />} />
+          {/* Individual blog post management */}
+          <Route path="blog/:slug" element={<BlogPost />} />
 
-        {/* Settings - Admin panel configuration */}
-        <Route path="settings" element={<Settings />} />
-      </Route>
-    </Routes>
+          {/* Settings - Admin panel configuration */}
+          <Route path="settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </ProtectedRoute>
   );
 };
 

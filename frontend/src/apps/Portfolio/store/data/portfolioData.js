@@ -6,7 +6,7 @@
 
 export const portfolioData = {
   personalInfo: {
-    name: "Sneha Kumari",
+    name: "Dev Kant Kumar",
     title: "Full Stack Developer",
     subtitle: "MERN Stack Developer",
     tagline:
@@ -29,7 +29,7 @@ export const portfolioData = {
       startAvailability: "Immediate",
       globalAvailability: true,
     },
-    profileImage: "https://avatars.githubusercontent.com/u/144013280?v=4",
+    profileImage: "https://avatars.githubusercontent.com/u/101362859?v=4",
   },
 
   professionalSummary: {
@@ -576,7 +576,8 @@ export const portfolioData = {
 // Helper functions to access data easily
 export const getPersonalInfo = () => portfolioData.personalInfo;
 export const getProjects = () => portfolioData.projects;
-export const getFeaturedProjects = () => portfolioData.projects.filter(project => project.featured);
+export const getFeaturedProjects = () =>
+  portfolioData.projects.filter((project) => project.featured);
 export const getWorkExperience = () => portfolioData.workExperience;
 export const getTechnicalSkills = () => portfolioData.technicalSkills;
 export const getSocialLinks = () => portfolioData.socialLinks;
@@ -594,6 +595,6 @@ export const getPortfolioStats = () => {
     yearsExperience: "2+",
     projectsCompleted: projects.length,
     technologiesUsed: Object.values(skills).flat().length,
-    isRemoteReady: portfolioData.personalInfo.availability.globalAvailability
+    isRemoteReady: portfolioData.personalInfo.availability.globalAvailability,
   };
 };

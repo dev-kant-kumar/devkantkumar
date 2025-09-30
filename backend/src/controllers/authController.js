@@ -112,18 +112,24 @@ const login = async (req, res, next) => {
 
     const { email, password } = req.body;
 
+    logger.info(`Login attempt for email: ${email}`);
+
     // Find user and include password
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
     if (!user) {
+      logger.warn(`Login failed - User not found: ${email}`);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
 
+    logger.info(`User found: ${user.email}, Role: ${user.role}`);
+
     // Check if account is locked
     if (user.isLocked) {
+      logger.warn(`Login failed - Account locked: ${email}`);
       return res.status(423).json({
         success: false,
         message: 'Account temporarily locked due to too many failed login attempts'
@@ -132,6 +138,7 @@ const login = async (req, res, next) => {
 
     // Check if account is active
     if (!user.isActive) {
+      logger.warn(`Login failed - Account inactive: ${email}`);
       return res.status(401).json({
         success: false,
         message: 'Account is deactivated'
@@ -142,6 +149,7 @@ const login = async (req, res, next) => {
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
+      logger.warn(`Login failed - Invalid password for: ${email}`);
       // Increment login attempts
       await user.incLoginAttempts();
 
@@ -160,7 +168,13 @@ const login = async (req, res, next) => {
     user.lastLogin = new Date();
     await user.save();
 
-    logger.info(`User logged in: ${user.email}`);
+    // Log successful login with role information
+    if (user.role === 'admin') {
+      logger.info(`🔐 ADMIN LOGIN SUCCESSFUL: ${user.email} - Admin panel access granted`);
+    } else {
+      logger.info(`✅ User login successful: ${user.email} - Role: ${user.role}`);
+    }
+
     sendTokenResponse(user, 200, res, 'Login successful');
   } catch (error) {
     logger.error('Login error:', error);

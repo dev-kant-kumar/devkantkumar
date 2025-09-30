@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, LogOut, User, Bell } from "lucide-react";
+import { Settings, LogOut, User, Bell, Home } from "lucide-react";
+import { logout, selectAdminUser } from "../../store/auth/adminAuthSlice";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const user = useSelector(selectAdminUser);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -38,6 +42,11 @@ const Header = () => {
     if (path === "/admin" && location.pathname === "/admin") return true;
     if (path !== "/admin" && location.pathname.startsWith(path)) return true;
     return false;
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setIsProfileOpen(false);
   };
 
   return (
@@ -93,6 +102,15 @@ const Header = () => {
               ))}
             </div>
 
+            {/* Home Button */}
+            <Link
+              to="/"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              title="Go to Portfolio"
+            >
+              <Home size={20} />
+            </Link>
+
             {/* Notifications */}
             <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
               <Bell size={20} />
@@ -122,7 +140,10 @@ const Header = () => {
                       <Settings size={16} />
                       <span>Settings</span>
                     </Link>
-                    <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <LogOut size={16} />
                       <span>Logout</span>
                     </button>
