@@ -15,6 +15,10 @@ const Blog = React.lazy(() => import("./pages/Blog/Blog.jsx"));
 const BlogPost = React.lazy(() => import("./pages/Blog/BlogPost.jsx"));
 const Contact = React.lazy(() => import("./pages/Contact/Contact.jsx"));
 
+// Additional pages
+const FAQ = React.lazy(() => import("./pages/FAQ.jsx"));
+const Sitemap = React.lazy(() => import("./pages/Sitemap.jsx"));
+
 // Legal pages
 const PrivacyPolicy = React.lazy(() => import("./pages/Legal/PrivacyPolicy.jsx"));
 const TermsOfService = React.lazy(() => import("./pages/Legal/TermsOfService.jsx"));
@@ -49,6 +53,12 @@ const PortfolioRoutes = () => {
 
         {/* Contact page - Form + alternative methods */}
         <Route path="contact" element={<Contact />} />
+
+        {/* FAQ page - Frequently asked questions */}
+        <Route path="faq" element={<FAQ />} />
+
+        {/* Sitemap page - Site structure overview */}
+        <Route path="sitemap" element={<Sitemap />} />
 
         {/* Legal pages */}
         <Route path="privacy" element={<PrivacyPolicy />} />
