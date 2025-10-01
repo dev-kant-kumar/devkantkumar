@@ -1,86 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="data:text/xsl;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN0eWxlc2hlZXQgdmVyc2lvbj0iMS4wIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS9YU0wvVHJhbnNmb3JtIj4KICA8b3V0cHV0IG1ldGhvZD0iaHRtbCIgZW5jb2Rpbmc9IlVURi04IiBpbmRlbnQ9InllcyIvPgogIDx0ZW1wbGF0ZSBtYXRjaD0iLyI+CiAgICA8aHRtbD4KICAgICAgPGhlYWQ+CiAgICAgICAgPHRpdGxlPkRldiBLYW50IEt1bWFyIC0gU2l0ZW1hcDwvdGl0bGU+CiAgICAgICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiLz4KICAgICAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCIvPgogICAgICAgIDxzdHlsZT4KICAgICAgICAgIGJvZHkgeyBmb250LWZhbWlseTogLWFwcGxlLXN5c3RlbSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAnU2Vnb2UgVUknLCBSb2JvdG8sIE94eWdlbiwgVWJ1bnR1LCBDYW50YXJlbGwsICdPcGVuIFNhbnMnLCAnSGVsdmV0aWNhIE5ldWUnLCBzYW5zLXNlcmlmOyBtYXJnaW46IDA7IHBhZGRpbmc6IDIwcHg7IGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCgxMzVkZWcsICMwZjE0MTkgMCUsICMxZTI5M2IgMTAwJSk7IGNvbG9yOiAjZjFmNWY5OyBtaW4taGVpZ2h0OiAxMDB2aDsgfQogICAgICAgICAgLmNvbnRhaW5lciB7IG1heC13aWR0aDogMTIwMHB4OyBtYXJnaW46IDAgYXV0bzsgfQogICAgICAgICAgaDEgeyB0ZXh0LWFsaWduOiBjZW50ZXI7IGNvbG9yOiAjMzMzOyBtYXJnaW4tYm90dG9tOiAzMHB4OyBmb250LXNpemU6IDJyZW07IGZvbnQtd2VpZ2h0OiA3MDA7IGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg5MGRlZywgIzA2YjZkNCAwJSwgIzM3MzNkYyAxMDAlKTsgLXdlYmtpdC1iYWNrZ3JvdW5kLWNsaXA6IHRleHQ7IC13ZWJraXQtdGV4dC1maWxsLWNvbG9yOiB0cmFuc3BhcmVudDsgfQogICAgICAgICAgLmRlc2NyaXB0aW9uIHsgdGV4dC1hbGlnbjogY2VudGVyOyBjb2xvcjogIzk0YTNiODsgbWFyZ2luLWJvdHRvbTogNDBweDsgZm9udC1zaXplOiAxLjFyZW07IGxpbmUtaGVpZ2h0OiAxLjY7IH0KICAgICAgICAgIHRhYmxlIHsgd2lkdGg6IDEwMCU7IGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7IGJhY2tncm91bmQ6IHJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNSk7IGJvcmRlci1yYWRpdXM6IDEycHg7IG92ZXJmbG93OiBoaWRkZW47IGJveC1zaGFkb3c6IDAgMjBweCA0MHB4IHJnYmEoMCwgMCwgMCwgMC4xKTsgYmFja2Ryb3AtZmlsdGVyOiBibHVyKDEwcHgpOyBib3JkZXI6IDFweCBzb2xpZCByZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMSk7IH0KICAgICAgICAgIHRoLCB0ZCB7IHBhZGRpbmc6IDE2cHggMjBweDsgdGV4dC1hbGlnbjogbGVmdDsgYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkIHJnYmEoMjU1LCAyNTUsIDI1NSwgMC4xKTsgfQogICAgICAgICAgdGggeyBiYWNrZ3JvdW5kOiByZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpOyBjb2xvcjogIzA2YjZkNDsgZm9udC13ZWlnaHQ6IDYwMDsgZm9udC1zaXplOiAwLjlyZW07IHRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7IGxldHRlci1zcGFjaW5nOiAwLjVweDsgfQogICAgICAgICAgdGQgeyBjb2xvcjogI2Y4ZmFmYzsgZm9udC1zaXplOiAwLjlyZW07IH0KICAgICAgICAgIGEgeyBjb2xvcjogIzA2YjZkNDsgdGV4dC1kZWNvcmF0aW9uOiBub25lOyB0cmFuc2l0aW9uOiBhbGwgMC4zcyBlYXNlOyBwYWRkaW5nOiA0cHggOHB4OyBib3JkZXItcmFkaXVzOiA2cHg7IGRpc3BsYXk6IGlubGluZS1ibG9jazsgfQogICAgICAgICAgYTpob3ZlciB7IGNvbG9yOiAjMzc3M2RjOyBiYWNrZ3JvdW5kOiByZ2JhKDYsIDE4MiwgMjEyLCAwLjEpOyB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoLTJweCk7IH0KICAgICAgICAgIC5wcmlvcml0eSB7IGZvbnQtd2VpZ2h0OiA2MDA7IH0KICAgICAgICAgIC5wcmlvcml0eS0xIHsgY29sb3I6ICMxMGI5ODEgIWltcG9ydGFudDsgfQogICAgICAgICAgLnByaW9yaXR5LTkgeyBjb2xvcjogIzA2YjZkNCAhaW1wb3J0YW50OyB9CiAgICAgICAgICAucHJpb3JpdHktOCB7IGNvbG9yOiAjOGI1Y2Y2ICFpbXBvcnRhbnQ7IH0KICAgICAgICAgIC5wcmlvcml0eS03IHsgY29sb3I6ICNmNTk3MWEgIWltcG9ydGFudDsgfQogICAgICAgICAgLmZyZXEtd2Vla2x5IHsgY29sb3I6ICMxMGI5ODEgIWltcG9ydGFudDsgfQogICAgICAgICAgLmZyZXEtbW9udGhseSB7IGNvbG9yOiAjMDZiNmQ0ICFpbXBvcnRhbnQ7IH0KICAgICAgICAgIC5mcmVxLXllYXJseSB7IGNvbG9yOiAjOGI1Y2Y2ICFpbXBvcnRhbnQ7IH0KICAgICAgICAgIHRyOmhvdmVyIHsgYmFja2dyb3VuZDogcmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAzKTsgfQogICAgICAgICAgLmZvb3RlciB7IHRleHQtYWxpZ246IGNlbnRlcjsgbWFyZ2luLXRvcDogNDBweDsgY29sb3I6ICM2NGY0ZmY7IGZvbnQtc2l6ZTogMC45cmVtOyB9CiAgICAgICAgPC9zdHlsZT4KICAgICAgPC9oZWFkPgogICAgICA8Ym9keT4KICAgICAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgICAgPGgxPkRldiBLYW50IEt1bWFyIC0gU2l0ZW1hcDwvaDE+CiAgICAgICAgICA8cCBjbGFzcz0iZGVzY3JpcHRpb24iPgogICAgICAgICAgICBUaGlzIHNpdGVtYXAgY29udGFpbnMgYWxsIHRoZSBpbXBvcnRhbnQgcGFnZXMgb2YgbXkgcG9ydGZvbGlvIGFuZCBtYXJrZXRwbGFjZS48YnIvPgogICAgICAgICAgICBMYXN0IHVwZGF0ZWQ6IE9jdG9iZXIgMSwgMjAyNQogICAgICAgICAgPC9wPgogICAgICAgICAgPHRhYmxlPgogICAgICAgICAgICA8dGhlYWQ+CiAgICAgICAgICAgICAgPHRyPgogICAgICAgICAgICAgICAgPHRoPlBhZ2UgVVJMPC90aD4KICAgICAgICAgICAgICAgIDx0aD5MYXN0IE1vZGlmaWVkPC90aD4KICAgICAgICAgICAgICAgIDx0aD5VcGRhdGUgRnJlcXVlbmN5PC90aD4KICAgICAgICAgICAgICAgIDx0aD5Qcmlvcml0eTwvdGg+CiAgICAgICAgICAgICAgPC90cj4KICAgICAgICAgICAgPC90aGVhZD4KICAgICAgICAgICAgPHRib2R5PgogICAgICAgICAgICAgIDx4c2w6Zm9yLWVhY2ggc2VsZWN0PSJ1cmxzZXQvdXJsIj4KICAgICAgICAgICAgICAgIDx0cj4KICAgICAgICAgICAgICAgICAgPHRkPjxhIGhyZWY9Int1cmwvbG9jfSI+PHhzbDp2YWx1ZS1vZiBzZWxlY3Q9InVybC9sb2MiLz48L2E+PC90ZD4KICAgICAgICAgICAgICAgICAgPHRkPjx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJ1cmwvbGFzdG1vZCIvPjwvdGQ+CiAgICAgICAgICAgICAgICAgIDx0ZCBjbGFzcz0iZnJlcS17dXJsL2NoYW5nZWZyZXF9Ij48eHNsOnZhbHVlLW9mIHNlbGVjdD0idXJsL2NoYW5nZWZyZXEiLz48L3RkPgogICAgICAgICAgICAgICAgICA8dGQgY2xhc3M9InByaW9yaXR5IHByaW9yaXR5LXt0cmFuc2xhdGUodXJsL3ByaW9yaXR5LCAnLicsICcnKX0iPjx4c2w6dmFsdWUtb2Ygc2VsZWN0PSJ1cmwvcHJpb3JpdHkiLz48L3RkPgogICAgICAgICAgICAgICAgPC90cj4KICAgICAgICAgICAgICA8L3hzbDpmb3ItZWFjaD4KICAgICAgICAgICAgPC90Ym9keT4KICAgICAgICAgIDwvdGFibGU+CiAgICAgICAgICA8cCBjbGFzcz0iZm9vdGVyIj4KICAgICAgICAgICAgR2VuZXJhdGVkIGF1dG9tYXRpY2FsbHkgZm9yIHNlYXJjaCBlbmdpbmUgb3B0aW1pemF0aW9uCiAgICAgICAgICA8L3A+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvYm9keT4KICAgIDwvaHRtbD4KICA8L3RlbXBsYXRlPgo8L3N0eWxlc2hlZXQ+"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Portfolio Pages -->
+
+  <!-- Homepage -->
   <url>
-    <loc>https://devkantkumar.com/</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
+  <!-- Main Portfolio Pages -->
   <url>
-    <loc>https://devkantkumar.com/about</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/about</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://devkantkumar.com/projects</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/projects</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://devkantkumar.com/skills</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/skills</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://devkantkumar.com/blog</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/blog</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://devkantkumar.com/contact</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/contact</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <!-- Marketplace Section -->
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/services</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/custom-solutions</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/support</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/cart</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/dashboard</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
   </url>
 
   <!-- Legal Pages -->
   <url>
-    <loc>https://devkantkumar.com/privacy</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/privacy-policy</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://devkantkumar.com/terms</loc>
-    <lastmod>2025-10-01</lastmod>
+    <loc>https://www.devkantkumar.com/terms-of-service</loc>
+    <lastmod>2025-01-10</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
 
-  <!-- Marketplace Pages -->
+  <!-- Individual Project Pages (Add as created) -->
   <url>
-    <loc>https://devkantkumar.com/marketplace</loc>
-    <lastmod>2025-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://devkantkumar.com/marketplace/services</loc>
-    <lastmod>2025-10-01</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://www.devkantkumar.com/projects/portfolio-marketplace</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://devkantkumar.com/marketplace/products</loc>
-    <lastmod>2025-10-01</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://www.devkantkumar.com/projects/ecommerce-platform</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
-  <!-- Project Pages - Add specific projects when available -->
-  <!-- Blog Posts - Add specific blog posts when available -->
+  <url>
+    <loc>https://www.devkantkumar.com/projects/saas-application</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog Posts (Add as published) -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/building-portfolio-marketplace</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/blog/fullstack-development-guide</loc>
+    <lastmod>2025-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/blog/web-performance-optimization</loc>
+    <lastmod>2025-01-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

@@ -701,7 +701,7 @@ const Footer = () => {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-300 transition-all duration-300 group-hover:w-full" />
                 </Link>
                 <Link
-                  to="/sitemap"
+                  to="/sitemap.xml"
                   className="hover:text-cyan-300 transition-colors duration-300 relative group"
                 >
                   Sitemap

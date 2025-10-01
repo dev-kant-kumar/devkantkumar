@@ -1,48 +1,51 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { CreditCard, Lock, Check } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Check, CreditCard, Lock } from "lucide-react";
+import { useState } from "react";
 
 const Checkout = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    email: '',
-    firstName: '',
-    lastName: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    nameOnCard: ''
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    nameOnCard: "",
   });
 
   const cartItems = [
     {
       id: 1,
-      title: 'Premium React Component Library',
+      title: "Premium React Component Library",
       price: 49,
-      quantity: 1
+      quantity: 1,
     },
     {
       id: 2,
-      title: 'Custom Web Development',
+      title: "Custom Web Development",
       price: 999,
-      quantity: 1
-    }
+      quantity: 1,
+    },
   ];
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -52,7 +55,7 @@ const Checkout = () => {
       setStep(step + 1);
     } else {
       // Process payment
-      console.log('Processing payment...', formData);
+      console.log("Processing payment...", formData);
     }
   };
 
@@ -67,17 +70,29 @@ const Checkout = () => {
         >
           <div className="flex items-center justify-center space-x-8">
             {[
-              { number: 1, title: 'Information' },
-              { number: 2, title: 'Payment' },
-              { number: 3, title: 'Confirmation' }
+              { number: 1, title: "Information" },
+              { number: 2, title: "Payment" },
+              { number: 3, title: "Confirmation" },
             ].map((stepItem) => (
               <div key={stepItem.number} className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                  step >= stepItem.number ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {step > stepItem.number ? <Check className="h-5 w-5" /> : stepItem.number}
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                    step >= stepItem.number
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {step > stepItem.number ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    stepItem.number
+                  )}
                 </div>
-                <span className={`ml-2 ${step >= stepItem.number ? 'text-blue-600' : 'text-gray-600'}`}>
+                <span
+                  className={`ml-2 ${
+                    step >= stepItem.number ? "text-blue-600" : "text-gray-600"
+                  }`}
+                >
                   {stepItem.title}
                 </span>
               </div>
@@ -95,7 +110,9 @@ const Checkout = () => {
             >
               {step === 1 && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    Contact Information
+                  </h2>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -208,7 +225,9 @@ const Checkout = () => {
 
               {step === 2 && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Details</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    Payment Details
+                  </h2>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -289,9 +308,12 @@ const Checkout = () => {
                   <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full">
                     <Check className="w-8 h-8 text-green-500" />
                   </div>
-                  <h2 className="mt-6 text-2xl font-bold text-gray-900">Thank you for your purchase!</h2>
+                  <h2 className="mt-6 text-2xl font-bold text-gray-900">
+                    Thank you for your purchase!
+                  </h2>
                   <p className="mt-2 text-gray-600">
-                    Your order has been processed successfully. Check your email for order details.
+                    Your order has been processed successfully. Check your email
+                    for order details.
                   </p>
                 </div>
               )}
@@ -301,13 +323,17 @@ const Checkout = () => {
           {/* Order Summary */}
           <div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Order Summary
+              </h3>
               <div className="space-y-4">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex justify-between">
                     <div>
                       <p className="text-gray-700">{item.title}</p>
-                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                      <p className="text-sm text-gray-500">
+                        Qty: {item.quantity}
+                      </p>
                     </div>
                     <p className="text-gray-900">${item.price.toFixed(2)}</p>
                   </div>
