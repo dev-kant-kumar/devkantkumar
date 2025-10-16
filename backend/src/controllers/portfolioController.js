@@ -161,18 +161,9 @@ const getEducation = async (req, res) => {
 // @access  Public
 const getBlogPosts = async (req, res) => {
   try {
-    // Mock data for now
-    const blogPosts = [
-      {
-        id: 1,
-        title: "Getting Started with React",
-        slug: "getting-started-with-react",
-        excerpt: "Learn the basics of React development",
-        content: "Full blog post content here...",
-        publishedAt: new Date(),
-        featured: true
-      }
-    ];
+    // Import blog data (in production, this would come from database)
+    const { getBlogPosts: getBlogPostsData } = require('../data/blogData');
+    const blogPosts = getBlogPostsData();
 
     res.status(200).json({
       success: true,
@@ -194,16 +185,16 @@ const getBlogPostBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    // Mock data for now
-    const blogPost = {
-      id: 1,
-      title: "Getting Started with React",
-      slug: slug,
-      excerpt: "Learn the basics of React development",
-      content: "Full blog post content here...",
-      publishedAt: new Date(),
-      featured: true
-    };
+    // Import blog data (in production, this would come from database)
+    const { getPostBySlug } = require('../data/blogData');
+    const blogPost = getPostBySlug(slug);
+
+    if (!blogPost) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blog post not found'
+      });
+    }
 
     res.status(200).json({
       success: true,

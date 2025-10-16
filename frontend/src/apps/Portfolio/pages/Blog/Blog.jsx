@@ -1,127 +1,136 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useGetBlogPostsQuery } from '../../store/api/baseApi';
-import { portfolioData } from '../../store/data/portfolioData';
-import SEOHead from '../../../../components/SEO/SEOHead';
-import StructuredData from '../../../../components/SEO/StructuredData';
-import Analytics from '../../../../components/SEO/Analytics';
+// Function: Blog
+import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Analytics from "../../../../components/SEO/Analytics";
+import SEOHead from "../../../../components/SEO/SEOHead";
+import StructuredData from "../../../../components/SEO/StructuredData";
+import { portfolioData } from "../../store/data/portfolioData";
+import { localPostMetas, localPosts } from "./postsLocal";
 
 const Blog = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [email, setEmail] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [email, setEmail] = useState("");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+  const [isSubmittingNewsletter, setIsSubmittingNewsletter] = useState(false);
 
   const { personalInfo } = portfolioData;
 
-  const { data: blogResponse, isLoading, error } = useGetBlogPostsQuery();
-  const blogPosts = blogResponse?.data || [];
+  // Use local posts (no backend)
+  const isLoading = false;
+  const error = null;
+  const blogPosts = localPostMetas;
 
-  // Mock categories for now
-  const categories = [
-    { name: 'All', count: 24, value: 'all' },
-    { name: 'Development', count: 24, value: 'development' },
-    { name: 'React', count: 18, value: 'react' },
-    { name: 'Node.js', count: 12, value: 'nodejs' },
-    { name: 'Career', count: 8, value: 'career' },
-    { name: 'Remote Work', count: 15, value: 'remote' },
-  ];
-
-  // Mock blog posts for demonstration
-  const mockPosts = [
-    {
-      id: 1,
-      title: "Getting Started with React Hooks",
-      slug: "getting-started-with-react-hooks",
-      excerpt: "Learn how to use React Hooks to manage state and side effects in functional components effectively.",
-      category: "React",
-      readTime: "5 min read",
-      publishedAt: "2024-01-15",
-      featured: true,
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=400&fit=crop",
-      author: "Dev Kant Kumar"
-    },
-    {
-      id: 2,
-      title: "Building RESTful APIs with Node.js",
-      slug: "building-restful-apis-nodejs",
-      excerpt: "A comprehensive guide to creating robust and scalable REST APIs using Node.js and Express.",
-      category: "Node.js",
-      readTime: "8 min read",
-      publishedAt: "2024-01-10",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800&h=400&fit=crop",
-      author: "Dev Kant Kumar"
-    },
-    {
-      id: 3,
-      title: "Remote Work Best Practices",
-      slug: "remote-work-best-practices",
-      excerpt: "Tips and strategies for staying productive and maintaining work-life balance while working remotely.",
-      category: "Remote Work",
-      readTime: "6 min read",
-      publishedAt: "2024-01-05",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=400&fit=crop",
-      author: "Dev Kant Kumar"
-    },
-    {
-      id: 4,
-      title: "MongoDB Performance Optimization",
-      slug: "mongodb-performance-optimization",
-      excerpt: "Learn advanced techniques to optimize your MongoDB queries and improve database performance.",
-      category: "Development",
-      readTime: "10 min read",
-      publishedAt: "2024-01-01",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=400&fit=crop",
-      author: "Dev Kant Kumar"
-    },
-    {
-      id: 5,
-      title: "Career Growth for Developers",
-      slug: "career-growth-for-developers",
-      excerpt: "Strategic advice for advancing your career as a software developer in today's competitive market.",
-      category: "Career",
-      readTime: "7 min read",
-      publishedAt: "2023-12-28",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=400&fit=crop",
-      author: "Dev Kant Kumar"
-    },
-    {
-      id: 6,
-      title: "Modern JavaScript ES2024 Features",
-      slug: "modern-javascript-es2024-features",
-      excerpt: "Explore the latest JavaScript features and how they can improve your development workflow.",
-      category: "Development",
-      readTime: "9 min read",
-      publishedAt: "2023-12-25",
-      featured: false,
-      image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=800&h=400&fit=crop",
-      author: "Dev Kant Kumar"
+  // Extract categories from blog posts
+  const categories = React.useMemo(() => {
+    if (!blogPosts.length) {
+      return [{ name: "All", count: 0, value: "all" }];
     }
-  ];
+    const categoryMap = new Map();
+    categoryMap.set("all", {
+      name: "All",
+      count: blogPosts.length,
+      value: "all",
+    });
+    blogPosts.forEach((post) => {
+      const category = post.category;
+      if (category) {
+        const key = category.toLowerCase().replace(/\s+/g, "").replace(".", "");
+        if (categoryMap.has(key)) {
+          categoryMap.get(key).count++;
+        } else {
+          categoryMap.set(key, { name: category, count: 1, value: key });
+        }
+      }
+    });
+    return Array.from(categoryMap.values());
+  }, [blogPosts]);
 
-  const posts = blogPosts.length > 0 ? blogPosts : mockPosts;
-  const featuredPost = posts.find(post => post.featured) || posts[0];
-  const regularPosts = posts.filter(post => !post.featured || post.id !== featuredPost.id);
+  const blogResponse = {
+    totalPosts: blogPosts.length,
+    totalReaders: "10K+",
+    totalCategories: categories.length,
+  };
+
+  const posts = blogPosts || [];
+  const featuredPost = posts.find((post) => post.featured) || posts[0];
+  const regularPosts = posts.filter(
+    (post) => !post.featured || post.id !== featuredPost?.id
+  );
+
+  // Helper: resolve post component by slug
+  const getPostComponentBySlug = (slug) =>
+    localPosts.find((p) => p.meta.slug === slug)?.Component;
+
+  // Prefer JSX image component for featured
+  const renderFeaturedImageForMeta = (meta) => {
+    const C = getPostComponentBySlug(meta.slug);
+    const ImgComp = C?.FeaturedImage || C?.Image;
+    if (typeof ImgComp === "function") return <ImgComp />;
+    if (React.isValidElement(ImgComp)) return ImgComp;
+    return (
+      <img
+        src={meta.image}
+        alt={meta.title}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+      />
+    );
+  };
+
+  // Prefer JSX image component for grid cards
+  const renderCardImageForMeta = (meta) => {
+    const C = getPostComponentBySlug(meta.slug);
+    const ImgComp = C?.Image;
+    if (typeof ImgComp === "function") return <ImgComp />;
+    if (React.isValidElement(ImgComp)) return ImgComp;
+    return (
+      <img
+        src={meta.image}
+        alt={meta.title}
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+      />
+    );
+  };
 
   // Filter posts based on search and category
-  const filteredPosts = regularPosts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' ||
-                           post.category.toLowerCase().replace('.', '').replace(' ', '') === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredPosts = React.useMemo(() => {
+    return regularPosts.filter((post) => {
+      const matchesSearch =
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" ||
+        post.category.toLowerCase().replace(".", "").replace(" ", "") ===
+          selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [regularPosts, searchTerm, selectedCategory]);
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    // Handle newsletter subscription
-    console.log('Newsletter subscription:', email);
-    setEmail('');
+    if (!email.trim()) return;
+
+    setIsSubmittingNewsletter(true);
+
+    try {
+      // Simulate API call - replace with actual newsletter subscription API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log("Newsletter subscription:", email);
+
+      setNewsletterSubmitted(true);
+      setEmail("");
+
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setNewsletterSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Newsletter subscription failed:", error);
+    } finally {
+      setIsSubmittingNewsletter(false);
+    }
   };
 
   const containerVariants = {
@@ -157,12 +166,36 @@ const Blog = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  // Removed backend loading/error gates by keeping isLoading=false and error=null
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
           <p className="text-slate-300">Loading blog posts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Unable to Load Blog Posts
+          </h2>
+          <p className="text-slate-300 mb-4">
+            {error?.message ||
+              "Please check if the backend server is running on port 5000"}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -176,7 +209,8 @@ const Blog = () => {
         keywords="blog, web development, tutorials, tech insights, programming, career growth"
         canonicalUrl="/blog"
       />
-      <StructuredData type="blog" data={blogPosts} />
+      {/* Blog listing should use website schema */}
+      <StructuredData type="website" />
       <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
@@ -287,9 +321,17 @@ const Blog = () => {
                 className="text-xl lg:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed"
               >
                 Sharing insights about{" "}
-                <span className="text-cyan-400 font-semibold">web development</span>,{" "}
-                <span className="text-blue-400 font-semibold">career growth</span>, and the{" "}
-                <span className="text-purple-400 font-semibold">latest in tech</span>
+                <span className="text-cyan-400 font-semibold">
+                  web development
+                </span>
+                ,{" "}
+                <span className="text-blue-400 font-semibold">
+                  career growth
+                </span>
+                , and the{" "}
+                <span className="text-purple-400 font-semibold">
+                  latest in tech
+                </span>
               </motion.p>
 
               {/* Stats */}
@@ -298,15 +340,21 @@ const Blog = () => {
                 className="flex flex-wrap justify-center gap-8 mb-12"
               >
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-cyan-400">{blogPosts.length}+</div>
+                  <div className="text-3xl font-bold text-cyan-400">
+                    {blogResponse?.totalPosts || blogPosts.length}+
+                  </div>
                   <div className="text-slate-400">Articles</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-400">10K+</div>
+                  <div className="text-3xl font-bold text-blue-400">
+                    {blogResponse?.totalReaders || "10K+"}+
+                  </div>
                   <div className="text-slate-400">Readers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-400">5+</div>
+                  <div className="text-3xl font-bold text-purple-400">
+                    {blogResponse?.totalCategories || categories.length}+
+                  </div>
                   <div className="text-slate-400">Categories</div>
                 </div>
               </motion.div>
@@ -316,24 +364,78 @@ const Blog = () => {
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Stay Updated with Latest Posts
                 </h3>
-                <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                    className="flex-1 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-all duration-300 backdrop-blur-sm"
-                    required
-                  />
-                  <motion.button
-                    type="submit"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 font-medium shadow-lg hover:shadow-cyan-500/25"
+
+                {newsletterSubmitted ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center justify-center gap-2 text-green-400 bg-green-400/10 border border-green-400/20 rounded-lg p-4"
                   >
-                    Subscribe
-                  </motion.button>
-                </form>
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="font-medium">
+                      Successfully subscribed! Thank you for joining.
+                    </span>
+                  </motion.div>
+                ) : (
+                  <form
+                    onSubmit={handleNewsletterSubmit}
+                    className="flex gap-3"
+                  >
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      disabled={isSubmittingNewsletter}
+                      className="flex-1 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      required
+                    />
+                    <motion.button
+                      type="submit"
+                      disabled={isSubmittingNewsletter || !email.trim()}
+                      whileHover={{ scale: isSubmittingNewsletter ? 1 : 1.05 }}
+                      whileTap={{ scale: isSubmittingNewsletter ? 1 : 0.95 }}
+                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 font-medium shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center min-w-[120px]"
+                    >
+                      {isSubmittingNewsletter ? (
+                        <>
+                          <svg
+                            className="w-4 h-4 animate-spin mr-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Subscribing...
+                        </>
+                      ) : (
+                        "Subscribe"
+                      )}
+                    </motion.button>
+                  </form>
+                )}
               </motion.div>
             </motion.div>
 
@@ -367,56 +469,55 @@ const Blog = () => {
             className="py-16 bg-slate-900/50"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div variants={itemVariants} className="mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">Featured Post</h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
-            </motion.div>
+              <motion.div variants={itemVariants} className="mb-8">
+                <h2 className="text-3xl font-bold text-white mb-2">
+                  Featured Post
+                </h2>
+                <div className="w-20 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
+              </motion.div>
 
-            <motion.div variants={itemVariants}>
-              <Link
-                to={`/blog/${featuredPost.slug}`}
-                className="group block bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]"
-              >
-                <div className="lg:flex">
-                  <div className="lg:w-1/2">
-                    <div className="relative h-64 lg:h-full overflow-hidden">
-                      <img
-                        src={featuredPost.image}
-                        alt={featuredPost.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-cyan-500 text-white text-sm font-medium rounded-full">
-                          Featured
+              <motion.div variants={itemVariants}>
+                // Function: Blog (featured card image usage)
+                <Link to={`/blog/${featuredPost.slug}`} className="group block bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
+                  <div className="lg:flex">
+                    <div className="lg:w-1/2">
+                      <div className="relative h-64 lg:h-full overflow-hidden">
+                        {renderFeaturedImageForMeta(featuredPost)}
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 bg-cyan-500 text-white text-sm font-medium rounded-full">Featured</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lg:w-1/2 p-8 lg:p-12">
+                      <div className="flex items-center gap-4 mb-4">
+                        <span className="px-3 py-1 bg-slate-700 text-cyan-300 text-sm rounded-full">{featuredPost.category}</span>
+                        <span className="text-slate-400 text-sm">
+                          {featuredPost.readTime} • {new Date(featuredPost.publishDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors">
+                        {featuredPost.title}
+                      </h3>
+                      <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                        {featuredPost.excerpt}
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img
+                            src={portfolioData.personalInfo.profileImage}
+                            alt={portfolioData.personalInfo.name}
+                            className="w-14 h-14 rounded-full object-cover shadow-lg border-2 border-slate-700/50"
+                          />
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-2 border-slate-900 rounded-full"></div>
+                        </div>
+                        <span className="text-slate-300">
+                          {featuredPost.author}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className="lg:w-1/2 p-8 lg:p-12">
-                    <div className="flex items-center gap-4 mb-4">
-                      <span className="px-3 py-1 bg-slate-700 text-cyan-300 text-sm rounded-full">
-                        {featuredPost.category}
-                      </span>
-                      <span className="text-slate-400 text-sm">
-                        {featuredPost.readTime} • {new Date(featuredPost.publishedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors">
-                      {featuredPost.title}
-                    </h3>
-                    <p className="text-slate-300 text-lg leading-relaxed mb-6">
-                      {featuredPost.excerpt}
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                        DK
-                      </div>
-                      <span className="text-slate-300">{featuredPost.author}</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
+                </Link>
+              </motion.div>
             </div>
           </motion.section>
         )}
@@ -450,8 +551,18 @@ const Blog = () => {
                       className="w-full px-4 py-3 pl-12 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition-colors"
                     />
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      <svg
+                        className="w-5 h-5 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -475,16 +586,11 @@ const Blog = () => {
                         to={`/blog/${post.slug}`}
                         className="block bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]"
                       >
+                        // Function: Blog (posts grid image usage)
                         <div className="relative h-48 overflow-hidden">
-                          <img
-                            src={post.image}
-                            alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
+                          {renderCardImageForMeta(post)}
                           <div className="absolute top-3 left-3">
-                            <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full">
-                              {post.category}
-                            </span>
+                            <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full">{post.category}</span>
                           </div>
                         </div>
                         <div className="p-6">
@@ -496,7 +602,9 @@ const Blog = () => {
                           </p>
                           <div className="flex items-center justify-between text-sm text-slate-400">
                             <span>{post.readTime}</span>
-                            <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                            <span>
+                              {new Date(post.publishedAt).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
                       </Link>
@@ -512,7 +620,9 @@ const Blog = () => {
                     viewport={{ once: true }}
                     className="text-center py-12"
                   >
-                    <p className="text-slate-400 text-lg">No articles found matching your criteria.</p>
+                    <p className="text-slate-400 text-lg">
+                      No articles found matching your criteria.
+                    </p>
                   </motion.div>
                 )}
               </div>
@@ -527,7 +637,9 @@ const Blog = () => {
                   viewport={{ once: true }}
                   className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 mb-8"
                 >
-                  <h3 className="text-xl font-bold text-white mb-6">Categories</h3>
+                  <h3 className="text-xl font-bold text-white mb-6">
+                    Categories
+                  </h3>
                   <div className="space-y-3">
                     {categories.map((category) => (
                       <button
@@ -535,12 +647,14 @@ const Blog = () => {
                         onClick={() => setSelectedCategory(category.value)}
                         className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
                           selectedCategory === category.value
-                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                            : 'text-slate-300 hover:bg-slate-700/50'
+                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                            : "text-slate-300 hover:bg-slate-700/50"
                         }`}
                       >
                         <span>{category.name}</span>
-                        <span className="text-sm opacity-70">({category.count})</span>
+                        <span className="text-sm opacity-70">
+                          ({category.count})
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -554,4 +668,5 @@ const Blog = () => {
   );
 };
 
+// End of file — ensure ONLY this export remains at bottom
 export default Blog;

@@ -1,9 +1,11 @@
-import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
+  AlertCircle,
   ArrowUpRight,
   Award,
   Briefcase,
+  CheckCircle,
+  ChevronUp,
   Clock,
   Code,
   ExternalLink,
@@ -21,22 +23,21 @@ import {
   Twitter,
   Users,
   Zap,
-  CheckCircle,
-  AlertCircle,
-  ChevronUp,
 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { portfolioData } from "../../store/data/portfolioData";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { personalInfo, socialLinks, technicalSkills, achievements } = portfolioData;
+  const { personalInfo, socialLinks, technicalSkills, achievements } =
+    portfolioData;
 
   // Newsletter form state
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,26 +47,26 @@ const Footer = () => {
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim()) {
-      setSubmitStatus('error');
-      setErrorMessage('Please enter your email address');
+      setSubmitStatus("error");
+      setErrorMessage("Please enter your email address");
       return;
     }
     if (!validateEmail(email)) {
-      setSubmitStatus('error');
-      setErrorMessage('Please enter a valid email address');
+      setSubmitStatus("error");
+      setErrorMessage("Please enter a valid email address");
       return;
     }
     setIsSubmitting(true);
     setSubmitStatus(null);
-    setErrorMessage('');
+    setErrorMessage("");
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSubmitStatus('success');
-      setEmail('');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setSubmitStatus("success");
+      setEmail("");
       setTimeout(() => setSubmitStatus(null), 5000);
     } catch (error) {
-      setSubmitStatus('error');
-      setErrorMessage('Failed to subscribe. Please try again later.');
+      setSubmitStatus("error");
+      setErrorMessage("Failed to subscribe. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -94,23 +95,73 @@ const Footer = () => {
       { name: "Case Studies", path: "/projects" },
       { name: "Site Map", path: "/sitemap" },
       { name: "FAQ", path: "/faq" },
-    ]
+    ],
   };
 
   const socialPlatforms = [
-    { name: "GitHub", url: socialLinks.professional.github, icon: Github, color: "hover:text-cyan-400" },
-    { name: "LinkedIn", url: socialLinks.professional.linkedin, icon: Linkedin, color: "hover:text-cyan-400" },
-    { name: "Twitter", url: socialLinks.social.twitter, icon: Twitter, color: "hover:text-cyan-400" },
-    { name: "Instagram", url: socialLinks.social.instagram, icon: Instagram, color: "hover:text-cyan-400" },
-    { name: "WhatsApp", url: socialLinks.communication.whatsapp, icon: MessageCircle, color: "hover:text-cyan-400" },
-    { name: "Telegram", url: socialLinks.communication.telegram, icon: Send, color: "hover:text-cyan-400" },
+    {
+      name: "GitHub",
+      url: socialLinks.professional.github,
+      icon: Github,
+      color: "hover:text-cyan-400",
+    },
+    {
+      name: "LinkedIn",
+      url: socialLinks.professional.linkedin,
+      icon: Linkedin,
+      color: "hover:text-cyan-400",
+    },
+    {
+      name: "Twitter",
+      url: socialLinks.social.twitter,
+      icon: Twitter,
+      color: "hover:text-cyan-400",
+    },
+    {
+      name: "Instagram",
+      url: socialLinks.social.instagram,
+      icon: Instagram,
+      color: "hover:text-cyan-400",
+    },
+    {
+      name: "WhatsApp",
+      url: socialLinks.communication.whatsapp,
+      icon: MessageCircle,
+      color: "hover:text-cyan-400",
+    },
+    {
+      name: "Telegram",
+      url: socialLinks.communication.telegram,
+      icon: Send,
+      color: "hover:text-cyan-400",
+    },
   ];
 
   const achievementStats = [
-    { icon: Code, label: "Projects Built", value: "6+", color: "from-cyan-400 to-blue-500" },
-    { icon: Users, label: "Clients Served", value: "10+", color: "from-cyan-400 to-blue-500" },
-    { icon: Award, label: "Experience", value: "2+ Years", color: "from-cyan-400 to-blue-500" },
-    { icon: Globe, label: "Global Reach", value: "8+ Countries", color: "from-cyan-400 to-blue-500" },
+    {
+      icon: Code,
+      label: "Projects Built",
+      value: "6+",
+      color: "from-cyan-400 to-blue-500",
+    },
+    {
+      icon: Users,
+      label: "Clients Served",
+      value: "10+",
+      color: "from-cyan-400 to-blue-500",
+    },
+    {
+      icon: Award,
+      label: "Experience",
+      value: "2+ Years",
+      color: "from-cyan-400 to-blue-500",
+    },
+    {
+      icon: Globe,
+      label: "Global Reach",
+      value: "8+ Countries",
+      color: "from-cyan-400 to-blue-500",
+    },
   ];
 
   return (
@@ -137,7 +188,12 @@ const Footer = () => {
             y: [0, 60, 0],
             scale: [1.2, 1, 1.2],
           }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 5,
+          }}
         />
 
         {/* Grid pattern */}
@@ -147,7 +203,6 @@ const Footer = () => {
       {/* Main Content */}
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-6 py-20">
-
           {/* Top Section - Brand & Newsletter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -170,8 +225,12 @@ const Footer = () => {
                   />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">{personalInfo.name}</h3>
-                  <p className="text-cyan-400 text-sm font-medium">{personalInfo.title}</p>
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                    {personalInfo.name}
+                  </h3>
+                  <p className="text-cyan-400 text-sm font-medium">
+                    {personalInfo.title}
+                  </p>
                 </div>
               </div>
 
@@ -198,7 +257,9 @@ const Footer = () => {
                     transition={{ duration: 2, repeat: Infinity }}
                     className="w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-lg shadow-emerald-500/50"
                   />
-                  <span className="text-sm text-emerald-400 font-semibold">{personalInfo.availability.status}</span>
+                  <span className="text-sm text-emerald-400 font-semibold">
+                    {personalInfo.availability.status}
+                  </span>
                 </div>
               </div>
             </div>
@@ -210,7 +271,10 @@ const Footer = () => {
                   <Mail className="w-6 h-6 text-cyan-400" />
                   Stay Updated
                 </h4>
-                <p className="text-slate-300 text-sm">Get notified about new projects, blog posts, and tech insights.</p>
+                <p className="text-slate-300 text-sm">
+                  Get notified about new projects, blog posts, and tech
+                  insights.
+                </p>
               </div>
 
               <div className="space-y-4">
@@ -231,7 +295,11 @@ const Footer = () => {
                     {isSubmitting ? (
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
                         className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                       />
                     ) : (
@@ -243,7 +311,7 @@ const Footer = () => {
                   </button>
                 </div>
 
-                {submitStatus === 'success' && (
+                {submitStatus === "success" && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -254,7 +322,7 @@ const Footer = () => {
                   </motion.div>
                 )}
 
-                {submitStatus === 'error' && (
+                {submitStatus === "error" && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -294,7 +362,9 @@ const Footer = () => {
                       className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
                     >
                       <ArrowUpRight className="w-3 h-3 text-cyan-400/50 group-hover:text-cyan-400 transition-colors" />
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">{link.name}</span>
+                      <span className="group-hover:translate-x-1 transition-transform duration-200">
+                        {link.name}
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -314,7 +384,9 @@ const Footer = () => {
                       to={service.path}
                       className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
                     >
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">{service.name}</span>
+                      <span className="group-hover:translate-x-1 transition-transform duration-200">
+                        {service.name}
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -337,7 +409,9 @@ const Footer = () => {
                         rel="noopener noreferrer"
                         className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
                       >
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">{resource.name}</span>
+                        <span className="group-hover:translate-x-1 transition-transform duration-200">
+                          {resource.name}
+                        </span>
                         <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
                       </a>
                     ) : (
@@ -345,7 +419,9 @@ const Footer = () => {
                         to={resource.path}
                         className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
                       >
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">{resource.name}</span>
+                        <span className="group-hover:translate-x-1 transition-transform duration-200">
+                          {resource.name}
+                        </span>
                       </Link>
                     )}
                   </li>
@@ -366,7 +442,9 @@ const Footer = () => {
                     className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
                   >
                     <Mail className="w-4 h-4" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">Email Me</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200">
+                      Email Me
+                    </span>
                   </a>
                 </li>
                 <li>
@@ -375,7 +453,9 @@ const Footer = () => {
                     className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
                   >
                     <Phone className="w-4 h-4" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">Call Me</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200">
+                      Call Me
+                    </span>
                   </a>
                 </li>
               </ul>
@@ -418,7 +498,9 @@ const Footer = () => {
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 mb-3 group-hover:border-cyan-400/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-300">
                   <stat.icon className="w-6 h-6 text-cyan-400" />
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-2xl font-bold text-white mb-1">
+                  {stat.value}
+                </div>
                 <div className="text-sm text-slate-400">{stat.label}</div>
               </motion.div>
             ))}
@@ -433,20 +515,41 @@ const Footer = () => {
             className="flex flex-col md:flex-row justify-between items-center gap-6"
           >
             <div className="flex items-center gap-2 text-sm text-slate-400">
-              <span>© {currentYear} {personalInfo.name}</span>
+              <span>
+                © {currentYear} {personalInfo.name}
+              </span>
               <span className="text-slate-600">•</span>
               <span className="flex items-center gap-1.5">
-                Crafted with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> in India
+                Crafted with{" "}
+                <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> in
+                India
               </span>
             </div>
 
             <div className="flex items-center gap-6">
-              <Link to="/privacy" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200">Privacy Policy</Link>
-              <Link to="/terms" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200">Terms of Service</Link>
-              <Link to="/sitemap" className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200">Sitemap</Link>
+              <Link
+                to="/privacy"
+                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms"
+                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                to="/sitemap"
+                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+              >
+                Sitemap
+              </Link>
               <div className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 rounded-full border border-cyan-500/20">
                 <Sparkles className="w-3 h-3 text-cyan-400" />
-                <span className="text-xs text-slate-300 font-medium">v2.1.0</span>
+                <span className="text-xs text-slate-300 font-medium">
+                  v2.0.0
+                </span>
               </div>
             </div>
           </motion.div>
@@ -455,7 +558,7 @@ const Footer = () => {
 
       {/* Back to Top Button */}
       <motion.button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.1, y: -3 }}

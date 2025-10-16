@@ -13,6 +13,8 @@ const MarketPlaceRoutes = React.lazy(() =>
 
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
+const Test = React.lazy(() => import("./Pages/Test"));
+
 import Loader from "./shared/components/Loader";
 
 const App = () => {
@@ -25,6 +27,7 @@ const App = () => {
             <Route path="/admin/*" element={<AdminPanelRoutes />} />
             <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/test" element={<Test />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

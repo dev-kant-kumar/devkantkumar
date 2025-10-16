@@ -20,8 +20,12 @@ const FAQ = React.lazy(() => import("./pages/FAQ.jsx"));
 const Sitemap = React.lazy(() => import("./pages/Sitemap.jsx"));
 
 // Legal pages
-const PrivacyPolicy = React.lazy(() => import("./pages/Legal/PrivacyPolicy.jsx"));
-const TermsOfService = React.lazy(() => import("./pages/Legal/TermsOfService.jsx"));
+const PrivacyPolicy = React.lazy(() =>
+  import("./pages/Legal/PrivacyPolicy.jsx")
+);
+const TermsOfService = React.lazy(() =>
+  import("./pages/Legal/TermsOfService.jsx")
+);
 
 const PortfolioRoutes = () => {
   return (
@@ -33,8 +37,6 @@ const PortfolioRoutes = () => {
 
         {/* About page - Personal story, values, certifications */}
         <Route path="about" element={<About />} />
-
-
 
         {/* Projects listing page - Grid with filters */}
         <Route path="projects" element={<Projects />} />
