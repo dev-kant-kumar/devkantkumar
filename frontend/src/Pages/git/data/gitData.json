@@ -1,0 +1,196 @@
+{
+  "scenarios": [
+    {
+      "id": 1,
+      "category": "Emergency Fixes",
+      "emoji": "🚨",
+      "title": "I committed to the wrong branch!",
+      "difficulty": "Easy",
+      "problem": "You were supposed to commit to 'feature-login' but committed to 'main'. Need to move the commit.",
+      "solution": [
+        { "cmd": "git branch feature-login", "desc": "Create the correct branch at current commit" },
+        { "cmd": "git reset HEAD~ --hard", "desc": "Remove commit from wrong branch" },
+        { "cmd": "git checkout feature-login", "desc": "Switch to correct branch" }
+      ],
+      "explanation": "This creates a branch pointing to your commit, removes it from the current branch, then switches over.",
+      "proTip": "Use 'git branch' before committing to verify your location. Consider 'git config --global init.defaultBranch main' to set defaults.",
+      "related": ["undo-commit", "branch-management"]
+    },
+    {
+      "id": 2,
+      "category": "Emergency Fixes",
+      "emoji": "⏮️",
+      "title": "Undo last commit but keep changes",
+      "difficulty": "Easy",
+      "problem": "Wrong commit message or forgot to add files. Need to undo commit but preserve work.",
+      "solution": [{ "cmd": "git reset --soft HEAD~1", "desc": "Undo commit, keep changes staged" }],
+      "explanation": "--soft keeps changes staged, --mixed unstages them, --hard deletes everything.",
+      "proTip": "For the last commit only, use 'git commit --amend' to modify it directly without reset.",
+      "related": ["delete-commit", "fix-message"]
+    },
+    {
+      "id": 3,
+      "category": "Emergency Fixes",
+      "emoji": "🗑️",
+      "title": "Completely delete last commit",
+      "difficulty": "Medium",
+      "problem": "Committed something that shouldn't exist. Need nuclear option.",
+      "solution": [{ "cmd": "git reset --hard HEAD~1", "desc": "⚠️ DANGER: Permanently deletes commit and changes" }],
+      "explanation": "This is destructive and permanent. Only use if you're absolutely sure.",
+      "proTip": "If already pushed, NEVER use reset. Use 'git revert HEAD' instead to create a new commit that undoes changes safely.",
+      "related": ["undo-commit", "revert-pushed"]
+    },
+    {
+      "id": 4,
+      "category": "Team Collaboration",
+      "emoji": "⏪",
+      "title": "Undo pushed code (safe for teams)",
+      "difficulty": "Easy",
+      "problem": "Pushed bad code that broke production. Need to undo publicly without rewriting history.",
+      "solution": [
+        { "cmd": "git revert HEAD", "desc": "Create new commit undoing the last one" },
+        { "cmd": "git push origin main", "desc": "Push the revert commit" }
+      ],
+      "explanation": "Revert creates a new commit that reverses changes. Safe for shared branches.",
+      "proTip": "For multiple commits: 'git revert <oldest-commit>..<newest-commit>' or use 'git revert --no-commit' for multiple then commit once.",
+      "related": ["delete-commit", "emergency-fixes"]
+    }
+  ],
+  "advancedWorkflows": [
+    {
+      "id": "rebase",
+      "title": "Interactive Rebase - Clean Up History",
+      "icon": "GitBranch",
+      "description": "Rewrite commit history before pushing",
+      "difficulty": "Advanced",
+      "useCase": "Clean up messy commits before creating PR",
+      "commands": [
+        { "cmd": "git rebase -i HEAD~3", "desc": "Interactively rebase last 3 commits" },
+        { "cmd": "# Options: pick, squash, edit, reword, drop", "desc": "Choose action for each commit" },
+        { "cmd": "git push --force-with-lease", "desc": "Update remote (if already pushed)" }
+      ],
+      "warning": "Never rebase commits that exist on public branches others are using!",
+      "proTip": "Use 'fixup' instead of 'squash' if you don't want to edit commit messages."
+    },
+    {
+      "id": "cherrypick",
+      "title": "Cherry-Pick - Copy Commits Between Branches",
+      "icon": "GitCommit",
+      "description": "Apply specific commits to different branches",
+      "difficulty": "Medium",
+      "useCase": "Hotfix needs to go to multiple release branches",
+      "commands": [
+        { "cmd": "git log --oneline", "desc": "Find commit SHA to copy" },
+        { "cmd": "git checkout target-branch", "desc": "Switch to destination" },
+        { "cmd": "git cherry-pick <commit-sha>", "desc": "Apply commit here" },
+        { "cmd": "git cherry-pick <sha1> <sha2>", "desc": "Multiple commits" }
+      ],
+      "proTip": "Use 'git cherry-pick --continue' after resolving conflicts, or '--abort' to cancel."
+    },
+    {
+      "id": "bisect",
+      "title": "Git Bisect - Binary Search for Bugs",
+      "icon": "Search",
+      "description": "Automatically find which commit introduced a bug",
+      "difficulty": "Advanced",
+      "useCase": "Bug exists but unsure which commit caused it",
+      "commands": [
+        { "cmd": "git bisect start", "desc": "Begin bisect session" },
+        { "cmd": "git bisect bad", "desc": "Mark current commit as bad" },
+        { "cmd": "git bisect good <commit-sha>", "desc": "Mark known good commit" },
+        { "cmd": "git bisect reset", "desc": "End session, return to HEAD" }
+      ],
+      "proTip": "Automate with: 'git bisect run <test-script>' - Git will test automatically!"
+    }
+  ],
+  "githubFeatures": [
+    {
+      "id": "actions",
+      "title": "GitHub Actions - CI/CD Automation",
+      "icon": "Zap",
+      "description": "Automate testing, building, and deployment",
+      "difficulty": "Medium",
+      "example": ".github/workflows/ci.yml:\\nname: CI\\non: [push, pull_request]\\njobs:\\n  test:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v3\\n      - uses: actions/setup-node@v3\\n      - run: npm ci\\n      - run: npm test",
+      "keyPoints": [
+        "Triggers on push, PR, schedule, or manual",
+        "Matrix builds for multiple OS/versions",
+        "Cache dependencies for speed",
+        "Secrets management built-in"
+      ],
+      "proTip": "Use 'if: github.ref == \"refs/heads/main\"' to run jobs only on main branch."
+    },
+    {
+      "id": "pr-workflow",
+      "title": "Pull Request Best Practices",
+      "icon": "GitPullRequest",
+      "description": "Professional PR workflow for teams",
+      "difficulty": "Easy",
+      "workflow": [
+        "1. Create feature branch: git checkout -b feature/new-thing",
+        "2. Make commits with clear messages",
+        "3. Push branch: git push -u origin feature/new-thing",
+        "4. Create PR on GitHub with good description",
+        "5. Request reviewers, link issues",
+        "6. Address review comments",
+        "7. Squash commits if needed",
+        "8. Merge when approved"
+      ],
+      "keyPoints": [
+        "Write descriptive PR titles and descriptions",
+        "Link related issues with #issue-number",
+        "Keep PRs small and focused (< 400 lines ideal)",
+        "Use draft PRs for work in progress",
+        "Enable branch protection rules"
+      ]
+    }
+  ],
+  "securityPractices": [
+    {
+      "id": "secrets",
+      "title": "Never Commit Secrets",
+      "icon": "Lock",
+      "severity": "CRITICAL",
+      "problem": "39 million secrets leaked on GitHub in 2024",
+      "solutions": [
+        { "title": "Use .env files", "desc": "Add .env to .gitignore immediately" },
+        { "title": "Environment variables", "desc": "Load from environment, never hardcode" },
+        { "title": "Git hooks", "desc": "Install pre-commit hooks to detect secrets" },
+        { "title": "Secret scanning", "desc": "Enable GitHub secret scanning (free for public repos)" }
+      ],
+      "emergency": [
+        "1. Revoke/rotate the exposed secret immediately",
+        "2. Remove from Git history: Use BFG Repo-Cleaner or git filter-repo",
+        "3. Force push cleaned history",
+        "4. Check access logs for unauthorized use",
+        "5. Enable secret scanning to prevent recurrence"
+      ]
+    }
+  ],
+  "performanceOptimizations": [
+    {
+      "id": "sparse-checkout",
+      "title": "Sparse Checkout - Work on Subset",
+      "icon": "Database",
+      "problem": "Monorepo too large, only need specific folders",
+      "commands": [
+        { "cmd": "git sparse-checkout init --cone", "desc": "Enable sparse checkout" },
+        { "cmd": "git sparse-checkout set frontend backend/api", "desc": "Choose directories" },
+        { "cmd": "git sparse-checkout list", "desc": "See what's checked out" }
+      ],
+      "benefits": "Only download and work with needed files. Massive speed improvement."
+    }
+  ],
+  "commonIssues": [
+    {
+      "id": "diverged",
+      "title": "Local and remote have diverged",
+      "error": "Updates were rejected because the tip of your current branch is behind",
+      "cause": "Someone else pushed to the branch you're working on",
+      "solutions": [
+        { "title": "Rebase (Clean History)", "cmd": "git pull --rebase", "when": "For feature branches, cleaner history", "desc": "Replays your commits on top of remote changes" },
+        { "title": "Merge (Safe)", "cmd": "git pull", "when": "For shared branches, preserves all history", "desc": "Creates a merge commit combining changes" }
+      ],
+      "prevention": "Pull before starting work: 'git pull origin main'"
+    }
+  ]
+}

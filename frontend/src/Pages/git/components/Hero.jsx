@@ -1,15 +1,14 @@
-import React from "react";
 import {
-  Terminal,
-  GitBranch,
   AlertCircle,
   CheckCircle,
-  Zap,
-  Users,
+  GitBranch,
+  Terminal,
   TrendingUp,
+  Users,
+  Zap,
 } from "lucide-react";
 
-function GitSurvivalFeaturedImage() {
+const Hero = () => {
   return (
     <div className="w-full bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 relative overflow-hidden flex items-center justify-center">
       {/* Animated Grid Background */}
@@ -178,11 +177,26 @@ function GitSurvivalFeaturedImage() {
 
         {/* Social Proof Badge */}
         <div
-          className="flex mt-6 items-center justify-center gap-2 text-gray-400 text-sm animate-fade-in"
+          className="flex mt-6 items-center justify-center gap-2 text-gray-400 text-sm animate-fade-in mb-15"
           style={{ animationDelay: "1s" }}
         >
           <Users size={16} />
           <span>Join thousands of developers who bookmarked this</span>
+        </div>
+
+        {/* Creator badge (PDF-friendly) */}
+        <div className="relative z-10 max-w-5xl mx-auto px-8 mt-6 mb-10">
+          <div className="inline-flex items-center gap-3 px-5 py-3 bg-white/10 border border-white/20 rounded-xl text-white font-semibold">
+            <span>Created by Dev Kant Kumar</span>
+            <a
+              href="https://devkantkumar.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-300 underline"
+            >
+              devkantkumar.com
+            </a>
+          </div>
         </div>
       </div>
 
@@ -270,6 +284,6 @@ function GitSurvivalFeaturedImage() {
       `}</style>
     </div>
   );
-}
+};
 
-export default GitSurvivalFeaturedImage;
+export default Hero;

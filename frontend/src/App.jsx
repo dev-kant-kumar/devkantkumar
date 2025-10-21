@@ -13,7 +13,7 @@ const MarketPlaceRoutes = React.lazy(() =>
 
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
-const Test = React.lazy(() => import("./Pages/Test"));
+const Git = React.lazy(() => import("./Pages/git/Git"));
 
 import Loader from "./shared/components/Loader";
 
@@ -27,7 +27,7 @@ const App = () => {
             <Route path="/admin/*" element={<AdminPanelRoutes />} />
             <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
             <Route path="*" element={<NotFound />} />
-            <Route path="/test" element={<Test />} />
+            <Route path="/git-github-cheatsheet" element={<Git />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
