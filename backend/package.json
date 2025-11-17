@@ -9,7 +9,12 @@
     "test": "jest",
     "create-admin": "node scripts/createAdmin.js"
   },
-  "keywords": ["portfolio", "marketplace", "backend", "api"],
+  "keywords": [
+    "portfolio",
+    "marketplace",
+    "backend",
+    "api"
+  ],
   "author": "Dev Kant Kumar",
   "license": "ISC",
   "type": "commonjs",
@@ -32,6 +37,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.7",
+    "puppeteer": "^24.26.0",
     "redis": "^4.6.10",
     "stripe": "^14.7.0",
     "winston": "^3.11.0",

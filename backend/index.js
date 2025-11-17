@@ -34,6 +34,7 @@ const portfolioRoutes = require('./src/routes/portfolioRoutes');
 const marketplaceRoutes = require('./src/routes/marketplaceRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const pdfRoutes = require('./src/routes/pdfRoutes'); // ADD THIS
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -165,6 +166,7 @@ app.use('/api/v1/portfolio', portfolioRoutes);
 app.use('/api/v1/marketplace', marketplaceRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/upload', uploadRoutes);
+app.use('/api/v1/pdf', pdfRoutes); // ADD THIS
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

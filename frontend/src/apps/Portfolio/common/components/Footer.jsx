@@ -27,6 +27,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { portfolioData } from "../../store/data/portfolioData";
+import { sendNewsletterNotificationToDiscord } from "../utils/Discords/sendEmail";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -61,6 +62,11 @@ const Footer = () => {
     setErrorMessage("");
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Send notification to Discord (non-blocking)
+      // We use .catch() so it doesn't affect user experience if Discord fails
+      sendNewsletterNotificationToDiscord(email).catch((err) =>
+        console.error("Discord notification failed:", err)
+      );
       setSubmitStatus("success");
       setEmail("");
       setTimeout(() => setSubmitStatus(null), 5000);
@@ -90,7 +96,11 @@ const Footer = () => {
       { name: "Consulting", path: "/marketplace/custom-solutions" },
     ],
     resources: [
-      { name: "Download Resume", path: "/resume.pdf", external: true },
+      {
+        name: "Download Resume",
+        path: "/devkantkumar-resume.pdf",
+        external: true,
+      },
       { name: "Tech Stack", path: "/skills" },
       { name: "Case Studies", path: "/projects" },
       { name: "Site Map", path: "/sitemap" },

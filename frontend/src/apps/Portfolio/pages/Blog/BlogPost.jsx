@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
+import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
 import { portfolioData } from "../../store/data/portfolioData";
 import { localPosts } from "./postsLocal";
 
@@ -12,7 +13,7 @@ const BlogPost = () => {
   const { slug } = useParams();
 
   // Find local post by slug
-  const entry = localPosts.find(p => p.meta.slug === slug);
+  const entry = localPosts.find((p) => p.meta.slug === slug);
   const blogPost = entry?.meta;
   const PostComponent = entry?.Component;
 
@@ -24,17 +25,18 @@ const BlogPost = () => {
   const [copied, setCopied] = React.useState(false);
 
   // Newsletter subscription state
-  const [newsletterEmail, setNewsletterEmail] = React.useState('');
+  const [newsletterEmail, setNewsletterEmail] = React.useState("");
   const [newsletterSubmitted, setNewsletterSubmitted] = React.useState(false);
-  const [isSubmittingNewsletter, setIsSubmittingNewsletter] = React.useState(false);
+  const [isSubmittingNewsletter, setIsSubmittingNewsletter] =
+    React.useState(false);
 
   // Feedback system state
   const [feedback, setFeedback] = React.useState(null); // 'like' or 'dislike'
   const [showFeedbackForm, setShowFeedbackForm] = React.useState(false);
   const [feedbackData, setFeedbackData] = React.useState({
-    email: '',
-    comment: '',
-    type: null
+    email: "",
+    comment: "",
+    type: null,
   });
   const [feedbackErrors, setFeedbackErrors] = React.useState({});
   const [isSubmittingFeedback, setIsSubmittingFeedback] = React.useState(false);
@@ -78,7 +80,8 @@ const BlogPost = () => {
 
   // Email validation function
   const validateEmail = (email) => {
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return emailRegex.test(email);
   };
 
@@ -87,7 +90,7 @@ const BlogPost = () => {
     if (feedbackSubmitted) return;
 
     setFeedback(type);
-    setFeedbackData(prev => ({ ...prev, type }));
+    setFeedbackData((prev) => ({ ...prev, type }));
     setShowFeedbackForm(true);
     setFeedbackErrors({});
   };
@@ -97,15 +100,15 @@ const BlogPost = () => {
     const errors = {};
 
     if (!feedbackData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = "Email is required";
     } else if (!validateEmail(feedbackData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = "Please enter a valid email address";
     }
 
     if (!feedbackData.comment.trim()) {
-      errors.comment = 'Please provide your feedback';
+      errors.comment = "Please provide your feedback";
     } else if (feedbackData.comment.trim().length < 10) {
-      errors.comment = 'Feedback must be at least 10 characters long';
+      errors.comment = "Feedback must be at least 10 characters long";
     }
 
     return errors;
@@ -126,15 +129,15 @@ const BlogPost = () => {
 
     try {
       // Simulate API call - replace with actual API endpoint
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Here you would typically send the feedback to your backend
-      console.log('Feedback submitted:', {
+      console.log("Feedback submitted:", {
         blogSlug: slug,
         type: feedbackData.type,
         email: feedbackData.email,
         comment: feedbackData.comment,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       setFeedbackSubmitted(true);
@@ -142,12 +145,13 @@ const BlogPost = () => {
 
       // Reset form after 3 seconds
       setTimeout(() => {
-        setFeedbackData({ email: '', comment: '', type: null });
+        setFeedbackData({ email: "", comment: "", type: null });
         setFeedback(null);
       }, 3000);
-
     } catch (error) {
-      setFeedbackErrors({ submit: 'Failed to submit feedback. Please try again.' });
+      setFeedbackErrors({
+        submit: "Failed to submit feedback. Please try again.",
+      });
     } finally {
       setIsSubmittingFeedback(false);
     }
@@ -155,11 +159,11 @@ const BlogPost = () => {
 
   // Handle input changes
   const handleInputChange = (field, value) => {
-    setFeedbackData(prev => ({ ...prev, [field]: value }));
+    setFeedbackData((prev) => ({ ...prev, [field]: value }));
 
     // Clear specific field error when user starts typing
     if (feedbackErrors[field]) {
-      setFeedbackErrors(prev => ({ ...prev, [field]: '' }));
+      setFeedbackErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -172,18 +176,22 @@ const BlogPost = () => {
 
     try {
       // Simulate API call - replace with actual newsletter subscription API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Newsletter subscription:', newsletterEmail);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Send notification to Discord (non-blocking)
+      // We use .catch() so it doesn't affect user experience if Discord fails
+      sendNewsletterNotificationToDiscord(newsletterEmail).catch((err) =>
+        console.error("Discord notification failed:", err)
+      );
 
       setNewsletterSubmitted(true);
-      setNewsletterEmail('');
+      setNewsletterEmail("");
 
       // Reset success message after 3 seconds
       setTimeout(() => {
         setNewsletterSubmitted(false);
       }, 3000);
     } catch (error) {
-      console.error('Newsletter subscription failed:', error);
+      console.error("Newsletter subscription failed:", error);
     } finally {
       setIsSubmittingNewsletter(false);
     }
@@ -216,17 +224,22 @@ const BlogPost = () => {
       setTableOfContents([]);
       return;
     }
-    const headings = Array.from(container.querySelectorAll("h2, h3, h4")).map((el) => {
-      const level = parseInt(el.tagName[1], 10);
-      const text = el.textContent.trim();
-      let id = el.id;
-      if (!id) {
-        id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-        el.id = id;
-        el.classList.add("scroll-mt-24");
+    const headings = Array.from(container.querySelectorAll("h2, h3, h4")).map(
+      (el) => {
+        const level = parseInt(el.tagName[1], 10);
+        const text = el.textContent.trim();
+        let id = el.id;
+        if (!id) {
+          id = text
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "");
+          el.id = id;
+          el.classList.add("scroll-mt-24");
+        }
+        return { level, text, id };
       }
-      return { level, text, id };
-    });
+    );
     setTableOfContents(headings);
   }, [slug]);
 
@@ -258,7 +271,7 @@ const BlogPost = () => {
       blogPost?.FeaturedImage ||
       blogPost?.Image;
 
-    if (typeof ImgComp === 'function') return <ImgComp />;
+    if (typeof ImgComp === "function") return <ImgComp />;
     if (React.isValidElement(ImgComp)) return ImgComp;
     if (blogPost?.image) {
       return (
@@ -490,7 +503,9 @@ const BlogPost = () => {
         </motion.section>
 
         {/* Featured Image */}
-        {(PostComponent?.FeaturedImage || PostComponent?.Image || blogPost?.image) && (
+        {(PostComponent?.FeaturedImage ||
+          PostComponent?.Image ||
+          blogPost?.image) && (
           <motion.section
             variants={itemVariants}
             initial="hidden"
@@ -607,13 +622,26 @@ const BlogPost = () => {
                           animate={{ opacity: 1, y: 0 }}
                           className="flex items-center justify-center gap-2 text-green-400 bg-green-400/10 border border-green-400/20 rounded-lg p-3"
                         >
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
                           </svg>
-                          <span className="font-medium text-sm">Successfully subscribed!</span>
+                          <span className="font-medium text-sm">
+                            Successfully subscribed!
+                          </span>
                         </motion.div>
                       ) : (
-                        <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+                        <form
+                          onSubmit={handleNewsletterSubmit}
+                          className="space-y-2"
+                        >
                           <input
                             type="email"
                             value={newsletterEmail}
@@ -625,19 +653,36 @@ const BlogPost = () => {
                           />
                           <button
                             type="submit"
-                            disabled={isSubmittingNewsletter || !newsletterEmail.trim()}
+                            disabled={
+                              isSubmittingNewsletter || !newsletterEmail.trim()
+                            }
                             className="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all font-medium shadow-lg shadow-cyan-500/25 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           >
                             {isSubmittingNewsletter ? (
                               <>
-                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <svg
+                                  className="w-4 h-4 animate-spin"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
                                 </svg>
                                 Subscribing...
                               </>
                             ) : (
-                              'Subscribe'
+                              "Subscribe"
                             )}
                           </button>
                         </form>
@@ -703,13 +748,15 @@ const BlogPost = () => {
                   [&>em]:text-slate-200 [&>em]:italic [&>em]:font-medium"
                     >
                       {/* Render the JSX component post content */}
-                    {PostComponent && <PostComponent />}
+                      {PostComponent && <PostComponent />}
                     </div>
 
                     {/* Tags Section */}
                     {blogPost.tags && blogPost.tags.length > 0 && (
                       <div className="mt-12 pt-8 border-t border-slate-700">
-                        <h3 className="text-lg font-semibold text-white mb-4">Tags</h3>
+                        <h3 className="text-lg font-semibold text-white mb-4">
+                          Tags
+                        </h3>
                         <div className="flex flex-wrap gap-2">
                           {blogPost.tags.map((tag, index) => (
                             <span
@@ -740,9 +787,10 @@ const BlogPost = () => {
                               {portfolioData.personalInfo.name}
                             </h4>
                             <p className="text-slate-300 mb-4 leading-relaxed">
-                              {portfolioData.personalInfo.title} passionate about creating innovative web solutions.
-                              I share insights on modern development practices, emerging technologies,
-                              and practical coding tips.
+                              {portfolioData.personalInfo.title} passionate
+                              about creating innovative web solutions. I share
+                              insights on modern development practices, emerging
+                              technologies, and practical coding tips.
                             </p>
                             <div className="flex items-center gap-4">
                               <a
@@ -751,27 +799,44 @@ const BlogPost = () => {
                                 rel="noopener noreferrer"
                                 className="text-slate-400 hover:text-cyan-400 transition-colors"
                               >
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
                                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
                                 </svg>
                               </a>
                               <a
-                                href={portfolioData.socialLinks.professional.linkedin}
+                                href={
+                                  portfolioData.socialLinks.professional
+                                    .linkedin
+                                }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-slate-400 hover:text-blue-400 transition-colors"
                               >
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
                                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                                 </svg>
                               </a>
                               <a
-                                href={portfolioData.socialLinks.professional.github}
+                                href={
+                                  portfolioData.socialLinks.professional.github
+                                }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-slate-400 hover:text-white transition-colors"
                               >
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
                                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.30.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                                 </svg>
                               </a>
@@ -838,29 +903,31 @@ const BlogPost = () => {
                         {/* Feedback System */}
                         <div className="space-y-4">
                           <div className="flex items-center gap-2">
-                            <span className="text-slate-400 text-sm">Was this helpful?</span>
+                            <span className="text-slate-400 text-sm">
+                              Was this helpful?
+                            </span>
                             <button
-                              onClick={() => handleFeedbackClick('like')}
+                              onClick={() => handleFeedbackClick("like")}
                               disabled={feedbackSubmitted}
                               className={`px-3 py-1 rounded-lg text-sm transition-all ${
-                                feedback === 'like'
-                                  ? 'bg-green-600 text-white'
+                                feedback === "like"
+                                  ? "bg-green-600 text-white"
                                   : feedbackSubmitted
-                                  ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-green-400'
+                                  ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+                                  : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-green-400"
                               }`}
                             >
                               👍 Yes
                             </button>
                             <button
-                              onClick={() => handleFeedbackClick('dislike')}
+                              onClick={() => handleFeedbackClick("dislike")}
                               disabled={feedbackSubmitted}
                               className={`px-3 py-1 rounded-lg text-sm transition-all ${
-                                feedback === 'dislike'
-                                  ? 'bg-red-600 text-white'
+                                feedback === "dislike"
+                                  ? "bg-red-600 text-white"
                                   : feedbackSubmitted
-                                  ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-red-400'
+                                  ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+                                  : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-red-400"
                               }`}
                             >
                               👎 No
@@ -874,8 +941,16 @@ const BlogPost = () => {
                               animate={{ opacity: 1, y: 0 }}
                               className="flex items-center gap-2 text-green-400 text-sm"
                             >
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                               Thank you for your feedback!
                             </motion.div>
@@ -886,11 +961,14 @@ const BlogPost = () => {
                             {showFeedbackForm && !feedbackSubmitted && (
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
+                                animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                                 className="bg-slate-800/50 rounded-lg p-4 border border-slate-700"
                               >
-                                <form onSubmit={handleFeedbackSubmit} className="space-y-4">
+                                <form
+                                  onSubmit={handleFeedbackSubmit}
+                                  className="space-y-4"
+                                >
                                   <div>
                                     <label className="block text-sm font-medium text-slate-300 mb-2">
                                       Email Address *
@@ -898,18 +976,31 @@ const BlogPost = () => {
                                     <input
                                       type="email"
                                       value={feedbackData.email}
-                                      onChange={(e) => handleInputChange('email', e.target.value)}
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          "email",
+                                          e.target.value
+                                        )
+                                      }
                                       className={`w-full px-3 py-2 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                                         feedbackErrors.email
-                                          ? 'border-red-500 focus:ring-red-500'
-                                          : 'border-slate-600 focus:ring-cyan-500'
+                                          ? "border-red-500 focus:ring-red-500"
+                                          : "border-slate-600 focus:ring-cyan-500"
                                       }`}
                                       placeholder="your.email@example.com"
                                     />
                                     {feedbackErrors.email && (
                                       <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        <svg
+                                          className="w-4 h-4"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                            clipRule="evenodd"
+                                          />
                                         </svg>
                                         {feedbackErrors.email}
                                       </p>
@@ -922,19 +1013,36 @@ const BlogPost = () => {
                                     </label>
                                     <textarea
                                       value={feedbackData.comment}
-                                      onChange={(e) => handleInputChange('comment', e.target.value)}
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          "comment",
+                                          e.target.value
+                                        )
+                                      }
                                       rows={3}
                                       className={`w-full px-3 py-2 bg-slate-700 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-colors resize-none ${
                                         feedbackErrors.comment
-                                          ? 'border-red-500 focus:ring-red-500'
-                                          : 'border-slate-600 focus:ring-cyan-500'
+                                          ? "border-red-500 focus:ring-red-500"
+                                          : "border-slate-600 focus:ring-cyan-500"
                                       }`}
-                                      placeholder={`Please share your ${feedback === 'like' ? 'thoughts on what you found helpful' : 'suggestions for improvement'}...`}
+                                      placeholder={`Please share your ${
+                                        feedback === "like"
+                                          ? "thoughts on what you found helpful"
+                                          : "suggestions for improvement"
+                                      }...`}
                                     />
                                     {feedbackErrors.comment && (
                                       <p className="mt-1 text-sm text-red-400 flex items-center gap-1">
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        <svg
+                                          className="w-4 h-4"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                            clipRule="evenodd"
+                                          />
                                         </svg>
                                         {feedbackErrors.comment}
                                       </p>
@@ -944,8 +1052,16 @@ const BlogPost = () => {
                                   {feedbackErrors.submit && (
                                     <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
                                       <p className="text-sm text-red-400 flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        <svg
+                                          className="w-4 h-4"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                            clipRule="evenodd"
+                                          />
                                         </svg>
                                         {feedbackErrors.submit}
                                       </p>
@@ -960,14 +1076,29 @@ const BlogPost = () => {
                                     >
                                       {isSubmittingFeedback ? (
                                         <>
-                                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                          <svg
+                                            className="w-4 h-4 animate-spin"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <circle
+                                              className="opacity-25"
+                                              cx="12"
+                                              cy="12"
+                                              r="10"
+                                              stroke="currentColor"
+                                              strokeWidth="4"
+                                            ></circle>
+                                            <path
+                                              className="opacity-75"
+                                              fill="currentColor"
+                                              d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
                                           </svg>
                                           Submitting...
                                         </>
                                       ) : (
-                                        'Submit Feedback'
+                                        "Submit Feedback"
                                       )}
                                     </button>
                                     <button
@@ -975,7 +1106,11 @@ const BlogPost = () => {
                                       onClick={() => {
                                         setShowFeedbackForm(false);
                                         setFeedback(null);
-                                        setFeedbackData({ email: '', comment: '', type: null });
+                                        setFeedbackData({
+                                          email: "",
+                                          comment: "",
+                                          type: null,
+                                        });
                                         setFeedbackErrors({});
                                       }}
                                       className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm font-medium transition-colors"

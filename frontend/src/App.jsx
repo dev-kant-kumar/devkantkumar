@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const PortfolioRoutes = React.lazy(() =>
@@ -12,27 +13,40 @@ const MarketPlaceRoutes = React.lazy(() =>
 );
 
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
-
 const Git = React.lazy(() => import("./Pages/git/Git"));
 
 import Loader from "./shared/components/Loader";
 
-const App = () => {
+// Add Toaster globally
+function App() {
   return (
     <div>
       <BrowserRouter>
         <Suspense fallback={<Loader />}>
           <Routes>
+            {/* routes must be <Route> only */}
             <Route path="/*" element={<PortfolioRoutes />} />
             <Route path="/admin/*" element={<AdminPanelRoutes />} />
             <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
-            <Route path="*" element={<NotFound />} />
             <Route path="/git-github-cheatsheet" element={<Git />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
+
+          {/* Toaster MUST be outside <Routes> */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "#0f172a",
+                color: "white",
+                border: "1px solid rgba(255,255,255,0.1)",
+              },
+            }}
+          />
         </Suspense>
       </BrowserRouter>
     </div>
   );
-};
+}
 
 export default App;

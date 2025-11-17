@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { portfolioData } from "../../store/data/portfolioData";
 
 const Header = () => {
@@ -62,12 +62,13 @@ const Header = () => {
               transition={{ duration: 0.2 }}
             >
               <div className="text-2xl font-bold">
-                {personalInfo.name.split(' ').map((word, index) => (
+                {personalInfo.name.split(" ").map((word, index) => (
                   <span
                     key={index}
-                    className={index === 0 ?
-                      "bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent" :
-                      "text-white ml-2"
+                    className={
+                      index === 0
+                        ? "bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
+                        : "text-white ml-2"
                     }
                   >
                     {word}
@@ -102,7 +103,11 @@ const Header = () => {
                     <motion.div
                       layoutId="activeTab"
                       className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg border border-cyan-500/30"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
                     />
                   )}
                   <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -223,7 +228,10 @@ const Header = () => {
                         key={item.name}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: 0.5 + index * 0.05,
+                        }}
                       >
                         <Link
                           to={item.path}

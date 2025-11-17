@@ -23,13 +23,33 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function GitMasterclass() {
   const [activeTab, setActiveTab] = useState("scenarios");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedSection, setExpandedSection] = useState(null);
   const [copiedCommand, setCopiedCommand] = useState(null);
+
+  // Print mode: render everything open and sequentially
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("print");
+    const onChange = (e) => setIsPrintMode(e.matches);
+    setIsPrintMode(mql.matches);
+    mql.addEventListener("change", onChange);
+
+    const before = () => setIsPrintMode(true);
+    const after = () => setIsPrintMode(false);
+    window.addEventListener("beforeprint", before);
+    window.addEventListener("afterprint", after);
+
+    return () => {
+      mql.removeEventListener("change", onChange);
+      window.removeEventListener("beforeprint", before);
+      window.removeEventListener("afterprint", after);
+    };
+  }, []);
 
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -692,6 +712,38 @@ jobs:
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+      {/* Print styles + per-page background grid */}
+      <style>{`
+        @page { size: A4; margin: 12mm; }
+        html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        /* Subtle grid + soft radial glow background for every page */
+        @media print {
+          .print-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1;
+            background-color: #0b1220;
+            background-image:
+              linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px),
+              radial-gradient(1200px 800px at 15% 10%, rgba(99,102,241,0.12), transparent 60%),
+              radial-gradient(1000px 600px at 85% 90%, rgba(34,197,94,0.10), transparent 60%);
+            background-size: 14mm 14mm, 14mm 14mm, 100% 100%, 100% 100%;
+            background-position: top left, top left, center, center;
+          }
+          .no-print { display: none !important; }
+          .no-break { break-inside: avoid; page-break-inside: avoid; }
+          .print-page { break-before: page; page-break-before: always; }
+          .section { break-after: avoid-page; }
+          .card-title { break-after: avoid; }
+          .content-block { break-inside: avoid; page-break-inside: avoid; }
+          .print-container { min-height: auto !important; }
+          body { background: #0b1220 !important; }
+          .min-h-screen { min-height: auto !important; }
+        }
+      `}</style>
+      <div className="print-bg" aria-hidden="true" />
       <div aria-live="polite" role="status" className="sr-only">
         {copiedCommand ? "Command copied to clipboard." : ""}
       </div>
@@ -726,7 +778,7 @@ jobs:
           </div>
 
           {/* Search */}
-          <div className="max-w-2xl mx-auto relative">
+          <div className="max-w-2xl mx-auto relative no-print">
             <Search
               className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               size={20}
@@ -743,12 +795,12 @@ jobs:
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12 page-content">
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-3 mb-12 border-b border-slate-700 pb-4">
+        <div className="flex flex-wrap gap-3 mb-12 border-b border-slate-700 pb-4 no-print">
           {[
             { id: "scenarios", label: "🚨 Emergency Fixes", icon: AlertCircle },
-            { id: "advanced", label: "🚀 Advanced Workflows", icon: Rocket },
+            { id: "workflows", label: "🚀 Advanced Workflows", icon: Rocket },
             { id: "github", label: "💻 GitHub Features", icon: Globe },
             { id: "security", label: "🔒 Security", icon: Shield },
             { id: "performance", label: "⚡ Performance", icon: Zap },
@@ -770,8 +822,8 @@ jobs:
         </div>
 
         {/* Emergency Scenarios */}
-        {activeTab === "scenarios" && (
-          <div className="space-y-6">
+        {(isPrintMode || activeTab === "scenarios") && (
+          <div className="space-y-6 section">
             <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-6 mb-8">
               <h2 className="text-2xl font-bold text-blue-300 mb-3 flex items-center gap-2">
                 <AlertCircle size={24} />
@@ -784,124 +836,134 @@ jobs:
               </p>
             </div>
 
-            {filteredScenarios.map((scenario) => {
-              const isExpanded = expandedSection === scenario.id;
-              const difficultyColors = {
-                Easy: "bg-green-500/20 text-green-400 border-green-500/30",
-                Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-                Hard: "bg-red-500/20 text-red-400 border-red-500/30",
-              };
+            {scenarios
+              // keep original filtering for screen; disable for print to preserve full sections
+              .filter((s) => !isPrintMode ? (
+                searchTerm === "" ||
+                s.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                s.problem.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                s.category.toLowerCase().includes(searchTerm.toLowerCase())
+              ) : true)
+              .map((scenario) => {
+                const isExpanded = isPrintMode || expandedSection === scenario.id;
+                const difficultyColors = {
+                  Easy: "bg-green-500/20 text-green-400 border-green-500/30",
+                  Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+                  Hard: "bg-red-500/20 text-red-400 border-red-500/30",
+                };
 
-              return (
-                <div
-                  key={scenario.id}
-                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-all"
-                >
+                return (
                   <div
-                    className="p-6 cursor-pointer"
-                    onClick={() =>
-                      setExpandedSection(isExpanded ? null : scenario.id)
-                    }
+                    key={scenario.id}
+                    className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden transition-all no-break print-page"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-start gap-3 flex-1">
-                        <span className="text-3xl">{scenario.emoji}</span>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-bold text-cyan-300">
-                              {scenario.title}
-                            </h3>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold border ${
-                                difficultyColors[scenario.difficulty]
-                              }`}
-                            >
-                              {scenario.difficulty}
+                    <div
+                      className={isPrintMode ? "p-6" : "p-6 cursor-pointer"}
+                      onClick={isPrintMode ? undefined : () =>
+                        setExpandedSection(isExpanded ? null : scenario.id)
+                      }
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start gap-3 flex-1">
+                          <span className="text-3xl">{scenario.emoji}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-xl font-bold text-cyan-300 card-title">
+                                {scenario.title}
+                              </h3>
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                                  difficultyColors[scenario.difficulty]
+                                }`}
+                              >
+                                {scenario.difficulty}
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-400 font-semibold">
+                              {scenario.category}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400 font-semibold">
-                            {scenario.category}
-                          </span>
                         </div>
+                        {!isPrintMode && (
+                          <ChevronDown
+                            className={`text-gray-400 transition-transform flex-shrink-0 ${isExpanded ? "rotate-180" : ""}`}
+                            size={24}
+                          />
+                        )
                       </div>
-                      <ChevronDown
-                        className={`text-gray-400 transition-transform flex-shrink-0 ${
-                          isExpanded ? "rotate-180" : ""
-                        }`}
-                        size={24}
-                      />
-                    </div>
 
-                    <div className="bg-red-900/20 border-l-4 border-red-500 rounded p-4">
-                      <p className="text-gray-300 italic">
-                        "{scenario.problem}"
-                      </p>
-                    </div>
+                      <div className="bg-red-900/20 border-l-4 border-red-500 rounded p-4">
+                        <p className="text-gray-300 italic">
+                          "{scenario.problem}"
+                        </p>
+                      </div>
 
-                    {isExpanded && (
-                      <div className="mt-6 space-y-4">
-                        <div className="bg-green-900/20 border-l-4 border-green-500 rounded p-4">
-                          <h4 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
-                            <CheckCircle size={20} /> Solution:
-                          </h4>
-                          {scenario.solution.map((step, idx) => (
-                            <div key={idx} className="mb-3 last:mb-0">
-                              <div className="flex items-start gap-2 bg-slate-950 rounded-lg p-3 mb-1">
-                                <code className="text-cyan-400 text-sm flex-1 font-mono">
-                                  {step.cmd}
-                                </code>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    copyToClipboard(
-                                      step.cmd,
-                                      `${scenario.id}-${idx}`
-                                    );
-                                  }}
-                                  className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0"
-                                  title="Copy command"
-                                >
-                                  {copiedCommand === `${scenario.id}-${idx}` ? (
-                                    <Check
-                                      size={16}
-                                      className="text-green-400"
-                                    />
-                                  ) : (
-                                    <Copy size={16} className="text-gray-400" />
+                      {(isPrintMode || isExpanded) && (
+                        <div className="mt-6 space-y-4 content-block">
+                          <div className="bg-green-900/20 border-l-4 border-green-500 rounded p-4">
+                            <h4 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
+                              <CheckCircle size={20} /> Solution:
+                            </h4>
+                            {scenario.solution.map((step, idx) => (
+                              <div key={idx} className="mb-3 last:mb-0">
+                                <div className="flex items-start gap-2 bg-slate-950 rounded-lg p-3 mb-1">
+                                  <code className="text-cyan-400 text-sm flex-1 font-mono">
+                                    {step.cmd}
+                                  </code>
+                                  {!isPrintMode && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyToClipboard(
+                                          step.cmd,
+                                          `${scenario.id}-${idx}`
+                                        );
+                                      }}
+                                      className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0 no-print"
+                                      title="Copy command"
+                                    >
+                                      {copiedCommand === `${scenario.id}-${idx}` ? (
+                                        <Check
+                                          size={16}
+                                          className="text-green-400"
+                                        />
+                                      ) : (
+                                        <Copy size={16} className="text-gray-400" />
+                                      )}
+                                    </button>
                                   )}
-                                </button>
+                                </div>
+                                <p className="text-gray-400 text-sm ml-3">
+                                  {step.desc}
+                                </p>
                               </div>
-                              <p className="text-gray-400 text-sm ml-3">
-                                {step.desc}
+                            ))}
+                            <div className="mt-4 pt-4 border-t border-green-500/20">
+                              <p className="text-gray-300 text-sm leading-relaxed">
+                                <strong className="text-green-400">
+                                  Why this works:
+                                </strong>{" "}
+                                {scenario.explanation}
                               </p>
                             </div>
-                          ))}
-                          <div className="mt-4 pt-4 border-t border-green-500/20">
+                          </div>
+
+                          <div className="bg-blue-900/20 border-l-4 border-blue-500 rounded p-4">
+                            <h4 className="text-blue-400 font-semibold mb-2 flex items-center gap-2">
+                              💡 Pro Tip
+                            </h4>
                             <p className="text-gray-300 text-sm leading-relaxed">
-                              <strong className="text-green-400">
-                                Why this works:
-                              </strong>{" "}
-                              {scenario.explanation}
+                              {scenario.proTip}
                             </p>
                           </div>
                         </div>
-
-                        <div className="bg-blue-900/20 border-l-4 border-blue-500 rounded p-4">
-                          <h4 className="text-blue-400 font-semibold mb-2 flex items-center gap-2">
-                            💡 Pro Tip
-                          </h4>
-                          <p className="text-gray-300 text-sm leading-relaxed">
-                            {scenario.proTip}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
-            {filteredScenarios.length === 0 && (
+            {!isPrintMode && filteredScenarios.length === 0 && (
               <div className="text-center py-16">
                 <AlertCircle size={48} className="mx-auto mb-4 text-gray-500" />
                 <p className="text-gray-400 text-lg mb-2">
@@ -916,8 +978,8 @@ jobs:
         )}
 
         {/* Advanced Workflows */}
-        {activeTab === "advanced" && (
-          <div className="space-y-6">
+        {(isPrintMode || activeTab === "workflows") && (
+          <div className="space-y-6 section">
             <div className="bg-purple-900/20 border border-purple-500/30 rounded-xl p-6 mb-8">
               <h2 className="text-2xl font-bold text-purple-300 mb-3 flex items-center gap-2">
                 <Rocket size={24} />
@@ -931,17 +993,17 @@ jobs:
             </div>
 
             {advancedWorkflows.map((workflow) => {
-              const isExpanded = expandedSection === workflow.id;
+              const isExpanded = isPrintMode || expandedSection === workflow.id;
               const Icon = workflow.icon;
 
               return (
                 <div
                   key={workflow.id}
-                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-purple-500/50 transition-all"
+                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-purple-500/50 transition-all no-break print-page"
                 >
                   <div
-                    className="p-6 cursor-pointer"
-                    onClick={() =>
+                    className={isPrintMode ? "p-6" : "p-6 cursor-pointer"}
+                    onClick={isPrintMode ? undefined : () =>
                       setExpandedSection(isExpanded ? null : workflow.id)
                     }
                   >
@@ -975,8 +1037,8 @@ jobs:
                       />
                     </div>
 
-                    {isExpanded && (
-                      <div className="mt-6 space-y-4">
+                    {(isPrintMode || isExpanded) && (
+                      <div className="mt-6 space-y-4 content-block">
                         <div className="bg-slate-950/50 rounded-lg p-4">
                           <h4 className="text-cyan-400 font-semibold mb-3">
                             Commands:
@@ -1045,8 +1107,8 @@ jobs:
         )}
 
         {/* GitHub Features */}
-        {activeTab === "github" && (
-          <div className="space-y-6">
+        {(isPrintMode || activeTab === "github") && (
+          <div className="space-y-6 section">
             <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-6 mb-8">
               <h2 className="text-2xl font-bold text-blue-300 mb-3 flex items-center gap-2">
                 <Globe size={24} />
@@ -1059,17 +1121,17 @@ jobs:
             </div>
 
             {githubFeatures.map((feature) => {
-              const isExpanded = expandedSection === feature.id;
+              const isExpanded = isPrintMode || expandedSection === feature.id;
               const Icon = feature.icon;
 
               return (
                 <div
                   key={feature.id}
-                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all"
+                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all no-break print-page"
                 >
                   <div
-                    className="p-6 cursor-pointer"
-                    onClick={() =>
+                    className={isPrintMode ? "p-6" : "p-6 cursor-pointer"}
+                    onClick={isPrintMode ? undefined : () =>
                       setExpandedSection(isExpanded ? null : feature.id)
                     }
                   >
@@ -1098,8 +1160,8 @@ jobs:
                       />
                     </div>
 
-                    {isExpanded && (
-                      <div className="mt-6 space-y-4">
+                    {(isPrintMode || isExpanded) && (
+                      <div className="mt-6 space-y-4 content-block">
                         {feature.example && (
                           <div className="bg-slate-950/50 rounded-lg p-4">
                             <h4 className="text-cyan-400 font-semibold mb-3">
@@ -1220,8 +1282,8 @@ jobs:
         )}
 
         {/* Security */}
-        {activeTab === "security" && (
-          <div className="space-y-6">
+        {(isPrintMode || activeTab === "security") && (
+          <div className="space-y-6 section">
             <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-6 mb-8">
               <h2 className="text-2xl font-bold text-red-300 mb-3 flex items-center gap-2">
                 <Shield size={24} />
@@ -1244,12 +1306,12 @@ jobs:
 
               return (
                 <div
-                  key={practice.id}
-                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-red-500/50 transition-all"
-                >
+                key={practice.id}
+                className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-red-500/50 transition-all no-break print-page"
+              >
                   <div
-                    className="p-6 cursor-pointer"
-                    onClick={() =>
+                    className={isPrintMode ? "p-6" : "p-6 cursor-pointer"}
+                    onClick={isPrintMode ? undefined : () =>
                       setExpandedSection(isExpanded ? null : practice.id)
                     }
                   >
@@ -1291,7 +1353,7 @@ jobs:
                       />
                     </div>
 
-                    {isExpanded && (
+                    {(isPrintMode || isExpanded) && (
                       <div className="mt-6 space-y-4">
                         {practice.solutions && (
                           <div className="bg-green-900/20 border-l-4 border-green-500 rounded p-4">
@@ -1335,7 +1397,7 @@ jobs:
                                         `${practice.id}-${idx}`
                                       );
                                     }}
-                                    className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0"
+                                    className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0 no-print"
                                   >
                                     {copiedCommand ===
                                     `${practice.id}-${idx}` ? (
@@ -1419,8 +1481,8 @@ jobs:
         )}
 
         {/* Performance */}
-        {activeTab === "performance" && (
-          <div className="space-y-6">
+        {(isPrintMode || activeTab === "performance") && (
+          <div className="space-y-6 section">
             <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl p-6 mb-8">
               <h2 className="text-2xl font-bold text-yellow-300 mb-3 flex items-center gap-2">
                 <Zap size={24} />
@@ -1439,12 +1501,12 @@ jobs:
 
               return (
                 <div
-                  key={opt.id}
-                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-yellow-500/50 transition-all"
-                >
+                key={opt.id}
+                className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-yellow-500/50 transition-all no-break print-page"
+              >
                   <div
-                    className="p-6 cursor-pointer"
-                    onClick={() =>
+                    className={isPrintMode ? "p-6" : "p-6 cursor-pointer"}
+                    onClick={isPrintMode ? undefined : () =>
                       setExpandedSection(isExpanded ? null : opt.id)
                     }
                   >
@@ -1477,7 +1539,7 @@ jobs:
                       />
                     </div>
 
-                    {isExpanded && (
+                    {(isPrintMode || isExpanded) && (
                       <div className="mt-6 space-y-4">
                         {opt.config && (
                           <div className="bg-slate-950/50 rounded-lg p-4">
@@ -1495,7 +1557,7 @@ jobs:
                                   e.stopPropagation();
                                   copyToClipboard(opt.config, opt.id);
                                 }}
-                                className="absolute top-2 right-2 p-2 bg-slate-800 hover:bg-slate-700 rounded transition-colors"
+                                className="absolute top-2 right-2 p-2 bg-slate-800 hover:bg-slate-700 rounded transition-colors no-print"
                               >
                                 {copiedCommand === opt.id ? (
                                   <Check size={16} className="text-green-400" />
@@ -1526,7 +1588,7 @@ jobs:
                                         `${opt.id}-${idx}`
                                       );
                                     }}
-                                    className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0"
+                                    className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0 no-print"
                                   >
                                     {copiedCommand === `${opt.id}-${idx}` ? (
                                       <Check
@@ -1568,7 +1630,7 @@ jobs:
                                         `${opt.id}-setup-${idx}`
                                       );
                                     }}
-                                    className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0"
+                                    className="p-2 hover:bg-slate-800 rounded transition-colors flex-shrink-0 no-print"
                                   >
                                     {copiedCommand ===
                                     `${opt.id}-setup-${idx}` ? (
@@ -1643,8 +1705,8 @@ jobs:
         )}
 
         {/* Common Issues */}
-        {activeTab === "issues" && (
-          <div className="space-y-6">
+        {(isPrintMode || activeTab === "issues") && (
+          <div className="space-y-6 section">
             <div className="bg-orange-900/20 border border-orange-500/30 rounded-xl p-6 mb-8">
               <h2 className="text-2xl font-bold text-orange-300 mb-3 flex items-center gap-2">
                 <Settings size={24} />
@@ -1662,11 +1724,11 @@ jobs:
               return (
                 <div
                   key={issue.id}
-                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-orange-500/50 transition-all"
+                  className="bg-slate-900/50 border border-slate-700 rounded-xl overflow-hidden hover:border-orange-500/50 transition-all no-break print-page"
                 >
                   <div
-                    className="p-6 cursor-pointer"
-                    onClick={() =>
+                    className={isPrintMode ? "p-6" : "p-6 cursor-pointer"}
+                    onClick={isPrintMode ? undefined : () =>
                       setExpandedSection(isExpanded ? null : issue.id)
                     }
                   >
@@ -1693,7 +1755,7 @@ jobs:
                       />
                     </div>
 
-                    {isExpanded && (
+                    {(isPrintMode || isExpanded) && (
                       <div className="mt-6 space-y-4">
                         {issue.fix && typeof issue.fix === "string" && (
                           <div className="bg-green-900/20 border-l-4 border-green-500 rounded p-4">
@@ -1709,7 +1771,7 @@ jobs:
                                   e.stopPropagation();
                                   copyToClipboard(issue.fix, issue.id);
                                 }}
-                                className="p-2 hover:bg-slate-900 rounded transition-colors"
+                                className="p-2 hover:bg-slate-900 rounded transition-colors no-print"
                               >
                                 {copiedCommand === issue.id ? (
                                   <Check size={16} className="text-green-400" />
@@ -1733,15 +1795,15 @@ jobs:
                                     {solution.cmd}
                                   </code>
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      copyToClipboard(
-                                        solution.cmd,
-                                        `${issue.id}-${idx}`
-                                      );
-                                    }}
-                                    className="p-2 hover:bg-slate-900 rounded transition-colors"
-                                  >
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyToClipboard(
+                                          solution.cmd,
+                                          `${issue.id}-${idx}`
+                                        );
+                                      }}
+                                      className="p-2 hover:bg-slate-900 rounded transition-colors no-print"
+                                    >
                                     {copiedCommand === `${issue.id}-${idx}` ? (
                                       <Check
                                         size={16}
@@ -1778,15 +1840,15 @@ jobs:
                                     {solution.cmd}
                                   </code>
                                   <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      copyToClipboard(
-                                        solution.cmd,
-                                        `${issue.id}-sol-${idx}`
-                                      );
-                                    }}
-                                    className="p-2 hover:bg-slate-800 rounded transition-colors"
-                                  >
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyToClipboard(
+                                          solution.cmd,
+                                          `${issue.id}-sol-${idx}`
+                                        );
+                                      }}
+                                      className="p-2 hover:bg-slate-800 rounded transition-colors no-print"
+                                    >
                                     {copiedCommand ===
                                     `${issue.id}-sol-${idx}` ? (
                                       <Check
@@ -1858,7 +1920,7 @@ jobs:
       </div>
 
       {/* Footer CTA */}
-      <div className="max-w-7xl mx-auto px-6 pb-16">
+      <div className="max-w-7xl mx-auto px-6 pb-16 no-print">
         <div className="bg-gradient-to-r from-cyan-900/30 to-purple-900/30 border border-cyan-500/30 rounded-2xl p-12 text-center">
           <Star className="mx-auto mb-6 text-yellow-400" size={48} />
           <h2 className="text-3xl font-bold text-white mb-4">

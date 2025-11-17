@@ -148,6 +148,9 @@ export const portfolioData = {
   ],
 
   projects: [
+    // -------------------------
+    // ADVANCED & FULLSTACK WORK
+    // -------------------------
     {
       id: 1,
       name: "Hostelease – Hostel Management System",
@@ -156,8 +159,9 @@ export const portfolioData = {
       featured: true,
       year: "2024",
       complexity: "Enterprise",
+      projectImage: "", // add image link
       description:
-        "Enterprise-grade hostel management platform with real-time analytics, automated room allocation algorithms, and comprehensive admin dashboard. Features advanced booking system, payment integration, and student lifecycle management.",
+        "Enterprise-grade hostel management platform with real-time analytics, automated room allocation algorithms, and a full admin dashboard. Includes booking, payments, notifications, and student lifecycle management.",
       technologies: [
         "React",
         "Tailwind CSS",
@@ -178,13 +182,14 @@ export const portfolioData = {
         performance: "Optimized",
       },
       keyFeatures: [
-        "Real-time room availability tracking",
-        "Secure payment integration",
-        "Comprehensive admin dashboard",
-        "User authentication and authorization",
-        "Responsive design for all devices",
+        "Real-time room availability",
+        "Payment integration",
+        "Admin dashboard",
+        "Authentication & Authorization",
+        "Responsive UI",
       ],
     },
+
     {
       id: 2,
       name: "Advanced MERN To-Do System",
@@ -193,8 +198,9 @@ export const portfolioData = {
       featured: true,
       year: "2024",
       complexity: "Advanced",
+      projectImage: "", // add image link
       description:
-        "Full-stack productivity application with drag-and-drop interface, real-time collaboration, advanced filtering, priority management, and comprehensive analytics dashboard.",
+        "Full-stack productivity tool with drag-and-drop interface, real-time collaboration, analytics, and priority-based task management using Redux and MongoDB.",
       technologies: [
         "MongoDB",
         "Express.js",
@@ -214,96 +220,167 @@ export const portfolioData = {
         performance: "Optimized",
       },
       keyFeatures: [
-        "CRUD operations with advanced filtering",
+        "Real-time sync",
+        "Drag and drop",
         "Redux state management",
-        "Responsive design",
-        "RESTful API integration",
-        "User authentication",
+        "Filtering & sorting",
+        "User auth",
       ],
     },
+
+    // -------------------------
+    // REACT PROJECTS
+    // -------------------------
     {
       id: 3,
-      name: "Interactive Event Experience Platform",
+      name: "Freshers Party Event Page",
       category: "frontend",
       status: "Live",
       featured: false,
       year: "2024",
       complexity: "Intermediate",
+      projectImage: "", // add image link
       description:
-        "Immersive event landing page with 3D elements, animated transitions, RSVP system, and social media integration. Built for BCA Freshers Party 2024 with modern UX principles.",
-      technologies: ["HTML5", "CSS3", "JavaScript", "GSAP", "Three.js"],
+        "A responsive event landing page built using React with reusable components, gradient hero sections, and a clean layout. Created for my college Freshers Party.",
+      technologies: ["React.js", "JavaScript", "CSS3", "Vite / CRA"],
       links: {
-        live: "https://bcafreshers.devkantkumar.com/",
+        live: "https://bcafreshers.devkantkumar.com",
         github: "https://github.com/dev-kant-kumar/Freshers-Party-2024",
       },
       metrics: {
-        visitors: "Event promotion",
-        engagement: "High user interaction",
-        loadTime: "Fast loading",
+        purpose: "Real-world UI practice",
+        features: "Hero section, event details, responsive layout",
+        learning: "React components, props, folder structure",
       },
     },
+
     {
       id: 4,
-      name: "Dynamic Movie Management System",
+      name: "Farewell Party Invitation Card Maker",
+      category: "frontend",
+      status: "Live",
+      featured: true,
+      year: "2025",
+      complexity: "Intermediate",
+      projectImage: "",
+      description:
+        "Interactive invitation card maker with themed templates, drag-and-drop customization, animations, and local save support.",
+      technologies: ["HTML5", "CSS3", "JavaScript", "GSAP", "LocalStorage"],
+      links: {
+        live: "https://farewell.devkantkumar.com/",
+        github: "https://github.com/dev-kant-kumar/farewell",
+      },
+      metrics: {
+        designs: "Themes included",
+        engagement: "Interactive editor",
+        speed: "Instant generation",
+      },
+      keyFeatures: [
+        "Customizable templates",
+        "Drag-and-drop editor",
+        "Social export",
+        "Print-ready output",
+        "Mobile responsive",
+      ],
+    },
+
+    // -------------------------
+    // INTERMEDIATE JS PROJECTS
+    // -------------------------
+    {
+      id: 5,
+      name: "Movie Manager – CRUD Application",
       category: "frontend",
       status: "Live",
       featured: false,
       year: "2024",
-      complexity: "Intermediate",
+      complexity: "Beginner–Intermediate",
+      projectImage: "", // add image link
       description:
-        "Interactive movie database with advanced CRUD operations, search functionality, filtering system, and responsive card-based UI with smooth animations.",
-      technologies: ["JavaScript ES6+", "HTML5", "CSS3", "LocalStorage API"],
+        "A movie management app built to learn CRUD operations using JavaScript. Includes modal forms, dynamic cards, validation, and LocalStorage for persistence.",
+      technologies: ["JavaScript", "HTML5", "CSS3", "LocalStorage API"],
       links: {
         live: "https://acmegrade-web-dev-crud-assignment.vercel.app/",
         github:
           "https://github.com/dev-kant-kumar/Acmegrade-Web-Dev/tree/master/Classworks/CRUD%20Operation",
       },
       metrics: {
-        operations: "Full CRUD functionality",
-        accuracy: "Reliable data handling",
-        speed: "Fast performance",
+        purpose: "Learning CRUD deeply",
+        features: "Add/edit/delete movies",
+        learning: "DOM manipulation, events, storage",
       },
     },
+
     {
-      id: 5,
-      name: "Professional Typing Speed Analyzer",
+      id: 6,
+      name: "E-Commerce UI Prototype",
       category: "frontend",
       status: "Live",
       featured: false,
       year: "2024",
-      complexity: "Intermediate",
+      complexity: "Beginner–Intermediate",
+      projectImage: "", // add image link
       description:
-        "Advanced typing assessment tool with real-time WPM calculation, accuracy tracking, performance analytics, and personalized improvement suggestions.",
-      technologies: ["HTML5", "CSS3", "JavaScript", "Chart.js", "Web APIs"],
+        "Front-end e-commerce UI including product cards, forms, buttons, and basic JS interactions. Built to practice responsive layout and clean design.",
+      technologies: ["HTML5", "CSS3", "JavaScript"],
+      links: {
+        live: "https://acmegrade-web-dev-assignment.devkantkumar.com",
+        github:
+          "https://github.com/dev-kant-kumar/Acmegrade-Web-Dev/tree/master/Classworks/Ecommerce%20UI",
+      },
+      metrics: {
+        purpose: "UI development practice",
+        features: "Cards, forms, navigation",
+        learning: "Layout, UI components, JS basics",
+      },
+    },
+
+    // -------------------------
+    // EARLY JS PROJECTS
+    // -------------------------
+    {
+      id: 7,
+      name: "Swift Type – Typing Speed Test",
+      category: "frontend",
+      status: "Live",
+      featured: false,
+      year: "2024",
+      complexity: "Beginner",
+      projectImage: "", // add image link
+      description:
+        "A typing test built to practice DOM events, timers, and dynamic UI updates. Shows WPM, CPM, error count, and accuracy.",
+      technologies: ["HTML5", "CSS3", "JavaScript"],
       links: {
         live: "https://dev-kant-kumar.github.io/Swift-Type/",
         github: "https://github.com/dev-kant-kumar/Swift-Type",
       },
       metrics: {
-        tests: "Multiple test sessions",
-        features: "Real-time tracking",
-        accuracy: "Precise calculations",
+        purpose: "Early JavaScript practice",
+        features: "WPM/CPM calculation",
+        learning: "Timers, DOM, UI updates",
       },
     },
+
     {
-      id: 6,
-      name: "Advanced Calculator Interface",
+      id: 8,
+      name: "Basic Calculator",
       category: "frontend",
       status: "Live",
       featured: false,
       year: "2024",
-      complexity: "Basic",
+      complexity: "Beginner",
+      projectImage: "", // add image link
       description:
-        "Scientific calculator with advanced mathematical operations, history tracking, keyboard support, and responsive design with smooth animations.",
-      technologies: ["HTML5", "CSS3", "JavaScript", "Math.js", "PWA"],
+        "My first JavaScript project: a simple calculator performing basic arithmetic with a clean interface.",
+      technologies: ["HTML5", "CSS3", "JavaScript"],
       links: {
         live: "https://dev-kant-kumar.github.io/Calculator/",
         github: "https://github.com/dev-kant-kumar/Calculator",
       },
       metrics: {
-        calculations: "Mathematical operations",
-        accuracy: "Precise results",
-        speed: "Instant calculations",
+        purpose: "First step into JavaScript",
+        features: "Basic arithmetic",
+        learning: "Events, DOM, UI basics",
       },
     },
   ],

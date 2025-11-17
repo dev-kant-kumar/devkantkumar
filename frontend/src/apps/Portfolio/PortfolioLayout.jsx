@@ -7,7 +7,7 @@ import "./common/styles/animations.css";
 
 const PortfolioLayout = () => {
   // Show performance monitor in development mode
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   return (
     <div className="relative">

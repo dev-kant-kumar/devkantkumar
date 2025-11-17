@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { Code2, FolderKanban, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
@@ -375,6 +376,53 @@ const Projects = () => {
                     whileHover={{ y: -10 }}
                     style={{ transformStyle: "preserve-3d" }}
                   >
+                    <div>
+                      {project.projectImage ? (
+                        <img src={project.projectImage} alt={project.name} />
+                      ) : (
+                        <div className="relative h-64 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+                          {/* Animated background pattern */}
+                          <div className="absolute inset-0 opacity-10">
+                            <div
+                              className="absolute top-0 left-0 w-full h-full"
+                              style={{
+                                backgroundImage:
+                                  "repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(6, 182, 212, 0.1) 35px, rgba(6, 182, 212, 0.1) 70px)",
+                              }}
+                            />
+                          </div>
+
+                          {/* Icon container */}
+                          <div className="relative z-10 flex flex-col items-center gap-4">
+                            <div className="relative">
+                              <FolderKanban
+                                className="w-20 h-20 text-cyan-400/80"
+                                strokeWidth={1.5}
+                              />
+                              <Code2
+                                className="w-8 h-8 text-purple-400/60 absolute -top-2 -right-2"
+                                strokeWidth={2}
+                              />
+                              <Sparkles
+                                className="w-6 h-6 text-blue-400/60 absolute -bottom-1 -left-1"
+                                strokeWidth={2}
+                              />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-slate-400 text-sm font-medium">
+                                Project {index + 1}
+                              </p>
+                              <p className="text-slate-500 text-xs mt-1">
+                                {project.category}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Subtle gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
+                        </div>
+                      )}
+                    </div>
                     {/* Project Header */}
                     <div className="p-8">
                       <div className="flex items-center justify-between mb-6">
