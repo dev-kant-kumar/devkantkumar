@@ -6,7 +6,7 @@
 // Add this to your .env file:
 // VITE_DISCORD_NEWSLETTER_WEBHOOK_URL=https://discord.com/api/webhooks/your-webhook-url
 const DISCORD_NEWSLETTER_WEBHOOK_URL = import.meta.env
-  .VITE_DISCORD_NEWSLETTER_WEBHOOK_URL;
+  .DISCORD_NEWSLETTER_WEBHOOK_URL;
 
 /**
  * Sends a newsletter signup notification to Discord

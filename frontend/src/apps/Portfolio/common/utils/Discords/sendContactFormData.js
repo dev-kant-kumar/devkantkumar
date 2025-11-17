@@ -13,7 +13,7 @@
 export async function sendToDiscord(formData) {
   // Get webhook URL from environment variable
   const DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL = import.meta.env
-    .VITE_DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL;
+    .DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL;
 
   if (!DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL) {
     console.error("Discord webhook URL is not configured");
@@ -143,7 +143,7 @@ export async function sendToDiscord(formData) {
  */
 export async function sendToDiscordWithCustomBot(formData) {
   const DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL = import.meta.env
-    .VITE_DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL;
+    .DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL;
 
   if (!DISCORD_PORTFOLIO_CONTACT_WEBHOOK_URL) {
     console.error("Discord webhook URL is not configured");
