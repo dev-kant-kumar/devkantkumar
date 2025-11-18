@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
+import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
 import { portfolioData } from "../../store/data/portfolioData";
 import { localPostMetas, localPosts } from "./postsLocal";
 
@@ -118,6 +119,11 @@ const Blog = () => {
       // Simulate API call - replace with actual newsletter subscription API
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log("Newsletter subscription:", email);
+
+      // Send notification to Discord (non-blocking like on details page)
+      sendNewsletterNotificationToDiscord(email).catch((err) =>
+        console.error("Discord notification failed:", err)
+      );
 
       setNewsletterSubmitted(true);
       setEmail("");
