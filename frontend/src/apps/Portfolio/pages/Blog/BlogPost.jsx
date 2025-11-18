@@ -152,6 +152,7 @@ const BlogPost = () => {
       setFeedbackErrors({
         submit: "Failed to submit feedback. Please try again.",
       });
+      console.log("Feedback submission error:", error);
     } finally {
       setIsSubmittingFeedback(false);
     }
@@ -745,7 +746,7 @@ const BlogPost = () => {
                   [&>img]:rounded-xl [&>img]:shadow-2xl [&>img]:border [&>img]:border-slate-700 [&>img]:my-10 [&>img]:w-full [&>img]:object-cover
                   [&>hr]:border-slate-700 [&>hr]:my-16 [&>hr]:border-t-2
                   [&>a]:text-cyan-400 [&>a]:font-medium [&>a]:underline-offset-4 [&>a]:transition-colors [&>a]:duration-200 hover:[&>a]:text-cyan-300 hover:[&>a]:underline
-                  [&>strong]:text-white [&>strong]:font-semibold [&>strong]:bg-gradient-to-r [&>strong]:from-cyan-400 [&>strong]:to-blue-400 [&>strong]:bg-clip-text [&>strong]:text-transparent
+                  [&>strong]:text-white [&>strong]:font-semibold [&>strong]:bg-gradient-to-r [&>strong]:from-cyan-400 [&>strong]:to-blue-400 [&>strong]:bg-clip-text
                   [&>em]:text-slate-200 [&>em]:italic [&>em]:font-medium"
                     >
                       {/* Render the JSX component post content */}
