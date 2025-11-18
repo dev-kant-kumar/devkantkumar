@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Blog Homepage -->
+  <url>
+    <loc>https://devkantkumar.com/blog</loc>
+    <lastmod>2025-11-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Blog Post: React Server Components 2025 -->
+  <url>
+    <loc>https://devkantkumar.com/blog/react-server-components-2025</loc>
+    <lastmod>2025-11-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+
+    <!-- Image for this post -->
+    <image:image>
+      <image:loc>https://devkantkumar.com/images/blog/rsc-2025-featured.jpg</image:loc>
+      <image:title>React Server Components 2025 Complete Guide</image:title>
+      <image:caption>Comprehensive guide to React Server Components architecture, performance optimization, and production patterns</image:caption>
+    </image:image>
+
+    <!-- News attributes (helps with Google News) -->
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2025-11-18T00:00:00+00:00</news:publication_date>
+      <news:title>React Server Components (RSC) in 2025: Complete Mastery Guide</news:title>
+      <news:keywords>react, server components, next.js, performance, web development</news:keywords>
+    </news:news>
+  </url>
+
+  <!-- Add more blog posts here as you publish them -->
+
+</urlset>

@@ -1,27 +1,130 @@
+# robots.txt for devkantkumar.com
+# Updated: 2025-11-18
+
+# ============================================
+# Default rules for all bots
+# ============================================
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://devkantkumar.com/sitemap.xml
-
-# Crawl-delay for all bots
 Crawl-delay: 1
 
-# Specific rules for search engines
+# ============================================
+# Specific rules for major search engines
+# ============================================
+
+# Google (fastest crawling, no delay)
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0
 
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.png
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.webp
+
+# Bing (moderate crawling)
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
-# Block access to admin areas (if any)
-Disallow: /admin/
-Disallow: /api/
-Disallow: /*.json$
+# Yandex (moderate crawling)
+User-agent: Yandex
+Allow: /
+Crawl-delay: 1
 
-# Allow important files
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+# Baidu (Chinese search engine)
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+# ============================================
+# AI/ML Crawlers (Control AI training bots)
+# ============================================
+
+# OpenAI GPT crawlers
+User-agent: GPTBot
+Disallow: /
+
+# Google Bard/Gemini
+User-agent: Google-Extended
+Disallow: /
+
+# Common Crawl (used by AI models)
+User-agent: CCBot
+Disallow: /
+
+# Anthropic Claude crawler
+User-agent: anthropic-ai
+Disallow: /
+
+# Facebook/Meta AI
+User-agent: FacebookBot
+Disallow: /
+
+# ByteDance (TikTok) AI
+User-agent: Bytespider
+Disallow: /
+
+# ============================================
+# Block problematic/aggressive bots
+# ============================================
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: dotbot
+Disallow: /
+
+# ============================================
+# Allow important resources
+# ============================================
 Allow: /favicon.ico
 Allow: /manifest.json
 Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /*.css
+Allow: /*.js
+Allow: /images/
+Allow: /blog/
+Allow: /assets/
+
+# ============================================
+# Block private/sensitive areas
+# ============================================
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /*.json$
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /package-lock.json
+
+# Block URL parameters that create duplicate content
+Disallow: /*?*utm_source=
+Disallow: /*?*utm_medium=
+Disallow: /*?*utm_campaign=
+Disallow: /*?session_id=
+Disallow: /*?sort=
+
+# ============================================
+# Sitemap location
+# ============================================
+Sitemap: https://devkantkumar.com/sitemap.xml
+Sitemap: https://devkantkumar.com/sitemap-blog.xml
