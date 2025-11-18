@@ -1,12 +1,10 @@
 import {
   AlertCircle,
-  BookmarkPlus,
   Check,
   ChevronDown,
   Copy,
   GitBranch,
   Search,
-  Share2,
   Terminal,
   Zap,
 } from "lucide-react";
@@ -87,36 +85,6 @@ function GitSurvivalFeaturedImage() {
           Real Problems. Real Solutions. Zero BS.
         </p>
 
-        {/* Problem Statement Box */}
-        {/* <div className="max-w-3xl mx-auto bg-red-900/30 border-2 border-red-500/50 rounded-2xl p-6 mb-8 backdrop-blur-sm shadow-2xl shadow-red-500/20 animate-slide-up">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="text-red-400 flex-shrink-0 mt-1" size={32} />
-            <div className="text-left">
-              <p className="text-red-200 text-lg font-semibold mb-2">
-                "I just committed to the wrong branch... again. 😱"
-              </p>
-              <p className="text-red-300/80 text-sm">
-                Sound familiar? Every developer has Googled "git undo commit" at 2 AM.
-              </p>
-            </div>
-          </div>
-        </div> */}
-
-        {/* Solution Highlight */}
-        {/* <div className="max-w-3xl mx-auto bg-green-900/30 border-2 border-green-500/50 rounded-2xl p-6 mb-8 backdrop-blur-sm shadow-2xl shadow-green-500/20 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <div className="flex items-start gap-4">
-            <CheckCircle className="text-green-400 flex-shrink-0 mt-1" size={32} />
-            <div className="text-left">
-              <p className="text-green-200 text-lg font-semibold mb-2">
-                12 Real Scenarios. Instant Copy-Paste Solutions. ✨
-              </p>
-              <p className="text-green-300/80 text-sm">
-                No more 20-minute Google sessions. Get the exact commands you need.
-              </p>
-            </div>
-          </div>
-        </div> */}
-
         {/* Stats Row */}
         <div
           className="flex justify-center gap-8 mb-8 animate-slide-up"
@@ -160,19 +128,6 @@ function GitSurvivalFeaturedImage() {
             🚀 Scenario-Based
           </span>
         </div>
-
-        {/* Bottom CTA */}
-        {/* <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl font-bold text-white text-lg shadow-2xl shadow-cyan-500/50 animate-pulse-slow">
-          <Terminal size={24} />
-          <span>Stop Googling. Start Solving.</span>
-          <TrendingUp size={24} />
-        </div> */}
-
-        {/* Social Proof Badge */}
-        {/* <div className="mt-6 inline-flex items-center gap-2 text-gray-400 text-sm animate-fade-in" style={{ animationDelay: '1s' }}>
-          <Users size={16} />
-          <span>Join thousands of developers who bookmarked this</span>
-        </div> */}
       </div>
 
       {/* Corner Accents */}
@@ -511,7 +466,7 @@ function GitSurvivalGuide() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
+    <div className="min-h-screen ">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10"></div>
@@ -560,7 +515,7 @@ function GitSurvivalGuide() {
       </div>
 
       {/* Introduction */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-0 py-8">
         <div className="bg-blue-900/30 border border-blue-500/30 rounded-2xl p-6 mb-12">
           <h2 className="text-2xl font-bold text-blue-300 mb-3">
             Stop Googling. Start Solving.
@@ -606,7 +561,7 @@ function GitSurvivalGuide() {
       </div>
 
       {/* Main Scenarios */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-0 pb-16">
         <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
           <span className="text-4xl">😱</span> OH NO Moments - Quick Fixes
         </h2>
@@ -727,17 +682,6 @@ function GitSurvivalGuide() {
             repo at least once.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <button className="flex items-center gap-2 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-semibold transition-colors">
-              <BookmarkPlus size={20} />
-              Bookmark This Page
-            </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-semibold transition-colors">
-              <Share2 size={20} />
-              Share With Team
-            </button>
-          </div>
-
           <p className="text-gray-400 mt-8 text-sm">
             💬 Have a Git disaster story or a lifesaving command?{" "}
             <strong className="text-cyan-400">
@@ -835,10 +779,11 @@ GitSurvivalGuide.info = {
   ],
 };
 // New: card-safe image for list cards and featured card
+import git from "../Images/git.png";
 function GitSurvivalCardImage() {
   return (
     <img
-      src="/devkantkumar.jpg"
+      src={git}
       alt="Git Basics cover"
       className="w-full h-full object-cover"
     />

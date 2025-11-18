@@ -99,17 +99,16 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
 
   const getProjectSchema = (project) => ({
     "@context": "https://schema.org",
-    "@type": "CreativeWork",
-    "name": project.title,
+    "@type": project.githubUrl ? "SoftwareSourceCode" : "CreativeWork",
+    "name": project.title || project.name,
     "description": project.description,
-    "url": project.liveUrl || project.githubUrl,
+    "url": project.liveUrl || project.links?.live || project.githubUrl || project.links?.github,
     "image": project.image,
-    "author": {
-      "@type": "Person",
-      "name": personalInfo.name
-    },
-    "dateCreated": project.completedDate,
-    "programmingLanguage": project.technologies,
+    "codeRepository": project.githubUrl || project.links?.github,
+    "programmingLanguage": Array.isArray(project.technologies) ? project.technologies.join(", ") : project.technologies,
+    "runtimePlatform": "Web",
+    "author": { "@type": "Person", "name": personalInfo.name },
+    "dateCreated": project.completedDate || project.year,
     "applicationCategory": "WebApplication"
   });
 
@@ -153,6 +152,33 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
     }
   });
 
+  // Add ItemList for projects listing
+  const getItemListSchema = () => {
+    const items = (pageData.items || projects || []).map((p, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "url": `${seoConfig?.site?.url || "https://devkantkumar.com"}/projects/${p.id}`
+    }));
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": items
+    };
+  };
+  // Add BreadcrumbList for pages
+  const getBreadcrumbsSchema = () => {
+    const crumbs = (pageData.breadcrumbs || []).map((c, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "name": c.name,
+      "item": `${seoConfig?.site?.url || "https://devkantkumar.com"}${c.path}`
+    }));
+    return {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": crumbs
+    };
+  };
   const getSchemaData = () => {
     switch (type) {
       case 'person':
@@ -165,6 +191,10 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
         return getBlogPostSchema(pageData);
       case 'organization':
         return getOrganizationSchema();
+      case 'itemList':
+        return getItemListSchema();
+      case 'breadcrumbs':
+        return getBreadcrumbsSchema();
       default:
         return getPersonSchema();
     }

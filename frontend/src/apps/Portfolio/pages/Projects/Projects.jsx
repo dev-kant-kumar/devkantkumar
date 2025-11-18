@@ -156,7 +156,23 @@ const Projects = () => {
         keywords={portfolioData.seoKeywords}
         type="website"
       />
-      <StructuredData type="website" />
+      {/* ItemList JSON-LD for the Projects listing */}
+      <StructuredData
+        type="itemList"
+        pageData={{
+          items: filteredProjects.map(p => ({ id: p.id }))
+        }}
+      />
+      {/* Breadcrumbs for /projects */}
+      <StructuredData
+        type="breadcrumbs"
+        pageData={{
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: "Projects", path: "/projects" }
+          ]
+        }}
+      />
       <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">

@@ -11,32 +11,40 @@ const SEOHead = ({
   type = 'website',
   article = {},
   noindex = false,
-  canonical
+  canonical,
+  canonicalUrl
 }) => {
   const { personalInfo, seoKeywords, seoConfig } = portfolioData;
 
-  // Get page-specific SEO data from portfolioData
   const getPageSEO = (pageName) => {
     return seoConfig.pages[pageName] || seoConfig.pages.home;
   };
 
-  // Determine current page from title or URL
-  const currentPage = title ? title.toLowerCase() : 'home';
+  // Use pathname to infer page key (home, about, blog, content, etc.)
+  const getCurrentPage = () => {
+    if (typeof window === 'undefined') return 'home';
+    const path = window.location.pathname.toLowerCase();
+    const firstSegment = path.split('/').filter(Boolean)[0] || 'home';
+    return firstSegment;
+  };
+
+  const currentPage = getCurrentPage();
   const pageSEO = getPageSEO(currentPage);
 
-  // All values from portfolioData
-  const pageTitle = title ? `${pageSEO.title} | ${personalInfo.name} - ${personalInfo.title}` : seoConfig.defaultMeta.title;
-  const pageDescription = description || pageSEO.description || seoConfig.defaultMeta.description;
+  // Use provided title directly; otherwise build from page config + branding
+  const pageTitle = title
+    ? title
+    : `${pageSEO.title} | ${personalInfo.name} - ${personalInfo.title}`;
+  const pageDescription =
+    description || pageSEO.description || seoConfig.defaultMeta.description;
   const pageImage = image || personalInfo.profileImage;
-  const pageUrl = url || (typeof window !== 'undefined' ? window.location.href : seoConfig.site.url);
-  const pageKeywords = [
-    ...seoKeywords,
-    ...keywords
-  ].join(', ');
+  const pageUrl =
+    url ||
+    (typeof window !== 'undefined' ? window.location.href : seoConfig.site.url);
+  const pageKeywords = [...seoKeywords, ...keywords].join(', ');
 
   return (
     <Helmet>
-      {/* Basic Meta Tags */}
       <title>{pageTitle}</title>
       <meta name="title" content={pageTitle} />
       <meta name="description" content={pageDescription} />
@@ -44,9 +52,7 @@ const SEOHead = ({
       <meta name="author" content={personalInfo.name} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-
-      {/* Canonical URL */}
-      <link rel="canonical" href={canonical || pageUrl} />
+      <link rel="canonical" href={canonical || canonicalUrl || pageUrl} />
 
       {/* Site Verifications */}
       <meta name="google-site-verification" content={seoConfig.analytics.googleSiteVerification} />
@@ -82,13 +88,13 @@ const SEOHead = ({
       )}
 
       {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content={seoConfig.social.twitter} />
-        <meta name="twitter:creator" content={seoConfig.social.twitter} />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content={pageImage} />
-        <meta name="twitter:domain" content={seoConfig.site.domain} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content={seoConfig.social.twitter} />
+      <meta name="twitter:creator" content={seoConfig.social.twitter} />
+      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:description" content={pageDescription} />
+      <meta name="twitter:image" content={pageImage} />
+      <meta name="twitter:domain" content={seoConfig.site.domain} />
 
       {/* Performance & Crawl */}
       <meta httpEquiv="x-dns-prefetch-control" content="on" />

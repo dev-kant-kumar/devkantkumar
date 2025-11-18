@@ -28,49 +28,53 @@ const TermsOfService = React.lazy(() =>
   import("./pages/Legal/TermsOfService.jsx")
 );
 
+import Loader from "../../shared/components/Loader.jsx";
+
 const PortfolioRoutes = () => {
   return (
-    <Routes>
-      {/* All portfolio routes wrapped in common layout */}
-      <Route path="/" element={<PortfolioLayout />}>
-        {/* Home page - Hero + Featured work */}
-        <Route index element={<Home />} />
+    <React.Suspense fallback={<Loader />}>
+      <Routes>
+        {/* All portfolio routes wrapped in common layout */}
+        <Route path="/" element={<PortfolioLayout />}>
+          {/* Home page - Hero + Featured work */}
+          <Route index element={<Home />} />
 
-        {/* About page - Personal story, values, certifications */}
-        <Route path="about" element={<About />} />
+          {/* About page - Personal story, values, certifications */}
+          <Route path="about" element={<About />} />
 
-        {/* Projects listing page - Grid with filters */}
-        <Route path="projects" element={<Projects />} />
+          {/* Projects listing page - Grid with filters */}
+          <Route path="projects" element={<Projects />} />
 
-        {/* Individual project case study */}
-        <Route path="projects/:projectId" element={<ProjectDetail />} />
+          {/* Individual project case study */}
+          <Route path="projects/:projectId" element={<ProjectDetail />} />
 
-        {/* Skills page - Technical expertise matrix */}
-        <Route path="skills" element={<Skills />} />
+          {/* Skills page - Technical expertise matrix */}
+          <Route path="skills" element={<Skills />} />
 
-        {/* Content hub page - YouTube + LinkedIn + Blog */}
-        <Route path="content" element={<Content />} />
+          {/* Content hub page - YouTube + LinkedIn + Blog */}
+          <Route path="content" element={<Content />} />
 
-        {/* Blog listing page */}
-        <Route path="blog" element={<Blog />} />
+          {/* Blog listing page */}
+          <Route path="blog" element={<Blog />} />
 
-        {/* Individual blog post */}
-        <Route path="blog/:slug" element={<BlogPost />} />
+          {/* Individual blog post */}
+          <Route path="blog/:slug" element={<BlogPost />} />
 
-        {/* Contact page - Form + alternative methods */}
-        <Route path="contact" element={<Contact />} />
+          {/* Contact page - Form + alternative methods */}
+          <Route path="contact" element={<Contact />} />
 
-        {/* FAQ page - Frequently asked questions */}
-        <Route path="faq" element={<FAQ />} />
+          {/* FAQ page - Frequently asked questions */}
+          <Route path="faq" element={<FAQ />} />
 
-        {/* Sitemap page - Site structure overview */}
-        <Route path="sitemap" element={<Sitemap />} />
+          {/* Sitemap page - Site structure overview */}
+          <Route path="sitemap" element={<Sitemap />} />
 
-        {/* Legal pages */}
-        <Route path="privacy" element={<PrivacyPolicy />} />
-        <Route path="terms" element={<TermsOfService />} />
-      </Route>
-    </Routes>
+          {/* Legal pages */}
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<TermsOfService />} />
+        </Route>
+      </Routes>
+    </React.Suspense>
   );
 };
 

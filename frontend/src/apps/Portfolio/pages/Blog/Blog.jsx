@@ -477,22 +477,31 @@ const Blog = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                // Function: Blog (featured card image usage)
-                <Link to={`/blog/${featuredPost.slug}`} className="group block bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
+                <Link
+                  to={`/blog/${featuredPost.slug}`}
+                  className="group block bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]"
+                >
                   <div className="lg:flex">
                     <div className="lg:w-1/2">
                       <div className="relative h-64 lg:h-full overflow-hidden">
                         {renderFeaturedImageForMeta(featuredPost)}
                         <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 bg-cyan-500 text-white text-sm font-medium rounded-full">Featured</span>
+                          <span className="px-3 py-1 bg-cyan-500 text-white text-sm font-medium rounded-full">
+                            Featured
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="lg:w-1/2 p-8 lg:p-12">
                       <div className="flex items-center gap-4 mb-4">
-                        <span className="px-3 py-1 bg-slate-700 text-cyan-300 text-sm rounded-full">{featuredPost.category}</span>
+                        <span className="px-3 py-1 bg-slate-700 text-cyan-300 text-sm rounded-full">
+                          {featuredPost.category}
+                        </span>
                         <span className="text-slate-400 text-sm">
-                          {featuredPost.readTime} • {new Date(featuredPost.publishDate).toLocaleDateString()}
+                          {featuredPost.readTime} •{" "}
+                          {new Date(
+                            featuredPost.publishDate
+                          ).toLocaleDateString()}
                         </span>
                       </div>
                       <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors">
@@ -586,11 +595,12 @@ const Blog = () => {
                         to={`/blog/${post.slug}`}
                         className="block bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]"
                       >
-                        // Function: Blog (posts grid image usage)
                         <div className="relative h-48 overflow-hidden">
                           {renderCardImageForMeta(post)}
                           <div className="absolute top-3 left-3">
-                            <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full">{post.category}</span>
+                            <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full">
+                              {post.category}
+                            </span>
                           </div>
                         </div>
                         <div className="p-6">

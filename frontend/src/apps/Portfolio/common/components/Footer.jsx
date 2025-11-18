@@ -316,7 +316,7 @@ const Footer = () => {
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span>Subscribe</span>
+                        <span className="hidden md:block">Subscribe</span>
                       </>
                     )}
                   </button>

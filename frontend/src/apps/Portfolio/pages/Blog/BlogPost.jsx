@@ -304,7 +304,7 @@ const BlogPost = () => {
   if (error || !blogPost) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="text-center max-w-md px-4">
+        <div className="text-center max-w-md px-0">
           <div className="mb-8">
             <div className="w-24 h-24 mx-auto bg-slate-800 rounded-full flex items-center justify-center mb-6">
               <svg
@@ -513,7 +513,7 @@ const BlogPost = () => {
             viewport={{ once: true }}
             className="pb-12"
           >
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-5xl mx-auto px-0 sm:px-6 lg:px-8">
               <div className="relative group rounded-2xl overflow-hidden shadow-2xl">
                 <div className="aspect-[21/9] bg-slate-800">
                   {renderHeroImage()}
@@ -526,7 +526,7 @@ const BlogPost = () => {
 
         {/* Main Content */}
         <section className="pt-4 pb-8 lg:pb-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-0">
             <div className="lg:grid lg:grid-cols-12 lg:gap-8 xl:gap-12">
               {/* Sidebar - Left (Desktop) */}
               <aside className="hidden lg:block lg:col-span-3">
@@ -694,12 +694,13 @@ const BlogPost = () => {
 
               {/* Main Article */}
               <article className="lg:col-span-9">
-                <div className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-700/50 p-10 sm:p-16 shadow-2xl shadow-slate-900/20 relative overflow-hidden">
+                {/* Reduced padding on main content */}
+                <div className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-700/50 p-6 sm:p-8 lg:p-10 shadow-2xl shadow-slate-900/20 relative overflow-hidden">
                   {/* Background decoration */}
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-800/10 via-transparent to-cyan-900/5 pointer-events-none"></div>
                   <div className="relative z-10">
                     <div
-                      className="prose prose-xl prose-invert max-w-none blog-content text-slate-300 leading-loose text-lg font-light
+                      className="prose prose-base md:prose-lg lg:prose-xl prose-invert max-w-none blog-content text-slate-300 leading-relaxed md:leading-loose text-base md:text-lg font-light
                   prose-headings:text-white prose-headings:font-bold prose-headings:tracking-tight prose-headings:scroll-mt-24
                   prose-h1:text-5xl prose-h1:mt-0 prose-h1:mb-10 prose-h1:leading-tight prose-h1:bg-gradient-to-r prose-h1:from-white prose-h1:to-slate-300 prose-h1:bg-clip-text prose-h1:text-transparent
                   prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-8 prose-h2:pb-4 prose-h2:border-b prose-h2:border-slate-700 prose-h2:text-cyan-300 prose-h2:relative prose-h2:before:absolute prose-h2:before:left-0 prose-h2:before:bottom-0 prose-h2:before:w-16 prose-h2:before:h-0.5 prose-h2:before:bg-gradient-to-r prose-h2:before:from-cyan-400 prose-h2:before:to-blue-500
@@ -782,11 +783,11 @@ const BlogPost = () => {
                             />
                             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 border-2 border-slate-900 rounded-full"></div>
                           </div>
-                          <div className="flex-1">
+                          <div className="sm:flex-1 max-w-[18rem] sm:max-w-none">
                             <h4 className="text-xl font-bold text-white mb-2">
                               {portfolioData.personalInfo.name}
                             </h4>
-                            <p className="text-slate-300 mb-4 leading-relaxed">
+                            <p className="hidden md:block text-slate-300 mb-4 leading-relaxed">
                               {portfolioData.personalInfo.title} passionate
                               about creating innovative web solutions. I share
                               insights on modern development practices, emerging
@@ -843,6 +844,12 @@ const BlogPost = () => {
                             </div>
                           </div>
                         </div>
+                        <p className="block md:hidden text-slate-300 my-4 leading-relaxed">
+                          {portfolioData.personalInfo.title} passionate about
+                          creating innovative web solutions. I share insights on
+                          modern development practices, emerging technologies,
+                          and practical coding tips.
+                        </p>
                       </div>
                     </div>
 
@@ -1134,7 +1141,7 @@ const BlogPost = () => {
 
         {/* Related Posts */}
         <section className="py-16 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                 Continue Reading

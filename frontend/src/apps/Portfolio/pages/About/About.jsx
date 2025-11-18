@@ -11,8 +11,9 @@ import {
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { portfolioData } from "../../store/data/portfolioData";
+import SEOHead from "../../../../components/SEO/SEOHead";
 
-const About = () => {
+function About() {
   const [activeTab, setActiveTab] = useState("story");
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
@@ -94,6 +95,13 @@ const About = () => {
 
   return (
     <>
+      <SEOHead
+        title="About"
+        description="Learn about Dev Kant Kumar, my journey, values, and goals as a full-stack developer."
+        keywords={portfolioData.seoKeywords}
+        type="website"
+        canonicalUrl="/about"
+      />
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}
         <section className="relative pt-32 pb-20 overflow-hidden">
