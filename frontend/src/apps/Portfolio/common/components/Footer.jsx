@@ -84,6 +84,7 @@ const Footer = () => {
       { name: "About Me", path: "/about" },
       { name: "My Skills", path: "/skills" },
       { name: "Portfolio", path: "/projects" },
+      { name: "Content", path: "/content" },
       { name: "Blog", path: "/blog" },
       { name: "Contact", path: "/contact" },
     ],

@@ -33,6 +33,7 @@ const Contact = () => {
   const [submitStatus, setSubmitStatus] = useState(null);
 
   const { personalInfo, socialLinks } = portfolioData;
+  const youtubeUrl = socialLinks?.professional?.youtube;
 
   const projectTypes = [
     { value: "web-development", label: "Web Development", icon: Globe },
@@ -74,6 +75,13 @@ const Contact = () => {
       value: "Connect with me",
       href: socialLinks.professional?.linkedin || "#",
       description: "Professional networking",
+    },
+    {
+      icon: Globe,
+      label: "YouTube",
+      value: "Watch my latest videos",
+      href: youtubeUrl || "#",
+      description: "AI, development, and tech content",
     },
   ];
 

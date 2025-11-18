@@ -39,6 +39,13 @@
   </url>
 
   <url>
+    <loc>https://www.devkantkumar.com/content</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://www.devkantkumar.com/contact</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>monthly</changefreq>

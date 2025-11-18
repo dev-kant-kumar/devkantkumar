@@ -1,4 +1,4 @@
-import { baseApiSlice } from '../../../../store/api/baseApiSlice';
+import { baseApiSlice } from "../../../../store/api/baseApiSlice";
 
 /**
  * Portfolio API Slice
@@ -11,32 +11,30 @@ export const portfolioApiSlice = baseApiSlice.injectEndpoints({
     // Projects endpoints
     getProjects: builder.query({
       query: (params = {}) => ({
-        url: '/portfolio/projects',
+        url: "/portfolio/projects",
         params,
       }),
-      providesTags: ['Project'],
+      providesTags: ["Project"],
     }),
 
     getProjectById: builder.query({
       query: (id) => `/portfolio/projects/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Project', id }],
+      providesTags: (result, error, id) => [{ type: "Project", id }],
     }),
 
     // Skills endpoints
     getSkills: builder.query({
-      query: () => '/portfolio/skills',
-      providesTags: ['Skill'],
+      query: () => "/portfolio/skills",
+      providesTags: ["Skill"],
     }),
-
-
 
     // Blog endpoints
     getBlogPosts: builder.query({
       query: (params = {}) => ({
-        url: '/portfolio/blog',
+        url: "/portfolio/blog",
         params,
       }),
-      providesTags: ['Blog'],
+      providesTags: ["Blog"],
       transformResponse: (response) => {
         // Handle both direct array and wrapped response
         const posts = response?.data || response || [];
@@ -45,31 +43,35 @@ export const portfolioApiSlice = baseApiSlice.injectEndpoints({
           stats: {
             totalPosts: posts.length,
             totalReaders: "10K+",
-            totalCategories: [...new Set(posts.map(post => post.category))].length,
-          }
+            totalCategories: [...new Set(posts.map((post) => post.category))]
+              .length,
+          },
         };
       },
       transformErrorResponse: (response) => ({
         status: response.status,
-        message: response.data?.message || 'Failed to fetch blog posts',
+        message: response.data?.message || "Failed to fetch blog posts",
       }),
     }),
 
     getBlogPostBySlug: builder.query({
       query: (slug) => `/portfolio/blog/${slug}`,
-      providesTags: (result, error, slug) => [{ type: 'BlogPost', id: slug }, 'Blog'],
+      providesTags: (result, error, slug) => [
+        { type: "BlogPost", id: slug },
+        "Blog",
+      ],
       transformResponse: (response) => response?.data || response,
       transformErrorResponse: (response) => ({
         status: response.status,
-        message: response.data?.message || 'Blog post not found',
+        message: response.data?.message || "Blog post not found",
       }),
     }),
 
     // Contact form endpoint
     submitContactForm: builder.mutation({
       query: (formData) => ({
-        url: '/portfolio/contact',
-        method: 'POST',
+        url: "/portfolio/contact",
+        method: "POST",
         body: formData,
       }),
     }),
@@ -77,8 +79,8 @@ export const portfolioApiSlice = baseApiSlice.injectEndpoints({
     // Newsletter subscription
     subscribeNewsletter: builder.mutation({
       query: (email) => ({
-        url: '/portfolio/newsletter/subscribe',
-        method: 'POST',
+        url: "/portfolio/newsletter/subscribe",
+        method: "POST",
         body: { email },
       }),
     }),
@@ -86,8 +88,8 @@ export const portfolioApiSlice = baseApiSlice.injectEndpoints({
     // Analytics (if needed for portfolio)
     trackPageView: builder.mutation({
       query: (data) => ({
-        url: '/analytics/pageview',
-        method: 'POST',
+        url: "/analytics/pageview",
+        method: "POST",
         body: data,
       }),
     }),

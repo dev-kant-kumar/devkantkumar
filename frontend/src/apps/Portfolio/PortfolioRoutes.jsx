@@ -14,6 +14,7 @@ const Skills = React.lazy(() => import("./pages/Skills/Skills.jsx"));
 const Blog = React.lazy(() => import("./pages/Blog/Blog.jsx"));
 const BlogPost = React.lazy(() => import("./pages/Blog/BlogPost.jsx"));
 const Contact = React.lazy(() => import("./pages/Contact/Contact.jsx"));
+const Content = React.lazy(() => import("./pages/Content/Content.jsx"));
 
 // Additional pages
 const FAQ = React.lazy(() => import("./pages/FAQ.jsx"));
@@ -46,6 +47,9 @@ const PortfolioRoutes = () => {
 
         {/* Skills page - Technical expertise matrix */}
         <Route path="skills" element={<Skills />} />
+
+        {/* Content hub page - YouTube + LinkedIn + Blog */}
+        <Route path="content" element={<Content />} />
 
         {/* Blog listing page */}
         <Route path="blog" element={<Blog />} />
