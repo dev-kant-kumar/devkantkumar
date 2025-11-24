@@ -1,26 +1,26 @@
 // Top-level imports
 import {
-  AlertTriangle,
-  ArrowRight,
-  BookOpen,
-  Calendar,
-  Check,
-  ChevronRight,
-  Clock,
-  Code2,
-  Copy,
-  Cpu,
-  Layers,
-  Lightbulb,
-  Rocket,
-  Server,
-  Shield,
-  Tag,
-  Target,
-  Terminal,
-  TrendingUp,
-  User,
-  Zap,
+    AlertTriangle,
+    ArrowRight,
+    BookOpen,
+    Calendar,
+    Check,
+    ChevronRight,
+    Clock,
+    Code2,
+    Copy,
+    Cpu,
+    Layers,
+    Lightbulb,
+    Rocket,
+    Server,
+    Shield,
+    Tag,
+    Target,
+    Terminal,
+    TrendingUp,
+    User,
+    Zap,
 } from "lucide-react";
 import React from "react";
 
@@ -78,10 +78,6 @@ function RSCFeaturedImage() {
             <span className="font-medium">Zero JS by Default</span>
           </span>
           <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-            <Zap className="text-yellow-400" size={20} />
-            <span className="font-medium">Instant TTFB</span>
-          </span>
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
             <Layers className="text-purple-400" size={20} />
             <span className="font-medium">Smart Composition</span>
           </span>
@@ -91,22 +87,17 @@ function RSCFeaturedImage() {
   );
 }
 
-function RSCCardImage() {
+function RSCCardImage({ className = "h-48" }) {
   return (
-    <div className="h-48 w-full bg-gradient-to-br from-cyan-900 via-slate-900 to-purple-900 rounded-xl flex items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(56,189,248,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.1) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-      <div className="relative flex items-center gap-3 text-cyan-200">
-        <Server size={28} className="text-cyan-400" />
-        <span className="font-bold text-xl">React Server Components</span>
+    <div className={`w-full bg-[#0f172a] rounded-xl flex items-center justify-center relative overflow-hidden group border border-slate-800 hover:border-cyan-500/50 transition-all duration-500 ${className}`}>
+      <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-900/40 via-[#0f172a] to-[#0f172a]" />
+      <div className="relative flex flex-col items-center gap-3 text-slate-100 transform group-hover:scale-105 transition-transform duration-300">
+        <div className="p-3 rounded-2xl bg-slate-800/50 border border-slate-700 shadow-lg">
+          <Server size={32} className="text-cyan-400" />
+        </div>
+        <span className="font-bold text-lg tracking-wide text-cyan-50">
+          React Server Components
+        </span>
       </div>
     </div>
   );

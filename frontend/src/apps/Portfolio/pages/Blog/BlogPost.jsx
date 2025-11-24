@@ -279,6 +279,8 @@ const BlogPost = () => {
         <img
           src={blogPost.image}
           alt={blogPost.title}
+          fetchpriority="high"
+          loading="eager"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       );

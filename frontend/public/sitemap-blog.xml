@@ -37,6 +37,30 @@
     </news:news>
   </url>
 
+  <!-- Blog Post: yt-dlp Guide -->
+  <url>
+    <loc>https://devkantkumar.com/blog/yt-dlp-guide</loc>
+    <lastmod>2025-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post: Anti Gravity Editor -->
+  <url>
+    <loc>https://devkantkumar.com/blog/anti-gravity-editor</loc>
+    <lastmod>2025-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post: Git Survival Guide -->
+  <url>
+    <loc>https://devkantkumar.com/blog/git-survival-guide</loc>
+    <lastmod>2025-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Add more blog posts here as you publish them -->
 
 </urlset>

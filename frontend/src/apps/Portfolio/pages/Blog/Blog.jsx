@@ -68,13 +68,16 @@ const Blog = () => {
   // Prefer JSX image component for featured
   const renderFeaturedImageForMeta = (meta) => {
     const C = getPostComponentBySlug(meta.slug);
-    const ImgComp = C?.FeaturedImage || C?.Image;
-    if (typeof ImgComp === "function") return <ImgComp />;
-    if (React.isValidElement(ImgComp)) return ImgComp;
+    // Use Image (CardImage) instead of FeaturedImage for the card view to avoid huge hero images
+    const ImgComp = C?.Image || C?.FeaturedImage;
+    if (typeof ImgComp === "function") return <ImgComp className="w-full h-full min-h-[300px] object-cover" />;
+    if (React.isValidElement(ImgComp)) return React.cloneElement(ImgComp, { className: "w-full h-full min-h-[300px] object-cover" });
     return (
       <img
         src={meta.image}
         alt={meta.title}
+        fetchpriority="high"
+        loading="eager"
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
       />
     );
@@ -84,8 +87,8 @@ const Blog = () => {
   const renderCardImageForMeta = (meta) => {
     const C = getPostComponentBySlug(meta.slug);
     const ImgComp = C?.Image;
-    if (typeof ImgComp === "function") return <ImgComp />;
-    if (React.isValidElement(ImgComp)) return ImgComp;
+    if (typeof ImgComp === "function") return <ImgComp className="w-full h-full object-cover" />;
+    if (React.isValidElement(ImgComp)) return React.cloneElement(ImgComp, { className: "w-full h-full object-cover" });
     return (
       <img
         src={meta.image}
@@ -619,7 +622,7 @@ const Blog = () => {
                           <div className="flex items-center justify-between text-sm text-slate-400">
                             <span>{post.readTime}</span>
                             <span>
-                              {new Date(post.publishedAt).toLocaleDateString()}
+                              {new Date(post.publishDate).toLocaleDateString()}
                             </span>
                           </div>
                         </div>

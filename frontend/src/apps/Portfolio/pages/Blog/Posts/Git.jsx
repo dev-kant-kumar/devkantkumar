@@ -1,12 +1,12 @@
 import {
-  AlertCircle,
-  Check,
-  ChevronDown,
-  Copy,
-  GitBranch,
-  Search,
-  Terminal,
-  Zap,
+    AlertCircle,
+    Check,
+    ChevronDown,
+    Copy,
+    GitBranch,
+    Search,
+    Terminal,
+    Zap,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -780,12 +780,12 @@ GitSurvivalGuide.info = {
 };
 // New: card-safe image for list cards and featured card
 import git from "../Images/git.png";
-function GitSurvivalCardImage() {
+function GitSurvivalCardImage({ className = "" }) {
   return (
     <img
       src={git}
       alt="Git Basics cover"
-      className="w-full h-full object-cover"
+      className={`w-full h-full object-cover ${className}`}
     />
   );
 }

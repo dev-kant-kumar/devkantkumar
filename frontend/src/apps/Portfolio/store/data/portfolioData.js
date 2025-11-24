@@ -633,11 +633,22 @@ export const portfolioData = {
     },
     defaultMeta: {
       title:
-        "Kant Kumar | MERN Stack, React, Node.js, Tailwind, Open Source Developer Portfolio",
+        "Dev Kant Kumar | MERN Stack, React, Node.js, Tailwind, Open Source Developer Portfolio",
       description:
-        "Kant Kumar – Full Stack Developer (MERN), UI/UX Engineer, and Open Source Contributor. Explore projects using React, Node.js, MongoDB, Tailwind CSS, Git, Postman, and more. Available for freelance, remote, and tech collaborations.",
-      image: "https://avatars.githubusercontent.com/u/203783910?v=4",
-      author: "Kant Kumar",
+        "Dev Kant Kumar – Full Stack Developer (MERN), UI/UX Engineer, and Open Source Contributor. Explore projects using React, Node.js, MongoDB, Tailwind CSS, Git, Postman, and more. Available for freelance, remote, and tech collaborations.",
+      image: "https://avatars.githubusercontent.com/u/101362859?v=4",
+      author: "Dev Kant Kumar",
+    },
+    analytics: {
+      googleSiteVerification: "1R7-ajqFcl9Qoi6f1TmmrJvhRyWjxRmGORdmYQyrnfw",
+      pinterestVerification: "", // Add if available
+    },
+    social: {
+      twitter: "@dev_kant_kumar",
+    },
+    site: {
+      url: "https://devkantkumar.com",
+      domain: "devkantkumar.com",
     },
   },
 

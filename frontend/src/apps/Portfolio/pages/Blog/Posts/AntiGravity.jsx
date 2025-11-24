@@ -88,9 +88,9 @@ function AntiGravityFeaturedImage() {
   );
 }
 
-function AntiGravityCardImage() {
+function AntiGravityCardImage({ className = "h-48" }) {
   return (
-    <div className="h-48 w-full bg-[#030712] rounded-xl flex items-center justify-center relative overflow-hidden group border border-slate-800/50 hover:border-indigo-500/30 transition-all duration-500">
+    <div className={`w-full bg-[#030712] rounded-xl flex items-center justify-center relative overflow-hidden group border border-slate-800/50 hover:border-indigo-500/30 transition-all duration-500 ${className}`}>
       <div className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity duration-500">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-900/40 via-transparent to-fuchsia-900/40" />
       </div>
