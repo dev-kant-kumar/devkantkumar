@@ -15,6 +15,7 @@ const Blog = React.lazy(() => import("./pages/Blog/Blog.jsx"));
 const BlogPost = React.lazy(() => import("./pages/Blog/BlogPost.jsx"));
 const Contact = React.lazy(() => import("./pages/Contact/Contact.jsx"));
 const Content = React.lazy(() => import("./pages/Content/Content.jsx"));
+const Test = React.lazy(() => import("./pages/Test/Test.jsx"));
 
 // Additional pages
 const FAQ = React.lazy(() => import("./pages/FAQ.jsx"));
@@ -72,6 +73,9 @@ const PortfolioRoutes = () => {
           {/* Legal pages */}
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsOfService />} />
+
+          {/* Test page */}
+          <Route path="test" element={<Test />} />
         </Route>
       </Routes>
     </React.Suspense>
