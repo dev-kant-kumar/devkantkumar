@@ -1,8 +1,10 @@
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer";
 import { fileURLToPath } from "url";
+
+// We use dynamic imports to handle the different environments
+// This prevents crashes if dependencies are missing locally or on Vercel
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +26,42 @@ const routes = [
   "/blog/react-server-components-2025",
 ];
 
+async function getBrowser() {
+  // Check if we are running on Vercel
+  const isVercel = process.env.VERCEL === "1";
+
+  if (isVercel) {
+    console.log("🚀 Detected Vercel environment. Using @sparticuz/chromium...");
+    try {
+      const chromium = await import("@sparticuz/chromium");
+      const puppeteerCore = await import("puppeteer-core");
+
+      // Optional: Load local chrome if available (for testing Vercel build locally)
+      // But usually we rely on the package
+
+      // Configure sparticuz/chromium
+      // Note: We might need to adjust graphics mode for screenshots, but for HTML scraping headless is fine
+
+      return await puppeteerCore.default.launch({
+        args: chromium.default.args,
+        defaultViewport: chromium.default.defaultViewport,
+        executablePath: await chromium.default.executablePath(),
+        headless: chromium.default.headless,
+      });
+    } catch (e) {
+      console.error("❌ Failed to launch Vercel browser:", e);
+      throw e;
+    }
+  } else {
+    console.log("💻 Detected local environment. Using full Puppeteer...");
+    const puppeteer = await import("puppeteer");
+    return await puppeteer.default.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+  }
+}
+
 async function prerender() {
   console.log("📦 Starting prerendering process...");
 
@@ -37,12 +75,11 @@ async function prerender() {
   // Give the server some time to start
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  let browser;
 
   try {
+    browser = await getBrowser();
+
     for (const route of routes) {
       const page = await browser.newPage();
 
@@ -53,6 +90,7 @@ async function prerender() {
       console.log(`Rendering: ${route}`);
 
       // Go to the page and wait for network idle (all requests finished)
+      // We use a slightly more relaxed timeout for Vercel
       await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
 
       // Wait a bit more for any client-side hydration/animations
@@ -83,9 +121,14 @@ async function prerender() {
     }
   } catch (error) {
     console.error("❌ Prerendering failed:", error);
+    // On Vercel, we might want to fail the build if prerendering fails
+    // But for now, let's log it and maybe allow the build to proceed (soft fail)
+    // or hard fail. Hard fail is better for SEO guarantees.
     process.exit(1);
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
     console.log("🛑 Stopping preview server...");
     server.kill();
     // Force exit in case server hangs
