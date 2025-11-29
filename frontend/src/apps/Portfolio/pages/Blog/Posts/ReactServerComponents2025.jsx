@@ -1686,8 +1686,8 @@ RSCGuide2025.info = {
   image: "/devkantkumar.jpg",
   featuredImage: "/devkantkumar.jpg",
   featured: true,
-  publishDate: "2025-11-18T00:00:00.000Z",
-  modifiedDate: "2025-11-18T00:00:00.000Z",
+  publishDate: "2025-11-18",
+  modifiedDate: "2025-11-18",
   tags: [
     "react",
     "server-components",

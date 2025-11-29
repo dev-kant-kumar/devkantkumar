@@ -1,4 +1,3 @@
-import React from 'react';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import { portfolioData } from '../../apps/Portfolio/store/data/portfolioData';
 
@@ -179,6 +178,19 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
       "itemListElement": crumbs
     };
   };
+  const getFAQSchema = () => ({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": (pageData.faqs || []).map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  });
+
   const getSchemaData = () => {
     switch (type) {
       case 'person':
@@ -195,6 +207,8 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
         return getItemListSchema();
       case 'breadcrumbs':
         return getBreadcrumbsSchema();
+      case 'faq':
+        return getFAQSchema();
       default:
         return getPersonSchema();
     }

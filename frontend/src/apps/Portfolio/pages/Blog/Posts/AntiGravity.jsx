@@ -1,26 +1,26 @@
 // Top-level imports
 import {
-  BookOpen,
-  Bot,
-  Brain,
-  Calendar,
-  Check,
-  ChevronRight,
-  Clock,
-  Copy,
-  Database,
-  Layers,
-  Lock,
-  Rocket,
-  Shield,
-  Sparkles,
-  Tag,
-  Target,
-  Terminal,
-  TrendingUp,
-  User,
-  Wand2,
-  Workflow
+    BookOpen,
+    Bot,
+    Brain,
+    Calendar,
+    Check,
+    ChevronRight,
+    Clock,
+    Copy,
+    Database,
+    Layers,
+    Lock,
+    Rocket,
+    Shield,
+    Sparkles,
+    Tag,
+    Target,
+    Terminal,
+    TrendingUp,
+    User,
+    Wand2,
+    Workflow
 } from "lucide-react";
 import React from "react";
 
@@ -539,8 +539,8 @@ AntiGravityPost.info = {
   image: "/devkantkumar.jpg", // Using existing image as placeholder or if available
   featuredImage: "/devkantkumar.jpg",
   featured: true,
-  publishDate: "2025-11-19T00:00:00.000Z",
-  modifiedDate: "2025-11-19T00:00:00.000Z",
+  publishDate: "2025-11-19",
+  modifiedDate: "2025-11-19",
   tags: [
     "ai",
     "google",

@@ -570,27 +570,42 @@ YtDlpGuidePost.CardImage = YtDlpCardImage;
 
 // Post metadata
 YtDlpGuidePost.info = {
-  id: "yt-dlp-terminal-guide-2025",
-  slug: "yt-dlp-terminal-guide-2025",
-  title: "How to Download YouTube Videos Using Terminal (yt-dlp Guide)",
+  id: "yt-dlp-guide",
+  slug: "yt-dlp-guide",
+  title: "How to Download YouTube Videos Using Terminal (yt-dlp Full Guide + Commands 2025)",
   excerpt:
-    "Stop using sketchy websites. Learn how to use yt-dlp, the powerful command-line tool to download 4K videos, playlists, and audio from YouTube safely and quickly.",
-  category: "Tutorials",
+    "The ultimate guide to using yt-dlp. Learn how to download 4K videos, playlists, audio-only, and bypass restrictions using the command line. No ads, no malware, just speed.",
+  category: "Dev Tools",
   author: "Dev Kant Kumar",
   readTime: "10 min read",
   image: "/devkantkumar.jpg",
   featuredImage: "/devkantkumar.jpg",
   featured: false,
-  publishDate: "2025-11-24T00:00:00.000Z",
-  modifiedDate: "2025-11-24T00:00:00.000Z",
+  publishDate: "2025-11-24",
+  modifiedDate: "2025-11-24",
   tags: [
     "yt-dlp",
-    "terminal",
+    "youtube-dl",
     "cli",
-    "youtube-downloader",
-    "tutorial",
-    "windows",
+    "terminal",
+    "video-download",
+    "open-source",
+    "command-line",
   ],
+  faqs: [
+    {
+      question: "Is yt-dlp free?",
+      answer: "Yes, yt-dlp is 100% free and open-source software."
+    },
+    {
+      question: "Is it legal to download YouTube videos?",
+      answer: "It depends on your local laws and YouTube's terms of service. Generally, downloading for personal offline use is a gray area, but distributing copyrighted content is illegal."
+    },
+    {
+      question: "How do I update yt-dlp?",
+      answer: "Run 'yt-dlp -U' in your terminal."
+    }
+  ]
 };
 
 export default YtDlpGuidePost;

@@ -1,19 +1,19 @@
 import {
-    AlertCircle,
-    Check,
-    ChevronDown,
-    Copy,
-    GitBranch,
-    Search,
-    Terminal,
-    Zap,
+  AlertCircle,
+  Check,
+  ChevronDown,
+  Copy,
+  GitBranch,
+  Search,
+  Terminal,
+  Zap,
 } from "lucide-react";
 import { useState } from "react";
+import git from "../Images/git.png";
 
 function GitSurvivalFeaturedImage() {
   return (
     <div className="w-full h-[630px] bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 relative overflow-hidden flex items-center justify-center">
-      {/* Animated Grid Background */}
       <div className="absolute inset-0 opacity-20">
         <div
           className="absolute inset-0"
@@ -761,8 +761,8 @@ GitSurvivalGuide.info = {
   image: "/devkantkumar.jpg",
   featuredImage: "/devkantkumar.jpg",
   featured: true,
-  publishDate: "2025-10-16T00:00:00.000Z",
-  modifiedDate: "2025-10-16T00:00:00.000Z",
+  publishDate: "2025-10-16",
+  modifiedDate: "2025-10-16",
   tags: [
     "git",
     "github",
@@ -779,7 +779,6 @@ GitSurvivalGuide.info = {
   ],
 };
 // New: card-safe image for list cards and featured card
-import git from "../Images/git.png";
 function GitSurvivalCardImage({ className = "" }) {
   return (
     <img
