@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  User,
-  ShoppingBag,
-  Download,
-  Star,
-  Calendar,
-  CreditCard,
-  Settings,
   Bell,
-  FileText,
+  Download,
   Heart,
-  TrendingUp,
-  Package
+  Package,
+  ShoppingBag,
+  Star,
+  User,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
 
 const ClientDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectCurrentUser);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/marketplace/auth/signin', { state: { from: '/marketplace/dashboard' } });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) return null;
 
   const stats = [
     { label: 'Total Orders', value: '24', icon: ShoppingBag, color: 'blue' },
@@ -25,60 +34,26 @@ const ClientDashboard = () => {
     { label: 'Reviews', value: '18', icon: Star, color: 'yellow' }
   ];
 
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: ShoppingBag },
+    { id: 'orders', label: 'Orders', icon: Package },
+    { id: 'downloads', label: 'Downloads', icon: Download },
+    { id: 'settings', label: 'Settings', icon: User }
+  ];
+
   const recentOrders = [
-    {
-      id: '#ORD-001',
-      product: 'React Admin Dashboard',
-      date: '2024-01-15',
-      amount: '$79',
-      status: 'completed',
-      downloadLink: '#'
-    },
-    {
-      id: '#ORD-002',
-      product: 'UI Component Kit',
-      date: '2024-01-12',
-      amount: '$49',
-      status: 'completed',
-      downloadLink: '#'
-    },
-    {
-      id: '#ORD-003',
-      product: 'Next.js Template',
-      date: '2024-01-10',
-      amount: '$99',
-      status: 'processing',
-      downloadLink: null
-    }
+    { id: '#ORD-7352', product: 'E-commerce UI Kit', date: 'Oct 24, 2023', amount: '$49.00', status: 'completed', downloadLink: '#' },
+    { id: '#ORD-7351', product: 'SaaS Dashboard Template', date: 'Oct 22, 2023', amount: '$79.00', status: 'processing', downloadLink: null },
+    { id: '#ORD-7350', product: 'Portfolio Website Theme', date: 'Oct 15, 2023', amount: '$39.00', status: 'completed', downloadLink: '#' },
+    { id: '#ORD-7349', product: 'Mobile App UI Kit', date: 'Oct 10, 2023', amount: '$59.00', status: 'completed', downloadLink: '#' },
+    { id: '#ORD-7348', product: 'Landing Page Bundle', date: 'Oct 05, 2023', amount: '$29.00', status: 'completed', downloadLink: '#' },
   ];
 
   const downloads = [
-    {
-      product: 'React Admin Dashboard',
-      version: 'v2.1.0',
-      downloadDate: '2024-01-15',
-      fileSize: '15 MB'
-    },
-    {
-      product: 'UI Component Kit',
-      version: 'v1.5.2',
-      downloadDate: '2024-01-12',
-      fileSize: '8 MB'
-    },
-    {
-      product: 'Icon Collection',
-      version: 'v3.0.1',
-      downloadDate: '2024-01-08',
-      fileSize: '25 MB'
-    }
-  ];
-
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: TrendingUp },
-    { id: 'orders', label: 'Orders', icon: Package },
-    { id: 'downloads', label: 'Downloads', icon: Download },
-    { id: 'favorites', label: 'Favorites', icon: Heart },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { product: 'E-commerce UI Kit', version: 'v2.4.0', downloadDate: 'Oct 24, 2023', fileSize: '145 MB' },
+    { product: 'Portfolio Website Theme', version: 'v1.1.0', downloadDate: 'Oct 15, 2023', fileSize: '85 MB' },
+    { product: 'Mobile App UI Kit', version: 'v3.0.0', downloadDate: 'Oct 10, 2023', fileSize: '210 MB' },
+    { product: 'Landing Page Bundle', version: 'v1.0.0', downloadDate: 'Oct 05, 2023', fileSize: '120 MB' },
   ];
 
   return (
@@ -100,7 +75,7 @@ const ClientDashboard = () => {
                 <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                   <User className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-medium text-gray-900">John Doe</span>
+                <span className="font-medium text-gray-900">{user?.name || 'User'}</span>
               </div>
             </div>
           </div>

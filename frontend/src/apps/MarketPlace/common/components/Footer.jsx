@@ -1,18 +1,17 @@
-import React from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Mail,
-  Phone,
-  MapPin,
+  CreditCard,
   Github,
   Linkedin,
-  Twitter,
-  ShoppingBag,
-  CreditCard,
+  Mail,
+  MapPin,
+  Phone,
   Shield,
-  Truck
+  ShoppingBag,
+  Truck,
+  Twitter
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();

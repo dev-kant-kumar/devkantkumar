@@ -2,11 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import { baseApiSlice } from "./api/baseApiSlice";
 
 // Import UI slices from different panels
-import portfolioUIReducer from "../apps/Portfolio/store/ui/portfolioUISlice";
-import adminUIReducer from '../apps/AdminPanel/store/ui/adminUISlice';
 import adminAuthReducer from '../apps/AdminPanel/store/auth/adminAuthSlice';
-// Add other panel reducers here as they're implemented
-// import marketplaceUIReducer from '../apps/MarketPlace/store/ui/marketplaceUISlice';
+import adminUIReducer from '../apps/AdminPanel/store/ui/adminUISlice';
+import authReducer from '../apps/MarketPlace/store/auth/authSlice';
+import cartReducer from '../apps/MarketPlace/store/cart/cartSlice';
+import checkoutReducer from '../apps/MarketPlace/store/checkout/checkoutSlice';
+import productsReducer from '../apps/MarketPlace/store/products/productsSlice';
+import servicesReducer from '../apps/MarketPlace/store/services/servicesSlice';
+import marketplaceUIReducer from '../apps/MarketPlace/store/ui/marketplaceUISlice';
+import portfolioUIReducer from "../apps/Portfolio/store/ui/portfolioUISlice";
 
 /**
  * Root Redux Store Configuration
@@ -25,8 +29,14 @@ export const store = configureStore({
     portfolioUI: portfolioUIReducer,
     adminUI: adminUIReducer,
     adminAuth: adminAuthReducer,
-    // Add other panel UI slices here
-    // marketplaceUI: marketplaceUIReducer,
+
+    // Marketplace Slices
+    marketplaceUI: marketplaceUIReducer,
+    products: productsReducer,
+    services: servicesReducer,
+    cart: cartReducer,
+    checkout: checkoutReducer,
+    auth: authReducer,
   },
 
   middleware: (getDefaultMiddleware) =>

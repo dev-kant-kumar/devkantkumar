@@ -1,113 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft,
-  Check,
-  Star,
-  User,
-  Calendar,
-  ShoppingCart,
-  Heart,
-  Share2
+    ArrowLeft,
+    Award,
+    Calendar,
+    Check,
+    CheckCircle,
+    Heart,
+    Share2,
+    ShieldCheck,
+    ShoppingCart,
+    Star,
+    User,
+    Zap
 } from 'lucide-react';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { addToCart } from '../../store/cart/cartSlice';
+import { selectServiceById } from '../../store/services/servicesSlice';
 
 const ServiceDetail = () => {
   const { serviceId } = useParams();
-  const [service, setService] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const service = useSelector(state => selectServiceById(state, serviceId));
   const [selectedPackage, setSelectedPackage] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  // Mock service data - in real app, this would come from API
-  useEffect(() => {
-    const mockServices = {
-      'web-development': {
-        id: 'web-development',
-        title: 'Custom Web Development',
-        description: 'Professional web development services tailored to your business needs',
-        longDescription: 'Transform your digital presence with our comprehensive web development services. We create responsive, scalable, and user-friendly websites that drive results and enhance your brand identity.',
-        image: '/api/placeholder/800/400',
-        rating: 4.9,
-        reviews: 127,
-        deliveryTime: '7-14 days',
-        revisions: 'Unlimited',
-        category: 'Development',
-        tags: ['React', 'Node.js', 'MongoDB', 'Responsive Design'],
-        packages: [
-          {
-            name: 'Basic',
-            price: 299,
-            description: 'Perfect for small businesses',
-            features: [
-              'Responsive Design',
-              '5 Pages',
-              'Contact Form',
-              'Basic SEO',
-              '30 Days Support'
-            ]
-          },
-          {
-            name: 'Standard',
-            price: 599,
-            description: 'Most popular choice',
-            features: [
-              'Everything in Basic',
-              '10 Pages',
-              'CMS Integration',
-              'Advanced SEO',
-              'Social Media Integration',
-              '60 Days Support'
-            ]
-          },
-          {
-            name: 'Premium',
-            price: 999,
-            description: 'For growing businesses',
-            features: [
-              'Everything in Standard',
-              'Unlimited Pages',
-              'E-commerce Integration',
-              'Custom Features',
-              'Performance Optimization',
-              '90 Days Support'
-            ]
-          }
-        ],
-        portfolio: [
-          { title: 'E-commerce Platform', image: '/api/placeholder/300/200' },
-          { title: 'Corporate Website', image: '/api/placeholder/300/200' },
-          { title: 'Portfolio Site', image: '/api/placeholder/300/200' }
-        ],
-        faq: [
-          {
-            question: 'What technologies do you use?',
-            answer: 'We use modern technologies like React, Node.js, MongoDB, and other cutting-edge tools based on project requirements.'
-          },
-          {
-            question: 'How long does development take?',
-            answer: 'Development time varies based on complexity, typically ranging from 1-4 weeks for most projects.'
-          },
-          {
-            question: 'Do you provide ongoing support?',
-            answer: 'Yes, we provide comprehensive support and maintenance packages to keep your website running smoothly.'
-          }
-        ]
-      }
-    };
-
-    setTimeout(() => {
-      setService(mockServices[serviceId] || mockServices['web-development']);
-      setLoading(false);
-    }, 1000);
-  }, [serviceId]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   if (!service) {
     return (
@@ -121,6 +38,19 @@ const ServiceDetail = () => {
       </div>
     );
   }
+
+  const handleAddToCart = () => {
+    const pkg = service.packages[selectedPackage];
+    dispatch(addToCart({
+      id: service.id,
+      title: `${service.title} - ${pkg.name}`,
+      price: pkg.price,
+      image: service.image,
+      type: 'Service',
+      package: pkg.name
+    }));
+    navigate('/marketplace/cart');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -165,46 +95,46 @@ const ServiceDetail = () => {
               <img
                 src={service.image}
                 alt={service.title}
-                className="w-full h-64 object-cover"
+                className="w-full h-80 object-cover"
               />
-              <div className="p-6">
+              <div className="p-8">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                     {service.category}
                   </span>
                   <div className="flex items-center space-x-4">
-                    <button className="text-gray-400 hover:text-red-500">
-                      <Heart className="h-5 w-5" />
+                    <button className="text-gray-400 hover:text-red-500 transition-colors">
+                      <Heart className="h-6 w-6" />
                     </button>
-                    <button className="text-gray-400 hover:text-blue-500">
-                      <Share2 className="h-5 w-5" />
+                    <button className="text-gray-400 hover:text-blue-500 transition-colors">
+                      <Share2 className="h-6 w-6" />
                     </button>
                   </div>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">{service.title}</h1>
-                <p className="text-gray-600 mb-4">{service.longDescription}</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-4">{service.title}</h1>
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">{service.longDescription}</p>
 
-                <div className="flex items-center space-x-6 text-sm text-gray-600">
+                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 border-t border-gray-100 pt-6">
                   <div className="flex items-center">
-                    <Star className="text-yellow-400 mr-1 h-4 w-4 fill-current" />
-                    <span className="font-medium">{service.rating}</span>
+                    <Star className="text-yellow-400 mr-2 h-5 w-5 fill-current" />
+                    <span className="font-bold text-gray-900 text-lg">{service.rating}</span>
                     <span className="ml-1">({service.reviews} reviews)</span>
                   </div>
                   <div className="flex items-center">
-                    <Calendar className="mr-1 h-4 w-4" />
-                    <span>{service.deliveryTime}</span>
+                    <Calendar className="mr-2 h-5 w-5 text-blue-500" />
+                    <span>{service.deliveryTime} Delivery</span>
                   </div>
                   <div className="flex items-center">
-                    <User className="mr-1 h-4 w-4" />
-                    <span>{service.revisions} revisions</span>
+                    <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                    <span>{service.revisions} Revisions</span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mt-4">
+                <div className="flex flex-wrap gap-2 mt-6">
                   {service.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm"
+                      className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                     >
                       {tag}
                     </span>
@@ -213,43 +143,80 @@ const ServiceDetail = () => {
               </div>
             </motion.div>
 
-            {/* Portfolio Section */}
+            {/* Why Choose Us Section (CRO) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-md p-6 mb-8"
+              transition={{ delay: 0.15 }}
+              className="bg-blue-50 rounded-lg p-8 mb-8 border border-blue-100"
             >
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Portfolio</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {service.portfolio.map((item, index) => (
-                  <div key={index} className="rounded-lg overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-32 object-cover"
-                    />
-                    <div className="p-3 bg-gray-50">
-                      <h4 className="font-medium text-gray-900">{item.title}</h4>
-                    </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Why Choose Us?</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-white p-3 rounded-full shadow-sm mb-3">
+                    <Award className="h-6 w-6 text-blue-600" />
                   </div>
-                ))}
+                  <h4 className="font-semibold text-gray-900">Top 1% Talent</h4>
+                  <p className="text-sm text-gray-600 mt-1">Vetted experts delivering quality.</p>
+                </div>
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-white p-3 rounded-full shadow-sm mb-3">
+                    <Zap className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900">Fast Delivery</h4>
+                  <p className="text-sm text-gray-600 mt-1">On-time project completion.</p>
+                </div>
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-white p-3 rounded-full shadow-sm mb-3">
+                    <ShieldCheck className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900">Secure Code</h4>
+                  <p className="text-sm text-gray-600 mt-1">Enterprise-grade security.</p>
+                </div>
               </div>
             </motion.div>
+
+            {/* Portfolio Section */}
+            {service.portfolio && service.portfolio.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-lg shadow-md p-8 mb-8"
+              >
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Portfolio</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {service.portfolio.map((item, index) => (
+                    <div key={index} className="group rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-4 bg-gray-50">
+                        <h4 className="font-medium text-gray-900">{item.title}</h4>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* FAQ Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white rounded-lg shadow-md p-6"
+              className="bg-white rounded-lg shadow-md p-8"
             >
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h3>
-              <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h3>
+              <div className="space-y-6">
                 {service.faq.map((item, index) => (
-                  <div key={index} className="border-b border-gray-200 pb-4 last:border-b-0">
-                    <h4 className="font-medium text-gray-900 mb-2">{item.question}</h4>
-                    <p className="text-gray-600">{item.answer}</p>
+                  <div key={index} className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
+                    <h4 className="font-semibold text-gray-900 mb-2 text-lg">{item.question}</h4>
+                    <p className="text-gray-600 leading-relaxed">{item.answer}</p>
                   </div>
                 ))}
               </div>
@@ -261,20 +228,20 @@ const ServiceDetail = () => {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-white rounded-lg shadow-md p-6 sticky top-8"
+              className="bg-white rounded-lg shadow-md p-6 sticky top-8 border border-gray-100"
             >
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Choose Your Package</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Choose Your Package</h3>
 
               {/* Package Selector */}
-              <div className="flex space-x-2 mb-6">
+              <div className="flex p-1 bg-gray-100 rounded-lg mb-6">
                 {service.packages.map((pkg, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedPackage(index)}
-                    className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
+                    className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
                       selectedPackage === index
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
                     {pkg.name}
@@ -283,49 +250,64 @@ const ServiceDetail = () => {
               </div>
 
               {/* Selected Package Details */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-bold text-2xl text-gray-900">
-                    ${service.packages[selectedPackage].price}
+              <div className="mb-8">
+                <div className="flex items-end justify-between mb-4">
+                  <h4 className="font-bold text-4xl text-gray-900">
+                    ${service.packages[selectedPackage].price.toLocaleString()}
                   </h4>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm font-medium text-gray-500 mb-1">
                     {service.packages[selectedPackage].name}
                   </span>
                 </div>
-                <p className="text-gray-600 text-sm mb-4">
+                <p className="text-gray-600 text-sm mb-6 pb-6 border-b border-gray-100">
                   {service.packages[selectedPackage].description}
                 </p>
 
-                <ul className="space-y-2 mb-6">
+                <ul className="space-y-4 mb-8">
                   {service.packages[selectedPackage].features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm text-gray-700">
-                      <Check className="text-green-500 mr-2 flex-shrink-0 h-4 w-4" />
-                      {feature}
+                    <li key={index} className="flex items-start text-sm text-gray-700">
+                      <Check className="text-green-500 mr-3 flex-shrink-0 h-5 w-5" />
+                      <span className="leading-tight">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center">
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Add to Cart
+              <div className="space-y-4">
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all transform hover:-translate-y-0.5 shadow-lg shadow-blue-200 flex items-center justify-center"
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Continue (${service.packages[selectedPackage].price.toLocaleString()})
                 </button>
-                <button className="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                <button className="w-full border-2 border-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:border-blue-600 hover:text-blue-600 transition-colors">
                   Contact Seller
                 </button>
               </div>
 
-              {/* Additional Info */}
-              <div className="mt-6 pt-6 border-t border-gray-200 text-sm text-gray-600">
-                <div className="flex justify-between mb-2">
-                  <span>Delivery Time:</span>
-                  <span className="font-medium">{service.deliveryTime}</span>
+              {/* Trust Badges (CRO) */}
+              <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
+                <div className="flex items-center text-sm text-gray-600">
+                  <ShieldCheck className="h-5 w-5 text-green-500 mr-3" />
+                  <span>100% Satisfaction Guarantee</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Revisions:</span>
-                  <span className="font-medium">{service.revisions}</span>
+                <div className="flex items-center text-sm text-gray-600">
+                  <CheckCircle className="h-5 w-5 text-blue-500 mr-3" />
+                  <span>Verified Professional Seller</span>
+                </div>
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-6 pt-6 border-t border-gray-100 text-sm text-gray-500 flex justify-between">
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>{service.deliveryTime}</span>
+                </div>
+                <div className="flex items-center">
+                  <User className="h-4 w-4 mr-2" />
+                  <span>{service.revisions} Revs</span>
                 </div>
               </div>
             </motion.div>

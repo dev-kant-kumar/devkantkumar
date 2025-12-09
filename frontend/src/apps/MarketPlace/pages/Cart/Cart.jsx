@@ -1,32 +1,32 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import {
+    removeFromCart,
+    selectCartItems,
+    selectCartSubtotal,
+    selectCartTax,
+    selectCartTotal,
+    updateQuantity
+} from '../../store/cart/cartSlice';
 
 const Cart = () => {
-  // Mock cart data - in real app, this would come from context/state
-  const cartItems = [
-    {
-      id: 1,
-      title: 'Premium React Component Library',
-      price: 49,
-      quantity: 1,
-      image: '/api/placeholder/100/100',
-      type: 'Digital Product'
-    },
-    {
-      id: 2,
-      title: 'Custom Web Development',
-      price: 999,
-      quantity: 1,
-      image: '/api/placeholder/100/100',
-      type: 'Service'
-    }
-  ];
+  const dispatch = useDispatch();
+  const cartItems = useSelector(selectCartItems);
+  const subtotal = useSelector(selectCartSubtotal);
+  const tax = useSelector(selectCartTax);
+  const total = useSelector(selectCartTotal);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + tax;
+  const handleQuantityChange = (id, type, newQuantity) => {
+    if (newQuantity >= 1) {
+      dispatch(updateQuantity({ id, type, quantity: newQuantity }));
+    }
+  };
+
+  const handleRemoveItem = (id, type) => {
+    dispatch(removeFromCart({ id, type }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,7 +64,7 @@ const Cart = () => {
               <div className="bg-white rounded-lg shadow-md">
                 {cartItems.map((item, index) => (
                   <motion.div
-                    key={item.id}
+                    key={`${item.id}-${item.type}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
@@ -85,15 +85,24 @@ const Cart = () => {
                       </div>
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center border border-gray-300 rounded-lg">
-                          <button className="p-2 hover:bg-gray-100">
+                          <button
+                            onClick={() => handleQuantityChange(item.id, item.type, item.quantity - 1)}
+                            className="p-2 hover:bg-gray-100"
+                          >
                             <Minus className="h-4 w-4" />
                           </button>
                           <span className="px-4 py-2 border-x border-gray-300">{item.quantity}</span>
-                          <button className="p-2 hover:bg-gray-100">
+                          <button
+                            onClick={() => handleQuantityChange(item.id, item.type, item.quantity + 1)}
+                            className="p-2 hover:bg-gray-100"
+                          >
                             <Plus className="h-4 w-4" />
                           </button>
                         </div>
-                        <button className="p-2 text-red-500 hover:bg-red-50 rounded-lg">
+                        <button
+                          onClick={() => handleRemoveItem(item.id, item.type)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -118,7 +127,7 @@ const Cart = () => {
                     <span className="font-medium">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax</span>
+                    <span className="text-gray-600">Tax (8%)</span>
                     <span className="font-medium">${tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">

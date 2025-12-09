@@ -1,14 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { LogOut, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
+import { selectCartItemCount } from '../../store/cart/cartSlice';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const cartCount = useSelector(selectCartItemCount);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectCurrentUser);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,9 +25,26 @@ const Header = () => {
       setScrolled(isScrolled);
     };
 
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setIsProfileOpen(false);
+    navigate('/marketplace/auth/signin');
+  };
 
   const navigationItems = [
     { name: "Home", path: "/marketplace" },
@@ -140,42 +166,85 @@ const Header = () => {
               )}
             </Link>
 
-            {/* Profile Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
-              >
-                <User size={20} />
-              </button>
+            {/* Auth / Profile */}
+            {isAuthenticated ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                >
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
+                    {user?.name?.charAt(0) || 'U'}
+                  </div>
+                </button>
 
-              <AnimatePresence>
-                {isProfileOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
-                  >
-                    <Link
-                      to="/marketplace/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                      className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
                     >
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/marketplace/orders"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      My Orders
-                    </Link>
-                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                      <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user?.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                      </div>
+                      <Link
+                        to="/marketplace/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        to="/marketplace/dashboard/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                      <Link
+                        to="/marketplace/dashboard/billing"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Billing & Plans
+                      </Link>
+                      <Link
+                        to="/marketplace/dashboard/support"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Support Tickets
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/marketplace/auth/signin"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/marketplace/auth/signup"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -226,6 +295,102 @@ const Header = () => {
                     {item.name}
                   </Link>
                 ))}
+
+                {/* Mobile Auth */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="px-4 py-2 flex items-center space-x-3">
+                        <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
+                          {user?.name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="pl-4 space-y-1 mt-2 mb-2">
+                        <Link
+                          to="/marketplace/dashboard"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Dashboard Overview
+                        </Link>
+                        <Link
+                          to="/marketplace/dashboard/orders"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          My Orders
+                        </Link>
+                        <Link
+                          to="/marketplace/dashboard/services"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          My Services
+                        </Link>
+                        <Link
+                          to="/marketplace/dashboard/products"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          My Products
+                        </Link>
+                        <Link
+                          to="/marketplace/dashboard/billing"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Billing & Plans
+                        </Link>
+                        <Link
+                          to="/marketplace/dashboard/support"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Support Tickets
+                        </Link>
+                        <Link
+                          to="/marketplace/dashboard/settings"
+                          className="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Settings
+                        </Link>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <div className="px-4 space-y-2">
+                      <Link
+                        to="/marketplace/auth/signin"
+                        className="block w-full text-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/marketplace/auth/signup"
+                        className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  )}
+                </div>
 
                 {/* Mobile Panel Switcher */}
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">

@@ -1,144 +1,119 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Code,
-  Smartphone,
-  Globe,
-  Zap,
-  Shield,
-  Star,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Code,
+  Globe,
+  Layers,
+  Shield,
+  Smartphone,
+  Star,
+  TrendingUp,
+  Users,
+  Zap
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 const MarketplaceHome = () => {
-  const services = [
-    {
-      icon: Globe,
-      title: "Web Development",
-      description: "Custom websites and web applications built with modern technologies",
-      price: "Starting at $999",
-      features: ["Responsive Design", "SEO Optimized", "Fast Loading"]
-    },
-    {
-      icon: Smartphone,
-      title: "Mobile Apps",
-      description: "Native and cross-platform mobile applications for iOS and Android",
-      price: "Starting at $1,999",
-      features: ["Cross Platform", "Native Performance", "App Store Ready"]
-    },
-    {
-      icon: Code,
-      title: "Custom Solutions",
-      description: "Tailored software solutions for your specific business needs",
-      price: "Custom Quote",
-      features: ["Scalable Architecture", "API Integration", "Cloud Ready"]
-    }
-  ];
+  const allServices = useSelector(state => state.services.items);
+  const allProducts = useSelector(state => state.products.items);
 
-  const products = [
-    {
-      title: "React Component Library",
-      description: "50+ premium React components ready to use",
-      price: "$49",
-      image: "/api/placeholder/300/200",
-      rating: 4.9,
-      sales: 1200
-    },
-    {
-      title: "Next.js Starter Kit",
-      description: "Complete Next.js boilerplate with authentication",
-      price: "$79",
-      image: "/api/placeholder/300/200",
-      rating: 4.8,
-      sales: 850
-    },
-    {
-      title: "Node.js API Template",
-      description: "RESTful API template with MongoDB integration",
-      price: "$39",
-      image: "/api/placeholder/300/200",
-      rating: 4.7,
-      sales: 650
-    }
-  ];
+  const featuredServices = [
+    { ...allServices.find(s => s.id === 'web-development'), icon: Globe },
+    { ...allServices.find(s => s.id === 'mobile-app'), icon: Smartphone },
+    { ...allServices.find(s => s.id === 'custom-solution'), icon: Code }
+  ].filter(s => s.id);
+
+  const featuredProducts = allProducts.slice(0, 3);
 
   const stats = [
-    { number: "500+", label: "Projects Completed" },
-    { number: "100+", label: "Happy Clients" },
-    { number: "50+", label: "Digital Products" },
-    { number: "99%", label: "Client Satisfaction" }
+    { number: "500+", label: "Projects Delivered", icon: CheckCircle },
+    { number: "98%", label: "Client Satisfaction", icon: Star },
+    { number: "24/7", label: "Expert Support", icon: Users },
+    { number: "100+", label: "Premium Products", icon: Layers }
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <motion.h1
+      <section className="relative bg-slate-900 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-purple-900/50"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32 relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6"
             >
-              Premium Digital
-              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent block">
-                Services & Products
+              <span className="inline-block py-1 px-3 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-semibold mb-6">
+                🚀 The #1 Marketplace for Devs & Founders
               </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
-            >
-              Transform your ideas into reality with our professional development services
-              and ready-to-use digital products. Quality guaranteed.
-            </motion.p>
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+                Build Faster with <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  Premium Resources
+                </span>
+              </h1>
+              <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Access top-tier development services and ready-to-use digital assets.
+                Accelerate your project timeline with verified experts and high-quality code.
+              </p>
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link
                 to="/marketplace/services"
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center"
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center"
               >
-                Browse Services
+                Find a Service
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link
                 to="/marketplace/products"
-                className="border border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+                className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-lg transition-all backdrop-blur-sm border border-white/10 flex items-center justify-center"
               >
-                View Products
+                Browse Products
               </Link>
             </motion.div>
           </div>
         </div>
+
+        {/* Wave Divider */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="fill-gray-50">
+            <path fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          </svg>
+        </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white dark:bg-gray-900">
+      <section className="py-12 -mt-20 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center"
+                viewport={{ once: true }}
+                className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 text-center transform hover:-translate-y-1 transition-transform duration-300"
               >
-                <div className="text-3xl md:text-4xl font-bold text-green-600 mb-2">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-full mb-4">
+                  <stat.icon className="h-6 w-6" />
+                </div>
+                <div className="text-3xl font-extrabold text-gray-900 mb-1">
                   {stat.number}
                 </div>
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                   {stat.label}
                 </div>
               </motion.div>
@@ -147,139 +122,154 @@ const MarketplaceHome = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-800">
+      {/* Featured Services */}
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Top-Rated Services
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl">
+                Hire world-class developers and designers for your next project.
+              </p>
+            </div>
+            <Link
+              to="/marketplace/services"
+              className="hidden md:flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors"
             >
-              Professional Services
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl text-gray-600 dark:text-gray-300"
-            >
-              Custom development solutions tailored to your needs
-            </motion.p>
+              View All Services <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
+            {featuredServices.map((service, index) => (
               <motion.div
-                key={service.title}
+                key={service.id || index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-white dark:bg-gray-900 rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
               >
-                <div className="flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-lg mb-6">
-                  <service.icon className="h-8 w-8 text-green-600" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <service.icon className="h-7 w-7" />
+                  </div>
+                  <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
+                    Available
+                  </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                   {service.title}
                 </h3>
 
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed">
                   {service.description}
                 </p>
 
-                <div className="space-y-2 mb-6">
-                  {service.features.map((feature) => (
-                    <div key={feature} className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300">
-                        {feature}
-                      </span>
+                <div className="space-y-3 mb-8">
+                  {service.features.slice(0, 3).map((feature) => (
+                    <div key={feature} className="flex items-center text-sm text-gray-500">
+                      <CheckCircle className="h-4 w-4 text-blue-500 mr-3 flex-shrink-0" />
+                      {feature}
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-green-600">
-                    {service.price}
-                  </span>
+                <div className="flex items-center justify-between pt-6 border-t border-gray-50">
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium uppercase">Starting at</p>
+                    <p className="text-2xl font-bold text-gray-900">${service.price.toLocaleString()}</p>
+                  </div>
                   <Link
-                    to="/marketplace/services"
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                    to={`/marketplace/services/${service.id}`}
+                    className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300"
                   >
-                    Learn More
+                    <ArrowRight className="h-5 w-5" />
                   </Link>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          <div className="mt-8 text-center md:hidden">
+            <Link
+              to="/marketplace/services"
+              className="inline-flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors"
+            >
+              View All Services <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Products Section */}
-      <section className="py-20 bg-white dark:bg-gray-900">
+      {/* Featured Products */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Trending Digital Products
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl">
+                Save hundreds of hours with our premium templates and components.
+              </p>
+            </div>
+            <Link
+              to="/marketplace/products"
+              className="hidden md:flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors"
             >
-              Digital Products
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl text-gray-600 dark:text-gray-300"
-            >
-              Ready-to-use templates and tools to accelerate your development
-            </motion.p>
+              View All Products <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {products.map((product, index) => (
+            {featuredProducts.map((product, index) => (
               <motion.div
-                key={product.title}
+                key={product.id || index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group bg-gray-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
               >
-                <div className="h-48 bg-gradient-to-br from-green-400 to-emerald-500"></div>
+                <div className="relative h-56 overflow-hidden">
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 flex items-center shadow-sm">
+                    <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                    {product.rating}
+                  </div>
+                </div>
 
                 <div className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors truncate">
                       {product.title}
                     </h3>
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300 ml-1">
-                        {product.rating}
-                      </span>
-                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {product.description}
+                    </p>
                   </div>
-
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    {product.description}
-                  </p>
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-green-600">
-                        {product.price}
+                      <span className="text-2xl font-bold text-gray-900">
+                        ${product.price}
                       </span>
-                      <div className="text-sm text-gray-500">
-                        {product.sales} sales
-                      </div>
+                      <span className="text-xs text-gray-500 block">
+                        One-time payment
+                      </span>
                     </div>
                     <Link
-                      to="/marketplace/products"
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                      to={`/marketplace/products/${product.id}`}
+                      className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-all"
                     >
                       View Details
                     </Link>
@@ -288,43 +278,93 @@ const MarketplaceHome = () => {
               </motion.div>
             ))}
           </div>
+
+          <div className="mt-8 text-center md:hidden">
+            <Link
+              to="/marketplace/products"
+              className="inline-flex items-center text-blue-600 font-bold hover:text-blue-700 transition-colors"
+            >
+              View All Products <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust/Why Choose Us */}
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Industry Leaders Trust Us</h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              We deliver more than just code. We deliver peace of mind and business growth.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Shield,
+                title: "Enterprise Security",
+                desc: "Bank-grade security standards implemented in every project we deliver."
+              },
+              {
+                icon: Zap,
+                title: "Lightning Fast",
+                desc: "Optimized for performance. We build applications that load in milliseconds."
+              },
+              {
+                icon: TrendingUp,
+                title: "Scalable Architecture",
+                desc: "Built to grow with you. Our solutions handle millions of users effortlessly."
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:bg-white/10 transition-colors"
+              >
+                <div className="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 text-blue-400">
+                  <item.icon className="h-7 w-7" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-green-600 to-emerald-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl md:text-4xl font-bold text-white mb-4"
-          >
+      <section className="py-24 bg-gradient-to-r from-blue-600 to-indigo-700 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
             Ready to Start Your Project?
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-green-100 mb-8"
-          >
-            Get in touch today and let's bring your ideas to life
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
+          </h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Join 500+ satisfied clients who have transformed their business with our solutions.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/marketplace/custom-solutions"
-              className="bg-white text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-medium transition-colors duration-200 inline-flex items-center"
+              className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-xl flex items-center justify-center"
             >
-              Get Custom Quote
+              Get a Custom Quote
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-          </motion.div>
+            <Link
+              to="/marketplace/contact"
+              className="px-8 py-4 bg-blue-700 text-white rounded-xl font-bold text-lg hover:bg-blue-800 transition-all border border-blue-500 flex items-center justify-center"
+            >
+              Contact Sales
+            </Link>
+          </div>
         </div>
       </section>
     </div>

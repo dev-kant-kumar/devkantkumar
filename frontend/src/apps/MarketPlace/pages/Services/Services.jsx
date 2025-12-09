@@ -1,25 +1,44 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Search,
-  Filter,
-  Star,
-  Clock,
-  User,
-  ArrowRight,
-  Globe,
-  Smartphone,
-  Code,
-  Palette,
-  Database,
-  Shield
+    ArrowRight,
+    Award,
+    CheckCircle,
+    Clock,
+    Code,
+    Database,
+    Globe,
+    Palette,
+    Search,
+    Shield,
+    ShieldCheck,
+    Smartphone,
+    Star,
+    User,
+    Zap
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import FAQ from '../../common/components/FAQ';
+import Testimonials from '../../common/components/Testimonials';
+import WhyChooseUs from '../../common/components/WhyChooseUs';
+import {
+    filterServices,
+    selectFilteredServices
+} from '../../store/services/servicesSlice';
+import {
+    resetFilters,
+    setPriceRange,
+    setSearchTerm,
+    setSelectedCategory
+} from '../../store/ui/marketplaceUISlice';
+import mobile from "./Assets/Images/Products/mobile_app_development.png";
+import web from "./Assets/Images/Products/web_development.png";
 
 const Services = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState('all');
+  const dispatch = useDispatch();
+  const { searchTerm, selectedCategory, priceRange, trustData } = useSelector((state) => state.marketplaceUI);
+  const filteredServices = useSelector(selectFilteredServices);
 
   const categories = [
     { id: 'all', name: 'All Services', icon: Globe },
@@ -31,120 +50,111 @@ const Services = () => {
     { id: 'custom', name: 'Custom Solutions', icon: Code }
   ];
 
-  const services = [
-    {
-      id: 'web-development',
-      title: 'Custom Web Development',
-      description: 'Professional web development services with modern technologies',
-      category: 'web',
-      price: 999,
-      rating: 4.9,
-      reviews: 127,
-      deliveryTime: '7-14 days',
-      seller: 'DevKant Kumar',
-      image: '/api/placeholder/400/250',
-      tags: ['React', 'Node.js', 'MongoDB', 'Responsive']
-    },
-    {
-      id: 'mobile-app',
-      title: 'Mobile App Development',
-      description: 'Native and cross-platform mobile applications',
-      category: 'mobile',
-      price: 1999,
-      rating: 4.8,
-      reviews: 89,
-      deliveryTime: '14-21 days',
-      seller: 'DevKant Kumar',
-      image: '/api/placeholder/400/250',
-      tags: ['React Native', 'Flutter', 'iOS', 'Android']
-    },
-    {
-      id: 'ui-design',
-      title: 'UI/UX Design Services',
-      description: 'Modern and user-friendly interface design',
-      category: 'design',
-      price: 599,
-      rating: 5.0,
-      reviews: 156,
-      deliveryTime: '5-10 days',
-      seller: 'DevKant Kumar',
-      image: '/api/placeholder/400/250',
-      tags: ['Figma', 'Adobe XD', 'Prototyping', 'User Research']
-    },
-    {
-      id: 'backend-api',
-      title: 'Backend API Development',
-      description: 'Scalable and secure backend solutions',
-      category: 'backend',
-      price: 799,
-      rating: 4.7,
-      reviews: 73,
-      deliveryTime: '10-15 days',
-      seller: 'DevKant Kumar',
-      image: '/api/placeholder/400/250',
-      tags: ['Node.js', 'Express', 'MongoDB', 'REST API']
-    },
-    {
-      id: 'security-audit',
-      title: 'Security Audit & Testing',
-      description: 'Comprehensive security assessment and testing',
-      category: 'security',
-      price: 1299,
-      rating: 4.9,
-      reviews: 45,
-      deliveryTime: '7-12 days',
-      seller: 'DevKant Kumar',
-      image: '/api/placeholder/400/250',
-      tags: ['Penetration Testing', 'Vulnerability Assessment', 'Security']
-    },
-    {
-      id: 'custom-solution',
-      title: 'Custom Software Solutions',
-      description: 'Tailored software solutions for your business needs',
-      category: 'custom',
-      price: 2499,
-      rating: 4.8,
-      reviews: 62,
-      deliveryTime: '21-30 days',
-      seller: 'DevKant Kumar',
-      image: '/api/placeholder/400/250',
-      tags: ['Custom Development', 'Enterprise', 'Scalable', 'Integration']
-    }
-  ];
+  // Reset filters on mount to avoid cross-contamination from other pages
+  useEffect(() => {
+    dispatch(resetFilters());
+  }, [dispatch]);
 
-  const filteredServices = services.filter(service => {
-    const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
-    const matchesPrice = priceRange === 'all' ||
-                        (priceRange === 'low' && service.price < 1000) ||
-                        (priceRange === 'medium' && service.price >= 1000 && service.price < 2000) ||
-                        (priceRange === 'high' && service.price >= 2000);
-
-    return matchesSearch && matchesCategory && matchesPrice;
-  });
+  // Sync filters with services slice
+  useEffect(() => {
+    dispatch(filterServices({ searchTerm, category: selectedCategory, priceRange }));
+  }, [dispatch, searchTerm, selectedCategory, priceRange]);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Professional Services
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover expert development services to bring your ideas to life
-            </p>
-          </motion.div>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white overflow-hidden relative">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-800/50 text-blue-200 text-sm font-bold mb-6 border border-blue-700">
+                <Award className="mr-2 h-4 w-4" /> PREMIUM DEVELOPMENT SERVICES
+              </div>
+              <h1 className="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">
+                Expert Solutions for <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  Digital Growth
+                </span>
+              </h1>
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                From custom web applications to enterprise-grade security audits. Hire top 1% talent to build your next big project.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' })}
+                  className="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center"
+                >
+                  Explore Services
+                </button>
+                <Link
+                  to="/marketplace/custom-solutions"
+                  className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-lg transition-all backdrop-blur-sm flex items-center justify-center border border-white/10"
+                >
+                  Custom Quote
+                </Link>
+              </div>
+              <div className="mt-8 flex items-center text-sm text-gray-400 space-x-6">
+                <div className="flex items-center">
+                  <CheckCircle className="text-green-400 mr-2 h-5 w-5" /> 500+ Projects Delivered
+                </div>
+                <div className="flex items-center">
+                  <Star className="text-yellow-400 mr-2 h-5 w-5" /> 4.9/5 Client Rating
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative hidden lg:block"
+            >
+              <div className="absolute -inset-4 bg-blue-500/30 rounded-full blur-3xl"></div>
+              <div className="relative grid grid-cols-2 gap-4">
+                <img
+                  src={web}
+                  alt="Web Development"
+                  className="rounded-2xl shadow-2xl border border-white/10 transform translate-y-8"
+                />
+                <img
+                  src={mobile}
+                  alt="Mobile Development"
+                  className="rounded-2xl shadow-2xl border border-white/10 transform -translate-y-8"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Trust Signals Bar */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-sm font-medium text-gray-500">
+            <div className="flex items-center">
+              <CheckCircle className="text-green-500 mr-2 text-lg" />
+              <span>Verified Pro Sellers</span>
+            </div>
+            <div className="flex items-center">
+              <ShieldCheck className="text-blue-500 mr-2 text-lg" />
+              <span>100% Satisfaction Guarantee</span>
+            </div>
+            <div className="flex items-center">
+              <Zap className="text-yellow-500 mr-2 text-lg" />
+              <span>Fast Turnaround Time</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Why Choose Us */}
+      <WhyChooseUs />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <div className="lg:w-1/4">
@@ -162,7 +172,7 @@ const Services = () => {
                     type="text"
                     placeholder="Search..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => dispatch(setSearchTerm(e.target.value))}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -177,7 +187,7 @@ const Services = () => {
                   {categories.map((category) => (
                     <button
                       key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
+                      onClick={() => dispatch(setSelectedCategory(category.id))}
                       className={`w-full flex items-center px-3 py-2 rounded-lg text-left transition-colors ${
                         selectedCategory === category.id
                           ? 'bg-blue-100 text-blue-700'
@@ -198,7 +208,7 @@ const Services = () => {
                 </label>
                 <select
                   value={priceRange}
-                  onChange={(e) => setPriceRange(e.target.value)}
+                  onChange={(e) => dispatch(setPriceRange(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Prices</option>
@@ -211,7 +221,7 @@ const Services = () => {
           </div>
 
           {/* Services Grid */}
-          <div className="lg:w-3/4">
+          <div id="services-grid" className="lg:w-3/4">
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
                 {filteredServices.length} services found
@@ -232,8 +242,13 @@ const Services = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                  className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative ${service.popular ? 'ring-2 ring-blue-500' : ''}`}
                 >
+                  {service.popular && (
+                    <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+                      MOST POPULAR
+                    </div>
+                  )}
                   <img
                     src={service.image}
                     alt={service.title}
@@ -259,38 +274,35 @@ const Services = () => {
                       {service.description}
                     </p>
 
-                    <div className="flex items-center text-sm text-gray-500 mb-4">
+                    {/* Key Features */}
+                    <div className="mb-4 space-y-1">
+                      {service.features && service.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-center text-sm text-gray-500">
+                          <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
+                          {feature}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center text-sm text-gray-500 mb-4 pt-4 border-t border-gray-100">
                       <User className="h-4 w-4 mr-1" />
-                      <span className="mr-4">{service.seller}</span>
+                      <span className="mr-4 flex items-center">
+                        {service.seller}
+                        <CheckCircle className="h-3 w-3 text-blue-500 ml-1" />
+                      </span>
                       <Clock className="h-4 w-4 mr-1" />
                       <span>{service.deliveryTime}</span>
                     </div>
 
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {service.tags.slice(0, 3).map((tag, tagIndex) => (
-                        <span
-                          key={tagIndex}
-                          className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {service.tags.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                          +{service.tags.length - 3} more
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mt-4">
                       <div className="text-2xl font-bold text-blue-600">
                         ${service.price.toLocaleString()}
                       </div>
                       <Link
                         to={`/marketplace/services/${service.id}`}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center font-medium"
                       >
-                        View Details
+                        View Offer
                         <ArrowRight className="ml-1 h-4 w-4" />
                       </Link>
                     </div>
@@ -313,6 +325,58 @@ const Services = () => {
               </div>
             )}
           </div>
+        </div>
+      </div>
+      {/* How It Works Section */}
+      <div className="bg-white py-16 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">How It Works</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Simple, transparent, and efficient. We've streamlined our process to get your project running fast.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              { step: '01', title: 'Select Service', desc: 'Choose the service package that fits your needs.' },
+              { step: '02', title: 'Briefing', desc: 'Share your requirements and project details.' },
+              { step: '03', title: 'Development', desc: 'We build your solution with regular updates.' },
+              { step: '04', title: 'Delivery', desc: 'Receive your final project with full source code.' }
+            ].map((item, index) => (
+              <div key={index} className="text-center relative">
+                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                  {item.step}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.desc}</p>
+                {index < 3 && (
+                  <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gray-200 -z-10 transform translate-x-1/2"></div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials Section */}
+      <Testimonials />
+
+      {/* FAQ Section */}
+      <FAQ />
+
+      {/* Custom Solution CTA */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-extrabold text-white mb-4">Can't Find What You're Looking For?</h2>
+          <p className="text-blue-100 text-xl mb-8 max-w-2xl mx-auto">
+            We specialize in custom software solutions tailored to your unique business needs. Let's discuss your project.
+          </p>
+          <Link
+            to="/marketplace/custom-solutions"
+            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg"
+          >
+            Get a Custom Quote <ArrowRight className="ml-2 h-5 w-5" />
+          </Link>
         </div>
       </div>
     </div>
