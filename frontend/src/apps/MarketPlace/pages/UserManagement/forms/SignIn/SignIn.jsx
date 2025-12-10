@@ -4,8 +4,8 @@ import { useDispatch } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
-import { loginStart, loginSuccess } from '../../../../store/auth/authSlice';
-import { mockAuth } from '../../../../utils/mockAuth';
+import { useLoginMutation } from '../../../../store/auth/authApi';
+import { setCredentials } from '../../../../store/auth/authSlice';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -18,7 +18,8 @@ const SignIn = () => {
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -46,20 +47,13 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setIsSubmitting(true);
-      dispatch(loginStart());
-
-      // Use mockAuth service
       try {
-        const user = await mockAuth.login(formData.email, formData.password);
-        dispatch(loginSuccess(user));
-        setIsSubmitting(false);
+        const userData = await login({ email: formData.email, password: formData.password }).unwrap();
+        dispatch(setCredentials(userData));
         const from = location.state?.from || '/marketplace/dashboard';
         navigate(from, { replace: true });
-      } catch (error) {
-        setIsSubmitting(false);
-        setErrors(prev => ({ ...prev, form: error.message }));
-        // Also dispatch failure to store if needed, though local state handles UI error here
+      } catch (err) {
+        setErrors(prev => ({ ...prev, form: err?.data?.message || 'Login failed' }));
       }
     }
   };
@@ -140,10 +134,10 @@ const SignIn = () => {
         <div>
           <button
             type="submit"
-            disabled={isSubmitting}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''}`}
+            disabled={isLoading}
+            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
           >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isLoading ? 'Signing in...' : 'Sign in'}
           </button>
 
           {/* Development Helper */}

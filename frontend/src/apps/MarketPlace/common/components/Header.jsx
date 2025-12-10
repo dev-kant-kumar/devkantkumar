@@ -3,6 +3,7 @@ import { LogOut, Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLogoutMutation } from '../../store/auth/authApi';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
 import { selectCartItemCount } from '../../store/cart/cartSlice';
 
@@ -16,6 +17,7 @@ const Header = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [logoutApi] = useLogoutMutation();
 
   const dropdownRef = useRef(null);
 
@@ -40,10 +42,16 @@ const Header = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    setIsProfileOpen(false);
-    navigate('/marketplace/auth/signin');
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      dispatch(logout());
+      setIsProfileOpen(false);
+      navigate('/marketplace/auth/signin');
+    }
   };
 
   const navigationItems = [
@@ -174,7 +182,7 @@ const Header = () => {
                   className="flex items-center space-x-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
                 >
                   <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
-                    {user?.name?.charAt(0) || 'U'}
+                    {(user?.firstName || user?.name || 'U').charAt(0).toUpperCase()}
                   </div>
                 </button>
 
@@ -187,7 +195,9 @@ const Header = () => {
                       className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
                     >
                       <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user?.name}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {user?.firstName ? `${user.firstName} ${user.lastName}` : user?.name || 'User'}
+                        </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
                       </div>
                       <Link
@@ -302,10 +312,12 @@ const Header = () => {
                     <>
                       <div className="px-4 py-2 flex items-center space-x-3">
                         <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
-                          {user?.name?.charAt(0) || 'U'}
+                          {(user?.firstName || user?.name || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {user?.firstName ? `${user.firstName} ${user.lastName}` : user?.name || 'User'}
+                          </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                         </div>
                       </div>

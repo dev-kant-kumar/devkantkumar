@@ -1,51 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Get user from localStorage if exists
+// Get user and token from localStorage if exists
 const user = JSON.parse(localStorage.getItem('user'));
+const token = localStorage.getItem('token');
 
 const initialState = {
   user: user || null,
-  isAuthenticated: !!user,
-  loading: false,
-  error: null,
+  token: token || null,
+  isAuthenticated: !!token,
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    loginSuccess: (state, action) => {
-      state.loading = false;
+    setCredentials: (state, action) => {
+      const { user, token } = action.payload;
+      state.user = user;
+      state.token = token;
       state.isAuthenticated = true;
-      state.user = action.payload;
-      localStorage.setItem('user', JSON.stringify(action.payload));
-    },
-    loginFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
     },
     logout: (state) => {
       state.user = null;
+      state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem('user');
-    },
-    registerStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    registerSuccess: (state, action) => {
-      state.loading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload;
-      localStorage.setItem('user', JSON.stringify(action.payload));
-    },
-    registerFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
+      localStorage.removeItem('token');
     },
     updateUser: (state, action) => {
       state.user = { ...state.user, ...action.payload };
@@ -55,19 +37,13 @@ const authSlice = createSlice({
 });
 
 export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
+  setCredentials,
   logout,
-  registerStart,
-  registerSuccess,
-  registerFailure,
   updateUser
 } = authSlice.actions;
 
 export const selectCurrentUser = (state) => state.auth.user;
+export const selectCurrentToken = (state) => state.auth.token;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
-export const selectAuthLoading = (state) => state.auth.loading;
-export const selectAuthError = (state) => state.auth.error;
 
 export default authSlice.reducer;

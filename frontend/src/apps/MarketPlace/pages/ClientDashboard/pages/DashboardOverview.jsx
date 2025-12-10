@@ -1,7 +1,12 @@
 import { motion } from 'framer-motion';
 import { Download, Package, ShoppingBag, Star } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../../../store/auth/authSlice';
 
 const DashboardOverview = () => {
+  const user = useSelector(selectCurrentUser);
+  const displayName = user?.firstName || user?.name || 'User';
+
   const stats = [
     { label: 'Total Orders', value: '24', icon: ShoppingBag, color: 'blue' },
     { label: 'Active Services', value: '3', icon: Package, color: 'purple' },
@@ -22,7 +27,7 @@ const DashboardOverview = () => {
       className="space-y-6"
     >
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Welcome back!</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Welcome back, {displayName}!</h2>
         <p className="mt-1 text-sm text-gray-500">Here's what's happening with your account today.</p>
       </div>
 

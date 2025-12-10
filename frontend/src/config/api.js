@@ -38,6 +38,9 @@ export const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
     REFRESH_TOKEN: '/auth/refresh-token',
     VERIFY_TOKEN: '/auth/verify-token',
+    ME: '/auth/me',
+    UPDATE_PROFILE: '/auth/update-profile',
+    CHANGE_PASSWORD: '/auth/change-password',
   },
 
   // Admin endpoints

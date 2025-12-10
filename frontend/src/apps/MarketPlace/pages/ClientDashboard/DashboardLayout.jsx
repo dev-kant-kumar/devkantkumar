@@ -1,18 +1,21 @@
 import {
-  Bell,
-  Box,
-  CreditCard,
-  Download,
-  LayoutDashboard,
-  LogOut,
-  MessageSquare,
-  Settings,
-  ShoppingBag
+    Bell,
+    Box,
+    CreditCard,
+    Download,
+    LayoutDashboard,
+    LogOut,
+    MessageSquare,
+    Settings,
+    ShoppingBag
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
+
+import { useGetMeQuery, useLogoutMutation } from '../../store/auth/authApi';
+import { setCredentials } from '../../store/auth/authSlice';
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -20,6 +23,24 @@ const DashboardLayout = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectCurrentUser);
+  const [logoutApi] = useLogoutMutation();
+
+  // Fetch fresh user data on mount
+  const { data: userData } = useGetMeQuery(undefined, {
+    skip: !isAuthenticated,
+    refetchOnMountOrArgChange: true,
+  });
+
+  // Update store and local storage when fresh data arrives
+  useEffect(() => {
+    if (userData?.data) {
+      // We need the token to be preserved, so we get it from store or local storage
+      const token = localStorage.getItem('token');
+      if (token) {
+        dispatch(setCredentials({ user: userData.data, token }));
+      }
+    }
+  }, [userData, dispatch]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -29,9 +50,15 @@ const DashboardLayout = () => {
 
   if (!isAuthenticated) return null;
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/marketplace/auth/signin');
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      dispatch(logout());
+      navigate('/marketplace/auth/signin');
+    }
   };
 
   const navigation = [
@@ -50,6 +77,9 @@ const DashboardLayout = () => {
     }
     return location.pathname.startsWith(item.href);
   };
+
+  const displayName = user?.firstName ? `${user.firstName} ${user.lastName}` : user?.name || 'User';
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,9 +101,9 @@ const DashboardLayout = () => {
               </Link>
               <div className="flex items-center space-x-3 ml-4 border-l border-gray-200 pl-4">
                 <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
-                  {user?.name?.charAt(0) || 'U'}
+                  {initial}
                 </div>
-                <span className="text-sm font-medium text-gray-700">{user?.name}</span>
+                <span className="text-sm font-medium text-gray-700">{displayName}</span>
               </div>
             </div>
           </div>

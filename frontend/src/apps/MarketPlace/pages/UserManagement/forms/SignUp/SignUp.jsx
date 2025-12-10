@@ -4,15 +4,16 @@ import { useDispatch } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
-import { registerStart, registerSuccess } from '../../../../store/auth/authSlice';
-import { mockAuth } from '../../../../utils/mockAuth';
+import { useRegisterMutation } from '../../../../store/auth/authApi';
+import { setCredentials } from '../../../../store/auth/authSlice';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -21,7 +22,8 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,7 +38,8 @@ const SignUp = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (validate.required(formData.name)) newErrors.name = 'Full Name is required';
+    if (validate.required(formData.firstName)) newErrors.firstName = 'First Name is required';
+    if (validate.required(formData.lastName)) newErrors.lastName = 'Last Name is required';
 
     if (validate.required(formData.email)) newErrors.email = 'Email is required';
     else if (validate.email(formData.email)) newErrors.email = 'Invalid email address';
@@ -59,23 +62,19 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setIsSubmitting(true);
-      dispatch(registerStart());
-
-      // Use mockAuth service
       try {
-        const user = await mockAuth.register({
-          name: formData.name,
+        const userData = await register({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           email: formData.email,
           password: formData.password
-        });
-        dispatch(registerSuccess(user));
-        setIsSubmitting(false);
+        }).unwrap();
+
+        dispatch(setCredentials(userData));
         const from = location.state?.from || '/marketplace/dashboard';
         navigate(from, { replace: true });
       } catch (error) {
-        setIsSubmitting(false);
-        setErrors(prev => ({ ...prev, email: error.message })); // Usually duplicate email
+        setErrors(prev => ({ ...prev, email: error?.data?.message || 'Registration failed' }));
       }
     }
   };
@@ -90,15 +89,26 @@ const SignUp = () => {
       </div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
-        <InputField
-          label="Full Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          error={errors.name}
-          icon={User}
-          placeholder="John Doe"
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <InputField
+            label="First Name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            error={errors.firstName}
+            icon={User}
+            placeholder="John"
+          />
+          <InputField
+            label="Last Name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            error={errors.lastName}
+            icon={User}
+            placeholder="Doe"
+          />
+        </div>
 
         <InputField
           label="Email address"
@@ -173,10 +183,10 @@ const SignUp = () => {
         <div>
           <button
             type="submit"
-            disabled={isSubmitting}
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''}`}
+            disabled={isLoading}
+            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
           >
-            {isSubmitting ? 'Creating account...' : 'Create account'}
+            {isLoading ? 'Creating account...' : 'Create account'}
           </button>
 
           {/* Development Helper */}
@@ -184,7 +194,8 @@ const SignUp = () => {
             <button
               type="button"
               onClick={() => setFormData({
-                name: 'Test User',
+                firstName: 'Test',
+                lastName: 'User',
                 email: `test${Math.floor(Math.random() * 1000)}@example.com`,
                 password: 'Password123!',
                 confirmPassword: 'Password123!',
