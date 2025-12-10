@@ -47,50 +47,86 @@ const baseQuery = fetchBaseQuery({
 /**
  * Enhanced base query with error handling and token refresh logic
  */
+import { Mutex } from 'async-mutex';
+import { jwtDecode } from "jwt-decode";
+import { logout, setCredentials } from "../../apps/MarketPlace/store/auth/authSlice";
+import { API_ENDPOINTS } from "../../config/api";
+
+const mutex = new Mutex();
+
+/**
+ * Enhanced base query with error handling, smart token refresh, and concurrency control
+ */
 const baseQueryWithReauth = async (args, api, extraOptions) => {
-  console.log(`🌐 [RTK Query] ${args.method || 'GET'} ${args.url}`);
+  // Wait until the mutex is available without locking it
+  await mutex.waitForUnlock();
 
-  let result = await baseQuery(args, api, extraOptions);
+  // Smart Refresh: Check if token is expired or about to expire (within 1 minute)
+  const state = api.getState();
+  const token = state.auth?.token;
 
-  // Handle successful responses
-  if (result.data) {
-    console.log(`✅ [RTK Query] Success: ${args.url}`, result.data);
-  }
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
 
-  // Handle 401 unauthorized responses
-  if (result.error && result.error.status === 401) {
-    console.warn("🔒 [RTK Query] Unauthorized request detected");
+      // If token is expired or expires in less than 60 seconds
+      if (decoded.exp < currentTime + 60) {
+        if (!mutex.isLocked()) {
+          const release = await mutex.acquire();
+          try {
+            const refreshResult = await baseQuery(
+              { url: API_ENDPOINTS.AUTH.REFRESH_TOKEN, method: 'POST' },
+              api,
+              extraOptions
+            );
 
-    // Try to refresh token
-    const refreshResult = await baseQuery(
-      {
-        url: '/auth/refresh-token',
-        method: 'POST',
-      },
-      api,
-      extraOptions
-    );
-
-    if (refreshResult.data) {
-      // Token refreshed successfully, retry original request
-      console.log("🔄 [RTK Query] Token refreshed, retrying request");
-      result = await baseQuery(args, api, extraOptions);
-    } else {
-      // Refresh failed, logout user
-      console.error("❌ [RTK Query] Token refresh failed, logging out");
-      // Import and dispatch logout action when needed
-      // api.dispatch(logout());
+            if (refreshResult.data) {
+              const { token: newToken, user } = refreshResult.data;
+              api.dispatch(setCredentials({ user: user || state.auth.user, token: newToken }));
+            } else {
+              api.dispatch(logout());
+            }
+          } finally {
+            release();
+          }
+        } else {
+          await mutex.waitForUnlock();
+        }
+      }
+    } catch (error) {
+      // If decoding fails, let the 401 handler deal with it
     }
   }
 
-  // Handle network errors
-  if (result.error && result.error.status === "FETCH_ERROR") {
-    console.error("🌐 [RTK Query] Network error occurred:", result.error);
-  }
+  let result = await baseQuery(args, api, extraOptions);
 
-  // Handle other errors
-  if (result.error && result.error.status !== 401) {
-    console.error(`❌ [RTK Query] API Error ${result.error.status}:`, result.error);
+  // Handle 401 unauthorized responses (Fallback)
+  if (result.error && result.error.status === 401) {
+    if (!mutex.isLocked()) {
+      const release = await mutex.acquire();
+      try {
+        const refreshResult = await baseQuery(
+          { url: API_ENDPOINTS.AUTH.REFRESH_TOKEN, method: 'POST' },
+          api,
+          extraOptions
+        );
+
+        if (refreshResult.data) {
+          const { token: newToken, user } = refreshResult.data;
+          api.dispatch(setCredentials({ user: user || state.auth.user, token: newToken }));
+          // Retry original request
+          result = await baseQuery(args, api, extraOptions);
+        } else {
+          api.dispatch(logout());
+        }
+      } finally {
+        release();
+      }
+    } else {
+      await mutex.waitForUnlock();
+      result = await baseQuery(args, api, extraOptions);
+    }
   }
 
   return result;

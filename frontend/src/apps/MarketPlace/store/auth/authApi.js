@@ -45,6 +45,12 @@ export const authApi = baseApiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    refreshToken: builder.mutation({
+      query: () => ({
+        url: API_ENDPOINTS.AUTH.REFRESH_TOKEN,
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
@@ -55,4 +61,5 @@ export const {
   useGetMeQuery,
   useUpdateProfileMutation,
   useChangePasswordMutation,
+  useRefreshTokenMutation,
 } = authApi;

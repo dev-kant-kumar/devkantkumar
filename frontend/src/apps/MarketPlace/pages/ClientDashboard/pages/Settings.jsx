@@ -50,7 +50,7 @@ const Settings = () => {
   const handleUpdateProfile = async () => {
     try {
       const updatedUser = await updateProfile(formData).unwrap();
-      dispatch(setCredentials({ user: updatedUser.data, token: localStorage.getItem('token') }));
+      dispatch(setCredentials({ user: updatedUser.user, token: localStorage.getItem('token') }));
       // Show success message (could add a toast notification system later)
       alert('Profile updated successfully!');
     } catch (error) {

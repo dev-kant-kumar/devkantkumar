@@ -40,12 +40,15 @@ const SignUp = React.lazy(() => import('./pages/UserManagement/forms/SignUp/Sign
 const ForgotPassword = React.lazy(() => import('./pages/UserManagement/forms/ForgotPassword/ForgotPassword'));
 const ResetPassword = React.lazy(() => import('./pages/UserManagement/forms/ResetPassword/ResetPassword'));
 
+import PersistLogin from '../common/components/PersistLogin';
+
 const MarketPlaceRoutes = () => {
   return (
     <Suspense fallback={<Loader />}>
       <Routes>
-        <Route path="/" element={<MarketPlaceLayout />}>
-          <Route index element={<Home />} />
+        <Route element={<PersistLogin />}>
+          <Route path="/" element={<MarketPlaceLayout />}>
+            <Route index element={<Home />} />
           <Route path="services" element={<Services />} />
           <Route path="services/:serviceId" element={<ServiceDetail />} />
           <Route path="products" element={<DigitalProducts />} />
@@ -88,6 +91,7 @@ const MarketPlaceRoutes = () => {
           </Route>
 
           <Route path="*" element={<NotFound />} />
+        </Route>
         </Route>
       </Routes>
     </Suspense>
