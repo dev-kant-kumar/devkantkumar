@@ -40,7 +40,7 @@ const SignUp = React.lazy(() => import('./pages/UserManagement/forms/SignUp/Sign
 const ForgotPassword = React.lazy(() => import('./pages/UserManagement/forms/ForgotPassword/ForgotPassword'));
 const ResetPassword = React.lazy(() => import('./pages/UserManagement/forms/ResetPassword/ResetPassword'));
 
-import PersistLogin from '../common/components/PersistLogin';
+import PersistLogin from './common/components/PersistLogin';
 
 const MarketPlaceRoutes = () => {
   return (

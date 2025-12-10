@@ -34,7 +34,15 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        isEmailVerified: user.isEmailVerified
+        isEmailVerified: user.isEmailVerified,
+        phone: user.profile?.phone,
+        bio: user.profile?.bio,
+        website: user.profile?.website,
+        location: user.profile?.location,
+        company: user.profile?.company,
+        socialLinks: user.profile?.socialLinks,
+        gender: user.gender,
+        dateOfBirth: user.dateOfBirth
       }
     });
 };
@@ -70,10 +78,12 @@ const register = async (req, res, next) => {
       firstName,
       lastName,
       email: email.toLowerCase(),
-      password
+      password,
+      isEmailVerified: true // Skip email verification for now
     });
 
-    // Generate email verification token
+    // Generate email verification token (Optional: keep logic if we want to enable it later, but for now we skip sending)
+    /*
     const verificationToken = crypto.randomBytes(32).toString('hex');
     user.emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
     user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
@@ -86,9 +96,10 @@ const register = async (req, res, next) => {
       logger.error('Failed to send verification email:', emailError);
       // Don't fail registration if email fails
     }
+    */
 
-    logger.info(`New user registered: ${user.email}`);
-    sendTokenResponse(user, 201, res, 'User registered successfully. Please check your email for verification.');
+    logger.info(`New user registered and auto-logged in: ${user.email}`);
+    sendTokenResponse(user, 201, res, 'User registered successfully');
   } catch (error) {
     logger.error('Registration error:', error);
     next(error);
@@ -210,7 +221,24 @@ const getMe = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: user
+      data: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified,
+        phone: user.profile?.phone,
+        bio: user.profile?.bio,
+        website: user.profile?.website,
+        location: user.profile?.location,
+        company: user.profile?.company,
+        socialLinks: user.profile?.socialLinks,
+        gender: user.gender,
+        dateOfBirth: user.dateOfBirth,
+        createdAt: user.createdAt
+      }
     });
   } catch (error) {
     logger.error('Get me error:', error);
@@ -223,7 +251,12 @@ const getMe = async (req, res, next) => {
 // @access  Public
 const refreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    let { refreshToken } = req.body;
+
+    // Fallback to cookie if not in body
+    if (!refreshToken && req.cookies) {
+      refreshToken = req.cookies.refreshToken;
+    }
 
     if (!refreshToken) {
       return res.status(401).json({
@@ -395,7 +428,10 @@ const resetPassword = async (req, res, next) => {
 // @access  Private
 const updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, phone, bio, avatar } = req.body;
+    const {
+      firstName, lastName, phone, bio, avatar, gender, dateOfBirth,
+      website, location, company, socialLinks
+    } = req.body;
 
     const user = await User.findById(req.user.id);
     if (!user) {
@@ -408,9 +444,26 @@ const updateProfile = async (req, res, next) => {
     // Update fields if provided
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
-    if (phone) user.phone = phone;
-    if (bio) user.bio = bio;
     if (avatar) user.avatar = avatar;
+    if (gender) user.gender = gender;
+    if (dateOfBirth) user.dateOfBirth = dateOfBirth;
+
+    // Update nested profile fields
+    if (!user.profile) user.profile = {};
+
+    if (phone) user.profile.phone = phone;
+    if (bio) user.profile.bio = bio;
+    if (website) user.profile.website = website;
+    if (location) user.profile.location = location;
+    if (company) user.profile.company = company;
+
+    if (socialLinks) {
+      if (!user.profile.socialLinks) user.profile.socialLinks = {};
+      if (socialLinks.linkedin) user.profile.socialLinks.linkedin = socialLinks.linkedin;
+      if (socialLinks.github) user.profile.socialLinks.github = socialLinks.github;
+      if (socialLinks.twitter) user.profile.socialLinks.twitter = socialLinks.twitter;
+      if (socialLinks.instagram) user.profile.socialLinks.instagram = socialLinks.instagram;
+    }
 
     await user.save();
 
@@ -423,8 +476,14 @@ const updateProfile = async (req, res, next) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        phone: user.phone,
-        bio: user.bio,
+        phone: user.profile?.phone,
+        bio: user.profile?.bio,
+        website: user.profile?.website,
+        location: user.profile?.location,
+        company: user.profile?.company,
+        socialLinks: user.profile?.socialLinks,
+        gender: user.gender,
+        dateOfBirth: user.dateOfBirth,
         avatar: user.avatar,
         role: user.role,
         isEmailVerified: user.isEmailVerified

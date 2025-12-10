@@ -1,13 +1,13 @@
 import {
-    Bell,
-    Box,
-    CreditCard,
-    Download,
-    LayoutDashboard,
-    LogOut,
-    MessageSquare,
-    Settings,
-    ShoppingBag
+  Bell,
+  Box,
+  CreditCard,
+  Download,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Settings,
+  ShoppingBag
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
