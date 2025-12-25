@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run prerender",
+    "build": "vite build && npm run prerender && npm run generate-rss",
+    "generate-rss": "node src/utils/generateRss.js",
     "prerender": "node src/utils/prerender.js",
     "postinstall": "puppeteer browsers install chrome",
     "lint": "eslint .",
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "@dr.pogodin/react-helmet": "^3.0.4",
+    "@giscus/react": "^3.1.0",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@reduxjs/toolkit": "^2.9.0",

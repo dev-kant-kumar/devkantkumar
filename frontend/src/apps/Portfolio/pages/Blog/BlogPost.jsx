@@ -7,6 +7,8 @@ import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
 import { portfolioData } from "../../store/data/portfolioData";
 import AdPlaceholder from "./components/AdPlaceholder";
+import FloatingShareBar from "./components/FloatingShareBar";
+import GiscusComments from "./components/GiscusComments";
 import { localPosts } from "./postsLocal";
 
 const BlogPost = () => {
@@ -30,17 +32,6 @@ const BlogPost = () => {
   const [isSubmittingNewsletter, setIsSubmittingNewsletter] =
     React.useState(false);
 
-  // Feedback system state
-  const [feedback, setFeedback] = React.useState(null); // 'like' or 'dislike'
-  const [showFeedbackForm, setShowFeedbackForm] = React.useState(false);
-  const [feedbackData, setFeedbackData] = React.useState({
-    email: "",
-    comment: "",
-    type: null,
-  });
-  const [feedbackErrors, setFeedbackErrors] = React.useState({});
-  const [isSubmittingFeedback, setIsSubmittingFeedback] = React.useState(false);
-  const [feedbackSubmitted, setFeedbackSubmitted] = React.useState(false);
 
   // Reading progress and active heading tracking
   React.useEffect(() => {
@@ -78,95 +69,6 @@ const BlogPost = () => {
     }
   };
 
-  // Email validation function
-  const validateEmail = (email) => {
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-    return emailRegex.test(email);
-  };
-
-  // Handle feedback button click
-  const handleFeedbackClick = (type) => {
-    if (feedbackSubmitted) return;
-
-    setFeedback(type);
-    setFeedbackData((prev) => ({ ...prev, type }));
-    setShowFeedbackForm(true);
-    setFeedbackErrors({});
-  };
-
-  // Validate feedback form
-  const validateFeedbackForm = () => {
-    const errors = {};
-
-    if (!feedbackData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!validateEmail(feedbackData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    if (!feedbackData.comment.trim()) {
-      errors.comment = "Please provide your feedback";
-    } else if (feedbackData.comment.trim().length < 10) {
-      errors.comment = "Feedback must be at least 10 characters long";
-    }
-
-    return errors;
-  };
-
-  // Handle feedback form submission
-  const handleFeedbackSubmit = async (e) => {
-    e.preventDefault();
-
-    const errors = validateFeedbackForm();
-    if (Object.keys(errors).length > 0) {
-      setFeedbackErrors(errors);
-      return;
-    }
-
-    setIsSubmittingFeedback(true);
-    setFeedbackErrors({});
-
-    try {
-      // Simulate API call - replace with actual API endpoint
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Here you would typically send the feedback to your backend
-      console.log("Feedback submitted:", {
-        blogSlug: slug,
-        type: feedbackData.type,
-        email: feedbackData.email,
-        comment: feedbackData.comment,
-        timestamp: new Date().toISOString(),
-      });
-
-      setFeedbackSubmitted(true);
-      setShowFeedbackForm(false);
-
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setFeedbackData({ email: "", comment: "", type: null });
-        setFeedback(null);
-      }, 3000);
-    } catch (error) {
-      setFeedbackErrors({
-        submit: "Failed to submit feedback. Please try again.",
-      });
-      console.log("Feedback submission error:", error);
-    } finally {
-      setIsSubmittingFeedback(false);
-    }
-  };
-
-  // Handle input changes
-  const handleInputChange = (field, value) => {
-    setFeedbackData((prev) => ({ ...prev, [field]: value }));
-
-    // Clear specific field error when user starts typing
-    if (feedbackErrors[field]) {
-      setFeedbackErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
 
   // Newsletter subscription handler
   const handleNewsletterSubmit = async (e) => {
@@ -404,6 +306,9 @@ const BlogPost = () => {
             transition={{ duration: 0.1 }}
           />
         </div>
+
+        {/* Floating Share Bar */}
+        <FloatingShareBar title={blogPost.title} url={window.location.href} />
 
         {/* Hero Section */}
         <motion.section
@@ -859,204 +764,9 @@ const BlogPost = () => {
                       </div>
                     </div>
 
-                    {/* Feedback Section */}
+                    {/* Comments Section */}
                     <div className="mt-16 pt-8 border-t border-slate-700">
-                      <div className="text-center">
-                        <h3 className="text-2xl font-bold text-white mb-4">
-                          Was this article helpful?
-                        </h3>
-                        <p className="text-slate-400 mb-8">
-                          Your feedback helps me improve the content.
-                        </p>
-
-                        {!showFeedbackForm && !feedbackSubmitted ? (
-                          <div className="flex justify-center gap-6">
-                            <button
-                              onClick={() => handleFeedbackClick("like")}
-                              className="group flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-slate-800/50 transition-colors"
-                            >
-                              <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-green-500/20 group-hover:text-green-400 transition-all">
-                                <svg
-                                  className="w-6 h-6"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                                  />
-                                </svg>
-                              </div>
-                              <span className="text-sm font-medium text-slate-400 group-hover:text-white">
-                                Yes, thanks!
-                              </span>
-                            </button>
-
-                            <button
-                              onClick={() => handleFeedbackClick("dislike")}
-                              className="group flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-slate-800/50 transition-colors"
-                            >
-                              <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-red-500/20 group-hover:text-red-400 transition-all">
-                                <svg
-                                  className="w-6 h-6"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"
-                                  />
-                                </svg>
-                              </div>
-                              <span className="text-sm font-medium text-slate-400 group-hover:text-white">
-                                Not really
-                              </span>
-                            </button>
-                          </div>
-                        ) : feedbackSubmitted ? (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-green-500/10 border border-green-500/20 rounded-xl p-6 max-w-md mx-auto"
-                          >
-                            <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                              <svg
-                                className="w-6 h-6 text-green-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                            <h4 className="text-lg font-bold text-white mb-2">
-                              Thank you for your feedback!
-                            </h4>
-                            <p className="text-slate-300">
-                              I appreciate your input and will use it to improve
-                              future articles.
-                            </p>
-                          </motion.div>
-                        ) : (
-                          <motion.form
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            onSubmit={handleFeedbackSubmit}
-                            className="max-w-md mx-auto bg-slate-800/50 rounded-xl p-6 border border-slate-700"
-                          >
-                            <div className="mb-4">
-                              <label
-                                htmlFor="email"
-                                className="block text-sm font-medium text-slate-300 mb-2 text-left"
-                              >
-                                Email (optional)
-                              </label>
-                              <input
-                                type="email"
-                                id="email"
-                                value={feedbackData.email}
-                                onChange={(e) =>
-                                  handleInputChange("email", e.target.value)
-                                }
-                                className={`w-full px-4 py-2 bg-slate-900 border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors ${
-                                  feedbackErrors.email
-                                    ? "border-red-500"
-                                    : "border-slate-700"
-                                }`}
-                                placeholder="To receive a reply..."
-                              />
-                              {feedbackErrors.email && (
-                                <p className="text-red-400 text-xs mt-1 text-left">
-                                  {feedbackErrors.email}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="mb-6">
-                              <label
-                                htmlFor="comment"
-                                className="block text-sm font-medium text-slate-300 mb-2 text-left"
-                              >
-                                How can I improve? *
-                              </label>
-                              <textarea
-                                id="comment"
-                                value={feedbackData.comment}
-                                onChange={(e) =>
-                                  handleInputChange("comment", e.target.value)
-                                }
-                                rows={4}
-                                className={`w-full px-4 py-2 bg-slate-900 border rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors resize-none ${
-                                  feedbackErrors.comment
-                                    ? "border-red-500"
-                                    : "border-slate-700"
-                                }`}
-                                placeholder="Tell me what you liked or didn't like..."
-                              />
-                              {feedbackErrors.comment && (
-                                <p className="text-red-400 text-xs mt-1 text-left">
-                                  {feedbackErrors.comment}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="flex gap-3">
-                              <button
-                                type="button"
-                                onClick={() => setShowFeedbackForm(false)}
-                                className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors font-medium"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                type="submit"
-                                disabled={isSubmittingFeedback}
-                                className="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                              >
-                                {isSubmittingFeedback ? (
-                                  <svg
-                                    className="w-5 h-5 animate-spin"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <circle
-                                      className="opacity-25"
-                                      cx="12"
-                                      cy="12"
-                                      r="10"
-                                      stroke="currentColor"
-                                      strokeWidth="4"
-                                    ></circle>
-                                    <path
-                                      className="opacity-75"
-                                      fill="currentColor"
-                                      d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                    ></path>
-                                  </svg>
-                                ) : (
-                                  "Submit Feedback"
-                                )}
-                              </button>
-                            </div>
-                            {feedbackErrors.submit && (
-                              <p className="text-red-400 text-sm mt-3 text-center">
-                                {feedbackErrors.submit}
-                              </p>
-                            )}
-                          </motion.form>
-                        )}
-                      </div>
+                      <GiscusComments />
                     </div>
                   </div>
                 </div>
@@ -1064,6 +774,7 @@ const BlogPost = () => {
             </div>
           </div>
         </section>
+
 
         {/* Related Posts Section */}
         {relatedPosts.length > 0 && (

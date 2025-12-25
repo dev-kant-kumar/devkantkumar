@@ -660,6 +660,13 @@ export const portfolioData = {
     searchOptimized: true,
     remoteReady: true,
   },
+
+  giscusConfig: {
+    repo: "dev-kant-kumar/devkantkumar",
+    repoId: "R_kgDOP5tsgQ",
+    category: "General",
+    categoryId: "DIC_kwDOP5tsgc4C0PVZ",
+  },
 };
 
 // Helper functions to access data easily
