@@ -4,7 +4,7 @@ export const localPosts = (() => {
   const posts = Object.values(modules)
     .map((m) => {
       const Component = m?.default;
-      const info = Component?.info;
+      const info = Component?.info || m?.info;
       return Component && info ? { Component, meta: info } : null;
     })
     .filter(Boolean)
