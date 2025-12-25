@@ -24,6 +24,9 @@ const routes = [
   "/blog/anti-gravity-editor",
   "/blog/git-survival-guide",
   "/blog/react-server-components-2025",
+  "/blog/agentic-ai-2025-guide",
+  "/blog/dotnet-assembly-guide",
+  "/blog/ollama-guide",
 ];
 
 async function getBrowser() {
