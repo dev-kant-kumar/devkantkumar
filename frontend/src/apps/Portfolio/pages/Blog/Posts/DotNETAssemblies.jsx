@@ -1,33 +1,33 @@
 // Top-level imports
 import {
-    AlertCircle,
-    BookOpen,
-    Box,
-    CheckCircle,
-    ChevronRight,
-    Clock,
-    Code,
-    Copy,
-    Database,
-    FileCode,
-    FolderTree,
-    GitBranch,
-    HelpCircle,
-    Layers,
-    Lock,
-    Package,
-    PlayCircle,
-    Settings,
-    Share2,
-    Shield,
-    Sparkles,
-    Target,
-    Terminal,
-    TrendingUp,
-    Users,
-    Video,
-    Workflow,
-    Zap
+  AlertCircle,
+  BookOpen,
+  Box,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Code,
+  Copy,
+  Database,
+  FileCode,
+  FolderTree,
+  GitBranch,
+  HelpCircle,
+  Layers,
+  Lock,
+  Package,
+  PlayCircle,
+  Settings,
+  Share2,
+  Shield,
+  Sparkles,
+  Target,
+  Terminal,
+  TrendingUp,
+  Users,
+  Video,
+  Workflow,
+  Zap
 } from "lucide-react";
 import React from "react";
 
@@ -107,6 +107,21 @@ function AssembliesCardImage({ className = "h-48" }) {
         </div>
         <span className="font-bold text-lg tracking-wide text-slate-200 group-hover:text-white transition-colors">.NET Assemblies</span>
       </div>
+    </div>
+  );
+}
+
+function YouTubeEmbed({ videoId, title }) {
+  return (
+    <div className="relative w-full overflow-hidden rounded-xl border border-purple-500/30 shadow-2xl my-12 aspect-video bg-slate-900/50">
+      <iframe
+        className="absolute top-0 left-0 w-full h-full"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title={title}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
     </div>
   );
 }
@@ -1220,7 +1235,7 @@ This is XCOPY deployment in action!`}
               </ul>
             </InfoBox>
 
-            <VideoEmbed />
+            <YouTubeEmbed videoId="rIKXJxv-8QQ" title="How to Create and Use Private Assembly" />
           </div>
         </section>
 
@@ -1591,6 +1606,8 @@ gacutil /l MySharedLibrary
               title="Side-by-Side Versions in GAC"
               description="Screenshot showing multiple versions of the same assembly in GAC"
             />
+
+            <YouTubeEmbed videoId="yZ36IDEXaKY" title="How to Create and Use Shared Assembly" />
           </div>
         </section>
 
@@ -1840,7 +1857,7 @@ AssembliesPost.info = {
   readTime: "35 min read",
   image: "/dotnet-assemblies-cover.jpg",
   featuredImage: "/dotnet-assemblies-cover.jpg",
-  featured: true,
+  featured: false,
   publishDate: "2025-11-29",
   modifiedDate: "2025-11-29",
   tags: [

@@ -2,7 +2,6 @@
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
@@ -231,7 +230,6 @@ const Blog = () => {
       />
       {/* Blog listing should use website schema */}
       <StructuredData type="website" />
-      <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}

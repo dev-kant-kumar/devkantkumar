@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import linkedinPosts from "../../store/data/linkedinPosts";
@@ -186,7 +185,6 @@ const Content = () => {
         type="website"
       />
       <StructuredData type="website" />
-      <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}

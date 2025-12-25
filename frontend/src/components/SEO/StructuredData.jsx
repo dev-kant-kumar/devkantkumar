@@ -96,42 +96,63 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
     }
   });
 
-  const getProjectSchema = (project) => ({
-    "@context": "https://schema.org",
-    "@type": project.githubUrl ? "SoftwareSourceCode" : "CreativeWork",
-    "name": project.title || project.name,
-    "description": project.description,
-    "url": project.liveUrl || project.links?.live || project.githubUrl || project.links?.github,
-    "image": project.image,
-    "codeRepository": project.githubUrl || project.links?.github,
-    "programmingLanguage": Array.isArray(project.technologies) ? project.technologies.join(", ") : project.technologies,
-    "runtimePlatform": "Web",
-    "author": { "@type": "Person", "name": personalInfo.name },
-    "dateCreated": project.completedDate || project.year,
-    "applicationCategory": "WebApplication"
-  });
+  const getProjectSchema = (project) => {
+    const siteUrl = portfolioData.seoConfig?.site?.url || "https://devkantkumar.com";
+    const imageUrl = project.image?.startsWith('http')
+      ? project.image
+      : project.image
+        ? `${siteUrl}${project.image.startsWith('/') ? '' : '/'}${project.image}`
+        : "";
 
-  const getBlogPostSchema = (post) => ({
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "headline": post.title,
-    "description": post.excerpt,
-    "image": post.image,
-    "author": {
-      "@type": "Person",
-      "name": personalInfo.name
-    },
-    "publisher": {
-      "@type": "Person",
-      "name": personalInfo.name
-    },
-    "datePublished": post.publishDate,
-    "dateModified": post.modifiedDate || post.publishDate,
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": `${portfolioData.seoConfig?.site?.url || "https://devkantkumar.com"}/blog/${post.slug}`
-    }
-  });
+    return {
+      "@context": "https://schema.org",
+      "@type": project.githubUrl ? "SoftwareSourceCode" : "CreativeWork",
+      "name": project.title || project.name,
+      "description": project.description,
+      "url": project.liveUrl || project.links?.live || project.githubUrl || project.links?.github,
+      "image": imageUrl,
+      "codeRepository": project.githubUrl || project.links?.github,
+      "programmingLanguage": Array.isArray(project.technologies) ? project.technologies.join(", ") : project.technologies,
+      "runtimePlatform": "Web",
+      "author": { "@type": "Person", "name": personalInfo.name },
+      "dateCreated": project.completedDate || project.year,
+      "applicationCategory": "WebApplication"
+    };
+  };
+
+  const getBlogPostSchema = (post) => {
+    const siteUrl = portfolioData.seoConfig?.site?.url || "https://devkantkumar.com";
+    const imageUrl = post.image?.startsWith('http')
+      ? post.image
+      : `${siteUrl}${post.image?.startsWith('/') ? '' : '/'}${post.image || ''}`;
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "description": post.excerpt,
+      "image": imageUrl,
+      "author": {
+        "@type": "Person",
+        "name": personalInfo.name,
+        "url": siteUrl
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": personalInfo.name,
+        "logo": {
+          "@type": "ImageObject",
+          "url": personalInfo.profileImage
+        }
+      },
+      "datePublished": post.publishDate,
+      "dateModified": post.modifiedDate || post.publishDate,
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `${siteUrl}/blog/${post.slug}`
+      }
+    };
+  };
 
   const getOrganizationSchema = () => ({
     "@context": "https://schema.org",

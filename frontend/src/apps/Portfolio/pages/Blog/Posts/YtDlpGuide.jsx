@@ -1,27 +1,27 @@
 import {
-    AlertTriangle,
-    BookOpen,
-    Calendar,
-    Check,
-    ChevronRight,
-    Clock,
-    Command,
-    Copy,
-    Download,
-    ExternalLink,
-    FileVideo,
-    Folder,
-    Image as ImageIcon,
-    Layers,
-    List,
-    Music,
-    Play,
-    Shield,
-    Tag,
-    Terminal,
-    Type,
-    User,
-    Youtube,
+  AlertTriangle,
+  BookOpen,
+  Calendar,
+  Check,
+  ChevronRight,
+  Clock,
+  Command,
+  Copy,
+  Download,
+  ExternalLink,
+  FileVideo,
+  Folder,
+  Image as ImageIcon,
+  Layers,
+  List,
+  Music,
+  Play,
+  Shield,
+  Tag,
+  Terminal,
+  Type,
+  User,
+  Youtube,
 } from "lucide-react";
 import React from "react";
 
@@ -270,6 +270,21 @@ function TableOfContents() {
   );
 }
 
+function YouTubeEmbed({ videoId, title }) {
+  return (
+    <div className="relative w-full overflow-hidden rounded-xl border border-gray-800 shadow-2xl my-8 aspect-video">
+      <iframe
+        className="absolute top-0 left-0 w-full h-full"
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title={title}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
+}
+
 function YtDlpGuidePost() {
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-gray-300 font-sans selection:bg-green-500/30 selection:text-green-200">
@@ -342,6 +357,8 @@ function YtDlpGuidePost() {
             filename="Terminal"
           />
 
+          <YouTubeEmbed videoId="xBo1kjwvnkE" title="How to Install yt-dlp using Winget" />
+
           <InfoBox type="tip" title="FFmpeg Required" icon={Layers}>
             For the best experience (merging video+audio, converting formats), you also need <strong>FFmpeg</strong>.
             <div className="mt-2 font-mono text-sm bg-black/30 p-2 rounded border border-green-900/30 text-green-300">
@@ -368,6 +385,8 @@ function YtDlpGuidePost() {
             language="bash"
             code="yt-dlp https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           />
+
+          <YouTubeEmbed videoId="cohxxiF2dOg" title="How to Download YouTube Videos" />
           <p className="text-sm text-gray-500 italic">
             This will download the best available quality into your current folder.
           </p>
@@ -530,14 +549,15 @@ function YtDlpGuidePost() {
           </InfoBox>
         </section>
 
-        {/* Video Placeholder */}
+        {/* Full Tutorial Video */}
         <section className="mb-16">
-            <div className="aspect-video w-full bg-[#1e1e1e] rounded-xl flex items-center justify-center border border-gray-800">
-                <div className="text-center">
-                    <Youtube size={48} className="text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-500">Video Tutorial Coming Soon</p>
+           <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <Youtube size={24} className="text-red-400" />
                 </div>
-            </div>
+                <h2 className="text-3xl font-bold text-white">Watch the Full Guide</h2>
+           </div>
+           <YouTubeEmbed videoId="unqqyJj7j1s" title="Complete yt-dlp Guide: Installation & Usage" />
         </section>
 
         {/* Conclusion */}

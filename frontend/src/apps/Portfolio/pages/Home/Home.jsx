@@ -1,12 +1,10 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import Hero from './components/Hero';
-import { portfolioData } from '../../store/data/portfolioData';
-import { useMetadata } from '../../../../utils/useMetadata';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import StructuredData from '../../../../components/SEO/StructuredData';
-import Analytics from '../../../../components/SEO/Analytics';
+import { useMetadata } from '../../../../utils/useMetadata';
+import { portfolioData } from '../../store/data/portfolioData';
+import Hero from './components/Hero';
 
 const Home = () => {
   const { projects, technicalSkills, workExperience } = portfolioData;
@@ -48,8 +46,8 @@ const Home = () => {
         image={portfolioData.personalInfo.profileImage}
         type="website"
       />
-      <StructuredData type="person" />
-      <Analytics />
+      <StructuredData type="person" pageData={portfolioData} />
+      <StructuredData type="website" pageData={portfolioData} />
 
       <div className="bg-slate-900">
         <Hero />

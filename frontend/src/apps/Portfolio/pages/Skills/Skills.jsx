@@ -1,61 +1,48 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { portfolioData } from "../../store/data/portfolioData";
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    Brain,
+    Palette,
+    Settings,
+    Terminal,
+    Wrench
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import StructuredData from '../../../../components/SEO/StructuredData';
-import Analytics from '../../../../components/SEO/Analytics';
-import {
-  Palette,
-  Settings,
-  Wrench,
-  Brain,
-  Code2,
-  Database,
-  Globe,
-  Smartphone,
-  Server,
-  GitBranch,
-  Terminal,
-  Figma,
-  Chrome,
-  Zap,
-  Shield,
-  Users,
-  BarChart3
-} from 'lucide-react';
+import { portfolioData } from "../../store/data/portfolioData";
 
 // Devicons (di) - Only for skills you actually have
 import {
-  DiReact,
-  DiJavascript1,
-  DiHtml5,
-  DiCss3,
-  DiBootstrap,
-  DiSass,
-  DiNodejs,
-  DiMongodb,
-  DiPostgresql,
-  DiGit,
-  DiGithubBadge,
-  DiNpm
+    DiBootstrap,
+    DiCss3,
+    DiGit,
+    DiGithubBadge,
+    DiHtml5,
+    DiJavascript1,
+    DiMongodb,
+    DiNodejs,
+    DiNpm,
+    DiPostgresql,
+    DiReact,
+    DiSass
 } from "react-icons/di";
 
 // SimpleIcons (si) - Only for skills you actually have
 import {
-  SiTypescript,
-  SiNextdotjs,
-  SiTailwindcss,
-  SiExpress,
-  SiNetlify,
-  SiWebpack,
-  SiFigma,
-  SiPostman,
-  SiGraphql,
-  SiYarn,
-  SiMui,
-  SiRedux,
-  SiPhp,
-  SiMysql
+    SiExpress,
+    SiFigma,
+    SiGraphql,
+    SiMui,
+    SiMysql,
+    SiNetlify,
+    SiNextdotjs,
+    SiPhp,
+    SiPostman,
+    SiRedux,
+    SiTailwindcss,
+    SiTypescript,
+    SiWebpack,
+    SiYarn
 } from "react-icons/si";
 
 const Skills = () => {
@@ -220,7 +207,6 @@ const Skills = () => {
         type="website"
       />
       <StructuredData type="website" />
-      <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}

@@ -1,33 +1,42 @@
-import React, { useEffect } from 'react';
-import { Helmet } from '@dr.pogodin/react-helmet';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { portfolioData } from '../../apps/Portfolio/store/data/portfolioData';
 
-const Analytics = ({ trackingId }) => {
+const Analytics = () => {
   const { seoConfig } = portfolioData;
-  const analyticsId = trackingId || seoConfig.analytics.googleAnalyticsId;
+  const analyticsId = seoConfig.analytics.googleAnalyticsId;
+  const location = useLocation();
 
   useEffect(() => {
-    // Initialize Google Analytics
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
-    document.head.appendChild(script);
+    if (!analyticsId) return;
 
-    script.onload = () => {
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', analyticsId, {
-        page_title: document.title,
-        page_location: window.location.href
-      });
-    };
+    // 1. Initialize Script if not present
+    const existingScript = document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${analyticsId}"]`);
 
-    return () => {
-      // Cleanup
-      document.head.removeChild(script);
-    };
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
+      document.head.appendChild(script);
+
+      script.onload = () => {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){window.dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', analyticsId);
+      };
+    }
   }, [analyticsId]);
+
+  useEffect(() => {
+    if (!analyticsId || !window.gtag) return;
+
+    // 2. Track Page View on Route Change
+    window.gtag('config', analyticsId, {
+      page_path: location.pathname + location.search,
+      page_title: document.title,
+    });
+  }, [location, analyticsId]);
 
   return null;
 };

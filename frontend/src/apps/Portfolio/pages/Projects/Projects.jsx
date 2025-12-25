@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Code2, FolderKanban, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { AdvancedAnimations } from "../../common/utils/animations";
@@ -173,7 +172,6 @@ const Projects = () => {
           ]
         }}
       />
-      <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}

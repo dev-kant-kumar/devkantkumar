@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import "highlight.js/styles/github-dark.css";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
@@ -264,7 +263,7 @@ const BlogPost = () => {
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
-      .map((p) => p.meta);
+      .map((p) => ({ ...p.meta, Component: p.Component }));
   }, [blogPost, slug]);
 
   const containerVariants = {
@@ -395,7 +394,6 @@ const BlogPost = () => {
       {blogPost.faqs && blogPost.faqs.length > 0 && (
         <StructuredData type="faq" pageData={blogPost} />
       )}
-      <Analytics />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Reading Progress Bar */}
@@ -1081,14 +1079,31 @@ const BlogPost = () => {
                     to={`/blog/${post.slug}`}
                     className="group block bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]"
                   >
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute top-3 left-3">
-                        <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full">
+                    <div className="relative h-48 overflow-hidden rounded-t-xl bg-slate-800">
+                      {(() => {
+                        const ImgComp =
+                          post.Component?.CardImage ||
+                          post.Component?.Image ||
+                          post.Component?.FeaturedImage;
+
+                        if (ImgComp) {
+                          return (
+                            <div className="w-full h-full">
+                              <ImgComp className="w-full h-full object-cover" />
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <img
+                            src={post.image}
+                            alt={post.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        );
+                      })()}
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full backdrop-blur-sm border border-slate-700/50">
                           {post.category}
                         </span>
                       </div>

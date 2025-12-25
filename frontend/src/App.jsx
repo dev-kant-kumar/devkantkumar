@@ -16,11 +16,14 @@ const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
 import Loader from "./shared/components/Loader";
 
+import Analytics from "./components/SEO/Analytics";
+
 // Add Toaster globally
 function App() {
   return (
     <div>
       <BrowserRouter>
+        <Analytics />
         <Suspense fallback={<Loader />}>
           <Routes>
             {/* routes must be <Route> only */}

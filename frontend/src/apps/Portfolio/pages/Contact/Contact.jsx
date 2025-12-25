@@ -1,21 +1,6 @@
 import { motion } from "framer-motion";
-import {
-  Briefcase,
-  Github,
-  Globe,
-  Instagram,
-  Lightbulb,
-  Link,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-  Rocket,
-  Smartphone,
-  Twitter,
-} from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { useState } from "react";
-import Analytics from "../../../../components/SEO/Analytics";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendToDiscord } from "../../common/utils/Discords/sendContactFormData";
@@ -146,8 +131,7 @@ const Contact = () => {
         keywords={portfolioData.seoKeywords}
         type="website"
       />
-      <StructuredData type="website" />
-      <Analytics />
+      <StructuredData type="person" />
 
       <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Hero Section */}
