@@ -319,7 +319,7 @@ function SciFiAgentSimulation() {
              </div>
 
             {/* 3. 3D Scene */}
-            <div className="absolute inset-0 flex items-center justify-center [transform-style:preserve-3d] [transform:rotateX(25deg)_translateY(-50px)]">
+            <div className="absolute inset-0 flex items-center justify-center [transform-style:preserve-3d] [transform:rotateX(25deg)_translateY(-50px)] scale-[0.6] md:scale-100 transition-transform origin-center">
 
                 {/* Central Core (Gyroscope) */}
                 <div className={`relative w-40 h-40 [transform-style:preserve-3d] transition-all duration-1000 ${phase === 2 ? 'scale-125' : 'scale-100'}`}>
@@ -776,7 +776,7 @@ function AgentAnatomyInteractive() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20" />
 
       {/* Left: Interactive Diagram */}
-      <div className="relative flex-1 h-[500px] flex items-center justify-center">
+      <div className="relative flex-1 h-[500px] flex items-center justify-center scale-[0.6] sm:scale-75 md:scale-100 transition-transform origin-center">
         {/* Connecting Lines (Simplified for CSS) */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
              <div className="w-64 h-64 border-2 border-dashed border-slate-500 rounded-full animate-[spin_60s_linear_infinite]" />
@@ -815,7 +815,7 @@ function AgentAnatomyInteractive() {
       </div>
 
       {/* Right: Info Panel */}
-      <div className="flex-1 relative z-10 flex items-center">
+      <div className="flex-1 relative z-10 flex items-center min-h-[500px] md:min-h-0 w-full">
          {nodes.map((node) => (
              <div key={node.id} className={`transition-all duration-500 absolute inset-0 flex flex-col justify-center ${activeNode === node.id ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}>
                  <div className={`w-16 h-16 rounded-2xl ${node.bg} ${node.border} border flex items-center justify-center mb-6`}>
@@ -971,11 +971,11 @@ function AgenticAIPost() {
 
         {/* PART 1: FOUNDATIONS */}
         <section id="foundations" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-12 border-b border-slate-800 pb-6">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-12 border-b border-slate-800 pb-6">
                  <div className="p-4 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
                      <Globe size={32} />
                  </div>
-                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight text-center md:text-left">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-600">Foundations</span>
                  </h2>
              </div>
@@ -1071,11 +1071,11 @@ function AgenticAIPost() {
 
         {/* PART 2: CORE CONCEPTS */}
         <section id="core-concepts" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
                     <Brain size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Core Concepts</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Core Concepts</h2>
             </div>
              <div className="prose prose-xl prose-invert max-w-none">
                 <p>To build an agent, you must understand its anatomy. We define <strong>6 essential components</strong> that every robust agent system possesses.</p>
@@ -1135,11 +1135,11 @@ function AgenticAIPost() {
 
         {/* PART 3: MULTI-AGENT SYSTEMS */}
         <section id="multi-agent" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/20">
                     <Network size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Multi-Agent Systems</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Multi-Agent Systems</h2>
             </div>
 
             <div className="prose prose-xl prose-invert max-w-none">
@@ -1212,11 +1212,11 @@ function AgenticAIPost() {
 
         {/* PART 4: FRAMEWORKS & TOOLS */}
         <section id="frameworks" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
                     <Settings size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Frameworks & Tools</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Frameworks & Tools</h2>
             </div>
 
             <div className="prose prose-xl prose-invert max-w-none">
@@ -1321,11 +1321,11 @@ function AgenticAIPost() {
 
         {/* PART 5: DESIGN PATTERNS */}
         <section id="design-patterns" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                     <Layout size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Design Patterns</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Design Patterns</h2>
             </div>
 
             <div className="prose prose-xl prose-invert max-w-none">
@@ -1381,11 +1381,11 @@ function AgenticAIPost() {
 
         {/* PART 6: BUILDING YOUR FIRST AGENT */}
         <section id="building" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
                     <CodeIcon size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Building Your First Agent</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Building Your First Agent</h2>
             </div>
 
             <div className="prose prose-xl prose-invert max-w-none">
@@ -1492,11 +1492,11 @@ print(run_agent("Who is the CEO of OpenAI right now?"))`}
 
         {/* PART 7: ENTERPRISE & PRODUCTION */}
         <section id="production" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
                     <Rocket size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Enterprise & Production</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Enterprise & Production</h2>
             </div>
 
             <div className="prose prose-xl prose-invert max-w-none">
@@ -1561,11 +1561,11 @@ print(run_agent("Who is the CEO of OpenAI right now?"))`}
 
         {/* PART 8: USE CASES */}
         <section id="use-cases" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center shadow-lg shadow-yellow-500/20">
                     <Zap size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Real-World Use Cases</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Real-World Use Cases</h2>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -1604,11 +1604,11 @@ print(run_agent("Who is the CEO of OpenAI right now?"))`}
 
         {/* PART 9: FUTURE */}
         <section id="future" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-600 to-purple-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/20">
                     <Sparkles size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Future & Advanced Topics</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Future & Advanced Topics</h2>
             </div>
 
              <div className="prose prose-xl prose-invert max-w-none">
@@ -1648,11 +1648,11 @@ print(run_agent("Who is the CEO of OpenAI right now?"))`}
 
         {/* PART 10: RESOURCES */}
         <section id="resources" className="mb-16 md:mb-24 scroll-mt-28">
-             <div className="flex items-center gap-4 mb-8">
+             <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-lg shadow-slate-500/20">
                     <BookOpen size={28} className="text-white" />
                 </div>
-                <h2 className="text-4xl font-bold text-white">Resources & Next Steps</h2>
+                <h2 className="text-4xl font-bold text-white text-center md:text-left">Resources & Next Steps</h2>
             </div>
 
             <div className="bg-slate-900/50 rounded-2xl p-8 border border-slate-800">

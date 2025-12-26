@@ -230,11 +230,11 @@ function AntiGravityPost() {
 
         {/* Section 1: The Gravity of Legacy Coding */}
         <section id="introduction" className="mb-20 scroll-mt-20">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 flex items-center justify-center border border-slate-600/50">
               <Target size={24} className="text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-white">
+            <h2 className="text-4xl font-bold text-white text-center md:text-left">
               The Gravity of Legacy Coding
             </h2>
           </div>
@@ -250,11 +250,11 @@ function AntiGravityPost() {
 
         {/* Section 2: What is Anti Gravity */}
         <section id="what-is-antigravity" className="mb-20 scroll-mt-20">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <Sparkles size={24} className="text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-white">
+            <h2 className="text-4xl font-bold text-white text-center md:text-left">
               What is Anti Gravity?
             </h2>
           </div>
@@ -289,11 +289,11 @@ function AntiGravityPost() {
 
         {/* Section 3: Architecture */}
         <section id="architecture" className="mb-20 scroll-mt-20">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
               <Database size={24} className="text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-white">
+            <h2 className="text-4xl font-bold text-white text-center md:text-left">
               Architecture: The Context Engine
             </h2>
           </div>
@@ -315,11 +315,11 @@ function AntiGravityPost() {
 
         {/* Section 4: Agentic Workflow */}
         <section id="agentic-workflow" className="mb-20 scroll-mt-20">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <Workflow size={24} className="text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-white">
+            <h2 className="text-4xl font-bold text-white text-center md:text-left">
               Agentic Workflow in Action
             </h2>
           </div>
@@ -369,11 +369,11 @@ function AntiGravityPost() {
 
         {/* Section 5: Comparison */}
         <section id="comparison" className="mb-20 scroll-mt-20">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
               <TrendingUp size={24} className="text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-white">
+            <h2 className="text-4xl font-bold text-white text-center md:text-left">
               Anti Gravity vs. The Rest
             </h2>
           </div>
@@ -421,11 +421,11 @@ function AntiGravityPost() {
 
         {/* Section 6: Security */}
         <section id="security" className="mb-20 scroll-mt-20">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-gray-600 flex items-center justify-center border border-slate-600">
               <Shield size={24} className="text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-white">
+            <h2 className="text-4xl font-bold text-white text-center md:text-left">
               Enterprise Security & Privacy
             </h2>
           </div>

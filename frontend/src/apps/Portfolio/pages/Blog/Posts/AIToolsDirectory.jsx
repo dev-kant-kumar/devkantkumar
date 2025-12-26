@@ -548,9 +548,19 @@ export default function AIToolsDirectory() {
             <div className="mt-16 p-8 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl text-center">
                 <h3 className="text-2xl font-bold text-white mb-2 m-0 p-0">Missing a tool?</h3>
                 <p className="text-slate-400 mb-4 m-0 p-0">We're constantly updating this directory.</p>
-                <button className="px-6 py-2 bg-cyan-500 text-white rounded-lg font-medium hover:bg-cyan-400 transition-colors">
+                <a
+                    href="#comments"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        const comments = document.getElementById('comments');
+                        if (comments) {
+                            comments.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
+                    className="inline-block px-6 py-2 bg-cyan-500 text-white rounded-lg font-medium hover:bg-cyan-400 transition-colors cursor-pointer"
+                >
                     Suggest a Tool
-                </button>
+                </a>
             </div>
         </div>
     );

@@ -1008,8 +1008,8 @@ const BlogPost = () => {
                             <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-slate-900 rounded-full" title="Available for hire"></div>
                           </div>
                           <div className="text-center sm:text-left flex-1">
-                             <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
-                                <h4 className="text-2xl font-bold text-white">
+                             <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 mb-2">
+                                <h4 className="text-2xl font-bold text-white whitespace-nowrap">
                                   {portfolioData.personalInfo.name}
                                 </h4>
                                 <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold border border-cyan-500/20 uppercase tracking-wide">
@@ -1052,7 +1052,7 @@ const BlogPost = () => {
                     </div>
 
                     {/* Comments Section */}
-                    <div className="mt-16 pt-8 border-t border-slate-700">
+                    <div id="comments" className="mt-16 pt-8 border-t border-slate-700">
                       <GiscusComments />
                     </div>
                   </div>

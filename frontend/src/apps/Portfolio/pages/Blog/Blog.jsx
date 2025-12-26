@@ -334,7 +334,7 @@ const Blog = () => {
         {!isFiltering && featuredPosts.length > 0 && (
           <section className="py-12 bg-gradient-to-b from-slate-900/50 to-transparent">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
                     <Flame size={20} className="text-white" />
@@ -430,14 +430,14 @@ const Blog = () => {
                                   <span className="text-white font-medium block">
                                     {featuredPosts[featuredIndex].author}
                                   </span>
-                                  <div className="flex items-center gap-3 text-slate-500 text-sm">
-                                    <span className="flex items-center gap-1">
+                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-500 text-sm">
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
                                       <Calendar size={12} />
                                       {new Date(featuredPosts[featuredIndex].publishDate).toLocaleDateString("en-US", {
                                         month: "short", day: "numeric", year: "numeric"
                                       })}
                                     </span>
-                                    <span className="flex items-center gap-1">
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
                                       <Clock size={12} />
                                       {featuredPosts[featuredIndex].readTime}
                                     </span>
@@ -466,7 +466,7 @@ const Blog = () => {
         {/* ============================================ */}
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                   <Sparkles size={20} className="text-white" />
