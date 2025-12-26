@@ -1769,7 +1769,7 @@ AgenticAIPost.info = {
   category: "AI & Future",
   author: "Dev Kant Kumar",
   readTime: "60 min read",
-  image: "/images/blog/agentic-ai.jpg", // Fallback
+  image: "/images/blog/agentic-ai.png", // Fallback
   featured: true,
   publishDate: "2025-12-25",
   modifiedDate: "2025-12-25",

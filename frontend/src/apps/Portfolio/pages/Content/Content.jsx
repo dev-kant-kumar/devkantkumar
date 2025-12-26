@@ -5,9 +5,26 @@ import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import linkedinPosts from "../../store/data/linkedinPosts";
 import { portfolioData } from "../../store/data/portfolioData";
-import { localPostMetas } from "../Blog/postsLocal";
+import { localPostMetas, localPosts } from "../Blog/postsLocal";
 
 const Content = () => {
+  // Helper to get component by slug
+  const getPostComponentBySlug = (slug) =>
+    localPosts.find((p) => p.meta.slug === slug)?.Component;
+
+  // Render card image (from Blog.jsx logic)
+  const renderCardImage = (meta, className = "") => {
+    const C = getPostComponentBySlug(meta.slug);
+    // Prefer CardImage, then Image (usually same), then FeaturedImage
+    const ImgComp = C?.CardImage || C?.Image || C?.FeaturedImage;
+    if (typeof ImgComp === "function") return <ImgComp className={className} size="card" />;
+    if (React.isValidElement(ImgComp)) return React.cloneElement(ImgComp, { className });
+    // Fallback to static image
+    return (
+      <img src={meta.image} alt={meta.title} className={className} loading="lazy" />
+    );
+  };
+
   const [latestYouTubeVideo, setLatestYouTubeVideo] = useState(null);
   const [youTubeVideos, setYouTubeVideos] = useState([]);
   const [linkedInPosts, setLinkedInPosts] = useState(linkedinPosts ?? []);
@@ -817,12 +834,9 @@ const Content = () => {
                     className="group rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-cyan-400/40 transition-all duration-300 overflow-hidden shadow-lg shadow-black/30"
                   >
                     <div className="relative h-40 overflow-hidden bg-slate-800">
-                      {post.image && (
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
+                      {renderCardImage(
+                        post,
+                        "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
                       <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-900/80 border border-slate-700 text-[11px] uppercase tracking-wide text-slate-200">

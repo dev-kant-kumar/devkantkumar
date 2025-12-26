@@ -64,7 +64,7 @@ export const info = {
     publishDate: "2024-12-26",
     category: "AI Resources",
     tags: ["AI Tools", "Productivity", "Directory", "ChatGPT", "Midjourney"],
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=2000",
+    image: "/images/blog/ai-tools.png",
     featured: true,
     readTime: "15 min read",
     author: "Dev Kant Kumar",

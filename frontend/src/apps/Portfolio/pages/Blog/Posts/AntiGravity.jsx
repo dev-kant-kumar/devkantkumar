@@ -487,8 +487,8 @@ AntiGravityPost.info = {
   category: "AI & Future",
   author: "Dev Kant Kumar",
   readTime: "25 min read",
-  image: "/devkantkumar.jpg", // Using existing image as placeholder or if available
-  featuredImage: "/devkantkumar.jpg",
+  image: "/images/blog/antigravity-ai.png",
+  featuredImage: "/images/blog/antigravity-ai.png",
   featured: true,
   publishDate: "2025-11-19",
   modifiedDate: "2025-11-19",
