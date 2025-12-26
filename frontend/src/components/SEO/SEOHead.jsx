@@ -36,7 +36,20 @@ const SEOHead = ({
     : `${pageSEO.title} | ${personalInfo.name} - ${personalInfo.title}`;
   const pageDescription =
     description || pageSEO.description || seoConfig.defaultMeta.description;
-  const pageImage = image || personalInfo.profileImage;
+
+  // Helper to ensure image URL is absolute (required for OG tags)
+  const getAbsoluteImageUrl = (imgUrl) => {
+    if (!imgUrl) return null;
+    if (imgUrl.startsWith("http")) return imgUrl;
+    const baseUrl = seoConfig.site.url.replace(/\/$/, "");
+    const path = imgUrl.startsWith("/") ? imgUrl : `/${imgUrl}`;
+    return `${baseUrl}${path}`;
+  };
+
+  // Fallback to profile image if no specific image provided
+  const rawImage = image || personalInfo.profileImage;
+  const pageImage = getAbsoluteImageUrl(rawImage);
+
   const pageUrl =
     url ||
     (typeof window !== "undefined" ? window.location.href : seoConfig.site.url);
