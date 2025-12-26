@@ -214,41 +214,7 @@ function InfoBox({ type = "info", title, children, icon: Icon }) {
   );
 }
 
-function TableOfContents() {
-  const sections = [
-    { id: "foundations", title: "1. Foundations", icon: Globe },
-    { id: "core-concepts", title: "2. Core Concepts", icon: Brain },
-    { id: "multi-agent", title: "3. Multi-Agent Systems", icon: Network },
-    { id: "frameworks", title: "4. Frameworks & Tools", icon: Settings },
-    { id: "design-patterns", title: "5. Design Patterns", icon: Layout },
-    { id: "building", title: "6. Building (Tutorial)", icon: CodeIcon },
-    { id: "production", title: "7. Production", icon: Rocket },
-    { id: "use-cases", title: "8. Use Cases", icon: Zap },
-    { id: "future", title: "9. Future", icon: Sparkles },
-    { id: "resources", title: "10. Resources", icon: BookOpen },
-  ];
 
-  return (
-    <div className="my-12 p-8 rounded-2xl bg-slate-900/40 border border-slate-800/60 backdrop-blur-xl w-full">
-      <div className="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
-        <BookOpen size={20} className="text-cyan-400" />
-        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Table of Contents</h4>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sections.map((section, idx) => (
-            <a key={section.id} href={`#${section.id}`} className="flex items-center gap-3 p-3 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-cyan-500/50 hover:bg-cyan-900/10 transition-all group">
-                <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shrink-0 border border-slate-800 group-hover:border-cyan-500/30 text-slate-500 group-hover:text-cyan-400 transition-colors">
-                    <span className="font-mono font-bold text-xs">{idx + 1}</span>
-                </div>
-                <div className="min-w-0">
-                    <span className="block text-slate-300 font-medium truncate group-hover:text-cyan-300 transition-colors text-sm">{section.title.split('. ')[1]}</span>
-                </div>
-            </a>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 
 
@@ -1001,7 +967,6 @@ function AgenticAIPost() {
                          This guide is for developers, CTOs, and founders who want to master the <strong>$199 Billion</strong> agentic revolution. You will learn not just the "what" and "why", but the concrete "how"—from architecture patterns like <strong>ReAct</strong> to production-grade frameworks like <strong>LangGraph</strong> and <strong>CrewAI</strong>.
                      </p>
                 </div>
-            <TableOfContents />
         </section>
 
         {/* PART 1: FOUNDATIONS */}

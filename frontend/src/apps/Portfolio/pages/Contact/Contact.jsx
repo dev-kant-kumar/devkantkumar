@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Mail, Phone } from "lucide-react";
+import { Briefcase, Globe, Lightbulb, Link, Mail, MapPin, Phone, Rocket, Smartphone } from "lucide-react";
 import { useState } from "react";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";

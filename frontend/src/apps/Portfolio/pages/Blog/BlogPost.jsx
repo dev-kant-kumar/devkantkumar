@@ -7,8 +7,8 @@ import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
 import { portfolioData } from "../../store/data/portfolioData";
 import AdPlaceholder from "./components/AdPlaceholder";
-import FloatingShareBar from "./components/FloatingShareBar";
 import GiscusComments from "./components/GiscusComments";
+import ReadingToolbar from "./components/ReadingToolbar";
 import { localPosts } from "./postsLocal";
 
 const BlogPost = () => {
@@ -19,9 +19,18 @@ const BlogPost = () => {
   const blogPost = entry?.meta;
   const PostComponent = entry?.Component;
 
+  // Scroll to top when slug changes
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
   const isLoading = false;
   const error = null;
   const [readingProgress, setReadingProgress] = React.useState(0);
+
+  // Reading Experience State
+  const [fontSize, setFontSize] = React.useState(18);
+  const [isReadingMode, setIsReadingMode] = React.useState(false);
 
   const [activeHeading, setActiveHeading] = React.useState("");
   const [copied, setCopied] = React.useState(false);
@@ -31,6 +40,8 @@ const BlogPost = () => {
   const [newsletterSubmitted, setNewsletterSubmitted] = React.useState(false);
   const [isSubmittingNewsletter, setIsSubmittingNewsletter] =
     React.useState(false);
+
+
 
 
   // Reading progress and active heading tracking
@@ -144,7 +155,201 @@ const BlogPost = () => {
       }
     );
     setTableOfContents(headings);
+  }, [blogPost, slug, isReadingMode]); // Re-run when post changes or content re-renders
+
+  // Nest headings (H2 -> H3/H4)
+  const nestedTableOfContents = React.useMemo(() => {
+    const nested = [];
+    let currentH2 = null;
+
+    tableOfContents.forEach((heading) => {
+      if (heading.level === 2) {
+        currentH2 = { ...heading, children: [] };
+        nested.push(currentH2);
+      } else if (currentH2 && heading.level > 2) {
+        currentH2.children.push(heading);
+      } else {
+        // Fallback for top-level non-H2 or H3 without H2 parent
+        nested.push({ ...heading, children: [] });
+      }
+    });
+    return nested;
+  }, [tableOfContents]);
+
+  // Expandable sections state
+  const [expandedSections, setExpandedSections] = React.useState({});
+
+  const toggleSection = (id) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  // Auto-expand parent of active heading
+  React.useEffect(() => {
+    if (activeHeading) {
+      nestedTableOfContents.forEach((h2) => {
+        if (h2.children.some((child) => child.id === activeHeading)) {
+          setExpandedSections((prev) => ({ ...prev, [h2.id]: true }));
+        }
+      });
+    }
+  }, [activeHeading, nestedTableOfContents]);
+
+  // Search State
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isSearchFocused, setIsSearchFocused] = React.useState(false);
+  const searchInputRef = React.useRef(null);
+  const navigate = React.useNavigate ? React.useNavigate() : (to) => window.location.href = to; // Fallback or use Hook if available (React Router v6)
+
+  // Filter headings based on search query
+  const filteredHeadings = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return tableOfContents.filter((heading) =>
+      heading.text.toLowerCase().includes(query)
+    );
+  }, [searchQuery, tableOfContents]);
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === "Escape") {
+        searchInputRef.current?.blur();
+        setIsSearchFocused(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Bookmark Feature State
+  const [isBookmarked, setIsBookmarked] = React.useState(false);
+
+  // Check initial bookmark state
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const bookmarks = JSON.parse(localStorage.getItem("blog_bookmarks") || "[]");
+      setIsBookmarked(bookmarks.includes(slug));
+    }
   }, [slug]);
+
+  const toggleBookmark = () => {
+    const bookmarks = JSON.parse(localStorage.getItem("blog_bookmarks") || "[]");
+    let newBookmarks;
+
+    if (bookmarks.includes(slug)) {
+      newBookmarks = bookmarks.filter((s) => s !== slug);
+      setIsBookmarked(false);
+    } else {
+      newBookmarks = [...bookmarks, slug];
+      setIsBookmarked(true);
+    }
+
+    localStorage.setItem("blog_bookmarks", JSON.stringify(newBookmarks));
+  };
+
+  // Text-to-Speech State
+  const [isSpeaking, setIsSpeaking] = React.useState(false);
+  const [isPaused, setIsPaused] = React.useState(false);
+  const speechRef = React.useRef(null);
+
+  // Stop speech on unmount
+  React.useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
+  const handleSpeak = () => {
+    if (isSpeaking && !isPaused) {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+    } else if (isPaused) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    } else {
+      const content = document.querySelector(".blog-content");
+      if (!content) {
+        alert("Sorry, I couldn't find the content to read.");
+        return;
+      }
+
+      // Clean text for better speech
+      // Exclude pre/code blocks if desired, or just read text.
+      // For now, let's read everything but perhaps try to skip huge code blocks if easy,
+      // but simple innerText is usually fine for a v1.
+      const textToRead = content.innerText;
+
+      if (!textToRead || !textToRead.trim()) {
+        alert("The article content appears to be empty.");
+        return;
+      }
+
+      if ('speechSynthesis' in window) {
+        // Cancel any previous speech first
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+
+        // Robust voice loading function
+        const setVoice = () => {
+          const voices = window.speechSynthesis.getVoices();
+          // Fallback logic: prefer Google US English, then any English, then default
+          const voice = voices.find(v => v.name.includes("Google US English")) ||
+                        voices.find(v => v.lang.startsWith("en-") && v.name.includes("Google")) ||
+                        voices.find(v => v.lang.startsWith("en-")) ||
+                        voices[0];
+
+          if (voice) {
+            utterance.voice = voice;
+            console.log("Selected voice:", voice.name);
+          }
+        };
+
+        // Try to set voice immediately, or wait for voices to load
+        setVoice();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+          window.speechSynthesis.onvoiceschanged = setVoice;
+        }
+
+        utterance.rate = 1;
+        utterance.pitch = 1;
+
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          setIsPaused(false);
+        };
+
+        utterance.onerror = (e) => {
+          console.error("Speech error:", e);
+          if (e.error !== 'interrupted' && e.error !== 'canceled') {
+             alert("Speech error: " + e.error);
+          }
+          setIsSpeaking(false);
+          setIsPaused(false);
+        };
+
+        speechRef.current = utterance;
+        window.speechSynthesis.speak(utterance);
+        setIsSpeaking(true);
+        setIsPaused(false);
+      } else {
+        alert("Text-to-Speech is not supported in this browser.");
+      }
+    }
+  };
+
+  const stopSpeak = () => {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+  };
 
   // Get related posts
   const relatedPosts = React.useMemo(() => {
@@ -188,29 +393,7 @@ const BlogPost = () => {
     },
   };
 
-  // Render hero image, preferring JSX component
-  const renderHeroImage = () => {
-    const ImgComp =
-      PostComponent?.FeaturedImage ||
-      PostComponent?.Image ||
-      blogPost?.FeaturedImage ||
-      blogPost?.Image;
 
-    if (typeof ImgComp === "function") return <ImgComp />;
-    if (React.isValidElement(ImgComp)) return ImgComp;
-    if (blogPost?.image) {
-      return (
-        <img
-          src={blogPost.image}
-          alt={blogPost.title}
-          fetchpriority="high"
-          loading="eager"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-      );
-    }
-    return null;
-  };
 
   // Handle loading state
   if (isLoading) {
@@ -299,226 +482,286 @@ const BlogPost = () => {
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         {/* Reading Progress Bar */}
-        <div className="fixed top-0 left-0 w-full h-1 bg-slate-800/50 z-50 backdrop-blur-sm">
-          <motion.div
-            className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500"
+        {/* Reading Progress Bar - Premium Glass Effect */}
+        <div className="fixed top-0 left-0 w-full h-1.5 z-50">
+           <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-xl border-b border-white/5"></div>
+           <motion.div
+            className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
             style={{ width: `${readingProgress}%` }}
             transition={{ duration: 0.1 }}
           />
         </div>
 
-        {/* Floating Share Bar */}
-        <FloatingShareBar title={blogPost.title} url={window.location.href} />
 
-        {/* Hero Section */}
-        <motion.section
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          className="relative pt-24 pb-8 overflow-hidden"
-        >
-          {/* Background Effects */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
-          </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div variants={itemVariants} className="mb-8">
-              <div className="flex flex-wrap items-center gap-3 mb-6">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-300 text-sm font-medium rounded-full border border-cyan-500/20">
-                  <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
-                  {blogPost.category}
-                </span>
-                <span className="text-slate-500 text-sm">•</span>
-                <div className="flex items-center gap-2 text-slate-400 text-sm">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  {blogPost.readTime}
-                </div>
-                <span className="text-slate-500 text-sm">•</span>
-                <time className="text-slate-400 text-sm">
-                  {new Date(blogPost.publishDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </time>
-              </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight tracking-tight">
-                {blogPost.title}
-              </h1>
 
-              {blogPost.excerpt && (
-                <p className="text-xl text-slate-400 leading-relaxed mb-8">
-                  {blogPost.excerpt}
-                </p>
-              )}
 
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <img
-                      src={portfolioData.personalInfo.profileImage}
-                      alt={portfolioData.personalInfo.name}
-                      className="w-14 h-14 rounded-full object-cover shadow-lg border-2 border-slate-700/50"
-                    />
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-2 border-slate-900 rounded-full"></div>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-lg">
-                      {portfolioData.personalInfo.name}
-                    </p>
-                    <p className="text-slate-400 text-sm">
-                      {portfolioData.personalInfo.title}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-500 text-sm mr-2">Share:</span>
-                  <button
-                    onClick={() => shareArticle("twitter")}
-                    className="p-2.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-cyan-400 transition-all border border-slate-700/50"
-                    title="Share on Twitter"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => shareArticle("linkedin")}
-                    className="p-2.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-blue-400 transition-all border border-slate-700/50"
-                    title="Share on LinkedIn"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => shareArticle("facebook")}
-                    className="p-2.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-blue-500 transition-all border border-slate-700/50"
-                    title="Share on Facebook"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </motion.section>
 
         {/* Featured Image */}
-        {(PostComponent?.FeaturedImage ||
-          PostComponent?.Image ||
-          blogPost?.image) && (
-          <motion.section
-            variants={itemVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="pb-12"
-          >
-            <div className="max-w-5xl mx-auto px-0 sm:px-6 lg:px-8">
-              <div className="relative group rounded-2xl overflow-hidden shadow-2xl">
-                <div className="aspect-[21/9] bg-slate-800">
-                  {renderHeroImage()}
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
-              </div>
-            </div>
-          </motion.section>
-        )}
+
 
         {/* Main Content */}
-        <section className="pt-4 pb-8 lg:pb-12">
-          <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-0">
-            <div className="lg:grid lg:grid-cols-12 lg:gap-8 xl:gap-12">
-              {/* Sidebar - Left (Desktop) */}
-              <aside className="hidden lg:block lg:col-span-3">
-                <div className="sticky top-28 space-y-6">
+        <section className="relative pt-32 pb-16 lg:pb-24">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 pt-12">
+            <div className={`lg:grid ${isReadingMode ? "lg:grid-cols-1" : "lg:grid-cols-12"} lg:gap-8 xl:gap-12 transition-all duration-300`}>
+
+
+
+              {/* LEFT SIDEBAR - Table of Contents */}
+              <aside className={`hidden ${isReadingMode ? "" : "lg:block"} lg:col-span-3 xl:col-span-3 transition-opacity duration-300`}>
+                <div className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar pr-4 space-y-8">
                   {/* Table of Contents */}
                   {tableOfContents.length > 0 && (
-                    <div className="bg-slate-900/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-800">
-                      <h4 className="text-white font-semibold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                        <svg
-                          className="w-4 h-4 text-cyan-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    <div className="space-y-6">
+                      {/* Search Bar (Functional) */}
+                      <div className="relative group z-50">
+                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                           <svg className={`h-4 w-4 transition-colors ${isSearchFocused ? "text-cyan-400" : "text-slate-500"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                           </svg>
+                         </div>
+                         <input
+                           ref={searchInputRef}
+                           type="text"
+                           value={searchQuery}
+                           onChange={(e) => setSearchQuery(e.target.value)}
+                           onFocus={() => setIsSearchFocused(true)}
+                           onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)} // Delay to allow click
+                           placeholder="Search..."
+                           className="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg leading-5 bg-slate-800/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-900 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 sm:text-sm transition-all shadow-inner"
+                         />
+                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                           <span className="text-slate-600 text-xs border border-slate-700/50 rounded px-1.5 py-0.5">Ctrl K</span>
+                         </div>
+
+                         {/* Search Results Dropdown - Glassmorphism */}
+                         {isSearchFocused && searchQuery && (
+                           <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl border border-slate-700/80 rounded-xl shadow-2xl shadow-black/50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50 ring-1 ring-white/10">
+                             {filteredHeadings.length > 0 ? (
+                               <div className="py-2">
+                                 <div className="px-3 py-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                   On this page
+                                 </div>
+                                 {filteredHeadings.map((heading, idx) => (
+                                   <button
+                                     key={idx}
+                                     className="w-full text-left block px-4 py-2.5 hover:bg-slate-800 transition-colors group"
+                                     onClick={() => {
+                                        const element = document.getElementById(heading.id);
+                                        if (element) {
+                                          const offset = 100;
+                                          window.scrollTo({
+                                            top: element.getBoundingClientRect().top + window.scrollY - offset,
+                                            behavior: "smooth",
+                                          });
+                                        }
+                                       setSearchQuery("");
+                                       setIsSearchFocused(false);
+                                     }}
+                                   >
+                                     <div className="text-sm font-medium text-slate-200 group-hover:text-cyan-400 line-clamp-1">
+                                       {heading.text}
+                                     </div>
+                                     <div className="text-xs text-slate-500 mt-0.5 capitalize">
+                                        {heading.level === 2 ? "Section" : "Subsection"}
+                                     </div>
+                                   </button>
+                                 ))}
+                               </div>
+                             ) : (
+                               <div className="px-4 py-6 text-center text-slate-500 text-sm">
+                                 No headings found for "{searchQuery}"
+                               </div>
+                             )}
+                           </div>
+                         )}
+                      </div>
+
+                      {/* Navigation Icons Row */}
+                      <div className="flex items-center gap-1 border-b border-slate-800 pb-4">
+                        <a href="/" className="p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors" title="Home">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                        </a>
+                        <Link to="/blog" className="p-2 rounded-lg text-cyan-400 bg-cyan-500/10 transition-colors" title="Blog">
+                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                          </svg>
+                        </Link>
+                        <div className="w-px h-6 bg-slate-800 mx-1" />
+                        <button
+                          onClick={() => toggleBookmark()}
+                          className={`p-2 rounded-lg transition-colors relative group ${
+                            isBookmarked
+                              ? "text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20"
+                              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                          }`}
+                          title={isBookmarked ? "Remove Bookmark" : "Bookmark this post"}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                          />
-                        </svg>
-                        On This Page
-                      </h4>
-                      <nav className="space-y-1">
-                        {tableOfContents.map((heading, index) => (
-                          <a
-                            key={index}
-                            href={`#${heading.id}`}
-                            className={`block py-2 text-sm transition-all border-l-2 ${
-                              activeHeading === heading.id
-                                ? "border-cyan-400 text-cyan-400 pl-4 font-medium"
-                                : "border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600 pl-4"
-                            } ${
-                              heading.level === 3
-                                ? "pl-6"
-                                : heading.level === 4
-                                ? "pl-8"
-                                : ""
-                            }`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const element = document.getElementById(
-                                heading.id
-                              );
-                              if (element) {
-                                const offset = 100;
-                                const elementPosition =
-                                  element.getBoundingClientRect().top;
-                                const offsetPosition =
-                                  elementPosition + window.scrollY - offset;
-                                window.scrollTo({
-                                  top: offsetPosition,
-                                  behavior: "smooth",
-                                });
-                              }
-                            }}
+                           <svg
+                             className={`w-5 h-5 transition-all duration-300 ${isBookmarked ? "fill-current scale-110" : "fill-none scale-100"}`}
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                           >
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                           </svg>
+                           {/* Tooltip feedback */}
+                           <span className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-slate-700 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                             {isBookmarked ? "Bookmarked" : "Bookmark"}
+                           </span>
+                        </button>
+                        <div className="w-px h-6 bg-slate-800 mx-1" />
+                        <button
+                          onClick={() => setIsReadingMode(true)}
+                          className="p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+                          title="Focus Mode (Hide Sidebar)"
+                        >
+                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 8V4m0 0h4M4 4l5 5m11-1h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                           </svg>
+                        </button>
+
+                        <div className="w-px h-6 bg-slate-800 mx-1" />
+
+                        {/* TTS Controls */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={handleSpeak}
+                            className={`p-2 rounded-lg transition-colors ${isSpeaking && !isPaused ? "text-cyan-400 bg-cyan-400/10" : "text-slate-400 hover:text-white hover:bg-slate-800"}`}
+                            title={isSpeaking && !isPaused ? "Pause Reading" : "Read Aloud"}
                           >
-                            {heading.text}
-                          </a>
-                        ))}
+                             {isSpeaking && !isPaused ? (
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                               </svg>
+                             ) : (
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                               </svg>
+                             )}
+                          </button>
+
+                          {(isSpeaking || isPaused) && (
+                            <button
+                              onClick={stopSpeak}
+                              className="p-2 rounded-lg text-red-400 hover:bg-red-400/10 transition-colors animate-in fade-in slide-in-from-left-2"
+                              title="Stop Reading"
+                            >
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                               </svg>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <nav className="relative">
+                        <div className="space-y-1">
+                          {nestedTableOfContents.map((h2, index) => {
+                             const isActive = activeHeading === h2.id;
+                             const hasChildren = h2.children.length > 0;
+                             const isExpanded = expandedSections[h2.id];
+
+                             // Check if any child is active
+                             const isChildActive = h2.children.some(child => child.id === activeHeading);
+
+                             return (
+                               <div key={index} className="relative">
+                                 {/* H2 Item (Section Header style if children, else Link style) */}
+                                 <div className={`group flex items-center justify-between rounded-lg transition-colors duration-200 mb-1 ${
+                                   isActive
+                                     ? "bg-cyan-500/10 text-cyan-400 font-medium"
+                                     : isChildActive
+                                       ? "text-slate-200"
+                                       : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                                 }`}>
+                                     <a
+                                       href={`#${h2.id}`}
+                                       className="flex-1 py-2 px-3 text-sm flex items-center gap-3"
+                                       onClick={(e) => {
+                                         e.preventDefault();
+                                         const element = document.getElementById(h2.id);
+                                         if (element) {
+                                           const offset = 100;
+                                           window.scrollTo({
+                                             top: element.getBoundingClientRect().top + window.scrollY - offset,
+                                             behavior: "smooth",
+                                           });
+                                           if (hasChildren && !isExpanded) toggleSection(h2.id);
+                                         }
+                                       }}
+                                     >
+                                        <span className={`transition-colors truncate`}>
+                                          {h2.text}
+                                        </span>
+                                     </a>
+
+                                     {/* Expand/Collapse Toggle */}
+                                     {hasChildren && (
+                                       <button
+                                         onClick={(e) => {
+                                             e.preventDefault();
+                                             e.stopPropagation();
+                                             toggleSection(h2.id);
+                                         }}
+                                         className={`p-1.5 mr-1.5 rounded-md hover:bg-slate-700/50 transition-colors ${
+                                             isExpanded || isChildActive ? "text-slate-300" : "text-slate-500"
+                                         }`}
+                                         aria-label={isExpanded ? "Collapse section" : "Expand section"}
+                                       >
+                                           <svg
+                                             className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                                             fill="none"
+                                             viewBox="0 0 24 24"
+                                             stroke="currentColor"
+                                           >
+                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                           </svg>
+                                       </button>
+                                     )}
+                                 </div>
+
+                                 {/* Children (H3/H4) - Navigation Tree Style */}
+                                 {hasChildren && isExpanded && (
+                                   <div className="relative ml-px pl-0 space-y-0.5 mb-2">
+                                        {/* Vertical Guide Line */}
+                                        <div className="absolute left-3.5 top-0 bottom-0 w-px bg-slate-800" />
+
+                                        {h2.children.map((child, cIndex) => {
+                                           const isChildItemActive = activeHeading === child.id;
+                                           return (
+                                           <a
+                                             key={cIndex}
+                                             href={`#${child.id}`}
+                                             className={`block py-1.5 pl-7 pr-3 text-xs rounded-r-lg border-l-[3px] transition-all duration-200 ${
+                                               isChildItemActive
+                                                 ? "border-cyan-400 bg-cyan-500/5 text-cyan-400 font-medium"
+                                                 : "border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-700"
+                                             }`}
+                                             onClick={(e) => {
+                                               e.preventDefault();
+                                               const element = document.getElementById(child.id);
+                                               if (element) {
+                                                   const offset = 100;
+                                                   window.scrollTo({
+                                                     top: element.getBoundingClientRect().top + window.scrollY - offset,
+                                                     behavior: "smooth",
+                                                   });
+                                               }
+                                             }}
+                                           >
+                                             {child.text}
+                                           </a>
+                                        )})}
+                                   </div>
+                                 )}
+                               </div>
+                             );
+                          })}
+                        </div>
                       </nav>
                     </div>
                   )}
@@ -527,164 +770,197 @@ const BlogPost = () => {
                   <AdPlaceholder label="Advertisement" />
 
                   {/* Stay Updated Section */}
-                  <div className="relative p-6 rounded-2xl bg-slate-800/30 backdrop-blur-sm border border-white/10 overflow-hidden">
-                    {/* Background Glow */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-600/5" />
+                  {/* Stay Updated Section */}
+                  <div className="relative p-1 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900/50 overflow-hidden">
+                    <div className="relative h-full bg-slate-950/80 backdrop-blur-xl rounded-xl p-6 border border-slate-800/50">
+                      {/* Glow Effect */}
+                      <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
 
-                    <div className="relative z-10">
-                      <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl mb-4 shadow-lg shadow-cyan-500/20">
-                        <svg
-                          className="w-6 h-6 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
-                        </svg>
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-blue-500/10 rounded-lg border border-cyan-500/20 text-cyan-400">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-base font-bold text-white">
+                            Weekly Newsletter
+                          </h3>
+                        </div>
+
+                        <p className="text-slate-400 mb-6 text-sm leading-relaxed">
+                          Join 5,000+ developers getting the latest updates on AI & Engineering.
+                        </p>
+
+                        {newsletterSubmitted ? (
+                          <div className="flex items-center justify-center gap-2 text-cyan-300 bg-cyan-950/30 border border-cyan-500/30 rounded-xl p-4 animate-in fade-in duration-300">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-medium text-sm">You're on the list!</span>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                            <div className="relative group">
+                              <input
+                                type="email"
+                                value={newsletterEmail}
+                                onChange={(e) => setNewsletterEmail(e.target.value)}
+                                placeholder="email@example.com"
+                                disabled={isSubmittingNewsletter}
+                                className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/10 transition-all text-sm group-hover:border-slate-600/50"
+                                required
+                              />
+                            </div>
+                            <button
+                              type="submit"
+                              disabled={isSubmittingNewsletter || !newsletterEmail.trim()}
+                              className="w-full px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0"
+                            >
+                              {isSubmittingNewsletter ? (
+                                <span className="flex items-center justify-center gap-2">
+                                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Subscribing...
+                                </span>
+                              ) : "Subscribe Free"}
+                            </button>
+                          </form>
+                        )}
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-2">
-                        Stay Updated
-                      </h3>
-                      <p className="text-slate-300 mb-4 text-sm">
-                        Get the latest articles delivered to your inbox.
-                      </p>
-
-                      {newsletterSubmitted ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center justify-center gap-2 text-green-400 bg-green-400/10 border border-green-400/20 rounded-lg p-3"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <span className="font-medium text-sm">
-                            Successfully subscribed!
-                          </span>
-                        </motion.div>
-                      ) : (
-                        <form
-                          onSubmit={handleNewsletterSubmit}
-                          className="space-y-3"
-                        >
-                          <input
-                            type="email"
-                            value={newsletterEmail}
-                            onChange={(e) => setNewsletterEmail(e.target.value)}
-                            placeholder="Enter your email"
-                            disabled={isSubmittingNewsletter}
-                            className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                            required
-                          />
-                          <button
-                            type="submit"
-                            disabled={
-                              isSubmittingNewsletter || !newsletterEmail.trim()
-                            }
-                            className="w-full px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                          >
-                            {isSubmittingNewsletter ? (
-                              <>
-                                <svg
-                                  className="w-4 h-4 animate-spin"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  ></path>
-                                </svg>
-                                Subscribing...
-                              </>
-                            ) : (
-                              "Subscribe"
-                            )}
-                          </button>
-                        </form>
-                      )}
                     </div>
                   </div>
                 </div>
               </aside>
 
-              {/* Main Article */}
-              <article className="lg:col-span-9">
-                {/* Reduced padding on main content */}
-                <div className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-700/50 p-6 sm:p-8 lg:p-10 shadow-2xl shadow-slate-900/20 relative overflow-hidden">
+              {/* CENTER - Main Article */}
+              <article className={`lg:col-span-9 xl:col-span-9 ${isReadingMode ? "lg:col-span-12" : ""} w-full transition-all duration-300`}>
+                {/* Content Container */}
+                <div className="w-full">
+
+
+                  {/* Header Content */}
+                  <div className="mb-12 border-b border-slate-800 pb-8">
+                    <div className="flex flex-wrap items-center gap-3 mb-6">
+                      <span className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 text-cyan-400 text-xs font-bold uppercase tracking-wider rounded-full border border-cyan-500/20">
+                        {blogPost.category}
+                      </span>
+                      <span className="text-slate-500 text-sm">•</span>
+                      <span className="text-slate-400 text-sm">{blogPost.readTime}</span>
+                    </div>
+
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+                      {blogPost.title}
+                    </h1>
+
+                    {blogPost.excerpt && (
+                      <p className="text-lg text-slate-400 leading-relaxed max-w-3xl mb-6">
+                        {blogPost.excerpt}
+                      </p>
+                    )}
+
+                    {/* Author & Share Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={portfolioData.personalInfo.profileImage}
+                          alt={portfolioData.personalInfo.name}
+                          className="w-10 h-10 rounded-full border border-slate-700"
+                        />
+                        <div>
+                          <div className="text-white font-medium text-sm">{portfolioData.personalInfo.name}</div>
+                          <div className="text-slate-500 text-xs">
+                            {new Date(blogPost.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="flex items-center gap-2">
+                         <button
+                            onClick={() => copyToClipboard(window.location.href)}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all border border-slate-700/50 text-xs font-medium"
+                            title="Copy link"
+                          >
+                            {copied ? (
+                              <>
+                                <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Copy link
+                              </>
+                            )}
+                          </button>
+                         <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => shareArticle("twitter")}
+                              className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-cyan-400 transition-all border border-slate-700/50"
+                              title="Share on Twitter"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                              </svg>
+                            </button>
+                             <button
+                              onClick={() => shareArticle("linkedin")}
+                              className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-blue-400 transition-all border border-slate-700/50"
+                              title="Share on LinkedIn"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                              </svg>
+                            </button>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+
                   {/* Background decoration */}
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-800/10 via-transparent to-cyan-900/5 pointer-events-none"></div>
                   <div className="relative z-10">
                     <div
-                      className="prose prose-base md:prose-lg lg:prose-xl prose-invert max-w-none blog-content text-slate-300 leading-relaxed md:leading-loose text-base md:text-lg font-light
-                  prose-headings:text-white prose-headings:font-bold prose-headings:tracking-tight prose-headings:scroll-mt-24
-                  prose-h1:text-5xl prose-h1:mt-0 prose-h1:mb-10 prose-h1:leading-tight prose-h1:bg-gradient-to-r prose-h1:from-white prose-h1:to-slate-300 prose-h1:bg-clip-text prose-h1:text-transparent
-                  prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-8 prose-h2:pb-4 prose-h2:border-b prose-h2:border-slate-700 prose-h2:text-cyan-300 prose-h2:relative prose-h2:before:absolute prose-h2:before:left-0 prose-h2:before:bottom-0 prose-h2:before:w-16 prose-h2:before:h-0.5 prose-h2:before:bg-gradient-to-r prose-h2:before:from-cyan-400 prose-h2:before:to-blue-500
-                  prose-h3:text-2xl prose-h3:mt-16 prose-h3:mb-6 prose-h3:text-slate-200 prose-h3:font-semibold
-                  prose-h4:text-xl prose-h4:mt-12 prose-h4:mb-4 prose-h4:text-slate-300 prose-h4:font-medium
-                  prose-h5:text-lg prose-h5:mt-8 prose-h5:mb-3 prose-h5:text-slate-400 prose-h5:font-medium
-                  prose-h6:text-base prose-h6:mt-6 prose-h6:mb-2 prose-h6:text-slate-500 prose-h6:font-medium
-                  prose-p:text-slate-300 prose-p:leading-loose prose-p:mb-8 prose-p:text-lg prose-p:font-light
-                  prose-a:text-cyan-400 prose-a:no-underline prose-a:font-medium hover:prose-a:text-cyan-300 prose-a:underline-offset-4 hover:prose-a:underline prose-a:transition-colors prose-a:duration-200
-                  prose-strong:text-white prose-strong:font-semibold prose-strong:bg-gradient-to-r prose-strong:from-cyan-400 prose-strong:to-blue-400 prose-strong:bg-clip-text prose-strong:text-transparent
-                  prose-em:text-slate-200 prose-em:italic prose-em:font-medium
-                  prose-code:text-cyan-300 prose-code:bg-slate-800/80 prose-code:px-2.5 prose-code:py-1.5 prose-code:rounded-md prose-code:text-sm prose-code:font-mono prose-code:border prose-code:border-slate-700 prose-code:before:content-[''] prose-code:after:content-['']
-                  prose-pre:bg-slate-950/90 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl prose-pre:p-8 prose-pre:overflow-x-auto prose-pre:shadow-2xl prose-pre:my-10 prose-pre:backdrop-blur-sm
-                  prose-pre:code:bg-transparent prose-pre:code:p-0 prose-pre:code:text-slate-300 prose-pre:code:border-0
-                  prose-ul:text-slate-300 prose-ul:space-y-3 prose-ul:my-8 prose-ul:pl-6
-                  prose-ol:text-slate-300 prose-ol:space-y-3 prose-ol:my-8 prose-ol:pl-6
-                  prose-li:text-slate-300 prose-li:leading-loose prose-li:my-3 prose-li:text-lg prose-li:font-light
-                  prose-li:marker:text-cyan-400
-                  prose-blockquote:border-l-4 prose-blockquote:border-cyan-400 prose-blockquote:bg-slate-800/40 prose-blockquote:p-8 prose-blockquote:rounded-r-xl prose-blockquote:my-10 prose-blockquote:backdrop-blur-sm
-                  prose-blockquote:text-slate-200 prose-blockquote:text-xl prose-blockquote:leading-relaxed prose-blockquote:font-light prose-blockquote:relative
-                  prose-table:border-collapse prose-table:border prose-table:border-slate-700 prose-table:my-10 prose-table:rounded-lg prose-table:overflow-hidden prose-table:shadow-xl
-                  prose-th:border prose-th:border-slate-700 prose-th:bg-slate-800/60 prose-th:p-4 prose-th:text-white prose-th:font-semibold prose-th:text-left prose-th:text-sm prose-th:uppercase prose-th:tracking-wider
-                  prose-td:border prose-td:border-slate-700 prose-td:p-4 prose-td:text-slate-300 prose-td:text-base
-                  prose-img:rounded-xl prose-img:shadow-2xl prose-img:border prose-img:border-slate-700 prose-img:my-10 prose-img:w-full prose-img:object-cover
-                  prose-hr:border-slate-700 prose-hr:my-16 prose-hr:border-t-2
-                  [&>h1]:text-5xl [&>h1]:mt-0 [&>h1]:mb-10 [&>h1]:leading-tight [&>h1]:font-bold [&>h1]:bg-gradient-to-r [&>h1]:from-white [&>h1]:to-slate-300 [&>h1]:bg-clip-text [&>h1]:text-transparent [&>h1]:scroll-mt-24
-                  [&>h2]:text-3xl [&>h2]:mt-20 [&>h2]:mb-8 [&>h2]:pb-4 [&>h2]:border-b [&>h2]:border-slate-700 [&>h2]:text-cyan-300 [&>h2]:font-bold [&>h2]:scroll-mt-24 [&>h2]:relative [&>h2]:before:absolute [&>h2]:before:left-0 [&>h2]:before:bottom-0 [&>h2]:before:w-16 [&>h2]:before:h-0.5 [&>h2]:before:bg-gradient-to-r [&>h2]:before:from-cyan-400 [&>h2]:before:to-blue-500
-                  [&>h3]:text-2xl [&>h3]:mt-16 [&>h3]:mb-6 [&>h3]:text-slate-200 [&>h3]:font-semibold [&>h3]:scroll-mt-24
-                  [&>h4]:text-xl [&>h4]:mt-12 [&>h4]:mb-4 [&>h4]:text-slate-300 [&>h4]:font-medium [&>h4]:scroll-mt-24
-                  [&>h5]:text-lg [&>h5]:mt-8 [&>h5]:mb-3 [&>h5]:text-slate-400 [&>h5]:font-medium [&>h5]:scroll-mt-24
-                  [&>h6]:text-base [&>h6]:mt-6 [&>h6]:mb-2 [&>h6]:text-slate-500 [&>h6]:font-medium [&>h6]:scroll-mt-24
-                  [&>p]:mb-8 [&>p]:leading-loose [&>p]:text-lg [&>p]:font-light
-                  [&>ul]:my-8 [&>ul]:pl-6 [&>ul]:space-y-3
-                  [&>ol]:my-8 [&>ol]:pl-6 [&>ol]:space-y-3
-                  [&>li]:my-3 [&>li]:leading-loose [&>li]:text-lg [&>li]:font-light [&>li]:marker:text-cyan-400
-                  [&>pre]:bg-slate-950/90 [&>pre]:border [&>pre]:border-slate-800 [&>pre]:rounded-xl [&>pre]:p-8 [&>pre]:overflow-x-auto [&>pre]:shadow-2xl [&>pre]:my-10 [&>pre]:backdrop-blur-sm
-                  [&>code]:text-cyan-300 [&>code]:bg-slate-800/80 [&>code]:px-2.5 [&>code]:py-1.5 [&>code]:rounded-md [&>code]:text-sm [&>code]:font-mono [&>code]:border [&>code]:border-slate-700
-                  [&>blockquote]:border-l-4 [&>blockquote]:border-cyan-400 [&>blockquote]:bg-slate-800/40 [&>blockquote]:p-8 [&>blockquote]:rounded-r-xl [&>blockquote]:my-10 [&>blockquote]:backdrop-blur-sm [&>blockquote]:text-slate-200 [&>blockquote]:text-xl [&>blockquote]:leading-relaxed [&>blockquote]:font-light [&>blockquote]:relative [&>blockquote]:not-italic
-                  [&>table]:border-collapse [&>table]:border [&>table]:border-slate-700 [&>table]:my-10 [&>table]:rounded-lg [&>table]:overflow-hidden [&>table]:shadow-xl [&>table]:w-full
-                  [&>thead>tr>th]:border [&>thead>tr>th]:border-slate-700 [&>thead>tr>th]:bg-slate-800/60 [&>thead>tr>th]:p-4 [&>thead>tr>th]:text-white [&>thead>tr>th]:font-semibold [&>thead>tr>th]:text-left [&>thead>tr>th]:text-sm [&>thead>tr>th]:uppercase [&>thead>tr>th]:tracking-wider
-                  [&>tbody>tr>td]:border [&>tbody>tr>td]:border-slate-700 [&>tbody>tr>td]:p-4 [&>tbody>tr>td]:text-slate-300 [&>tbody>tr>td]:text-base
-                  [&>img]:rounded-xl [&>img]:shadow-2xl [&>img]:border [&>img]:border-slate-700 [&>img]:my-10 [&>img]:w-full [&>img]:object-cover
-                  [&>hr]:border-slate-700 [&>hr]:my-16 [&>hr]:border-t-2
-                  [&>a]:text-cyan-400 [&>a]:font-medium [&>a]:underline-offset-4 [&>a]:transition-colors [&>a]:duration-200 hover:[&>a]:text-cyan-300 hover:[&>a]:underline
-                  [&>strong]:text-white [&>strong]:font-semibold [&>strong]:bg-gradient-to-r [&>strong]:from-cyan-400 [&>strong]:to-blue-400 [&>strong]:bg-clip-text
-                  [&>em]:text-slate-200 [&>em]:italic [&>em]:font-medium"
+                      style={{ fontSize: `${fontSize}px` }}
+                      className="prose prose-lg md:prose-xl prose-invert max-w-none blog-content
+                      text-slate-300 leading-[1.9] text-[1.125rem] font-normal tracking-normal
+
+                      prose-headings:text-white prose-headings:font-bold prose-headings:tracking-tight prose-headings:scroll-mt-24
+                      prose-headings:text-shadow-sm
+
+                      prose-h1:text-4xl prose-h1:lg:text-5xl prose-h1:leading-[1.15] prose-h1:mb-12 prose-h1:text-transparent prose-h1:bg-clip-text prose-h1:bg-gradient-to-br prose-h1:from-white prose-h1:to-slate-400
+
+                      prose-h2:text-2xl prose-h2:lg:text-3xl prose-h2:mt-16 prose-h2:mb-8 prose-h2:text-white prose-h2:font-bold prose-h2:border-b prose-h2:border-slate-800/60 prose-h2:pb-4 prose-h2:flex prose-h2:items-center prose-h2:gap-3
+
+                      prose-h3:text-xl prose-h3:lg:text-2xl prose-h3:mt-12 prose-h3:mb-4 prose-h3:text-cyan-400 prose-h3:font-semibold prose-h3:tracking-wide
+
+                      prose-p:leading-[1.9] prose-p:mb-8 prose-p:text-slate-300 prose-p:font-light
+
+                      prose-a:text-cyan-400 prose-a:no-underline prose-a:font-medium prose-a:border-b prose-a:border-cyan-500/30 hover:prose-a:border-cyan-400 hover:prose-a:text-cyan-300 transition-all duration-200
+
+                      prose-strong:text-white prose-strong:font-bold prose-strong:bg-slate-800/50 prose-strong:px-1 prose-strong:rounded
+
+                      prose-code:text-cyan-200 prose-code:bg-slate-900/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[0.9em] prose-code:font-mono prose-code:border prose-code:border-slate-700/50 prose-code:shadow-sm prose-code:box-decoration-clone prose-code:before:content-none prose-code:after:content-none
+
+                      prose-pre:bg-[#0B1120] prose-pre:border prose-pre:border-slate-800/80 prose-pre:rounded-2xl prose-pre:p-6 prose-pre:shadow-2xl prose-pre:shadow-black/50
+
+                      prose-ul:my-8 prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-3 prose-li:marker:text-cyan-500
+                      prose-ol:my-8 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-3 prose-li:marker:text-cyan-500
+
+                      prose-blockquote:border-l-4 prose-blockquote:border-cyan-500 prose-blockquote:bg-gradient-to-r prose-blockquote:from-cyan-950/20 prose-blockquote:to-transparent prose-blockquote:px-8 prose-blockquote:py-6 prose-blockquote:rounded-r-2xl prose-blockquote:my-10 prose-blockquote:text-slate-200 prose-blockquote:font-medium prose-blockquote:not-italic prose-blockquote:shadow-inner
+
+                      prose-img:rounded-2xl prose-img:shadow-2xl prose-img:shadow-black/50 prose-img:my-12 prose-img:border prose-img:border-slate-800/50 prose-img:transition-transform prose-img:hover:scale-[1.01] duration-500
+
+                      prose-hr:border-slate-800 prose-hr:my-16"
                     >
                       {/* Render the JSX component post content */}
                       {PostComponent && <PostComponent />}
@@ -714,29 +990,38 @@ const BlogPost = () => {
                       </div>
                     )}
 
-                    {/* Author CTA */}
-                    <div className="mt-12 pt-8 border-t border-slate-700">
-                      <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-2xl p-8 border border-slate-600">
-                        <div className="flex items-start gap-6">
+                    {/* Author CTA - Premium Card */}
+                    <div className="mt-16 pt-8 border-t border-slate-800/60">
+                      <div className="relative group overflow-hidden rounded-2xl border border-white/5 bg-white/5 backdrop-blur-sm p-8 transition-all hover:bg-white/10 hover:border-white/10 hover:shadow-2xl hover:shadow-cyan-900/20">
+                         {/* Subtle background glow */}
+                         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all duration-700"></div>
+
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-8">
                           <div className="relative flex-shrink-0">
-                            <img
-                              src={portfolioData.personalInfo.profileImage}
-                              alt={portfolioData.personalInfo.name}
-                              className="w-16 h-16 rounded-full object-cover shadow-lg border-2 border-slate-600"
-                            />
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 border-2 border-slate-900 rounded-full"></div>
+                            <div className="w-20 h-20 rounded-full p-[2px] bg-gradient-to-br from-cyan-400 to-blue-600">
+                                <img
+                                  src={portfolioData.personalInfo.profileImage}
+                                  alt={portfolioData.personalInfo.name}
+                                  className="w-full h-full rounded-full object-cover border-2 border-slate-900"
+                                />
+                            </div>
+                            <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-slate-900 rounded-full" title="Available for hire"></div>
                           </div>
-                          <div className="sm:flex-1 max-w-[18rem] sm:max-w-none">
-                            <h4 className="text-xl font-bold text-white mb-2">
-                              {portfolioData.personalInfo.name}
-                            </h4>
-                            <p className="hidden md:block text-slate-300 mb-4 leading-relaxed">
+                          <div className="text-center sm:text-left flex-1">
+                             <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
+                                <h4 className="text-2xl font-bold text-white">
+                                  {portfolioData.personalInfo.name}
+                                </h4>
+                                <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold border border-cyan-500/20 uppercase tracking-wide">
+                                  Author
+                                </span>
+                             </div>
+                            <p className="text-slate-300 mb-6 leading-relaxed max-w-lg mx-auto sm:mx-0 font-light">
                               {portfolioData.personalInfo.title} passionate
-                              about creating innovative web solutions. I share
-                              insights on modern development practices, emerging
-                              technologies, and practical coding tips.
+                              about crafting high-performance user experiences.
+                              I write about Agentic AI, React, and the future of web development.
                             </p>
-                            <div className="flex gap-4">
+                            <div className="flex flex-wrap justify-center sm:justify-start gap-3">
                               <a
                                 href={
                                   portfolioData.socialLinks.professional
@@ -744,9 +1029,10 @@ const BlogPost = () => {
                                 }
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-cyan-400 hover:text-cyan-300 font-medium text-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0077b5]/10 text-[#0077b5] border border-[#0077b5]/20 hover:bg-[#0077b5] hover:text-white transition-all duration-300 font-medium text-sm"
                               >
-                                Connect on LinkedIn →
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                LinkedIn
                               </a>
                               <a
                                 href={
@@ -754,9 +1040,10 @@ const BlogPost = () => {
                                 }
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-slate-400 hover:text-white font-medium text-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-white hover:text-black transition-all duration-300 font-medium text-sm"
                               >
-                                View GitHub Profile →
+                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                GitHub
                               </a>
                             </div>
                           </div>
@@ -771,6 +1058,8 @@ const BlogPost = () => {
                   </div>
                 </div>
               </article>
+
+
             </div>
           </div>
         </section>
@@ -788,7 +1077,7 @@ const BlogPost = () => {
                   <Link
                     key={post.id}
                     to={`/blog/${post.slug}`}
-                    className="group block bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:transform hover:scale-[1.02]"
+                    className="group block bg-slate-900/40 rounded-2xl overflow-hidden border border-slate-800/60 hover:border-cyan-500/30 transition-all duration-500 hover:transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-900/20"
                   >
                     <div className="relative h-48 overflow-hidden rounded-t-xl bg-slate-800">
                       {(() => {
@@ -845,6 +1134,12 @@ const BlogPost = () => {
           <AdPlaceholder label="Advertisement" className="h-32" />
         </div>
       </div>
+      <ReadingToolbar
+        fontSize={fontSize}
+        onFontSizeChange={setFontSize}
+        isReadingMode={isReadingMode}
+        onReadingModeToggle={() => setIsReadingMode(!isReadingMode)}
+      />
     </>
   );
 };

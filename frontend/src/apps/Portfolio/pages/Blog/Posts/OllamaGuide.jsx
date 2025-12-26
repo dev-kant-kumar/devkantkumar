@@ -1,9 +1,7 @@
 import {
     AlertTriangle,
-    BookOpen,
     Calendar,
     Check,
-    ChevronRight,
     Clock,
     Code,
     Copy,
@@ -202,47 +200,7 @@ function ArticleMetadata() {
   );
 }
 
-function TableOfContents() {
-  const sections = [
-    { id: "introduction", title: "Why Run Local AI?" },
-    { id: "cost-analysis", title: "The $240/Year Saving" },
-    { id: "what-is-ollama", title: "What is Ollama?" },
-    { id: "installation", title: "Installation Guide" },
-    { id: "running-models", title: "Running Llama 3" },
-    { id: "models-list", title: "Best Models to Try" },
-    { id: "modelfiles", title: "Custom Modelfiles" },
-    { id: "uncensored", title: "Uncensored Models" },
-    { id: "api-integration", title: "Building a React UI" },
-    { id: "rag-guide", title: "RAG: Chat with Data" },
-  ];
 
-  return (
-    <div className="my-10 p-6 rounded-xl bg-[#1e1e1e] border border-gray-800">
-      <div className="flex items-center gap-3 mb-4">
-        <BookOpen size={20} className="text-orange-400" />
-        <h3 className="text-xl font-bold text-white">Table of Contents</h3>
-      </div>
-      <nav className="space-y-2">
-        {sections.map((section, idx) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className="flex items-center gap-3 text-gray-400 hover:text-orange-400 transition-colors group py-1.5"
-          >
-            <span className="text-gray-600 font-mono text-xs font-bold w-6">
-              {String(idx + 1).padStart(2, "0")}
-            </span>
-            <ChevronRight
-              size={14}
-              className="text-gray-700 group-hover:text-orange-400 transition-colors"
-            />
-            <span className="font-medium text-sm">{section.title}</span>
-          </a>
-        ))}
-      </nav>
-    </div>
-  );
-}
 
 function ComparisonTable() {
     return (
@@ -306,7 +264,6 @@ function OllamaGuidePost() {
             Imagine having a ChatGPT-level AI running entirely on your laptop. No subscription fees, no privacy concerns, and no internet connection required. It sounds like sci-fi, but with <strong>Ollama</strong>, it's a reality today.
           </p>
 
-          <TableOfContents />
         </section>
 
         {/* Why Run Local AI? */}

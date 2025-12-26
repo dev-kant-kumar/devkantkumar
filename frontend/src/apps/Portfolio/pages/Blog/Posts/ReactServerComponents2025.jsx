@@ -5,7 +5,6 @@ import {
     BookOpen,
     Calendar,
     Check,
-    ChevronRight,
     Clock,
     Code2,
     Copy,
@@ -20,7 +19,7 @@ import {
     Terminal,
     TrendingUp,
     User,
-    Zap,
+    Zap
 } from "lucide-react";
 import React from "react";
 
@@ -212,45 +211,7 @@ function ArticleMetadata() {
 }
 
 // Table of contents
-function TableOfContents() {
-  const sections = [
-    { id: "introduction", title: "Understanding RSC Architecture" },
-    { id: "why-rsc", title: "Why RSC Matters in 2025" },
-    { id: "core-concepts", title: "Core Concepts & Mental Models" },
-    { id: "pitfalls", title: "Common Pitfalls to Avoid" },
-    { id: "patterns", title: "Production-Ready Patterns" },
-    { id: "performance", title: "Performance Optimization" },
-    { id: "when-not", title: "When Not to Use RSC" },
-    { id: "conclusion", title: "Getting Started" },
-  ];
 
-  return (
-    <div className="my-12 p-8 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-slate-700/50">
-      <div className="flex items-center gap-3 mb-6">
-        <BookOpen size={24} className="text-cyan-400" />
-        <h3 className="text-2xl font-bold text-white">Table of Contents</h3>
-      </div>
-      <nav className="space-y-3">
-        {sections.map((section, idx) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className="flex items-center gap-3 text-slate-300 hover:text-cyan-400 transition-colors group py-2"
-          >
-            <span className="text-cyan-500/50 font-mono text-sm font-semibold w-8">
-              {String(idx + 1).padStart(2, "0")}
-            </span>
-            <ChevronRight
-              size={16}
-              className="text-slate-600 group-hover:text-cyan-400 transition-colors"
-            />
-            <span className="font-medium">{section.title}</span>
-          </a>
-        ))}
-      </nav>
-    </div>
-  );
-}
 
 function RSCGuide2025() {
   return (
@@ -269,7 +230,6 @@ function RSCGuide2025() {
             while keeping interactivity on the client.
           </p>
 
-          <TableOfContents />
         </section>
 
         {/* Section 1: Understanding RSC */}

@@ -1,10 +1,8 @@
 // Top-level imports
 import {
-    BookOpen,
     Brain,
     Calendar,
     Check,
-    ChevronRight,
     Clock,
     Copy,
     Database,
@@ -213,44 +211,7 @@ function ArticleMetadata() {
   );
 }
 
-function TableOfContents() {
-  const sections = [
-    { id: "introduction", title: "The Gravity of Legacy Coding" },
-    { id: "what-is-antigravity", title: "What is Anti Gravity?" },
-    { id: "architecture", title: "Architecture: The Context Engine" },
-    { id: "agentic-workflow", title: "Agentic Workflow in Action" },
-    { id: "comparison", title: "Anti Gravity vs. Copilot vs. Cursor" },
-    { id: "security", title: "Enterprise Security & Privacy" },
-    { id: "roadmap", title: "The Road to Singularity" },
-  ];
 
-  return (
-    <div className="my-12 p-8 rounded-xl bg-slate-900/50 border border-slate-800">
-      <div className="flex items-center gap-3 mb-6">
-        <BookOpen size={24} className="text-indigo-400" />
-        <h3 className="text-2xl font-bold text-white">Table of Contents</h3>
-      </div>
-      <nav className="space-y-3">
-        {sections.map((section, idx) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className="flex items-center gap-3 text-slate-400 hover:text-indigo-400 transition-colors group py-2"
-          >
-            <span className="text-indigo-500/50 font-mono text-sm font-semibold w-8">
-              {String(idx + 1).padStart(2, "0")}
-            </span>
-            <ChevronRight
-              size={16}
-              className="text-slate-700 group-hover:text-indigo-400 transition-colors"
-            />
-            <span className="font-medium">{section.title}</span>
-          </a>
-        ))}
-      </nav>
-    </div>
-  );
-}
 
 function AntiGravityPost() {
   return (
@@ -265,7 +226,6 @@ function AntiGravityPost() {
             For decades, software engineering has been a battle against friction. We spend hours fighting syntax errors, wrestling with boilerplate, managing complex dependencies, and context-switching between documentation and code. <strong className="text-white">Google's Project Anti Gravity</strong> isn't just another AI autocomplete tool—it's a fundamental paradigm shift that promises to lift the heavy lifting off your shoulders, allowing you to focus purely on architecture and logic.
           </p>
 
-          <TableOfContents />
         </section>
 
         {/* Section 1: The Gravity of Legacy Coding */}

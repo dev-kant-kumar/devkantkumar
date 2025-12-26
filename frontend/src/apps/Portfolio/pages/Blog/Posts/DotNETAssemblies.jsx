@@ -245,50 +245,7 @@ function VideoEmbed() {
   );
 }
 
-function TableOfContents() {
-  const sections = [
-    { id: "introduction", title: "Introduction to .NET Assemblies", icon: BookOpen },
-    { id: "what-are-assemblies", title: "What Are .NET Assemblies?", icon: Package },
-    { id: "types-of-assemblies", title: "Types of Assemblies", icon: Layers },
-    { id: "private-assemblies", title: "Private Assemblies", icon: Lock },
-    { id: "shared-assemblies", title: "Shared Assemblies", icon: Share2 },
-    { id: "side-by-side", title: "Side-by-Side Execution", icon: GitBranch },
-    { id: "benefits", title: "Benefits Over Predecessors", icon: TrendingUp },
-    { id: "creating-private", title: "Creating Private Assemblies", icon: Code },
-    { id: "creating-shared", title: "Creating Shared Assemblies", icon: Users },
-    { id: "faq", title: "FAQ & Common Questions", icon: HelpCircle },
-  ];
 
-  return (
-    <div className="my-12 p-8 rounded-xl bg-gradient-to-br from-slate-900/80 to-purple-950/30 border border-purple-800/40 backdrop-blur-sm">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 rounded-lg bg-purple-500/20 border border-purple-400/30">
-          <BookOpen size={24} className="text-purple-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white">Table of Contents</h3>
-      </div>
-      <nav className="space-y-2">
-        {sections.map((section, idx) => {
-          const Icon = section.icon;
-          return (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className="flex items-center gap-3 text-slate-400 hover:text-purple-400 transition-colors group py-3 px-4 rounded-lg hover:bg-purple-950/30"
-            >
-              <span className="text-purple-500/60 font-mono text-sm font-semibold w-8">
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-              <Icon size={18} className="text-slate-600 group-hover:text-purple-400 transition-colors" />
-              <span className="font-medium flex-1">{section.title}</span>
-              <ChevronRight size={16} className="text-slate-700 group-hover:text-purple-400 transition-colors" />
-            </a>
-          );
-        })}
-      </nav>
-    </div>
-  );
-}
 
 function AssembliesPost() {
   return (
@@ -320,7 +277,6 @@ function AssembliesPost() {
             In the world of .NET development, <strong className="text-white">assemblies</strong> are the fundamental building blocks of application deployment and execution. Whether you're building a simple console app or a complex enterprise system, understanding assemblies is crucial for creating maintainable, secure, and efficient applications.
           </p>
 
-          <TableOfContents />
         </section>
 
         {/* Section 1: Introduction */}
