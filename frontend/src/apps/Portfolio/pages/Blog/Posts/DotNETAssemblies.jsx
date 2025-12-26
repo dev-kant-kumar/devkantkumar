@@ -1,95 +1,80 @@
 // Top-level imports
 import {
-  AlertCircle,
-  BookOpen,
-  Box,
-  CheckCircle,
-  ChevronRight,
-  Clock,
-  Code,
-  Copy,
-  Database,
-  FileCode,
-  FolderTree,
-  GitBranch,
-  HelpCircle,
-  Layers,
-  Lock,
-  Package,
-  PlayCircle,
-  Settings,
-  Share2,
-  Shield,
-  Sparkles,
-  Target,
-  Terminal,
-  TrendingUp,
-  Users,
-  Video,
-  Workflow,
-  Zap
+    AlertCircle,
+    BookOpen,
+    Box,
+    CheckCircle,
+    ChevronRight,
+    Clock,
+    Code,
+    Copy,
+    Database,
+    FileCode,
+    FolderTree,
+    GitBranch,
+    HelpCircle,
+    Layers,
+    Lock,
+    Package,
+    PlayCircle,
+    Settings,
+    Share2,
+    Shield,
+    Sparkles,
+    Target,
+    Terminal,
+    TrendingUp,
+    Users,
+    Video,
+    Workflow,
+    Zap
 } from "lucide-react";
 import React from "react";
 
-function AssembliesFeaturedImage() {
+function AssembliesFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full h-[700px] bg-gradient-to-br from-[#0a0e27] via-[#1a1f3a] to-[#0f1123] relative overflow-hidden flex items-center justify-center">
-      {/* Animated Background Gradients */}
-      <div className="absolute inset-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[700px] h-[700px] bg-purple-900/30 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[700px] h-[700px] bg-blue-900/30 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[100px]" />
-      </div>
+    <div className={`bg-gradient-to-br from-slate-950 via-purple-950/40 to-slate-950 relative overflow-hidden ${className}`}>
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e1b4b_1px,transparent_1px),linear-gradient(to_bottom,#1e1b4b_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(139,92,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.3) 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
-            maskImage: "radial-gradient(circle at center, black 50%, transparent 100%)",
-          }}
-        />
-      </div>
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px]" />
 
-      {/* Central Visual */}
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="relative mb-12 group">
-          {/* Orbital Rings */}
-          <div className="absolute inset-0 border-2 border-purple-500/30 rounded-full w-56 h-56 -m-8 animate-[spin_12s_linear_infinite]" />
-          <div className="absolute inset-0 border-2 border-blue-500/30 rounded-full w-72 h-72 -m-16 animate-[spin_18s_linear_infinite_reverse]" />
-          <div className="absolute inset-0 border border-indigo-500/20 rounded-full w-96 h-96 -m-28 animate-[spin_25s_linear_infinite]" />
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-purple-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+          </span>
+          <span className="text-purple-300 text-sm font-medium">.NET Framework</span>
+        </div>
 
-          {/* Core Icon Container */}
-          <div className="w-40 h-40 bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-[0_0_80px_rgba(139,92,246,0.6)] relative overflow-hidden transform rotate-12 group-hover:rotate-0 transition-transform duration-500">
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay"></div>
-            <Package size={72} className="text-white drop-shadow-2xl relative z-10" />
+        {/* Icon Grid - larger */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Code size={28} className="text-purple-400" />
+          </div>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center">
+            <Package size={40} className="text-purple-400" />
+          </div>
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Layers size={28} className="text-blue-400" />
           </div>
         </div>
 
-        {/* Text Content */}
-        <div className="text-center max-w-5xl px-6 relative z-20">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900/80 border border-purple-500/40 rounded-full text-purple-300 text-sm font-semibold backdrop-blur-xl shadow-lg shadow-purple-500/20 mb-8 hover:border-purple-400/60 transition-all duration-300 cursor-default">
-            <Code size={18} className="text-purple-400" />
-            <span>.NET Framework</span>
-            <span className="text-slate-600 mx-1">•</span>
-            <span className="text-blue-300">Unit 3</span>
-          </div>
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-white">Mastering </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">.NET Assemblies</span>
+        </h2>
 
-          <h1 className="text-6xl md:text-8xl font-black text-white leading-tight mb-8 tracking-tight drop-shadow-2xl">
-            Mastering
-            <br />
-            <span className="bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 bg-clip-text text-transparent">
-              .NET Assemblies
-            </span>
-          </h1>
-
-          <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-light drop-shadow-md">
-            The complete guide to <span className="text-white font-medium">Private & Shared Assemblies</span>, side-by-side execution, and building robust .NET applications in Visual Studio 2026.
-          </p>
-        </div>
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          Private & Shared Assembly Guide
+        </p>
       </div>
     </div>
   );

@@ -1,101 +1,69 @@
 import {
-  AlertTriangle,
-  BookOpen,
-  Calendar,
-  Check,
-  ChevronRight,
-  Clock,
-  Code,
-  Copy,
-  Cpu,
-  Download,
-  ExternalLink,
-  FileVideo,
-  Layers,
-  Shield,
-  Tag,
-  Terminal,
-  User,
-  Zap
+    AlertTriangle,
+    BookOpen,
+    Calendar,
+    Check,
+    ChevronRight,
+    Clock,
+    Code,
+    Copy,
+    Cpu,
+    Download,
+    ExternalLink,
+    FileVideo,
+    Layers,
+    Shield,
+    Tag,
+    Terminal,
+    User,
+    Zap
 } from "lucide-react";
 import React from "react";
 
-function OllamaFeaturedImage() {
+function OllamaFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full h-[700px] bg-[#0f0f0f] relative overflow-hidden flex items-center justify-center font-mono">
+    <div className={`bg-gradient-to-br from-slate-950 via-orange-950/30 to-slate-950 relative overflow-hidden ${className}`}>
       {/* Background Grid */}
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(0deg, transparent 24%, rgba(249, 115, 22, .1) 25%, rgba(249, 115, 22, .1) 26%, transparent 27%, transparent 74%, rgba(249, 115, 22, .1) 75%, rgba(249, 115, 22, .1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(249, 115, 22, .1) 25%, rgba(249, 115, 22, .1) 26%, transparent 27%, transparent 74%, rgba(249, 115, 22, .1) 75%, rgba(249, 115, 22, .1) 76%, transparent 77%, transparent)",
-            backgroundSize: "50px 50px",
-          }}
-        />
-      </div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1c1917_1px,transparent_1px),linear-gradient(to_bottom,#1c1917_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* Central Terminal Window */}
-      <div className="relative z-10 w-[800px] bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
-        {/* Window Header */}
-        <div className="bg-[#2d2d2d] px-4 py-3 flex items-center gap-2 border-b border-gray-700">
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-orange-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-yellow-500/20 rounded-full blur-[100px]" />
+
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-orange-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+          </span>
+          <span className="text-orange-300 text-sm font-medium">Local AI</span>
+        </div>
+
+        {/* Icon Grid - larger */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Terminal size={28} className="text-orange-400" />
           </div>
-          <div className="ml-4 text-gray-400 text-sm flex items-center gap-2">
-            <Terminal size={14} />
-            <span>user@devkantkumar:~/ai-lab</span>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500/20 to-yellow-500/20 border border-orange-500/30 flex items-center justify-center">
+            <Cpu size={40} className="text-orange-400" />
+          </div>
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Zap size={28} className="text-yellow-400" />
           </div>
         </div>
 
-        {/* Terminal Content */}
-        <div className="p-6 font-mono text-sm md:text-base">
-          <div className="text-orange-400 mb-2">
-            $ ollama run llama3
-          </div>
-          <div className="text-gray-300 space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">⠋</span>
-              <span>pulling manifest</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">⠙</span>
-              <span>pulling 8934d96d3f08... 100% ▕████████████████▏ 4.7 GB</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">⠹</span>
-              <span>verifying sha256 digest</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">⠸</span>
-              <span>writing manifest</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">⠼</span>
-              <span>removing any unused layers</span>
-            </div>
-            <div className="flex items-center gap-2 text-green-400 mt-2">
-              <span className="text-green-400">✔</span>
-              <span>success</span>
-            </div>
-             <div className="mt-4 border-t border-gray-700 pt-4">
-                <span className="text-blue-400 font-bold">&gt;&gt;&gt;</span> <span className="text-white">Hello! Who are you?</span>
-             </div>
-             <div className="mt-2 text-gray-300 typing-effect">
-                I am Llama 3, an AI assistant developed by Meta...
-             </div>
-          </div>
-        </div>
-      </div>
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-white">Ollama </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">Guide</span>
+        </h2>
 
-      {/* Floating Elements */}
-      <div className="absolute top-20 right-20 animate-bounce delay-1000">
-        <Cpu size={64} className="text-orange-600 opacity-80 drop-shadow-lg" />
-      </div>
-      <div className="absolute bottom-20 left-20 animate-pulse">
-        <Zap size={48} className="text-yellow-500 opacity-60 drop-shadow-lg" />
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          Run LLMs Locally on Your Machine
+        </p>
       </div>
     </div>
   );

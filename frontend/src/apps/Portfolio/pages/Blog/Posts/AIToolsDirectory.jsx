@@ -60,6 +60,7 @@ export const info = {
     slug: "ultimate-ai-tools-directory-2025",
     title: "The Ultimate Directory of AI Tools (2025 Edition)",
     description: "A comprehensive, curated list of 86+ best AI tools available in 2025. Explore chatbots, image generators, coding assistants, and more.",
+    excerpt: "A comprehensive, curated list of 86+ best AI tools available in 2025. Explore chatbots, image generators, coding assistants, and more.",
     publishDate: "2024-12-26",
     category: "AI Resources",
     tags: ["AI Tools", "Productivity", "Directory", "ChatGPT", "Midjourney"],
@@ -554,3 +555,102 @@ export default function AIToolsDirectory() {
         </div>
     );
 }
+
+// =====================================================
+// IMAGE COMPONENTS
+// =====================================================
+
+// Thumbnail Image - for search results
+function AIToolsThumbnail({ className = "" }) {
+    return (
+        <div className={`bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center relative overflow-hidden ${className}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-blue-500/20" />
+            <Sparkles size={24} className="text-cyan-400 relative z-10" />
+        </div>
+    );
+}
+
+// Card Image - for blog listing
+function AIToolsCardImage({ className = "" }) {
+    return (
+        <div className={`bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 relative overflow-hidden ${className}`}>
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
+
+            {/* Gradient Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-cyan-500/30 rounded-full blur-3xl" />
+
+            {/* Content */}
+            <div className="relative z-10 h-full flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-14 h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3">
+                    <Sparkles size={28} className="text-cyan-400" />
+                </div>
+                <span className="text-xs font-medium text-cyan-400 mb-1">2025 Edition</span>
+                <h3 className="text-lg font-bold text-white leading-tight">AI Tools Directory</h3>
+                <p className="text-sm text-slate-400 mt-1">86+ Curated Tools</p>
+            </div>
+        </div>
+    );
+}
+
+// Featured Image - for featured carousel
+function AIToolsFeaturedImage({ className = "" }) {
+    return (
+        <div className={`bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden ${className}`}>
+            {/* Background Grid */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+            {/* Ambient Glows */}
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/15 rounded-full blur-[100px]" />
+            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/15 rounded-full blur-[100px]" />
+
+            {/* Content */}
+            <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center">
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-slate-700/50 backdrop-blur-md mb-6">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                    </span>
+                    <span className="text-cyan-300 text-sm font-medium">2025 Edition</span>
+                </div>
+
+                {/* Icon Grid */}
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+                        <Bot size={24} className="text-cyan-400" />
+                    </div>
+                    <div className="w-14 h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <Sparkles size={28} className="text-cyan-400" />
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+                        <CodeIcon size={24} className="text-blue-400" />
+                    </div>
+                </div>
+
+                {/* Title */}
+                <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+                    <span className="text-white">AI Tools </span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Directory</span>
+                </h2>
+
+                {/* Stats */}
+                <div className="flex items-center gap-6 text-slate-400">
+                    <span className="flex items-center gap-2">
+                        <span className="text-cyan-400 font-bold">86+</span> Tools
+                    </span>
+                    <span className="w-1 h-1 bg-slate-600 rounded-full" />
+                    <span className="flex items-center gap-2">
+                        <span className="text-blue-400 font-bold">11</span> Categories
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Attach images to component
+AIToolsDirectory.ThumbnailImage = AIToolsThumbnail;
+AIToolsDirectory.CardImage = AIToolsCardImage;
+AIToolsDirectory.FeaturedImage = AIToolsFeaturedImage;
+AIToolsDirectory.info = info;

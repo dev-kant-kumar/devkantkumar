@@ -24,64 +24,50 @@ import {
 } from "lucide-react";
 import React from "react";
 
-function RSCFeaturedImage() {
+function RSCFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full h-[600px] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 relative overflow-hidden flex items-center justify-center">
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(56,189,248,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.08) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-      </div>
-      <div className="absolute top-10 left-16 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
-      <div
-        className="absolute bottom-14 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: "0.6s" }}
-      />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full">
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-        <div
-          className="absolute top-1/3 right-1/3 w-1 h-1 bg-purple-400 rounded-full animate-pulse"
-          style={{ animationDelay: "0.3s" }}
-        />
-        <div
-          className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"
-          style={{ animationDelay: "0.6s" }}
-        />
-      </div>
-      <div className="relative z-10 text-center max-w-5xl px-6">
-        <div className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-cyan-500/15 to-purple-500/15 border border-cyan-500/30 rounded-full text-cyan-300 text-sm font-semibold backdrop-blur-md shadow-lg shadow-cyan-500/20 mb-6">
-          <Server size={18} className="text-cyan-400" />
-          <span>React Architecture</span>
-          <span className="text-slate-500">•</span>
-          <span>2025 Guide</span>
-        </div>
-        <h1 className="text-6xl md:text-7xl font-black text-white leading-tight mb-6">
-          React Server Components
-          <br />
-          <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-            Mastery Guide
+    <div className={`bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950 relative overflow-hidden ${className}`}>
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]" />
+
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-cyan-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
           </span>
-        </h1>
-        <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-          Master the future of React with server-first rendering, streaming
-          architecture, and performance optimization patterns used by industry
-          leaders.
+          <span className="text-cyan-300 text-sm font-medium">2025 Guide</span>
+        </div>
+
+        {/* Icon Grid - larger */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Cpu size={28} className="text-cyan-400" />
+          </div>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center">
+            <Server size={40} className="text-cyan-400" />
+          </div>
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Layers size={28} className="text-purple-400" />
+          </div>
+        </div>
+
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-white">React Server </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500">Components</span>
+        </h2>
+
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          The Complete 2025 Mastery Guide
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-slate-300">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-            <Cpu className="text-cyan-400" size={20} />
-            <span className="font-medium">Zero JS by Default</span>
-          </span>
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-            <Layers className="text-purple-400" size={20} />
-            <span className="font-medium">Smart Composition</span>
-          </span>
-        </div>
       </div>
     </div>
   );

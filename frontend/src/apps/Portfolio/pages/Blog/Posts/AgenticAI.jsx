@@ -40,63 +40,61 @@ import React from "react";
 
 // --- Visual Components (Premium 2.0) ---
 
-function AgenticFeaturedImage() {
+function AgenticFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full min-h-[600px] h-[80vh] max-h-[900px] bg-[#020617] relative overflow-hidden flex items-center justify-center group perspective-1000">
+    <div className={`bg-gradient-to-br from-slate-950 via-cyan-950/30 to-slate-950 relative overflow-hidden ${className}`}>
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* 1. Dynamic Background Layer */}
-      <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-          <div className="absolute top-0 w-full h-full bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]" />
-      </div>
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]" />
 
-      {/* 2. Ambient Glows */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse mix-blend-screen" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] animate-pulse delay-1000 mix-blend-screen" />
-
-      {/* 3. Central Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 w-full max-w-7xl mx-auto">
-
-        {/* Animated Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-slate-700/50 backdrop-blur-md mb-8 hover:border-cyan-500/50 transition-colors animate-fade-in-up">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
-            </span>
-            <span className="text-cyan-300 text-sm font-medium tracking-wide">The 2025 Architecture Guide</span>
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-cyan-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+          </span>
+          <span className="text-cyan-300 text-sm font-medium">2025 Guide</span>
         </div>
 
-        {/* Main Title with Glitch Effect Potential */}
-        <h1 className="text-6xl md:text-8xl font-black text-center tracking-tight mb-6 leading-[1.1] md:leading-[1.1] animate-fade-in-up delay-100">
-            <span className="text-white drop-shadow-2xl">Agentic</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 block md:inline md:ml-6 filter drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]">
-                AI
-            </span>
-        </h1>
+        {/* Icon Grid - larger */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Brain size={28} className="text-cyan-400" />
+          </div>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center">
+            <Bot size={40} className="text-cyan-400" />
+          </div>
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Network size={28} className="text-purple-400" />
+          </div>
+        </div>
 
-        {/* Subtitle */}
-        <p className="text-xl md:text-2xl text-slate-400 text-center max-w-3xl mx-auto leading-relaxed font-light animate-fade-in-up delay-200">
-            From <span className="text-slate-200 font-semibold decoration-cyan-500/30 underline decoration-2 underline-offset-4">Basic LLMs</span> to <span className="text-white font-semibold decoration-purple-500/30 underline decoration-2 underline-offset-4">Autonomous Systems</span>.
-            <br className="hidden md:block" /> The complete engineering handbook for the <strong>$199 Billion</strong> revolution.
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-white">Agentic </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500">AI</span>
+        </h2>
+
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          The Complete 2025 Engineering Guide
         </p>
-
-        {/* Tech Stack Grid Visual */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 opacity-60 animate-fade-in-up delay-300">
-            {[
-                { icon: Brain, label: "Reasoning" },
-                { icon: Network, label: "Orchestration" },
-                { icon: Database, label: "Memory" },
-                { icon: Terminal, label: "Execution" },
-            ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center gap-2 group cursor-default">
-                    <div className="p-3 rounded-2xl bg-slate-900/50 border border-slate-800 group-hover:border-cyan-500/30 group-hover:bg-cyan-950/20 transition-all duration-500">
-                        <item.icon size={24} className="text-slate-400 group-hover:text-cyan-400 transition-colors" />
-                    </div>
-                    <span className="text-xs font-mono text-slate-500 group-hover:text-cyan-400/70">{item.label}</span>
-                </div>
-            ))}
-        </div>
       </div>
+    </div>
+  );
+}
+
+// Thumbnail Image - for search results
+function AgenticThumbnail({ className = "" }) {
+  return (
+    <div className={`bg-gradient-to-br from-slate-900 to-cyan-950 flex items-center justify-center relative overflow-hidden ${className}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-500/20" />
+      <Bot size={24} className="text-cyan-400 relative z-10" />
     </div>
   );
 }
@@ -1795,6 +1793,8 @@ print(run_agent("Who is the CEO of OpenAI right now?"))`}
 
 AgenticAIPost.FeaturedImage = AgenticFeaturedImage;
 AgenticAIPost.CardImage = AgenticCardImage;
+AgenticAIPost.ThumbnailImage = AgenticThumbnail;
+AgenticAIPost.Image = AgenticCardImage;
 
 AgenticAIPost.info = {
   id: "agentic-ai-2025-guide",

@@ -1,217 +1,60 @@
 import {
-  AlertCircle,
-  Check,
-  ChevronDown,
-  Copy,
-  GitBranch,
-  Search,
-  Terminal,
-  Zap,
+    Check,
+    ChevronDown,
+    Copy,
+    GitBranch,
+    Search,
+    Terminal,
+    Zap
 } from "lucide-react";
 import { useState } from "react";
-import git from "../Images/git.png";
 
-function GitSurvivalFeaturedImage() {
+function GitSurvivalFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full h-[630px] bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 relative overflow-hidden flex items-center justify-center">
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-            linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px)
-          `,
-            backgroundSize: "50px 50px",
-          }}
-        ></div>
-      </div>
+    <div className={`bg-gradient-to-br from-slate-950 via-violet-950/40 to-slate-950 relative overflow-hidden ${className}`}>
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#2e1065_1px,transparent_1px),linear-gradient(to_bottom,#2e1065_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* Glowing Orbs */}
-      <div className="absolute top-20 left-20 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div
-        className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: "1s" }}
-      ></div>
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: "2s" }}
-      ></div>
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]" />
 
-      {/* Floating Git Symbols */}
-      <div className="absolute top-12 left-12 animate-float">
-        <GitBranch className="text-cyan-400/40" size={48} />
-      </div>
-      <div
-        className="absolute top-24 right-24 animate-float"
-        style={{ animationDelay: "0.5s" }}
-      >
-        <Terminal className="text-purple-400/40" size={40} />
-      </div>
-      <div
-        className="absolute bottom-16 left-32 animate-float"
-        style={{ animationDelay: "1s" }}
-      >
-        <Zap className="text-yellow-400/40" size={36} />
-      </div>
-      <div
-        className="absolute bottom-24 right-16 animate-float"
-        style={{ animationDelay: "1.5s" }}
-      >
-        <AlertCircle className="text-red-400/40" size={44} />
-      </div>
-
-      {/* Main Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-8 text-center">
-        {/* Top Badge */}
-        <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mb-6 animate-bounce-slow shadow-2xl shadow-yellow-500/50">
-          <Zap className="text-slate-900" size={20} />
-          <span className="text-slate-900 font-black text-sm tracking-wide">
-            BATTLE-TESTED BY 10,000+ DEVELOPERS
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-violet-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
           </span>
+          <span className="text-violet-300 text-sm font-medium">12 Scenarios</span>
         </div>
 
-        {/* Main Headline */}
-        <h1 className="text-7xl font-black text-white mb-4 leading-tight tracking-tight">
-          <span className="inline-block animate-gradient bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Git Commands
-          </span>
+        {/* Icon Grid - larger */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Terminal size={28} className="text-cyan-400" />
+          </div>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
+            <GitBranch size={40} className="text-violet-400" />
+          </div>
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Zap size={28} className="text-yellow-400" />
+          </div>
+        </div>
+
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">Git Commands</span>
           <br />
           <span className="text-white">Survival Guide</span>
-        </h1>
+        </h2>
 
-        {/* Subheadline */}
-        <p className="text-3xl text-cyan-300 font-bold mb-8 animate-fade-in">
-          Real Problems. Real Solutions. Zero BS.
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          Real Problems. Real Solutions.
         </p>
-
-        {/* Stats Row */}
-        <div
-          className="flex justify-center gap-8 mb-8 animate-slide-up"
-          style={{ animationDelay: "0.4s" }}
-        >
-          <div className="text-center bg-slate-900/50 rounded-xl px-6 py-4 backdrop-blur-sm border border-cyan-500/30">
-            <div className="text-4xl font-black text-cyan-400 mb-1">12</div>
-            <div className="text-gray-300 text-sm font-semibold">
-              Common Scenarios
-            </div>
-          </div>
-          <div className="text-center bg-slate-900/50 rounded-xl px-6 py-4 backdrop-blur-sm border border-purple-500/30">
-            <div className="text-4xl font-black text-purple-400 mb-1">50+</div>
-            <div className="text-gray-300 text-sm font-semibold">
-              Commands Covered
-            </div>
-          </div>
-          <div className="text-center bg-slate-900/50 rounded-xl px-6 py-4 backdrop-blur-sm border border-yellow-500/30">
-            <div className="text-4xl font-black text-yellow-400 mb-1">∞</div>
-            <div className="text-gray-300 text-sm font-semibold">
-              Headaches Saved
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Pills */}
-        <div
-          className="flex flex-wrap justify-center gap-3 mb-8 animate-slide-up"
-          style={{ animationDelay: "0.6s" }}
-        >
-          {/* <span className="px-4 py-2 bg-cyan-500/20 text-cyan-300 rounded-full text-sm font-semibold border border-cyan-500/30">
-            🔍 Interactive Search
-          </span> */}
-          <span className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-full text-sm font-semibold border border-purple-500/30">
-            📋 One-Click Copy
-          </span>
-          <span className="px-4 py-2 bg-green-500/20 text-green-300 rounded-full text-sm font-semibold border border-green-500/30">
-            ✅ Pro Tips Included
-          </span>
-          <span className="px-4 py-2 bg-yellow-500/20 text-yellow-300 rounded-full text-sm font-semibold border border-yellow-500/30">
-            🚀 Scenario-Based
-          </span>
-        </div>
       </div>
-
-      {/* Corner Accents */}
-      <div className="absolute top-0 left-0 w-32 h-32 border-t-4 border-l-4 border-cyan-500/50 rounded-tl-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-32 h-32 border-b-4 border-r-4 border-purple-500/50 rounded-br-3xl"></div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes bounce-slow {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
-        @keyframes pulse-slow {
-          0%,
-          100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
-        }
-
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-        .animate-fade-in {
-          animation: fade-in 1s ease-out forwards;
-        }
-        .animate-slide-up {
-          animation: slide-up 0.6s ease-out forwards;
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }
@@ -778,20 +621,50 @@ GitSurvivalGuide.info = {
     "git-stash",
   ],
 };
-// New: card-safe image for list cards and featured card
-function GitSurvivalCardImage({ className = "" }) {
+// =====================================================
+// IMAGE COMPONENTS - Matching style with other blog posts
+// =====================================================
+
+// Thumbnail Image - for search results
+function GitThumbnailImage({ className = "" }) {
   return (
-    <img
-      src={git}
-      alt="Git Basics cover"
-      className={`w-full h-full object-cover ${className}`}
-    />
+    <div className={`bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center relative overflow-hidden ${className}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-purple-500/20" />
+      <GitBranch size={24} className="text-violet-400 relative z-10" />
+    </div>
   );
 }
 
-// Attach to the post component
+// Card Image - for blog listing cards
+function GitSurvivalCardImage({ className = "" }) {
+  return (
+    <div className={`bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 relative overflow-hidden ${className}`}>
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
+
+      {/* Gradient Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-violet-500/30 rounded-full blur-3xl" />
+
+      {/* Content */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-14 h-14 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-3">
+          <GitBranch size={28} className="text-violet-400" />
+        </div>
+        <span className="text-xs font-medium text-violet-400 mb-1">12 Scenarios</span>
+        <h3 className="text-lg font-bold text-white leading-tight">Git Survival Guide</h3>
+        <p className="text-sm text-slate-400 mt-1">Real Problems. Real Solutions.</p>
+      </div>
+    </div>
+  );
+}
+
+// Featured Image - for featured carousel (keep the elaborate one)
+// Already defined as GitSurvivalFeaturedImage above
+
+// Attach all image types to the post component
 GitSurvivalGuide.FeaturedImage = GitSurvivalFeaturedImage;
-GitSurvivalGuide.CardImage = GitSurvivalCardImage; // used by Blog.jsx cards
+GitSurvivalGuide.CardImage = GitSurvivalCardImage;
+GitSurvivalGuide.ThumbnailImage = GitThumbnailImage;
 GitSurvivalGuide.Image = GitSurvivalCardImage; // fallback alias
 
 export default GitSurvivalGuide;

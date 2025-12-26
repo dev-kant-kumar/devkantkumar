@@ -1,7 +1,6 @@
 // Top-level imports
 import {
     BookOpen,
-    Bot,
     Brain,
     Calendar,
     Check,
@@ -24,66 +23,57 @@ import {
 } from "lucide-react";
 import React from "react";
 
-function AntiGravityFeaturedImage() {
+function AntiGravityFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full h-[700px] bg-[#030712] relative overflow-hidden flex items-center justify-center">
-      {/* Background Gradients - Deeper and richer */}
-      <div className="absolute inset-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-indigo-900/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-fuchsia-900/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-900/10 rounded-full blur-[100px]" />
-      </div>
+    <div className={`bg-gradient-to-br from-slate-950 via-indigo-950/50 to-slate-950 relative overflow-hidden ${className}`}>
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e1b4b_1px,transparent_1px),linear-gradient(to_bottom,#1e1b4b_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(99,102,241,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.15) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-            maskImage: "radial-gradient(circle at center, black 40%, transparent 100%)",
-          }}
-        />
-      </div>
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-[100px]" />
 
-      {/* Central Visual - "The Singularity" */}
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="relative mb-12 group">
-          {/* Orbital Rings */}
-          <div className="absolute inset-0 border border-indigo-500/30 rounded-full w-48 h-48 -m-4 animate-[spin_10s_linear_infinite]" />
-          <div className="absolute inset-0 border border-fuchsia-500/30 rounded-full w-64 h-64 -m-12 animate-[spin_15s_linear_infinite_reverse]" />
-          <div className="absolute inset-0 border border-cyan-500/30 rounded-full w-80 h-80 -m-20 animate-[spin_20s_linear_infinite]" />
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-indigo-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+          </span>
+          <span className="text-indigo-300 text-sm font-medium">Google DeepMind</span>
+        </div>
 
-          {/* Core Icon */}
-          <div className="w-40 h-40 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(79,70,229,0.5)] relative overflow-hidden">
-             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-             <Sparkles size={64} className="text-white drop-shadow-lg" />
+        {/* Orbital Icon - larger */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 w-24 h-24 border border-indigo-500/30 rounded-full animate-[spin_10s_linear_infinite]" style={{margin: "-12px"}} />
+          <div className="absolute inset-0 w-32 h-32 border border-fuchsia-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" style={{margin: "-24px"}} />
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 border border-indigo-500/30 flex items-center justify-center">
+            <Sparkles size={40} className="text-indigo-400" />
           </div>
         </div>
 
-        {/* Text Content */}
-        <div className="text-center max-w-5xl px-6 relative z-20">
-          <div className="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-900/80 border border-indigo-500/30 rounded-full text-indigo-300 text-sm font-semibold backdrop-blur-xl shadow-lg shadow-indigo-500/20 mb-8 hover:border-indigo-400/50 transition-colors cursor-default">
-            <Bot size={18} className="text-indigo-400" />
-            <span>Google DeepMind</span>
-            <span className="text-slate-600 mx-1">•</span>
-            <span className="text-fuchsia-300">Project Anti Gravity</span>
-          </div>
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-white">Anti </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-fuchsia-400">Gravity</span>
+        </h2>
 
-          <h1 className="text-6xl md:text-8xl font-black text-white leading-tight mb-8 tracking-tight drop-shadow-2xl">
-            Coding Without
-            <br />
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-fuchsia-400 bg-clip-text text-transparent animate-gradient-x">
-              Friction
-            </span>
-          </h1>
-
-          <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-light drop-shadow-md">
-            The first <span className="text-white font-medium">Agentic IDE</span> that understands your intent, navigates your codebase, and builds alongside you.
-          </p>
-        </div>
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          The Future of Agentic Coding
+        </p>
       </div>
+    </div>
+  );
+}
+
+// Thumbnail Image - for search results
+function AntiGravityThumbnail({ className = "" }) {
+  return (
+    <div className={`bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center relative overflow-hidden ${className}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20" />
+      <Sparkles size={24} className="text-indigo-400 relative z-10" />
     </div>
   );
 }
@@ -523,8 +513,9 @@ function AntiGravityPost() {
 
 // Attach image helpers
 AntiGravityPost.FeaturedImage = AntiGravityFeaturedImage;
-AntiGravityPost.Image = AntiGravityCardImage;
 AntiGravityPost.CardImage = AntiGravityCardImage;
+AntiGravityPost.ThumbnailImage = AntiGravityThumbnail;
+AntiGravityPost.Image = AntiGravityCardImage;
 
 // Enhanced post metadata
 AntiGravityPost.info = {

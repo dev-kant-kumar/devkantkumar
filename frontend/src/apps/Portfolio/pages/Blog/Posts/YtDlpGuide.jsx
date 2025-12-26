@@ -1,98 +1,74 @@
 import {
-  AlertTriangle,
-  BookOpen,
-  Calendar,
-  Check,
-  ChevronRight,
-  Clock,
-  Command,
-  Copy,
-  Download,
-  ExternalLink,
-  FileVideo,
-  Folder,
-  Image as ImageIcon,
-  Layers,
-  List,
-  Music,
-  Play,
-  Shield,
-  Tag,
-  Terminal,
-  Type,
-  User,
-  Youtube,
+    AlertTriangle,
+    BookOpen,
+    Calendar,
+    Check,
+    ChevronRight,
+    Clock,
+    Command,
+    Copy,
+    Download,
+    ExternalLink,
+    FileVideo,
+    Folder,
+    Image as ImageIcon,
+    Layers,
+    List,
+    Music,
+    Play,
+    Shield,
+    Tag,
+    Terminal,
+    Type,
+    User,
+    Youtube,
 } from "lucide-react";
 import React from "react";
 
-function YtDlpFeaturedImage() {
+function YtDlpFeaturedImage({ className = "" }) {
   return (
-    <div className="w-full h-[700px] bg-[#0f0f0f] relative overflow-hidden flex items-center justify-center font-mono">
-      {/* Background Matrix-like effect */}
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(0deg, transparent 24%, rgba(34, 197, 94, .1) 25%, rgba(34, 197, 94, .1) 26%, transparent 27%, transparent 74%, rgba(34, 197, 94, .1) 75%, rgba(34, 197, 94, .1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(34, 197, 94, .1) 25%, rgba(34, 197, 94, .1) 26%, transparent 27%, transparent 74%, rgba(34, 197, 94, .1) 75%, rgba(34, 197, 94, .1) 76%, transparent 77%, transparent)",
-            backgroundSize: "50px 50px",
-          }}
-        />
-      </div>
+    <div className={`bg-gradient-to-br from-slate-950 via-green-950/30 to-slate-950 relative overflow-hidden ${className}`}>
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0c1a0c_1px,transparent_1px),linear-gradient(to_bottom,#0c1a0c_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* Central Terminal Window */}
-      <div className="relative z-10 w-[800px] bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
-        {/* Window Header */}
-        <div className="bg-[#2d2d2d] px-4 py-3 flex items-center gap-2 border-b border-gray-700">
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
+      {/* Ambient Glows */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-500/20 rounded-full blur-[100px]" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-green-500/20 rounded-full blur-[100px]" />
+
+      {/* Content - fills full height */}
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-green-500/30 backdrop-blur-md mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <span className="text-green-300 text-sm font-medium">CLI Tool</span>
+        </div>
+
+        {/* Icon Grid - larger */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Terminal size={28} className="text-green-400" />
           </div>
-          <div className="ml-4 text-gray-400 text-sm flex items-center gap-2">
-            <Terminal size={14} />
-            <span>user@devkantkumar:~/downloads</span>
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-500/20 to-green-500/20 border border-red-500/30 flex items-center justify-center">
+            <Youtube size={40} className="text-red-400" />
+          </div>
+          <div className="w-14 h-14 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+            <Download size={28} className="text-green-400" />
           </div>
         </div>
 
-        {/* Terminal Content */}
-        <div className="p-6 font-mono text-sm md:text-base">
-          <div className="text-green-400 mb-2">
-            $ yt-dlp -f bestvideo+bestaudio "https://youtube.com/watch?v=..."
-          </div>
-          <div className="text-gray-300 space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">[youtube]</span>
-              <span>Extracting URL: https://youtube.com/watch?v=...</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">[info]</span>
-              <span>Downloading video info webpage</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-blue-400">[download]</span>
-              <span>Destination: Awesome_Tutorial.mp4</span>
-            </div>
-            <div className="mt-4">
-              <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 w-[75%] animate-pulse" />
-              </div>
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>75.0%</span>
-                <span>15.2MiB/s</span>
-                <span>ETA 00:05</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        {/* Title - larger */}
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+          <span className="text-white">yt-dlp </span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-green-400">Guide</span>
+        </h2>
 
-      {/* Floating Elements */}
-      <div className="absolute top-20 right-20 animate-bounce delay-1000">
-        <Youtube size={64} className="text-red-600 opacity-80 drop-shadow-lg" />
-      </div>
-      <div className="absolute bottom-20 left-20 animate-pulse">
-        <Download size={48} className="text-green-500 opacity-60 drop-shadow-lg" />
+        {/* Subtitle - larger */}
+        <p className="text-slate-400 text-lg">
+          Download Videos Like a Pro
+        </p>
       </div>
     </div>
   );
