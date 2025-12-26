@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OG Image Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #1e1b4b;
+            color: white;
+            font-family: system-ui, sans-serif;
+        }
+        canvas {
+            border: 2px solid #6366f1;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .instructions {
+            margin-top: 20px;
+            max-width: 600px;
+            text-align: center;
+            color: #a5b4fc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Anti Gravity OG Image Generator</h1>
+    <canvas id="canvas" width="1200" height="627"></canvas>
+    <button onclick="downloadImage()">Download Image (1200x627)</button>
+    <div class="instructions">
+        <p>Click the button to download the image, then:</p>
+        <ol style="text-align: left;">
+            <li>Save as <strong>antigravity-ai-v2.png</strong></li>
+            <li>Copy to <strong>frontend/public/images/blog/</strong></li>
+            <li>Commit and push to GitHub</li>
+            <li>Wait for Vercel to deploy</li>
+        </ol>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Background gradient
+        const gradient = ctx.createLinearGradient(0, 0, 1200, 627);
+        gradient.addColorStop(0, '#0f0a24');
+        gradient.addColorStop(0.5, '#1e1b4b');
+        gradient.addColorStop(1, '#0f172a');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1200, 627);
+
+        // Grid pattern
+        ctx.strokeStyle = 'rgba(99, 102, 241, 0.1)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < 1200; x += 50) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, 627);
+            ctx.stroke();
+        }
+        for (let y = 0; y < 627; y += 50) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(1200, y);
+            ctx.stroke();
+        }
+
+        // Glow circles
+        const radialGradient1 = ctx.createRadialGradient(400, 200, 0, 400, 200, 200);
+        radialGradient1.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+        radialGradient1.addColorStop(1, 'transparent');
+        ctx.fillStyle = radialGradient1;
+        ctx.fillRect(200, 0, 400, 400);
+
+        const radialGradient2 = ctx.createRadialGradient(800, 400, 0, 800, 400, 200);
+        radialGradient2.addColorStop(0, 'rgba(168, 85, 247, 0.3)');
+        radialGradient2.addColorStop(1, 'transparent');
+        ctx.fillStyle = radialGradient2;
+        ctx.fillRect(600, 200, 400, 400);
+
+        // Badge at top
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+        ctx.roundRect(500, 40, 200, 36, 18);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(99, 102, 241, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Badge dot
+        ctx.beginPath();
+        ctx.arc(520, 58, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#6366f1';
+        ctx.fill();
+
+        // Badge text
+        ctx.fillStyle = '#a5b4fc';
+        ctx.font = '14px system-ui, sans-serif';
+        ctx.fillText('Google DeepMind', 535, 63);
+
+        // Central icon (sparkle)
+        ctx.save();
+        ctx.translate(600, 260);
+        ctx.fillStyle = '#6366f1';
+        ctx.beginPath();
+        ctx.moveTo(0, -40);
+        ctx.lineTo(10, -10);
+        ctx.lineTo(40, 0);
+        ctx.lineTo(10, 10);
+        ctx.lineTo(0, 40);
+        ctx.lineTo(-10, 10);
+        ctx.lineTo(-40, 0);
+        ctx.lineTo(-10, -10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Smaller sparkles
+        ctx.scale(0.4, 0.4);
+        ctx.translate(80, -80);
+        ctx.beginPath();
+        ctx.moveTo(0, -40);
+        ctx.lineTo(10, -10);
+        ctx.lineTo(40, 0);
+        ctx.lineTo(10, 10);
+        ctx.lineTo(0, 40);
+        ctx.lineTo(-10, 10);
+        ctx.lineTo(-40, 0);
+        ctx.lineTo(-10, -10);
+        ctx.closePath();
+        ctx.fillStyle = '#818cf8';
+        ctx.fill();
+        ctx.restore();
+
+        // Title - "Anti" in white
+        ctx.font = 'bold 72px system-ui, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        const antiWidth = ctx.measureText('Anti ').width;
+        ctx.fillText('Anti ', 600 - (antiWidth + ctx.measureText('Gravity').width) / 2, 400);
+
+        // Title - "Gravity" in gradient (simulated)
+        const gravityGradient = ctx.createLinearGradient(600, 380, 750, 420);
+        gravityGradient.addColorStop(0, '#818cf8');
+        gravityGradient.addColorStop(0.5, '#a78bfa');
+        gravityGradient.addColorStop(1, '#c084fc');
+        ctx.fillStyle = gravityGradient;
+        ctx.fillText('Gravity', 600 - (antiWidth + ctx.measureText('Gravity').width) / 2 + antiWidth, 400);
+
+        // Subtitle
+        ctx.font = '24px system-ui, sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        const subtitleText = 'The Future of Agentic Coding';
+        const subtitleWidth = ctx.measureText(subtitleText).width;
+        ctx.fillText(subtitleText, (1200 - subtitleWidth) / 2, 450);
+
+        // Orbital rings
+        ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(600, 280, 80, 80, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(600, 280, 110, 110, Math.PI / 6, 0, Math.PI * 2);
+        ctx.stroke();
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'antigravity-ai-v2.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
