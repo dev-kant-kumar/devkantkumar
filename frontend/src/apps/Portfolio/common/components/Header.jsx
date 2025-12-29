@@ -147,6 +147,11 @@ const Header = () => {
             ))}
           </motion.div>
 
+          {/* PWA Install Button (Desktop) */}
+          <div className="hidden lg:block ml-4">
+             <InstallPrompt />
+          </div>
+
           {/* Mobile menu button */}
           <motion.button
             initial={{ opacity: 0 }}
