@@ -29,6 +29,10 @@ const TermsOfService = React.lazy(() =>
   import("./pages/Legal/TermsOfService.jsx")
 );
 
+// Tools pages
+const Tools = React.lazy(() => import("./pages/Tools/Tools.jsx"));
+const ToolPage = React.lazy(() => import("./pages/Tools/ToolPage.jsx"));
+
 import Loader from "../../shared/components/Loader.jsx";
 
 const PortfolioRoutes = () => {
@@ -76,6 +80,10 @@ const PortfolioRoutes = () => {
 
           {/* Test page */}
           <Route path="test" element={<Test />} />
+
+          {/* Tools pages - Free developer tools */}
+          <Route path="tools" element={<Tools />} />
+          <Route path="tools/:toolSlug" element={<ToolPage />} />
         </Route>
       </Routes>
     </React.Suspense>
