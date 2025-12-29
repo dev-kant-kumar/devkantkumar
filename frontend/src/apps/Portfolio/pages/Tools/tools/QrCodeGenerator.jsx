@@ -65,6 +65,16 @@ const QrCodeGenerator = () => {
         description="Create custom QR Codes instantly for free. Generate QR codes for URLs, text, chemicals, and more. Customize colors and download high-quality PNGs."
         keywords="qr code generator, free qr code, create qr code, custom qr code, qr code maker, qr code online"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'QR Code Generator',
+          description: 'Create custom QR codes for URLs, text, and more.',
+          category: 'DesignTool',
+          keywords: ['qr code generator', 'qr creator', 'qrcode maker', 'free qr code'],
+          slug: 'qr-code-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

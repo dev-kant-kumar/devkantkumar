@@ -104,6 +104,16 @@ const LoremIpsumGenerator = () => {
         description="Generate Lorem Ipsum placeholder text for your designs and mockups. Create paragraphs, sentences, or words instantly. Free online dummy text generator."
         keywords="lorem ipsum generator, placeholder text, dummy text, sample text, filler text, lorem ipsum online"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'Lorem Ipsum Generator',
+          description: 'Generate placeholder text for paragraphs, sentences, or words.',
+          category: 'DesignTool',
+          keywords: ['lorem ipsum generator', 'placeholder text', 'dummy text', 'sample text'],
+          slug: 'lorem-ipsum-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -94,6 +94,16 @@ const MarkdownPreviewer = () => {
         description="Write and preview Markdown in real-time. Features syntax highlighting, split-screen view, and easy export. Free online Markdown editor for developers and writers."
         keywords="markdown previewer, markdown editor, online markdown editor, readme generator, markdown to html"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'Markdown Previewer & Editor',
+          description: 'Real-time Markdown editor with split-screen preview and syntax highlighting.',
+          category: 'DeveloperApplication',
+          keywords: ['markdown previewer', 'markdown editor', 'online markdown', 'readme generator'],
+          slug: 'markdown-previewer'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16 flex flex-col">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 flex flex-col">

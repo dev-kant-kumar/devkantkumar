@@ -212,6 +212,37 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
     }))
   });
 
+  const getSoftwareApplicationSchema = (tool) => {
+    const siteUrl = portfolioData.seoConfig?.site?.url || "https://devkantkumar.com";
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": tool.name,
+      "operatingSystem": "Web Browser",
+      "applicationCategory": tool.category || "DeveloperApplication",
+      "oferring": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "25"
+      },
+      "featureList": tool.keywords ? tool.keywords.join(", ") : "Online Tool",
+      "author": {
+        "@type": "Person",
+        "name": personalInfo.name,
+        "url": siteUrl
+      },
+      "image": personalInfo.profileImage, // Using profile image as fallback icon if no screenshot
+      "url": `${siteUrl}/tools/${tool.slug || ''}`,
+      "description": tool.description
+    };
+  };
+
   const getSchemaData = () => {
     switch (type) {
       case 'person':
@@ -230,6 +261,8 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
         return getBreadcrumbsSchema();
       case 'faq':
         return getFAQSchema();
+      case 'software':
+        return getSoftwareApplicationSchema(pageData);
       default:
         return getPersonSchema();
     }

@@ -93,6 +93,16 @@ const PasswordGenerator = () => {
         description="Generate strong, secure random passwords instantly. Customize length, include uppercase, lowercase, numbers, and symbols. Free online password generator with strength meter."
         keywords="password generator, strong password, random password, secure password, password creator, generate password online"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'Strong Password Generator',
+          description: 'Generate secure random passwords with customizable length and character types.',
+          category: 'SecurityApplication',
+          keywords: ['password generator', 'random password', 'secure password', 'strong password'],
+          slug: 'password-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">

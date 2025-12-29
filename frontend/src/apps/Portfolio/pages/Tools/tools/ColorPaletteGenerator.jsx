@@ -148,6 +148,16 @@ const ColorPaletteGenerator = () => {
         description="Generate beautiful color palettes for your designs. Create harmonious color schemes with complementary, analogous, triadic, and monochromatic modes. Export as CSS, SCSS, or Tailwind."
         keywords="color palette generator, color scheme, color picker, palette generator, css colors, tailwind colors, design colors"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'Color Palette Generator',
+          description: 'Generate beautiful harmonious color palettes for your designs.',
+          category: 'DesignTool',
+          keywords: ['color palette generator', 'color scheme', 'color picker', 'palette generator'],
+          slug: 'color-palette-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

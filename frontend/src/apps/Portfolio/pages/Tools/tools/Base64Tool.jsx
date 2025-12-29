@@ -95,6 +95,16 @@ const Base64Tool = () => {
         description="Free online Base64 encoder and decoder. Convert text to Base64 and decode Base64 strings instantly. Supports URL-safe Base64 encoding. No signup required."
         keywords="base64 encoder, base64 decoder, encode base64, decode base64, base64 converter, text to base64, base64 online"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'Base64 Encoder & Decoder',
+          description: 'Encode and decode Base64 strings online. Supports URL-safe mode.',
+          category: 'DeveloperApplication',
+          keywords: ['base64 encoder', 'base64 decoder', 'base64 converter', 'encode base64'],
+          slug: 'base64-encoder-decoder'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

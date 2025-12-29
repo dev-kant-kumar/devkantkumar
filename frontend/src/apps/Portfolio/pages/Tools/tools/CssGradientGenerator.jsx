@@ -49,6 +49,16 @@ const CssGradientGenerator = () => {
         description="Create beautiful CSS gradients visually. Generate linear and radial gradients, customize colors and angles, and get ready-to-use CSS code. Free tool for designers and developers."
         keywords="css gradient generator, gradient maker, linear gradient, radial gradient, css background generator, web design tools"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'CSS Gradient Generator',
+          description: 'Create beautiful linear and radial CSS gradients visually.',
+          category: 'DesignTool',
+          keywords: ['css gradient', 'gradient generator', 'css background', 'color gradient'],
+          slug: 'css-gradient-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

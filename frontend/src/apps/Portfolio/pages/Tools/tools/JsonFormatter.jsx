@@ -131,6 +131,16 @@ const JsonFormatter = () => {
         description="Free online JSON formatter, beautifier, minifier and validator. Format JSON with syntax highlighting, validate JSON structure, and minify JSON data. No signup required."
         keywords="json formatter, json validator, json beautifier, json minifier, format json online, validate json, json parser, json tool"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'JSON Formatter & Validator',
+          description: 'Format, beautify, minify, and validate JSON data online.',
+          category: 'DeveloperApplication',
+          keywords: ['json formatter', 'json validator', 'json beautifier', 'json minifier'],
+          slug: 'json-formatter'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

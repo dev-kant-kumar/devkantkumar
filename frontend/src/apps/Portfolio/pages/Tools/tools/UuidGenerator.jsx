@@ -87,6 +87,16 @@ const UuidGenerator = () => {
         description="Free online bulk UUID (GUID) generator. Generate Version 1 and Version 4 UUIDs instantly. Customizable format with uppercase and hyphen options."
         keywords="uuid generator, guid generator, uuid v4 generator, bulk uuid generator, random uuid, unique identifier generator"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'UUID / GUID Generator',
+          description: 'Generate bulk Version 1 and Version 4 UUIDs instantly.',
+          category: 'DeveloperApplication',
+          keywords: ['uuid generator', 'guid generator', 'random uuid', 'unique identifier'],
+          slug: 'uuid-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

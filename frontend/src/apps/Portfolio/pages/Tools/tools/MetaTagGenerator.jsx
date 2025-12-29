@@ -74,6 +74,16 @@ const MetaTagGenerator = () => {
         description="Generate accurate meta tags for better SEO and social media sharing. Create Title, Description, Open Graph, and Twitter Card tags. Preview how your site looks on Google and social media."
         keywords="meta tag generator, seo tool, open graph generator, twitter card generator, meta tags, seo optimizer"
       />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: 'Meta Tag Generator',
+          description: 'Generate accurate SEO meta tags and social media previews (Open Graph, Twitter Cards).',
+          category: 'DeveloperApplication',
+          keywords: ['meta tag generator', 'seo tool', 'open graph generator', 'web seo'],
+          slug: 'meta-tag-generator'
+        }}
+      />
 
       <div className="min-h-screen bg-slate-950 pt-24 pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
