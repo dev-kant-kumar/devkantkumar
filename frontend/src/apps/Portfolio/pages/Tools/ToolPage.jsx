@@ -7,6 +7,11 @@ const Base64Tool = React.lazy(() => import('./tools/Base64Tool'));
 const PasswordGenerator = React.lazy(() => import('./tools/PasswordGenerator'));
 const LoremIpsumGenerator = React.lazy(() => import('./tools/LoremIpsumGenerator'));
 const ColorPaletteGenerator = React.lazy(() => import('./tools/ColorPaletteGenerator'));
+const QrCodeGenerator = React.lazy(() => import('./tools/QrCodeGenerator'));
+const UuidGenerator = React.lazy(() => import('./tools/UuidGenerator'));
+const CssGradientGenerator = React.lazy(() => import('./tools/CssGradientGenerator'));
+const MetaTagGenerator = React.lazy(() => import('./tools/MetaTagGenerator'));
+const MarkdownPreviewer = React.lazy(() => import('./tools/MarkdownPreviewer'));
 
 // Tool mapping
 const toolComponents = {
@@ -14,7 +19,12 @@ const toolComponents = {
   'base64-encoder-decoder': Base64Tool,
   'password-generator': PasswordGenerator,
   'lorem-ipsum-generator': LoremIpsumGenerator,
-  'color-palette-generator': ColorPaletteGenerator
+  'color-palette-generator': ColorPaletteGenerator,
+  'qr-code-generator': QrCodeGenerator,
+  'uuid-generator': UuidGenerator,
+  'css-gradient-generator': CssGradientGenerator,
+  'meta-tag-generator': MetaTagGenerator,
+  'markdown-previewer': MarkdownPreviewer
 };
 
 const ToolPage = () => {
