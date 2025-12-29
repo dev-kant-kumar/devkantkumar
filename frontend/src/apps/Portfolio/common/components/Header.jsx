@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import InstallPrompt from "../../../../components/PWA/InstallPrompt";
 import { portfolioData } from "../../store/data/portfolioData";
 
 const Header = () => {
