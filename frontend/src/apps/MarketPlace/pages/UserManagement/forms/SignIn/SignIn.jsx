@@ -50,6 +50,11 @@ const SignIn = () => {
       try {
         const userData = await login({ email: formData.email, password: formData.password }).unwrap();
         dispatch(setCredentials(userData));
+
+        // Persist token explicitly for non-persistent store setups
+        localStorage.setItem('token', userData.token);
+        localStorage.setItem('user', JSON.stringify(userData.user));
+
         const from = location.state?.from || '/marketplace/dashboard';
         navigate(from, { replace: true });
       } catch (err) {

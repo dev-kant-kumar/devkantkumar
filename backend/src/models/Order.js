@@ -82,7 +82,7 @@ const orderSchema = new mongoose.Schema({
   payment: {
     method: {
       type: String,
-      enum: ['stripe', 'paypal', 'bank_transfer'],
+      enum: ['stripe', 'paypal', 'bank_transfer', 'razorpay'],
       required: true
     },
     status: {
@@ -90,7 +90,9 @@ const orderSchema = new mongoose.Schema({
       enum: ['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'],
       default: 'pending'
     },
-    transactionId: String,
+    transactionId: String, // Maps to razorpay_payment_id
+    razorpayOrderId: String, // Maps to razorpay_order_id
+    razorpaySignature: String, // Maps to razorpay_signature
     paymentIntentId: String,
     amount: {
       subtotal: {

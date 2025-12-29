@@ -1,23 +1,33 @@
 import { motion } from 'framer-motion';
-import { Calendar, Check, ChevronRight, CreditCard, Eye, EyeOff, Lock, Mail, MapPin, Phone, Shield, User } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Check, ChevronRight, Mail, MapPin, Phone, Shield, User } from 'lucide-react';
+import { useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { formatExpiryDate, getCardType, runValidation, sanitize, validate } from '../../../../utils/formValidation';
+import { runValidation, sanitize, validate } from '../../../../utils/formValidation';
 import { clearCart, selectCartItems, selectCartTotal } from '../../store/cart/cartSlice';
 import {
-    resetCheckout,
-    selectCheckoutState,
-    setErrors,
-    setIsSubmitting,
-    setStep,
-    updateBillingInfo,
-    updatePaymentInfo
+  resetCheckout,
+  selectCheckoutState,
+  setErrors,
+  setIsSubmitting,
+  setStep,
+  updateBillingInfo
 } from '../../store/checkout/checkoutSlice';
 
-import { selectIsAuthenticated } from '../../store/auth/authSlice';
+import { selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
 
-// ... imports
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+};
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -25,9 +35,8 @@ const Checkout = () => {
   const cartItems = useSelector(selectCartItems);
   const total = useSelector(selectCartTotal);
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const { step, billingInfo, paymentInfo, errors, isSubmitting } = useSelector(selectCheckoutState);
-  const [showCVV, setShowCVV] = useState(false);
-  const [cardType, setCardType] = useState('unknown');
+  const user = useSelector(selectCurrentUser);
+  const { step, billingInfo, errors, isSubmitting } = useSelector(selectCheckoutState);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -42,35 +51,11 @@ const Checkout = () => {
 
   const handleBillingChange = (e) => {
     const { name, value } = e.target;
-    // Sanitize input based on field type
     let sanitizedValue = value;
     if (name === 'email') sanitizedValue = sanitize.email(value);
     if (name === 'phone') sanitizedValue = sanitize.phone(value);
 
     dispatch(updateBillingInfo({ [name]: sanitizedValue }));
-
-    // Clear error when user types
-    if (errors[name]) {
-      dispatch(setErrors({ ...errors, [name]: null }));
-    }
-  };
-
-  const handlePaymentChange = (e) => {
-    const { name, value } = e.target;
-    let sanitizedValue = value;
-
-    if (name === 'cardNumber') {
-      sanitizedValue = sanitize.digitsOnly(value);
-      setCardType(getCardType(sanitizedValue));
-    } else if (name === 'cvv') {
-      sanitizedValue = sanitize.digitsOnly(value);
-    } else if (name === 'expiryDate') {
-      sanitizedValue = formatExpiryDate(value);
-    } else if (name === 'cardName') {
-      sanitizedValue = sanitize.cardName(value);
-    }
-
-    dispatch(updatePaymentInfo({ [name]: sanitizedValue }));
 
     if (errors[name]) {
       dispatch(setErrors({ ...errors, [name]: null }));
@@ -98,36 +83,6 @@ const Checkout = () => {
       validate.zipCode
     ]);
 
-    // Filter out nulls
-    const activeErrors = Object.fromEntries(
-      Object.entries(newErrors).filter(([_, v]) => v != null)
-    );
-
-    dispatch(setErrors(activeErrors));
-    return Object.keys(activeErrors).length === 0;
-  };
-
-  const validatePayment = () => {
-    const newErrors = {};
-
-    newErrors.cardName = runValidation(paymentInfo.cardName, [
-      (v) => validate.required(v, 'Name on Card'),
-      (v) => validate.name(v, 'Name on Card')
-    ]);
-    newErrors.cardNumber = runValidation(paymentInfo.cardNumber, [
-      (v) => validate.required(v, 'Card Number'),
-      (v) => validate.match(v.length, 16, 'Card Number must be 16 digits')
-    ]);
-    newErrors.expiryDate = runValidation(paymentInfo.expiryDate, [
-      (v) => validate.required(v, 'Expiry Date'),
-      (v) => validate.match(v.length, 5, 'Expiry Date must be MM/YY')
-    ]);
-    newErrors.cvv = runValidation(paymentInfo.cvv, [
-      (v) => validate.required(v, 'CVV'),
-      (v) => validate.minLength(v, 3, 'CVV'),
-      (v) => validate.maxLength(v, 4, 'CVV')
-    ]);
-
     const activeErrors = Object.fromEntries(
       Object.entries(newErrors).filter(([_, v]) => v != null)
     );
@@ -143,35 +98,113 @@ const Checkout = () => {
         window.scrollTo(0, 0);
       }
     } else if (step === 2) {
-      if (validatePayment()) {
-        handleSubmitOrder();
-      }
+      handleRazorpayPayment();
     }
   };
 
-  const handleSubmitOrder = async () => {
+  const handleRazorpayPayment = async () => {
     dispatch(setIsSubmitting(true));
 
-    // Simulate API call
-    setTimeout(() => {
-      dispatch(setIsSubmitting(false));
-      dispatch(setStep(3));
-      dispatch(clearCart());
-      window.scrollTo(0, 0);
-    }, 2000);
-  };
+    const res = await loadRazorpayScript();
 
-  const getCardIcon = () => {
-    switch (cardType) {
-      case 'visa': return <span className="font-bold text-blue-600 text-xs">VISA</span>;
-      case 'mastercard': return <span className="font-bold text-red-600 text-xs">MC</span>;
-      case 'amex': return <span className="font-bold text-blue-400 text-xs">AMEX</span>;
-      case 'discover': return <span className="font-bold text-orange-500 text-xs">DISC</span>;
-      default: return <CreditCard className="h-5 w-5 text-gray-400" />;
+    if (!res) {
+        toast.error('Razorpay SDK failed to load. Are you online?');
+        dispatch(setIsSubmitting(false));
+        return;
+    }
+
+    // 1. Create Order on Backend
+    try {
+        const orderRes = await fetch(`${API_URL}/marketplace/payment/create-order`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                amount: total,
+                currency: 'INR', // Explicitly INR for Test Mode
+                items: cartItems.map(item => ({
+                  itemType: item.type,
+                  product: item.type === 'product' ? item.id : undefined,
+                  service: item.type === 'service' ? item.id : undefined,
+                  itemId: item.id, // Fallback
+                  title: item.title,
+                  price: item.price,
+                  quantity: item.quantity
+                })),
+                shippingAddress: billingInfo
+            })
+        });
+
+        const orderData = await orderRes.json();
+
+        if (!orderRes.ok) {
+            throw new Error(orderData.details || orderData.message || 'Server error creating order');
+        }
+
+        // 2. Open Razorpay options
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Use ENV variable
+            amount: orderData.amount,
+            currency: orderData.currency,
+            name: "DevKant Marketplace",
+            description: "Digital Purchase",
+            image: "https://your-logo-url", // Optional
+            order_id: orderData.id,
+            handler: async function (response) {
+                // 3. Verify Payment
+                try {
+                    const verifyRes = await fetch(`${API_URL}/marketplace/payment/verify`, {
+                         method: 'POST',
+                         headers: {
+                             'Content-Type': 'application/json',
+                             'Authorization': `Bearer ${localStorage.getItem('token')}`
+                         },
+                         body: JSON.stringify({
+                             razorpay_order_id: response.razorpay_order_id,
+                             razorpay_payment_id: response.razorpay_payment_id,
+                             razorpay_signature: response.razorpay_signature,
+                             orderId: orderData.orderId // IMPORTANT: Send your internal order ID if you saved it
+                         })
+                    });
+
+                    const verifyData = await verifyRes.json();
+
+                    if(verifyRes.ok) {
+                        dispatch(setStep(3));
+                        dispatch(clearCart());
+                        window.scrollTo(0, 0);
+                        toast.success('Payment Successful!');
+                    } else {
+                        toast.error(verifyData.message || 'Payment verification failed');
+                    }
+
+                } catch (verifyErr) {
+                    console.error(verifyErr);
+                    toast.error('Payment verification failed on server');
+                }
+            },
+            prefill: {
+                name: `${billingInfo.firstName} ${billingInfo.lastName}`,
+                email: billingInfo.email,
+                contact: billingInfo.phone
+            },
+            theme: {
+                color: "#2563EB"
+            }
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
+        dispatch(setIsSubmitting(false)); // Modal opened, stop loader
+
+    } catch (err) {
+        console.error(err);
+        toast.error('Failed to initiate payment: ' + err.message);
+        dispatch(setIsSubmitting(false));
     }
   };
-
-
 
   if (step === 3) {
     return (
@@ -320,66 +353,24 @@ const Checkout = () => {
 
               {step === 2 && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Details</h2>
-                  <div className="bg-blue-50 p-4 rounded-xl mb-6 flex items-start">
-                    <Shield className="text-blue-600 h-6 w-6 mr-3 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-bold text-blue-900">Secure Payment</h4>
-                      <p className="text-sm text-blue-700">Your payment information is encrypted and secure.</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Method</h2>
+                  <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-8">
+                    <div className="flex items-center mb-4">
+                        <Shield className="text-blue-600 h-8 w-8 mr-3" />
+                        <div>
+                             <h4 className="font-bold text-xl text-blue-900">Secure Payment with Razorpay</h4>
+                             <p className="text-blue-700 mt-1">Pay securely using Credit Card, Debit Card, UPI, or Net Banking.</p>
+                        </div>
                     </div>
+                    <ul className="text-sm text-blue-800 list-disc list-inside space-y-1 ml-2">
+                        <li>SSL Encrypted Transaction</li>
+                        <li>Supports all major Indian banks</li>
+                        <li>International cards accepted</li>
+                        <li>Instant Confirmation</li>
+                    </ul>
                   </div>
-
-                  <InputField
-                    label="Name on Card"
-                    name="cardName"
-                    value={paymentInfo.cardName}
-                    onChange={handlePaymentChange}
-                    error={errors.cardName}
-                    icon={User}
-                  />
-                  <InputField
-                    label="Card Number"
-                    name="cardNumber"
-                    value={paymentInfo.cardNumber}
-                    onChange={handlePaymentChange}
-                    error={errors.cardNumber}
-                    placeholder="0000 0000 0000 0000"
-                    iconElement={getCardIcon()}
-                    maxLength={16}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <InputField
-                      label="Expiry Date"
-                      name="expiryDate"
-                      value={paymentInfo.expiryDate}
-                      onChange={handlePaymentChange}
-                      error={errors.expiryDate}
-                      placeholder="MM/YY"
-                      icon={Calendar}
-                      maxLength={5}
-                    />
-                    <InputField
-                      label="CVV"
-                      name="cvv"
-                      type={showCVV ? "text" : "password"}
-                      value={paymentInfo.cvv}
-                      onChange={handlePaymentChange}
-                      error={errors.cvv}
-                      placeholder="123"
-                      icon={Lock}
-                      maxLength={4}
-                      rightElement={
-                        <button
-                          type="button"
-                          onClick={() => setShowCVV(!showCVV)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showCVV ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                      }
-                    />
-                  </div>
-                </div>
+                  <p className="text-gray-600 text-center mb-4">Click "Pay Now" to open the secure payment gateway.</p>
+              </div>
               )}
               <div className="mt-8 flex justify-between">
                 {step === 2 && (

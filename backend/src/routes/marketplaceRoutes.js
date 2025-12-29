@@ -28,8 +28,12 @@ router.get('/orders', marketplaceController.getUserOrders);
 router.get('/orders/:id', marketplaceController.getOrderById);
 
 // Payment routes
-router.post('/payment/create-intent', marketplaceController.createPaymentIntent);
-router.post('/payment/confirm', marketplaceController.confirmPayment);
+// Payment routes
+router.post('/payment/create-order', marketplaceController.createRazorpayOrder);
+router.post('/payment/verify', marketplaceController.verifyRazorpayPayment);
+
+// Download route
+router.get('/orders/:orderId/download/:itemId', marketplaceController.downloadPurchasedItem);
 
 // Review routes
 router.post('/reviews', marketplaceController.createReview);
