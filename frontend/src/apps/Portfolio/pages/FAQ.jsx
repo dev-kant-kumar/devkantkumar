@@ -1,26 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  ChevronDown,
-  ChevronUp,
-  Search,
-  MessageCircle,
-  Mail,
-  Phone,
-  Clock,
-  CheckCircle,
-  HelpCircle,
-  Code,
-  Briefcase,
-  DollarSign,
-  Calendar,
-  Users,
-  Zap,
-  Sparkles
+    Briefcase,
+    Calendar,
+    ChevronDown,
+    Clock,
+    Code,
+    DollarSign,
+    HelpCircle,
+    Mail,
+    MessageCircle,
+    Phone,
+    Search,
+    Sparkles,
+    Users,
+    Zap
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMetadata } from "../../../utils/useMetadata";
 import SEOHead from "../../../components/SEO/SEOHead";
+import { useMetadata } from "../../../utils/useMetadata";
 import { portfolioData } from "../store/data/portfolioData";
 
 const FAQ = () => {
@@ -196,6 +194,17 @@ const FAQ = () => {
         description="Find answers to common questions about my development services, process, pricing, and collaboration approach. Get insights into my work methodology and technical expertise."
         keywords="FAQ, questions, development services, pricing, process, collaboration, MERN stack, web development"
         type="article"
+      />
+
+      {/* FAQ Structured Data for Rich Results */}
+      <StructuredData
+        type="faq"
+        pageData={{
+          faqs: faqData.map(item => ({
+            question: item.question,
+            answer: item.answer
+          }))
+        }}
       />
 
       <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
