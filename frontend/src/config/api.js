@@ -115,6 +115,7 @@ export const API_ENDPOINTS = {
     EDUCATION: '/portfolio/education',
     CONTACT: '/portfolio/contact',
     ABOUT: '/portfolio/about',
+    SETTINGS: '/portfolio/settings',
   },
 
   // File upload endpoints

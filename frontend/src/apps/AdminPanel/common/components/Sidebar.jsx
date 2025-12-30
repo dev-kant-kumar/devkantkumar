@@ -6,6 +6,8 @@ import {
     FileText,
     FolderOpen,
     LayoutDashboard,
+    Mail,
+    Megaphone,
     Package,
     PenTool,
     PieChart,
@@ -36,6 +38,8 @@ const Sidebar = () => {
     { name: "Skills", path: "/admin/skills", icon: Code },
     { name: "Content", path: "/admin/content", icon: FileText },
     { name: "Blog", path: "/admin/blog", icon: PenTool },
+    { name: "Subscribers", path: "/admin/subscribers", icon: Mail },
+    { name: "Announcements", path: "/admin/announcements", icon: Megaphone },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 

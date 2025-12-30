@@ -217,10 +217,50 @@ const getUserContactAutoReplyTemplate = (contactData) => `
   </html>
 `;
 
+const getNewsletterWelcomeTemplate = ({ email }) => `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Newsletter!</title>
+    <style>${getBaseStyles()}</style>
+  </head>
+  <body style="background-color: #f4f6f8;">
+    <div class="container">
+      <div class="header" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+        <h1 style="margin: 0; font-size: 24px;">You're In! 🚀</h1>
+      </div>
+      <div class="content">
+        <h2 style="color: #1f2937; margin-top: 0;">Hi there,</h2>
+        <p>Thanks for subscribing to my newsletter! I'm thrilled to have you as part of my community.</p>
+        <p>From now on, you'll be among the first to receive updates on:</p>
+        <ul style="color: #4b5563;">
+          <li>Latest projects and open-source contributions</li>
+          <li>In-depth tech articles and blog posts</li>
+          <li>Exclusive insights and announcements</li>
+        </ul>
+
+        <p>I promise to keep things interesting and only send you content that matters.</p>
+        <p>In the meantime, feel free to explore my latest work on my portfolio or follow me on social media for real-time updates.</p>
+
+        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar</strong></p>
+      </div>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>You received this email because you subscribed at <a href="https://devkantkumar.com" style="color: #3b82f6; text-decoration: none;">devkantkumar.com</a></p>
+        <p style="font-size: 11px; color: #aaa;">Want to take a break? You can unsubscribe at any time from your settings.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+`;
+
 module.exports = {
   getVerificationEmailTemplate,
   getPasswordResetTemplate,
   getOrderConfirmationTemplate,
   getAdminContactTemplate,
-  getUserContactAutoReplyTemplate
+  getUserContactAutoReplyTemplate,
+  getNewsletterWelcomeTemplate
 };

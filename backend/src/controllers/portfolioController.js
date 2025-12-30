@@ -1,4 +1,5 @@
 const logger = require('../utils/logger');
+const SystemSetting = require('../models/SystemSetting');
 
 // @desc    Get all projects
 // @route   GET /api/v1/portfolio/projects
@@ -494,6 +495,25 @@ const deleteSkill = async (req, res) => {
   }
 };
 
+// @desc    Get system settings (public)
+// @route   GET /api/v1/portfolio/settings
+// @access  Public
+const getSystemSettings = async (req, res) => {
+  try {
+    const settings = await SystemSetting.findOne();
+    res.status(200).json({
+      success: true,
+      data: settings
+    });
+  } catch (error) {
+    logger.error('Get system settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 module.exports = {
   getProjects,
   getProjectById,
@@ -512,5 +532,6 @@ module.exports = {
   deleteBlogPost,
   createSkill,
   updateSkill,
-  deleteSkill
+  deleteSkill,
+  getSystemSettings
 };

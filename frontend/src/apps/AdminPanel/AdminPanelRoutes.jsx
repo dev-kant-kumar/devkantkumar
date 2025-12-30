@@ -13,7 +13,9 @@ const ProjectDetail = React.lazy(() =>
 const SkillsManagement = React.lazy(() => import("./pages/SkillsManagement/SkillsManagement.jsx"));
 const BlogManagement = React.lazy(() => import("./pages/BlogManagement/BlogManagement.jsx"));
 const BlogPost = React.lazy(() => import("./pages/BlogManagement/BlogPost.jsx"));
+const Subscribers = React.lazy(() => import("./pages/Subscribers/Subscribers.jsx"));
 const Settings = React.lazy(() => import("./pages/Settings/Settings.jsx"));
+const Announcements = React.lazy(() => import("./pages/Announcements/Announcements.jsx"));
 
 // Marketplace Pages
 const MarketplaceOverview = React.lazy(() => import("./pages/Marketplace/Overview.jsx"));
@@ -52,6 +54,17 @@ const AdminPanelRoutes = () => {
 
           {/* Content Management - General content editing */}
           <Route path="content" element={<ContentManagement />} />
+
+          {/* Blog Management - CRUD operations for blog posts */}
+          <Route path="blog" element={<BlogManagement />} />
+          <Route path="blog/new" element={<BlogPost />} />
+          <Route path="blog/edit/:slug" element={<BlogPost />} />
+
+          {/* Subscribers Management */}
+          <Route path="subscribers" element={<Subscribers />} />
+
+          {/* Announcements Management */}
+          <Route path="announcements" element={<Announcements />} />
 
           {/* Projects Management - CRUD operations for projects */}
           <Route path="projects" element={<ProjectsManagement />} />

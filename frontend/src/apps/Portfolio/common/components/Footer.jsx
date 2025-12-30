@@ -26,8 +26,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSubscribeMutation } from "../../store/api/subscriberApiSlice";
 import { portfolioData } from "../../store/data/portfolioData";
-import { sendNewsletterNotificationToDiscord } from "../utils/Discords/sendEmail";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -36,9 +36,10 @@ const Footer = () => {
 
   // Newsletter form state
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const [subscribe, { isLoading: isSubmitting }] = useSubscribeMutation();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,24 +58,18 @@ const Footer = () => {
       setErrorMessage("Please enter a valid email address");
       return;
     }
-    setIsSubmitting(true);
+
     setSubmitStatus(null);
     setErrorMessage("");
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Send notification to Discord (non-blocking)
-      // We use .catch() so it doesn't affect user experience if Discord fails
-      sendNewsletterNotificationToDiscord(email).catch((err) =>
-        console.error("Discord notification failed:", err)
-      );
+      await subscribe(email).unwrap();
       setSubmitStatus("success");
       setEmail("");
       setTimeout(() => setSubmitStatus(null), 5000);
     } catch (error) {
       setSubmitStatus("error");
-      setErrorMessage("Failed to subscribe. Please try again later.");
-    } finally {
-      setIsSubmitting(false);
+      setErrorMessage(error?.data?.message || "Failed to subscribe. Please try again later.");
     }
   };
 

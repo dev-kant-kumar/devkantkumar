@@ -1,24 +1,24 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Camera,
-  Check,
-  Eye,
-  EyeOff,
-  Key,
-  Loader2,
-  Mail,
-  RefreshCw,
-  Save,
-  Shield,
-  User
+    Camera,
+    Check,
+    Eye,
+    EyeOff,
+    Key,
+    Loader2,
+    Mail,
+    RefreshCw,
+    Save,
+    Shield,
+    User
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-  useChangeAdminPasswordMutation,
-  useGetAdminProfileQuery,
-  useUpdateAdminProfileMutation,
-  useUploadAdminAvatarMutation
+    useChangeAdminPasswordMutation,
+    useGetAdminProfileQuery,
+    useUpdateAdminProfileMutation,
+    useUploadAdminAvatarMutation
 } from "../../store/api/adminApiSlice";
 
 const TabButton = ({ id, label, icon: Icon, activeTab, setActiveTab }) => (

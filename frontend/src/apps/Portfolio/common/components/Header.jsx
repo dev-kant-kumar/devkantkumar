@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import InstallPrompt from "../../../../components/PWA/InstallPrompt";
 import { portfolioData } from "../../store/data/portfolioData";
+import AnnouncementBanner from "./AnnouncementBanner";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,16 +46,18 @@ const Header = () => {
   };
 
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/20"
-          : "bg-transparent"
-      }`}
-    >
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <AnnouncementBanner />
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className={`w-full transition-all duration-500 ${
+          scrolled
+            ? "bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/20"
+            : "bg-transparent"
+        }`}
+      >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -262,6 +265,7 @@ const Header = () => {
         </AnimatePresence>
       </nav>
     </motion.header>
+    </div>
   );
 };
 

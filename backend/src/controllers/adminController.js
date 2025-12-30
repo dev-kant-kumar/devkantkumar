@@ -385,6 +385,9 @@ const updateSettings = async (req, res) => {
     if (settingsData.seo) {
         settings.seo = { ...settings.seo, ...settingsData.seo };
     }
+    if (settingsData.announcement) {
+        settings.announcement = { ...settings.announcement, ...settingsData.announcement };
+    }
 
     await settings.save();
 

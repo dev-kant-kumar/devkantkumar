@@ -276,13 +276,13 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // SETTINGS ENDPOINTS
     // ===================
     getGeneralSettings: builder.query({
-      query: () => API_ENDPOINTS.ADMIN.SETTINGS.GENERAL,
+      query: () => API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
       providesTags: ['Settings'],
     }),
 
     updateGeneralSettings: builder.mutation({
       query: (settingsData) => ({
-        url: API_ENDPOINTS.ADMIN.SETTINGS.GENERAL,
+        url: API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
         method: 'PUT',
         body: settingsData,
       }),
@@ -290,13 +290,13 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     getSeoSettings: builder.query({
-      query: () => API_ENDPOINTS.ADMIN.SETTINGS.SEO,
+      query: () => API_ENDPOINTS.ADMIN.SEO_SETTINGS,
       providesTags: ['Settings'],
     }),
 
     updateSeoSettings: builder.mutation({
       query: (seoData) => ({
-        url: API_ENDPOINTS.ADMIN.SETTINGS.SEO,
+        url: API_ENDPOINTS.ADMIN.SEO_SETTINGS,
         method: 'PUT',
         body: seoData,
       }),

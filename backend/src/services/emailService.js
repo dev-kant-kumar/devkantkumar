@@ -5,7 +5,8 @@ const {
   getPasswordResetTemplate,
   getOrderConfirmationTemplate,
   getAdminContactTemplate,
-  getUserContactAutoReplyTemplate
+  getUserContactAutoReplyTemplate,
+  getNewsletterWelcomeTemplate
 } = require('../utils/emailTemplates');
 
 class EmailService {
@@ -97,6 +98,21 @@ class EmailService {
       subject: 'Thank you for contacting us - DevKant Kumar',
       html: userHtml,
       type: 'contact-user-auto-reply'
+    });
+  }
+
+  /**
+   * Send welcome email to new newsletter subscriber
+   * @param {string} email
+   */
+  async sendNewsletterWelcomeEmail(email) {
+    const html = getNewsletterWelcomeTemplate({ email });
+
+    return addEmailToQueue({
+      to: email,
+      subject: 'Welcome to my Newsletter! 🚀',
+      html,
+      type: 'newsletter-welcome-email'
     });
   }
 }

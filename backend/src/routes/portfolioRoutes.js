@@ -15,6 +15,7 @@ router.get('/blog', portfolioController.getBlogPosts);
 router.get('/blog/:slug', portfolioController.getBlogPostBySlug);
 router.get('/testimonials', portfolioController.getTestimonials);
 router.post('/contact', portfolioController.submitContactForm);
+router.get('/settings', portfolioController.getSystemSettings);
 
 // Admin routes
 router.use(adminAuth);

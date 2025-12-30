@@ -36,6 +36,7 @@ const adminRoutes = require('./src/routes/adminRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const pdfRoutes = require('./src/routes/pdfRoutes');
 const cartRoutes = require('./src/routes/cartRoutes');
+const subscriberRoutes = require('./src/routes/subscriberRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -179,6 +180,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/pdf', pdfRoutes);
 app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/subscribers', subscriberRoutes);
 
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -93,6 +93,12 @@ export const portfolioApiSlice = baseApiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    // System settings
+    getSettings: builder.query({
+      query: () => "/portfolio/settings",
+      providesTags: ["Settings"],
+    }),
   }),
 
   // Override tags for portfolio-specific caching
@@ -109,4 +115,5 @@ export const {
   useSubmitContactFormMutation,
   useSubscribeNewsletterMutation,
   useTrackPageViewMutation,
+  useGetSettingsQuery,
 } = portfolioApiSlice;

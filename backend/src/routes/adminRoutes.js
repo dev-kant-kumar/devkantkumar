@@ -27,6 +27,10 @@ router.put('/orders/:id/status', adminController.updateOrderStatus);
 // System settings
 router.get('/settings', adminController.getSettings);
 router.put('/settings', adminController.updateSettings);
+router.get('/settings/general', adminController.getSettings);
+router.put('/settings/general', adminController.updateSettings);
+router.get('/settings/seo', adminController.getSettings);
+router.put('/settings/seo', adminController.updateSettings);
 
 // --- MARKETPLACE MANAGEMENT ---
 const adminMarketplaceController = require('../controllers/adminMarketplaceController');

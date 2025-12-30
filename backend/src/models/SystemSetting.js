@@ -35,6 +35,46 @@ const systemSettingSchema = new mongoose.Schema({
   seo: {
     metaTitle: String,
     metaDescription: String
+  },
+  announcement: {
+    campaignName: {
+      type: String,
+      default: 'General'
+    },
+    bannerText: {
+      type: String,
+      default: ''
+    },
+    bannerLink: {
+      type: String,
+      default: ''
+    },
+    isActive: {
+      type: Boolean,
+      default: false
+    },
+    backgroundColor: {
+      type: String,
+      default: '#3b82f6'
+    },
+    textColor: {
+      type: String,
+      default: '#ffffff'
+    },
+    startDate: Date,
+    endDate: Date,
+    targetPages: {
+      type: [String],
+      default: ['all']
+    },
+    priority: {
+      type: Number,
+      default: 0
+    },
+    isDismissible: {
+      type: Boolean,
+      default: true
+    }
   }
 }, {
   timestamps: true

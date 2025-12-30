@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import "highlight.js/styles/github-dark.css";
 import React from "react";
+import { toast } from "react-hot-toast";
 import { Link, useParams } from "react-router-dom";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
+import { useSubscribeMutation } from "../../store/api/subscriberApiSlice";
 import { portfolioData } from "../../store/data/portfolioData";
 import AdPlaceholder from "./components/AdPlaceholder";
 import GiscusComments from "./components/GiscusComments";
@@ -37,10 +39,8 @@ const BlogPost = () => {
 
   // Newsletter subscription state
   const [newsletterEmail, setNewsletterEmail] = React.useState("");
+  const [subscribe, { isLoading: isSubmittingNewsletter }] = useSubscribeMutation();
   const [newsletterSubmitted, setNewsletterSubmitted] = React.useState(false);
-  const [isSubmittingNewsletter, setIsSubmittingNewsletter] =
-    React.useState(false);
-
 
 
 
@@ -86,19 +86,17 @@ const BlogPost = () => {
     e.preventDefault();
     if (!newsletterEmail.trim()) return;
 
-    setIsSubmittingNewsletter(true);
-
     try {
-      // Simulate API call - replace with actual newsletter subscription API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await subscribe(newsletterEmail).unwrap();
+
       // Send notification to Discord (non-blocking)
-      // We use .catch() so it doesn't affect user experience if Discord fails
       sendNewsletterNotificationToDiscord(newsletterEmail).catch((err) =>
         console.error("Discord notification failed:", err)
       );
 
       setNewsletterSubmitted(true);
       setNewsletterEmail("");
+      toast.success("Successfully subscribed!");
 
       // Reset success message after 3 seconds
       setTimeout(() => {
@@ -106,8 +104,7 @@ const BlogPost = () => {
       }, 3000);
     } catch (error) {
       console.error("Newsletter subscription failed:", error);
-    } finally {
-      setIsSubmittingNewsletter(false);
+      toast.error(error?.data?.message || "Failed to subscribe. Please try again.");
     }
   };
 

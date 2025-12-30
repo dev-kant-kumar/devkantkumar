@@ -10,8 +10,9 @@ import checkoutReducer from '../apps/MarketPlace/store/checkout/checkoutSlice';
 import productsReducer from '../apps/MarketPlace/store/products/productsSlice';
 import servicesReducer from '../apps/MarketPlace/store/services/servicesSlice';
 import marketplaceUIReducer from '../apps/MarketPlace/store/ui/marketplaceUISlice';
-import regionReducer from './region/regionSlice';
+import { subscriberApiSlice } from "../apps/Portfolio/store/api/subscriberApiSlice";
 import portfolioUIReducer from "../apps/Portfolio/store/ui/portfolioUISlice";
+import regionReducer from './region/regionSlice';
 
 /**
  * Root Redux Store Configuration
@@ -25,6 +26,7 @@ export const store = configureStore({
   reducer: {
     // Base API slice for all RTK Query
     [baseApiSlice.reducerPath]: baseApiSlice.reducer,
+    [subscriberApiSlice.reducerPath]: subscriberApiSlice.reducer,
 
     // Global Slices
     region: regionReducer,
@@ -53,5 +55,5 @@ export const store = configureStore({
           "api/executeQuery/rejected",
         ],
       },
-    }).concat(baseApiSlice.middleware),
+    }).concat(baseApiSlice.middleware).concat(subscriberApiSlice.middleware),
 });
