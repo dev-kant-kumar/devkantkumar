@@ -1,21 +1,36 @@
 import {
     Activity,
+    Clock,
     DollarSign,
     Package,
     ShoppingBag,
-    Users
+    TrendingUp
 } from 'lucide-react';
-import { useGetMarketplaceStatsQuery } from '../../store/api/adminApiSlice';
-
 import {
-    ArrowDownRight,
-    ArrowUpRight,
-    Clock
-} from 'lucide-react';
+    Area,
+    AreaChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis
+} from 'recharts';
+import { useGetMarketplaceStatsQuery } from '../../store/api/adminApiSlice';
 
 const Overview = () => {
   const { data, isLoading } = useGetMarketplaceStatsQuery();
-  const stats = data?.stats || { products: 0, services: 0, orders: 0, revenue: 0 };
+  const stats = data?.stats || {
+    products: 0,
+    services: 0,
+    orders: 0,
+    revenue: 0,
+    revenueTimeline: [],
+    statusDistribution: []
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -38,7 +53,7 @@ const Overview = () => {
       description: 'Total earnings'
     },
     {
-      title: 'Active Orders',
+      title: 'Total Orders',
       value: stats.orders,
       icon: ShoppingBag,
       color: 'from-blue-500 to-indigo-600',
@@ -46,7 +61,7 @@ const Overview = () => {
       text: 'text-blue-600 dark:text-blue-400',
       trend: '+4.3%',
       trendUp: true,
-      description: 'Orders pending or processing'
+      description: 'All time orders'
     },
     {
       title: 'Products Listed',
@@ -62,7 +77,7 @@ const Overview = () => {
     {
       title: 'Active Services',
       value: stats.services,
-      icon: Users,
+      icon: Activity,
       color: 'from-orange-500 to-red-600',
       bgGlow: 'bg-orange-500/10',
       text: 'text-orange-600 dark:text-orange-400',
@@ -72,9 +87,24 @@ const Overview = () => {
     }
   ];
 
-  // Mock data for the CSS Chart
-  const revenueData = [40, 65, 45, 80, 55, 90, 70];
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // Prepare Pie Chart Data
+  const pieData = stats.statusDistribution?.map(item => ({
+    name: item._id.charAt(0).toUpperCase() + item._id.slice(1),
+    value: item.count
+  })) || [];
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+  // Prepare Area Chart Data (Timeline)
+  const areaData = stats.revenueTimeline || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -96,91 +126,127 @@ const Overview = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {isLoading ? (
-           [...Array(4)].map((_, i) => (
-               <div key={i} className="h-40 bg-gray-100 dark:bg-gray-800/50 rounded-2xl animate-pulse"></div>
-           ))
-        ) : (
-           statCards.map((stat, index) => (
-             <div
-               key={index}
-               className="group relative bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-500/30 dark:hover:border-blue-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-1"
-             >
-               <div className="flex justify-between items-start mb-4">
-                 <div className={`p-3 rounded-xl ${stat.bgGlow} transition-colors group-hover:bg-opacity-20`}>
-                   <stat.icon size={24} className={stat.text} />
-                 </div>
-                 <div className={`flex items-center text-xs font-semibold px-2 py-1 rounded-full ${stat.trendUp ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                   {stat.trendUp ? <ArrowUpRight size={14} className="mr-1" /> : <ArrowDownRight size={14} className="mr-1" />}
+        {statCards.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <div key={index} className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden">
+                <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform scale-150 -translate-y-2 translate-x-2 ${stat.text}`}>
+                    <Icon size={64} />
+                </div>
+              <div className="flex items-start justify-between relative z-10">
+                <div>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</h3>
+                </div>
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
+                  <Icon size={20} />
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-2 text-sm relative z-10">
+                <span className={`flex items-center gap-1 font-medium ${stat.text} bg-white/50 dark:bg-gray-800/50 px-2 py-0.5 rounded-full`}>
+                   <TrendingUp size={14} />
                    {stat.trend}
-                 </div>
-               </div>
-
-               <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">
-                 {stat.value}
-               </h3>
-               <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                 {stat.title}
-               </p>
-             </div>
-           ))
-        )}
+                </span>
+                <span className="text-gray-400 dark:text-gray-500 text-xs">{stat.description}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Analytics & Activity Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Revenue Chart (CSS Based) */}
-          <div className="lg:col-span-2 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 flex flex-col h-[400px]">
-              <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                      <Activity size={20} className="text-blue-500" />
-                      Revenue Analytics
-                  </h3>
-                  <select className="bg-transparent text-sm active:outline-none focus:outline-none text-gray-500 dark:text-gray-400 border-none cursor-pointer">
-                      <option>Last 7 Days</option>
-                      <option>Last 30 Days</option>
-                  </select>
-              </div>
+        {/* Revenue Trend Chart */}
+        <div className="lg:col-span-2 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Revenue Trend</h3>
+                <p className="text-sm text-gray-500">Income over the last 30 days</p>
+            </div>
+            <div className="h-[300px] w-full">
+                {areaData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={areaData}>
+                            <defs>
+                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                            <XAxis
+                                dataKey="_id"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{fontSize: 12, fill: '#6B7280'}}
+                                minTickGap={30}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{fontSize: 12, fill: '#6B7280'}}
+                                tickFormatter={(value) => `₹${value}`}
+                            />
+                            <Tooltip
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                formatter={(value) => [`₹${value}`, 'Revenue']}
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="revenue"
+                                stroke="#8884d8"
+                                strokeWidth={3}
+                                insertOpacity={1}
+                                fill="url(#colorRevenue)"
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                        <DollarSign size={48} className="mb-2 opacity-50" />
+                        <p>No revenue data available yet</p>
+                    </div>
+                )}
+            </div>
+        </div>
 
-              {/* CSS Bar Chart */}
-              <div className="flex-1 flex items-end justify-between gap-4 px-2 pb-2">
-                  {revenueData.map((height, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
-                          <div className="w-full relative h-[250px] bg-gray-100 dark:bg-gray-800/50 rounded-xl overflow-hidden">
-                              <div
-                                style={{ height: `${height}%` }}
-                                className="absolute bottom-0 w-full bg-gradient-to-t from-blue-600 to-purple-500 opacity-80 group-hover:opacity-100 transition-all duration-300 rounded-t-xl"
-                              />
-                          </div>
-                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{days[i]}</span>
-                      </div>
-                  ))}
-              </div>
-          </div>
+        {/* Order Status Distribution */}
+        <div className="lg:col-span-1 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+             <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Order Status</h3>
+                <p className="text-sm text-gray-500">Distribution by current status</p>
+            </div>
+            <div className="h-[300px] w-full">
+                {pieData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                paddingAngle={5}
+                                dataKey="value"
+                            >
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                            <Legend verticalAlign="bottom" height={36}/>
+                        </PieChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                        <ShoppingBag size={48} className="mb-2 opacity-50" />
+                        <p>No orders available yet</p>
+                    </div>
+                )}
+            </div>
+        </div>
 
-          {/* Quick Actions / Recent Activity Placeholder */}
-          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6">
-               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Recent Activity</h3>
-               <div className="space-y-6">
-                   {[1, 2, 3, 4].map((_, i) => (
-                       <div key={i} className="flex items-start gap-4 p-3 hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50">
-                           <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
-                               <ShoppingBag size={18} className="text-blue-600 dark:text-blue-400" />
-                           </div>
-                           <div>
-                               <p className="text-sm font-semibold text-gray-900 dark:text-white">New Order #102{i}</p>
-                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                   Placed by <span className="text-blue-500">Alex Morgan</span> • 2 mins ago
-                               </p>
-                           </div>
-                       </div>
-                   ))}
-               </div>
-               <button className="w-full mt-6 py-3 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-xl transition-colors">
-                   View All Orders
-               </button>
-          </div>
       </div>
     </div>
   );

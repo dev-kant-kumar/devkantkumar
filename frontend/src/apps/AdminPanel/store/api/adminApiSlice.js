@@ -55,13 +55,14 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ADMIN PROFILE ENDPOINTS
     // ===================
     getAdminProfile: builder.query({
-      query: () => API_ENDPOINTS.ADMIN.PROFILE.GET,
+      query: () => API_ENDPOINTS.ADMIN.PROFILE,
       providesTags: ['Admin', 'User'],
+      transformResponse: (response) => response.data,
     }),
 
     updateAdminProfile: builder.mutation({
       query: (profileData) => ({
-        url: API_ENDPOINTS.ADMIN.PROFILE.UPDATE,
+        url: API_ENDPOINTS.ADMIN.UPDATE_PROFILE,
         method: 'PUT',
         body: profileData,
       }),
@@ -70,7 +71,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     changeAdminPassword: builder.mutation({
       query: (passwordData) => ({
-        url: API_ENDPOINTS.ADMIN.PROFILE.CHANGE_PASSWORD,
+        url: API_ENDPOINTS.ADMIN.CHANGE_PASSWORD,
         method: 'POST',
         body: passwordData,
       }),
@@ -79,7 +80,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     uploadAdminAvatar: builder.mutation({
       query: (formData) => ({
-        url: API_ENDPOINTS.ADMIN.PROFILE.UPLOAD_AVATAR,
+        url: API_ENDPOINTS.ADMIN.UPLOAD_AVATAR,
         method: 'POST',
         body: formData,
         formData: true,

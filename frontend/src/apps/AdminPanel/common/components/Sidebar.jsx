@@ -68,7 +68,8 @@ const Sidebar = () => {
       <div className="p-4 mb-2">
         {!isCollapsed ? (
           <div className="flex bg-gray-100/50 dark:bg-gray-800/50 p-1 rounded-xl backdrop-blur-md">
-            <button
+            <Link
+              to="/admin"
               onClick={() => setActiveMode('portfolio')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-300 ${
                 activeMode === 'portfolio'
@@ -77,8 +78,9 @@ const Sidebar = () => {
               }`}
             >
               Portfolio
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/admin/marketplace"
               onClick={() => setActiveMode('marketplace')}
               className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-300 ${
                 activeMode === 'marketplace'
@@ -87,7 +89,7 @@ const Sidebar = () => {
               }`}
             >
               Market
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">

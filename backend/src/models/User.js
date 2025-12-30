@@ -142,6 +142,7 @@ const userSchema = new mongoose.Schema({
 
   profile: {
     bio: { type: String, maxlength: 500 },
+    title: { type: String, maxlength: 100 },
     website: String,
     location: String,
     company: String,

@@ -1,40 +1,40 @@
 import { motion } from "framer-motion";
 import {
-    Check,
-    ChevronRight,
-    Mail,
-    MapPin,
-    Phone,
-    Shield,
-    User,
+  Check,
+  ChevronRight,
+  Mail,
+  MapPin,
+  Phone,
+  Shield,
+  User,
 } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useGetCartQuery } from "../../../../store/cart/cartApi";
-import { selectCountryCode } from "../../../../store/region/regionSlice";
 import {
-    runValidation,
-    sanitize,
-    validate,
+  runValidation,
+  sanitize,
+  validate,
 } from "../../../../utils/formValidation";
 import { formatCurrency } from "../../../../utils/price";
 import {
-    resetCheckout,
-    selectCheckoutState,
-    setErrors,
-    setIsSubmitting,
-    setStep,
-    updateBillingInfo,
-} from "../../store/checkout/checkoutSlice";
-  updateBillingInfo,
-import {
-    selectCurrentUser,
-    selectIsAuthenticated,
-} from "../../store/auth/authSlice";
+  selectCurrentUser,
   selectIsAuthenticated,
 } from "../../store/auth/authSlice";
+import {
+  clearCart,
+  selectCartItems,
+  selectCartTotal
+} from "../../store/cart/cartSlice";
+import {
+  resetCheckout,
+  selectCheckoutState,
+  setErrors,
+  setIsSubmitting,
+  setStep,
+  updateBillingInfo,
+} from "../../store/checkout/checkoutSlice";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
@@ -53,6 +53,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const cartItems = useSelector(selectCartItems);
   const total = useSelector(selectCartTotal);
+  const currency = 'INR'; // Todo: Get from global settings
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectCurrentUser);
   const { step, billingInfo, errors, isSubmitting } =

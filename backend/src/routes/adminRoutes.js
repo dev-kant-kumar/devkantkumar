@@ -62,8 +62,10 @@ const uploadController = require('../controllers/uploadController');
 router.post('/upload/files', upload.array('files'), uploadController.uploadMultiple);
 router.post('/upload/image', upload.single('image'), uploadController.uploadImage);
 
-// Settings
-router.get('/settings', adminController.getSettings);
-router.put('/settings', adminController.updateSettings);
+// Profile
+router.get('/profile', adminController.getProfile);
+router.put('/profile', adminController.updateProfile);
+router.post('/change-password', adminController.changePassword);
+router.post('/upload-avatar', upload.single('avatar'), adminController.uploadAvatar);
 
 module.exports = router;

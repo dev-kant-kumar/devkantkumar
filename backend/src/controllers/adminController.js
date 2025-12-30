@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
 const logger = require('../utils/logger');
+const cloudinary = require('../services/cloudinaryService');
+const fs = require('fs');
 
 // @desc    Get admin dashboard data
 // @route   GET /api/v1/admin/dashboard
@@ -400,6 +402,147 @@ const updateSettings = async (req, res) => {
   }
 };
 
+// @desc    Get admin profile
+// @route   GET /api/v1/admin/profile
+// @access  Admin
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    logger.error('Get admin profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Update admin profile
+// @route   PUT /api/v1/admin/profile
+// @access  Admin
+const updateProfile = async (req, res) => {
+  try {
+    const { firstName, lastName, title, bio } = req.body;
+
+    // Build update object
+    const updateFields = {};
+    if (firstName) updateFields.firstName = firstName;
+    if (lastName) updateFields.lastName = lastName;
+
+    // Update nested profile fields
+    if (title !== undefined) updateFields['profile.title'] = title;
+    if (bio !== undefined) updateFields['profile.bio'] = bio;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.status(200).json({
+      success: true,
+      data: user,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    logger.error('Update admin profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Change admin password
+// @route   POST /api/v1/admin/change-password
+// @access  Admin
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user.id).select('+password');
+
+    // Check old password
+    const isMatch = await user.matchPassword(oldPassword);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid current password'
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+  } catch (error) {
+    logger.error('Change admin password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Upload admin avatar
+// @route   POST /api/v1/admin/upload-avatar
+// @access  Admin
+const uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image'
+      });
+    }
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'avatars',
+      width: 300,
+      crop: "scale"
+    });
+
+    // Delete local file
+    fs.unlinkSync(req.file.path);
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        avatar: {
+          public_id: result.public_id,
+          url: result.secure_url
+        }
+      },
+      { new: true }
+    ).select('-password');
+
+    res.status(200).json({
+      success: true,
+      data: user,
+      message: 'Avatar uploaded successfully'
+    });
+  } catch (error) {
+    logger.error('Upload admin avatar error:', error);
+    // Try to delete file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+       fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -411,5 +554,9 @@ module.exports = {
   getOrders,
   updateOrderStatus,
   getSettings,
-  updateSettings
+  updateSettings,
+  getProfile,
+  updateProfile,
+  changePassword,
+  uploadAvatar
 };

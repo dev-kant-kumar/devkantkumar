@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Bell, Home, LogOut, Settings, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { motion, AnimatePresence } from "framer-motion";
-import { Settings, LogOut, User, Bell, Home } from "lucide-react";
-import { logout, selectAdminUser } from "../../store/auth/adminAuthSlice";
+import { logout } from "../../store/auth/adminAuthSlice";
+
+import { useGetAdminProfileQuery } from "../../store/api/adminApiSlice";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const user = useSelector(selectAdminUser);
+  const { data: profile } = useGetAdminProfileQuery();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -120,9 +122,19 @@ const Header = () => {
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <User size={20} />
+                  {profile?.avatar?.url ? (
+                      <img
+                          src={profile.avatar.url}
+                          alt="Profile"
+                          className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                      />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm">
+                        {profile?.firstName ? profile.firstName[0].toUpperCase() : <User size={18} />}
+                    </div>
+                  )}
               </button>
 
               <AnimatePresence>
@@ -133,6 +145,16 @@ const Header = () => {
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
                   >
+                    {profile && (
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                {profile.firstName} {profile.lastName}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                {profile.email}
+                            </p>
+                        </div>
+                    )}
                     <Link
                       to="/admin/settings"
                       className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"

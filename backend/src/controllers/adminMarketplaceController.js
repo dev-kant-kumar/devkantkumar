@@ -531,13 +531,46 @@ exports.getStats = async (req, res) => {
 
     const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].totalRevenue : 0;
 
+    // Revenue Timeline (Last 30 Days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const revenueTimeline = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: { $in: ['confirmed', 'completed'] }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          revenue: { $sum: "$payment.amount.subtotal" },
+          orders: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Order Status Distribution
+    const statusDistribution = await Order.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
     res.json({
       success: true,
       stats: {
         products: totalProducts,
         services: totalServices,
         orders: totalOrders,
-        revenue: totalRevenue
+        revenue: totalRevenue,
+        revenueTimeline,
+        statusDistribution
       }
     });
   } catch (error) {

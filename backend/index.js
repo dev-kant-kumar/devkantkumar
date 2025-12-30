@@ -180,6 +180,9 @@ app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/pdf', pdfRoutes);
 app.use('/api/v1/cart', cartRoutes);
 
+// Serve uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('public'));
