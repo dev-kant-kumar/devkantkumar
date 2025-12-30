@@ -1,10 +1,11 @@
+
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
-import { useLoginMutation } from '../../../../store/auth/authApi';
+import { useLoginMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
 import { setCredentials } from '../../../../store/auth/authSlice';
 
 const SignIn = () => {
@@ -20,6 +21,8 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [login, { isLoading }] = useLoginMutation();
+  const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
+  const [verificationSent, setVerificationSent] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,6 +33,10 @@ const SignIn = () => {
     // Clear error on change
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
+    }
+    // Clear form error when user types
+    if (errors.form) {
+      setErrors(prev => ({ ...prev, form: null }));
     }
   };
 
@@ -42,6 +49,16 @@ const SignIn = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      await resendVerification({ email: formData.email }).unwrap();
+      setVerificationSent(true);
+      setErrors(prev => ({ ...prev, form: 'Verification email sent! Please check your inbox.' }));
+    } catch (err) {
+      setErrors(prev => ({ ...prev, form: err?.data?.message || 'Failed to send verification email' }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -58,7 +75,11 @@ const SignIn = () => {
         const from = location.state?.from || '/marketplace/dashboard';
         navigate(from, { replace: true });
       } catch (err) {
-        setErrors(prev => ({ ...prev, form: err?.data?.message || 'Login failed' }));
+        const errorMessage = err?.data?.message || 'Login failed';
+        setErrors(prev => ({ ...prev, form: errorMessage }));
+
+        // Reset verification sent state on new attempt
+        setVerificationSent(false);
       }
     }
   };
@@ -86,10 +107,19 @@ const SignIn = () => {
 
         {errors.form && (
           <div className="rounded-md bg-red-50 p-4 mb-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">{errors.form}</h3>
-              </div>
+            <div className="flex flex-col ml-3 w-full">
+              <h3 className={`text-sm font-medium ${verificationSent ? 'text-green-800' : 'text-red-800'}`}>{errors.form}</h3>
+
+              {!verificationSent && errors.form && errors.form.toLowerCase().includes('verify') && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isResending}
+                  className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-500 text-left focus:outline-none"
+                >
+                  {isResending ? 'Sending...' : 'Resend Verification Email'}
+                </button>
+              )}
             </div>
           </div>
         )}

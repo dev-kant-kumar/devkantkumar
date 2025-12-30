@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useRefreshTokenMutation } from '../../store/auth/authApi';
-import { selectCurrentToken, setCredentials } from '../../store/auth/authSlice';
+import { logout, selectCurrentToken, setCredentials } from '../../store/auth/authSlice';
 
 const PersistLogin = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -12,27 +12,49 @@ const PersistLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [trueSuccess, setTrueSuccess] = useState(false);
+
   useEffect(() => {
+    let isMounted = true;
+
     const verifyRefreshToken = async () => {
       try {
         const response = await refreshToken().unwrap();
-        dispatch(setCredentials({ ...response, token: response.token }));
+        if (isMounted) {
+          dispatch(setCredentials({ ...response, token: response.token }));
+          setTrueSuccess(true);
+        }
       } catch (err) {
-        console.error('Failed to refresh token:', err);
-        // If refresh fails, we are not logged in.
-        // We don't necessarily need to redirect here if this wraps public routes too,
-        // but for protected routes, the DashboardLayout will handle the redirect.
+        // Only log errors if it's not a generic 401 (meaning just not logged in)
+        // or effectively treat 401 as "Guest User"
+        if (err?.status !== 401) {
+          console.error('Failed to refresh token:', err);
+        }
+
+        // If refresh fails, clear auth state
+        dispatch(logout());
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
+    // If we have no token, try to get one
     if (!token) {
       verifyRefreshToken();
     } else {
       setIsLoading(false);
     }
-  }, [token, refreshToken, dispatch]);
+
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
+
 
   if (isLoading) {
     return (

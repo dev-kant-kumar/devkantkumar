@@ -337,26 +337,15 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const SystemSetting = require('../models/SystemSetting');
+// ... other imports ...
+
 // @desc    Get system settings
 // @route   GET /api/v1/admin/settings
 // @access  Admin
 const getSettings = async (req, res) => {
   try {
-    // Mock settings data for now
-    const settings = {
-      siteName: "DevKant Kumar Portfolio",
-      siteDescription: "Full Stack Developer Portfolio",
-      contactEmail: "contact@devkantkumar.com",
-      socialLinks: {
-        github: "https://github.com/devkantkumar",
-        linkedin: "https://linkedin.com/in/devkantkumar",
-        twitter: "https://twitter.com/devkantkumar"
-      },
-      seoSettings: {
-        metaTitle: "DevKant Kumar - Full Stack Developer",
-        metaDescription: "Professional full stack developer specializing in modern web technologies"
-      }
-    };
+    const settings = await SystemSetting.getSettings();
 
     res.status(200).json({
       success: true,
@@ -378,11 +367,24 @@ const updateSettings = async (req, res) => {
   try {
     const settingsData = req.body;
 
-    // Mock response for now
-    const settings = {
-      ...settingsData,
-      updatedAt: new Date()
-    };
+    // Get existing settings document
+    let settings = await SystemSetting.getSettings();
+
+    // Update fields deep merge or specific fields
+    // For Mongoose updates, we can use findOneAndUpdate or assigning fields
+    // Assuming settingsData matches schema structure
+
+    if (settingsData.marketplace) {
+        settings.marketplace = { ...settings.marketplace, ...settingsData.marketplace };
+    }
+    if (settingsData.general) {
+        settings.general = { ...settings.general, ...settingsData.general };
+    }
+    if (settingsData.seo) {
+        settings.seo = { ...settings.seo, ...settingsData.seo };
+    }
+
+    await settings.save();
 
     res.status(200).json({
       success: true,

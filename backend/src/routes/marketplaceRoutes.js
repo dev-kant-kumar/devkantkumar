@@ -15,12 +15,13 @@ router.get('/search', marketplaceController.search);
 // Protected routes
 router.use(protect);
 
-// Cart routes
-router.get('/cart', marketplaceController.getCart);
-router.post('/cart/add', marketplaceController.addToCart);
-router.put('/cart/update', marketplaceController.updateCartItem);
-router.delete('/cart/remove/:itemId', marketplaceController.removeFromCart);
-router.delete('/cart/clear', marketplaceController.clearCart);
+// Cart routes - DEPRECATED: Use /api/v1/cart via cartRoutes instead
+// These are kept for backward compatibility if needed, but should be phased out
+// router.get('/cart', marketplaceController.getCart);
+// router.post('/cart/add', marketplaceController.addToCart);
+// router.put('/cart/update', marketplaceController.updateCartItem);
+// router.delete('/cart/remove/:itemId', marketplaceController.removeFromCart);
+// router.delete('/cart/clear', marketplaceController.clearCart);
 
 // Order routes
 router.post('/orders', marketplaceController.createOrder);

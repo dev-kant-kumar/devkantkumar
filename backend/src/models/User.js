@@ -2,7 +2,76 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// ==========================================
+// Sub-Schemas
+// ==========================================
+
+const SocialLinksSchema = new mongoose.Schema({
+  linkedin: { type: String, trim: true },
+  github: { type: String, trim: true },
+  twitter: { type: String, trim: true },
+  instagram: { type: String, trim: true }
+}, { _id: false });
+
+const AddressSchema = new mongoose.Schema({
+  street: { type: String, trim: true, required: true },
+  city: { type: String, trim: true, required: true },
+  state: { type: String, trim: true, required: true },
+  zipCode: { type: String, trim: true, required: true },
+  country: { type: String, trim: true, required: true },
+  isDefault: { type: Boolean, default: false },
+  addressType: {
+    type: String,
+    enum: ['shipping', 'billing'],
+    default: 'shipping'
+  }
+});
+
+const CartItemSchema = new mongoose.Schema({
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  },
+  service: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Service'
+  },
+  type: {
+    type: String,
+    enum: ['product', 'service'],
+    default: 'product',
+    required: true
+  },
+  packageName: {
+    type: String,
+    trim: true
+  },
+  quantity: {
+    type: Number,
+    min: 1,
+    default: 1
+  }
+});
+
+const PreferencesSchema = new mongoose.Schema({
+  newsletter: { type: Boolean, default: true },
+  notifications: {
+    email: { type: Boolean, default: true },
+    push: { type: Boolean, default: true }
+  },
+  theme: {
+    type: String,
+    enum: ['light', 'dark', 'auto'],
+    default: 'auto'
+  }
+}, { _id: false });
+
+// ==========================================
+// Main User Schema
+// ==========================================
+
 const userSchema = new mongoose.Schema({
+  // --- Identity ---
   firstName: {
     type: String,
     required: [true, 'First name is required'],
@@ -26,106 +95,90 @@ const userSchema = new mongoose.Schema({
       'Please enter a valid email'
     ]
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+    index: true
+  },
+  avatar: {
+    public_id: String,
+    url: String
+  },
+
+  // --- Authentication & Security ---
   password: {
     type: String,
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
   },
-  gender: {
-    type: String,
-    enum: ['Male', 'Female', 'Other', 'Prefer not to say']
-  },
-  dateOfBirth: Date,
-  avatar: {
-    public_id: String,
-    url: String
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
-  },
+  passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+
   isEmailVerified: {
     type: Boolean,
     default: false
   },
   emailVerificationToken: String,
   emailVerificationExpires: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  loginAttempts: {
-    type: Number,
-    default: 0
-  },
+
+  loginAttempts: { type: Number, default: 0 },
   lockUntil: Date,
   lastLogin: Date,
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
+    index: true
   },
-  preferences: {
-    newsletter: {
-      type: Boolean,
-      default: true
-    },
-    notifications: {
-      email: {
-        type: Boolean,
-        default: true
-      },
-      push: {
-        type: Boolean,
-        default: true
-      }
-    },
-    theme: {
-      type: String,
-      enum: ['light', 'dark', 'auto'],
-      default: 'auto'
-    }
+
+  // --- Profile Details ---
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other', 'Prefer not to say']
   },
+  dateOfBirth: Date,
+
   profile: {
-    bio: String,
+    bio: { type: String, maxlength: 500 },
     website: String,
     location: String,
     company: String,
     phone: String,
-    socialLinks: {
-      linkedin: String,
-      github: String,
-      twitter: String,
-      instagram: String
-    }
+    socialLinks: { type: SocialLinksSchema, default: {} }
   },
-  // Marketplace specific fields
+
+  preferences: {
+    type: PreferencesSchema,
+    default: () => ({})
+  },
+
+  // --- Marketplace: Customer ---
+  addresses: [AddressSchema],
+
+  cart: {
+    items: [CartItemSchema],
+    updatedAt: { type: Date, default: Date.now }
+  },
+
+  // --- Marketplace: Activity Stats ---
   marketplace: {
-    totalOrders: {
-      type: Number,
-      default: 0
-    },
-    totalSpent: {
-      type: Number,
-      default: 0
-    },
-    favoriteProducts: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product'
-    }],
-    favoriteServices: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Service'
-    }],
-    reviews: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Review'
-    }]
+    totalOrders: { type: Number, default: 0 },
+    totalSpent: { type: Number, default: 0 },
+    favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    favoriteServices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }],
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }]
   }
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
+
+// ==========================================
+// Virtuals & Indexes
+// ==========================================
 
 // Virtual for full name
 userSchema.virtual('fullName').get(function() {
@@ -137,10 +190,12 @@ userSchema.virtual('isLocked').get(function() {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// Index for better performance
-userSchema.index({ role: 1 });
-userSchema.index({ isActive: 1 });
+// Compound Indexes if needed
 userSchema.index({ createdAt: -1 });
+
+// ==========================================
+// Middleware
+// ==========================================
 
 // Pre-save middleware to hash password
 userSchema.pre('save', async function(next) {
@@ -154,6 +209,10 @@ userSchema.pre('save', async function(next) {
     next(error);
   }
 });
+
+// ==========================================
+// Methods
+// ==========================================
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
@@ -179,7 +238,7 @@ userSchema.methods.generateRefreshToken = function() {
   return jwt.sign(
     { id: this._id },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d' }
+    { expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d' } // Default to 30d if env not set
   );
 };
 

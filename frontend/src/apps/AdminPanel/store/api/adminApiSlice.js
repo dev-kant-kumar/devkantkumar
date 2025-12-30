@@ -1,5 +1,5 @@
-import { baseApiSlice } from "../../../../store/api/baseApiSlice";
 import { API_ENDPOINTS } from "../../../../config/api";
+import { baseApiSlice } from "../../../../store/api/baseApiSlice";
 
 /**
  * Admin Panel API Slice
@@ -85,6 +85,19 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         formData: true,
       }),
       invalidatesTags: ['Admin', 'User'],
+    }),
+
+    // ===================
+    // UPLOAD ENDPOINTS
+    // ===================
+    // Removed duplicate uploadImage here. Using the one defined later.
+
+    uploadFiles: builder.mutation({
+      query: (formData) => ({
+        url: '/upload/multiple',
+        method: 'POST',
+        body: formData,
+      }),
     }),
 
     // ===================
@@ -211,9 +224,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     // FILE UPLOAD ENDPOINTS
     // ===================
+    // ===================
+    // FILE UPLOAD ENDPOINTS
+    // ===================
     uploadImage: builder.mutation({
       query: (formData) => ({
-        url: API_ENDPOINTS.UPLOAD.IMAGE,
+        url: '/upload/image',
         method: 'POST',
         body: formData,
         formData: true,
@@ -285,6 +301,127 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Settings'],
     }),
+    // ===================
+    // MARKETPLACE ENDPOINTS
+    // ===================
+
+    // Products
+    getAdminProducts: builder.query({
+      query: (params) => ({
+        url: API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS,
+        params,
+      }),
+      providesTags: ['Product'],
+    }),
+
+    getAdminProductById: builder.query({
+      query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS}/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Product', id }],
+    }),
+
+    createProduct: builder.mutation({
+      query: (productData) => ({
+        url: API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS,
+        method: 'POST',
+        body: productData,
+      }),
+      invalidatesTags: ['Product'],
+    }),
+
+    updateProduct: builder.mutation({
+      query: ({ id, ...productData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS}/${id}`,
+        method: 'PUT',
+        body: productData,
+      }),
+      invalidatesTags: ['Product'],
+    }),
+
+    deleteProduct: builder.mutation({
+      query: (id) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS}/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Product'],
+    }),
+
+    // Services
+    getAdminServices: builder.query({
+      query: (params) => ({
+        url: API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES,
+        params,
+      }),
+      providesTags: ['Service'],
+    }),
+
+    getAdminServiceById: builder.query({
+      query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES}/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Service', id }],
+    }),
+
+    createService: builder.mutation({
+      query: (serviceData) => ({
+        url: API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES,
+        method: 'POST',
+        body: serviceData,
+      }),
+      invalidatesTags: ['Service'],
+    }),
+
+    updateService: builder.mutation({
+      query: ({ id, ...serviceData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES}/${id}`,
+        method: 'PUT',
+        body: serviceData,
+      }),
+      invalidatesTags: ['Service'],
+    }),
+
+    deleteService: builder.mutation({
+      query: (id) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES}/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Service'],
+    }),
+
+    // Orders
+    getAdminOrders: builder.query({
+      query: (params) => ({
+        url: API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS,
+        params,
+      }),
+      providesTags: ['Order'],
+    }),
+
+    updateAdminOrderStatus: builder.mutation({
+      query: ({ id, ...statusData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}`,
+        method: 'PUT',
+        body: statusData,
+      }),
+      invalidatesTags: ['Order'],
+    }),
+
+    getMarketplaceStats: builder.query({
+      query: () => '/admin/marketplace/stats',
+      providesTags: ['Order', 'Product', 'Service'],
+    }),
+
+    // Customers
+    getCustomers: builder.query({
+      query: (params) => ({
+        url: '/admin/customers',
+        params,
+      }),
+      providesTags: ['Customer'],
+    }),
+
+    getCustomerById: builder.query({
+      query: (id) => `/admin/customers/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Customer', id }],
+    }),
+
   }),
 });
 
@@ -327,6 +464,7 @@ export const {
 
   // File Upload
   useUploadImageMutation,
+  useUploadFilesMutation,
   useUploadProjectImageMutation,
 
   // Messages
@@ -339,4 +477,21 @@ export const {
   useUpdateGeneralSettingsMutation,
   useGetSeoSettingsQuery,
   useUpdateSeoSettingsMutation,
+
+  // Marketplace
+  useGetAdminProductsQuery,
+  useGetAdminProductByIdQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  useGetAdminServicesQuery,
+  useGetAdminServiceByIdQuery,
+  useCreateServiceMutation,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
+  useGetAdminOrdersQuery,
+  useUpdateAdminOrderStatusMutation,
+  useGetMarketplaceStatsQuery,
+  useGetCustomersQuery,
+  useGetCustomerByIdQuery,
 } = adminApiSlice;

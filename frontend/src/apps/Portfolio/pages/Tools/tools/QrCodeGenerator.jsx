@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../../../../../components/SEO/SEOHead';
+import StructuredData from '../../../../../components/SEO/StructuredData';
 
 const QrCodeGenerator = () => {
   const [text, setText] = useState('https://www.devkantkumar.com');

@@ -2,6 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 const { protect } = require('../middlewares/auth');
+const { loginLimiter, registerLimiter, forgotPasswordLimiter } = require('../middlewares/rateLimiter');
 
 const router = express.Router();
 
@@ -19,13 +20,14 @@ const loginValidation = [
 ];
 
 // Routes
-router.post('/register', registerValidation, authController.register);
-router.post('/login', loginValidation, authController.login);
+router.post('/register', registerLimiter, registerValidation, authController.register);
+router.post('/login', loginLimiter, loginValidation, authController.login);
 router.post('/logout', authController.logout);
 router.post('/refresh-token', authController.refreshToken);
-router.post('/forgot-password', authController.forgotPassword);
+router.post('/forgot-password', forgotPasswordLimiter, authController.forgotPassword);
 router.put('/reset-password/:token', authController.resetPassword);
 router.get('/verify-email/:token', authController.verifyEmail);
+router.post('/resend-verification', authController.resendVerification);
 
 // Protected routes
 router.get('/me', protect, authController.getMe);

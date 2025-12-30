@@ -28,4 +28,42 @@ router.put('/orders/:id/status', adminController.updateOrderStatus);
 router.get('/settings', adminController.getSettings);
 router.put('/settings', adminController.updateSettings);
 
+// --- MARKETPLACE MANAGEMENT ---
+const adminMarketplaceController = require('../controllers/adminMarketplaceController');
+
+// Products
+// Products
+router.get('/products', adminMarketplaceController.getAllProducts);
+router.get('/products/:id', adminMarketplaceController.getProductById);
+router.post('/products', adminMarketplaceController.createProduct);
+router.put('/products/:id', adminMarketplaceController.updateProduct);
+router.delete('/products/:id', adminMarketplaceController.deleteProduct);
+
+// Services
+router.get('/services', adminMarketplaceController.getAdminServices);
+router.get('/services/:id', adminMarketplaceController.getAdminServiceById);
+router.post('/services', adminMarketplaceController.createService);
+router.put('/services/:id', adminMarketplaceController.updateService);
+router.delete('/services/:id', adminMarketplaceController.deleteService);
+
+// Marketplace Orders
+router.get('/marketplace/orders', adminMarketplaceController.getAllOrders);
+router.put('/marketplace/orders/:id', adminMarketplaceController.updateAdminOrderStatus);
+router.get('/marketplace/stats', adminMarketplaceController.getStats);
+
+// Customers
+router.get('/customers', adminMarketplaceController.getCustomers);
+router.get('/customers/:id', adminMarketplaceController.getCustomerById);
+
+const upload = require('../middlewares/upload');
+const uploadController = require('../controllers/uploadController');
+
+// Uploads
+router.post('/upload/files', upload.array('files'), uploadController.uploadMultiple);
+router.post('/upload/image', upload.single('image'), uploadController.uploadImage);
+
+// Settings
+router.get('/settings', adminController.getSettings);
+router.put('/settings', adminController.updateSettings);
+
 module.exports = router;

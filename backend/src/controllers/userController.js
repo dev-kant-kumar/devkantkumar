@@ -245,6 +245,148 @@ const updateUserStatus = async (req, res) => {
   }
 };
 
+// @desc    Delete self (Close account)
+// @route   DELETE /api/v1/users/me
+// @access  Private
+const deleteMe = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Soft delete - set active to false
+    const user = await User.findByIdAndUpdate(userId, { isActive: false });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Account closed successfully' });
+  } catch (error) {
+    logger.error('Delete self error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Add address
+const addAddress = async (req, res) => {
+  try {
+    const { street, city, state, zipCode, country, isDefault, addressType } = req.body;
+
+    // Basic validation
+    if (!street || !city || !state || !zipCode || !country) {
+      return res.status(400).json({ message: 'Please fill in all address fields' });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    const newAddress = {
+      street,
+      city,
+      state,
+      zipCode,
+      country,
+      isDefault: isDefault || false,
+      addressType: addressType || 'shipping'
+    };
+
+    // If setting as default, unset other defaults of same type
+    if (newAddress.isDefault) {
+      user.addresses.forEach(addr => {
+        if (addr.addressType === newAddress.addressType) {
+          addr.isDefault = false;
+        }
+      });
+    }
+
+    // If this is the first address, make it default automatically
+    if (user.addresses.length === 0) {
+      newAddress.isDefault = true;
+    }
+
+    user.addresses.push(newAddress);
+    await user.save();
+
+    res.json({
+      message: 'Address added successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    logger.error('Add address error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Update address
+const updateAddress = async (req, res) => {
+  try {
+    const { addressId } = req.params;
+    const { street, city, state, zipCode, country, isDefault, addressType } = req.body;
+
+    const user = await User.findById(req.user.id);
+    const address = user.addresses.id(addressId);
+
+    if (!address) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+
+    // Update fields if provided
+    if (street) address.street = street;
+    if (city) address.city = city;
+    if (state) address.state = state;
+    if (zipCode) address.zipCode = zipCode;
+    if (country) address.country = country;
+    if (addressType) address.addressType = addressType;
+
+    // Handle default status change
+    if (isDefault !== undefined && isDefault === true) {
+      // Unset other defaults of same type
+      user.addresses.forEach(addr => {
+        if (addr._id.toString() !== addressId && addr.addressType === address.addressType) {
+          addr.isDefault = false;
+        }
+      });
+      address.isDefault = true;
+    }
+
+    await user.save();
+
+    res.json({
+      message: 'Address updated successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    logger.error('Update address error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Delete address
+const deleteAddress = async (req, res) => {
+  try {
+    const { addressId } = req.params;
+
+    const user = await User.findById(req.user.id);
+
+    // Filter out the address to delete
+    // Note: mongoose pull is safer than filter for subdocs usually, but filter works too
+    const addressIndex = user.addresses.findIndex(addr => addr._id.toString() === addressId);
+
+    if (addressIndex === -1) {
+      return res.status(404).json({ message: 'Address not found' });
+    }
+
+    user.addresses.splice(addressIndex, 1);
+    await user.save();
+
+    res.json({
+      message: 'Address deleted successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    logger.error('Delete address error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Admin: Delete user
 const deleteUser = async (req, res) => {
   try {
@@ -273,5 +415,9 @@ module.exports = {
   removeFromFavorites,
   getAllUsers,
   updateUserStatus,
-  deleteUser
+  deleteUser,
+  deleteMe,
+  addAddress,
+  updateAddress,
+  deleteAddress
 };

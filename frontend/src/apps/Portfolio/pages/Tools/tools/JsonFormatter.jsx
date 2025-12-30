@@ -16,6 +16,7 @@ import {
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../../../../../components/SEO/SEOHead';
+import StructuredData from '../../../../../components/SEO/StructuredData';
 
 const JsonFormatter = () => {
   const [input, setInput] = useState('');

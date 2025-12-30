@@ -4,11 +4,14 @@ import { Link } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
 
+import { useForgotPasswordMutation } from '../../../../store/auth/authApi';
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
+
+  const [forgotPassword, { isLoading: isSubmitting }] = useForgotPasswordMutation();
 
   const handleChange = (e) => {
     setEmail(e.target.value);
@@ -28,12 +31,12 @@ const ForgotPassword = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await forgotPassword({ email }).unwrap();
       setIsSent(true);
-    }, 1500);
+    } catch (err) {
+      setError(err?.data?.message || 'Failed to send reset email. Please try again.');
+    }
   };
 
   if (isSent) {

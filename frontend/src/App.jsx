@@ -17,9 +17,18 @@ const NotFound = React.lazy(() => import("./Pages/NotFound"));
 import Loader from "./shared/components/Loader";
 
 import Analytics from "./components/SEO/Analytics";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { fetchUserLocation } from "./store/region/regionSlice";
 
 // Add Toaster globally
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchUserLocation());
+  }, [dispatch]);
+
   return (
     <div>
       <BrowserRouter>

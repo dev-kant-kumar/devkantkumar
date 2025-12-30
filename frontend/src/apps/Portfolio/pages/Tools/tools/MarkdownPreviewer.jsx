@@ -17,6 +17,7 @@ import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import SEOHead from '../../../../../components/SEO/SEOHead';
+import StructuredData from '../../../../../components/SEO/StructuredData';
 
 const initialMarkdown = `# Welcome to Markdown Previewer!
 

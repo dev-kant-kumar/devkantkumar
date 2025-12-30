@@ -1,32 +1,51 @@
-import { motion } from 'framer-motion';
-import { Check, ChevronRight, Mail, MapPin, Phone, Shield, User } from 'lucide-react';
-import { useEffect } from 'react';
-import { toast } from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { runValidation, sanitize, validate } from '../../../../utils/formValidation';
-import { clearCart, selectCartItems, selectCartTotal } from '../../store/cart/cartSlice';
+import { motion } from "framer-motion";
 import {
-  resetCheckout,
-  selectCheckoutState,
-  setErrors,
-  setIsSubmitting,
-  setStep,
-  updateBillingInfo
-} from '../../store/checkout/checkoutSlice';
+    Check,
+    ChevronRight,
+    Mail,
+    MapPin,
+    Phone,
+    Shield,
+    User,
+} from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useGetCartQuery } from "../../../../store/cart/cartApi";
+import { selectCountryCode } from "../../../../store/region/regionSlice";
+import {
+    runValidation,
+    sanitize,
+    validate,
+} from "../../../../utils/formValidation";
+import { formatCurrency } from "../../../../utils/price";
+import {
+    resetCheckout,
+    selectCheckoutState,
+    setErrors,
+    setIsSubmitting,
+    setStep,
+    updateBillingInfo,
+} from "../../store/checkout/checkoutSlice";
+  updateBillingInfo,
+import {
+    selectCurrentUser,
+    selectIsAuthenticated,
+} from "../../store/auth/authSlice";
+  selectIsAuthenticated,
+} from "../../store/auth/authSlice";
 
-import { selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.onload = () => resolve(true);
-        script.onerror = () => resolve(false);
-        document.body.appendChild(script);
-    });
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 };
 
 const Checkout = () => {
@@ -36,24 +55,27 @@ const Checkout = () => {
   const total = useSelector(selectCartTotal);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectCurrentUser);
-  const { step, billingInfo, errors, isSubmitting } = useSelector(selectCheckoutState);
+  const { step, billingInfo, errors, isSubmitting } =
+    useSelector(selectCheckoutState);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/marketplace/auth/signin', { state: { from: '/marketplace/checkout' } });
+      navigate("/marketplace/auth/signin", {
+        state: { from: "/marketplace/checkout" },
+      });
       return;
     }
 
     if (cartItems.length === 0 && step !== 3) {
-      navigate('/marketplace/cart');
+      navigate("/marketplace/cart");
     }
   }, [cartItems, navigate, step, isAuthenticated]);
 
   const handleBillingChange = (e) => {
     const { name, value } = e.target;
     let sanitizedValue = value;
-    if (name === 'email') sanitizedValue = sanitize.email(value);
-    if (name === 'phone') sanitizedValue = sanitize.phone(value);
+    if (name === "email") sanitizedValue = sanitize.email(value);
+    if (name === "phone") sanitizedValue = sanitize.phone(value);
 
     dispatch(updateBillingInfo({ [name]: sanitizedValue }));
 
@@ -65,22 +87,25 @@ const Checkout = () => {
   const validateBilling = () => {
     const newErrors = {};
 
-    newErrors.firstName = validate.required(billingInfo.firstName, 'First Name');
-    newErrors.lastName = validate.required(billingInfo.lastName, 'Last Name');
+    newErrors.firstName = validate.required(
+      billingInfo.firstName,
+      "First Name"
+    );
+    newErrors.lastName = validate.required(billingInfo.lastName, "Last Name");
     newErrors.email = runValidation(billingInfo.email, [
-      (v) => validate.required(v, 'Email'),
-      validate.email
+      (v) => validate.required(v, "Email"),
+      validate.email,
     ]);
     newErrors.phone = runValidation(billingInfo.phone, [
-      (v) => validate.required(v, 'Phone'),
-      validate.phone
+      (v) => validate.required(v, "Phone"),
+      validate.phone,
     ]);
-    newErrors.address = validate.required(billingInfo.address, 'Address');
-    newErrors.city = validate.required(billingInfo.city, 'City');
-    newErrors.state = validate.required(billingInfo.state, 'State');
+    newErrors.address = validate.required(billingInfo.address, "Address");
+    newErrors.city = validate.required(billingInfo.city, "City");
+    newErrors.state = validate.required(billingInfo.state, "State");
     newErrors.zipCode = runValidation(billingInfo.zipCode, [
-      (v) => validate.required(v, 'ZIP Code'),
-      validate.zipCode
+      (v) => validate.required(v, "ZIP Code"),
+      validate.zipCode,
     ]);
 
     const activeErrors = Object.fromEntries(
@@ -108,101 +133,109 @@ const Checkout = () => {
     const res = await loadRazorpayScript();
 
     if (!res) {
-        toast.error('Razorpay SDK failed to load. Are you online?');
-        dispatch(setIsSubmitting(false));
-        return;
+      toast.error("Razorpay SDK failed to load. Are you online?");
+      dispatch(setIsSubmitting(false));
+      return;
     }
 
     // 1. Create Order on Backend
     try {
-        const orderRes = await fetch(`${API_URL}/marketplace/payment/create-order`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-                amount: total,
-                currency: 'INR', // Explicitly INR for Test Mode
-                items: cartItems.map(item => ({
-                  itemType: item.type,
-                  product: item.type === 'product' ? item.id : undefined,
-                  service: item.type === 'service' ? item.id : undefined,
-                  itemId: item.id, // Fallback
-                  title: item.title,
-                  price: item.price,
-                  quantity: item.quantity
-                })),
-                shippingAddress: billingInfo
-            })
-        });
-
-        const orderData = await orderRes.json();
-
-        if (!orderRes.ok) {
-            throw new Error(orderData.details || orderData.message || 'Server error creating order');
+      const orderRes = await fetch(
+        `${API_URL}/marketplace/payment/create-order`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            amount: total,
+            currency: currency,
+            items: cartItems.map((item) => ({
+              itemType: item.type,
+              product: item.type === "product" ? item.id : undefined,
+              service: item.type === "service" ? item.id : undefined,
+              itemId: item.id, // Fallback
+              title: item.title,
+              price: item.currentPrice || item.price,
+              quantity: item.quantity,
+            })),
+            shippingAddress: billingInfo,
+          }),
         }
+      );
 
-        // 2. Open Razorpay options
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Use ENV variable
-            amount: orderData.amount,
-            currency: orderData.currency,
-            name: "DevKant Marketplace",
-            description: "Digital Purchase",
-            image: "https://your-logo-url", // Optional
-            order_id: orderData.id,
-            handler: async function (response) {
-                // 3. Verify Payment
-                try {
-                    const verifyRes = await fetch(`${API_URL}/marketplace/payment/verify`, {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                             'Authorization': `Bearer ${localStorage.getItem('token')}`
-                         },
-                         body: JSON.stringify({
-                             razorpay_order_id: response.razorpay_order_id,
-                             razorpay_payment_id: response.razorpay_payment_id,
-                             razorpay_signature: response.razorpay_signature,
-                             orderId: orderData.orderId // IMPORTANT: Send your internal order ID if you saved it
-                         })
-                    });
+      const orderData = await orderRes.json();
 
-                    const verifyData = await verifyRes.json();
+      if (!orderRes.ok) {
+        throw new Error(
+          orderData.details ||
+            orderData.message ||
+            "Server error creating order"
+        );
+      }
 
-                    if(verifyRes.ok) {
-                        dispatch(setStep(3));
-                        dispatch(clearCart());
-                        window.scrollTo(0, 0);
-                        toast.success('Payment Successful!');
-                    } else {
-                        toast.error(verifyData.message || 'Payment verification failed');
-                    }
+      // 2. Open Razorpay options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Use ENV variable
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "DevKant Marketplace",
+        description: "Digital Purchase",
+        image: "https://your-logo-url", // Optional
+        order_id: orderData.id,
+        handler: async function (response) {
+          // 3. Verify Payment
+          try {
+            const verifyRes = await fetch(
+              `${API_URL}/marketplace/payment/verify`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderId: orderData.orderId, // IMPORTANT: Send your internal order ID if you saved it
+                }),
+              }
+            );
 
-                } catch (verifyErr) {
-                    console.error(verifyErr);
-                    toast.error('Payment verification failed on server');
-                }
-            },
-            prefill: {
-                name: `${billingInfo.firstName} ${billingInfo.lastName}`,
-                email: billingInfo.email,
-                contact: billingInfo.phone
-            },
-            theme: {
-                color: "#2563EB"
+            const verifyData = await verifyRes.json();
+
+            if (verifyRes.ok) {
+              dispatch(setStep(3));
+              dispatch(clearCart());
+              window.scrollTo(0, 0);
+              toast.success("Payment Successful!");
+            } else {
+              toast.error(verifyData.message || "Payment verification failed");
             }
-        };
+          } catch (verifyErr) {
+            console.error(verifyErr);
+            toast.error("Payment verification failed on server");
+          }
+        },
+        prefill: {
+          name: `${billingInfo.firstName} ${billingInfo.lastName}`,
+          email: billingInfo.email,
+          contact: billingInfo.phone,
+        },
+        theme: {
+          color: "#2563EB",
+        },
+      };
 
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
-        dispatch(setIsSubmitting(false)); // Modal opened, stop loader
-
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+      dispatch(setIsSubmitting(false)); // Modal opened, stop loader
     } catch (err) {
-        console.error(err);
-        toast.error('Failed to initiate payment: ' + err.message);
-        dispatch(setIsSubmitting(false));
+      console.error(err);
+      toast.error("Failed to initiate payment: " + err.message);
+      dispatch(setIsSubmitting(false));
     }
   };
 
@@ -217,9 +250,12 @@ const Checkout = () => {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="h-10 w-10 text-green-600" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Order Confirmed!</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Order Confirmed!
+          </h2>
           <p className="text-gray-600 mb-8">
-            Thank you for your purchase. We've sent a confirmation email to {billingInfo.email}.
+            Thank you for your purchase. We've sent a confirmation email to{" "}
+            {billingInfo.email}.
           </p>
           <div className="space-y-3">
             <Link
@@ -248,18 +284,56 @@ const Checkout = () => {
         {/* Progress Steps */}
         <div className="mb-12">
           <div className="flex items-center justify-center space-x-4">
-            <div className={`flex items-center ${step >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 1 ? 'border-blue-600 bg-blue-50' : 'border-gray-300'} font-bold mr-2`}>1</div>
+            <div
+              className={`flex items-center ${
+                step >= 1 ? "text-blue-600" : "text-gray-400"
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  step >= 1 ? "border-blue-600 bg-blue-50" : "border-gray-300"
+                } font-bold mr-2`}
+              >
+                1
+              </div>
               <span className="font-medium">Billing</span>
             </div>
-            <div className={`w-16 h-0.5 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-            <div className={`flex items-center ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 2 ? 'border-blue-600 bg-blue-50' : 'border-gray-300'} font-bold mr-2`}>2</div>
+            <div
+              className={`w-16 h-0.5 ${
+                step >= 2 ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            ></div>
+            <div
+              className={`flex items-center ${
+                step >= 2 ? "text-blue-600" : "text-gray-400"
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  step >= 2 ? "border-blue-600 bg-blue-50" : "border-gray-300"
+                } font-bold mr-2`}
+              >
+                2
+              </div>
               <span className="font-medium">Payment</span>
             </div>
-            <div className={`w-16 h-0.5 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-            <div className={`flex items-center ${step >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 3 ? 'border-blue-600 bg-blue-50' : 'border-gray-300'} font-bold mr-2`}>3</div>
+            <div
+              className={`w-16 h-0.5 ${
+                step >= 3 ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            ></div>
+            <div
+              className={`flex items-center ${
+                step >= 3 ? "text-blue-600" : "text-gray-400"
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  step >= 3 ? "border-blue-600 bg-blue-50" : "border-gray-300"
+                } font-bold mr-2`}
+              >
+                3
+              </div>
               <span className="font-medium">Done</span>
             </div>
           </div>
@@ -275,7 +349,9 @@ const Checkout = () => {
             >
               {step === 1 && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Billing Information</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    Billing Information
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <InputField
                       label="First Name"
@@ -353,24 +429,33 @@ const Checkout = () => {
 
               {step === 2 && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Method</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    Payment Method
+                  </h2>
                   <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-8">
                     <div className="flex items-center mb-4">
-                        <Shield className="text-blue-600 h-8 w-8 mr-3" />
-                        <div>
-                             <h4 className="font-bold text-xl text-blue-900">Secure Payment with Razorpay</h4>
-                             <p className="text-blue-700 mt-1">Pay securely using Credit Card, Debit Card, UPI, or Net Banking.</p>
-                        </div>
+                      <Shield className="text-blue-600 h-8 w-8 mr-3" />
+                      <div>
+                        <h4 className="font-bold text-xl text-blue-900">
+                          Secure Payment with Razorpay
+                        </h4>
+                        <p className="text-blue-700 mt-1">
+                          Pay securely using Credit Card, Debit Card, UPI, or
+                          Net Banking.
+                        </p>
+                      </div>
                     </div>
                     <ul className="text-sm text-blue-800 list-disc list-inside space-y-1 ml-2">
-                        <li>SSL Encrypted Transaction</li>
-                        <li>Supports all major Indian banks</li>
-                        <li>International cards accepted</li>
-                        <li>Instant Confirmation</li>
+                      <li>SSL Encrypted Transaction</li>
+                      <li>Supports all major Indian banks</li>
+                      <li>International cards accepted</li>
+                      <li>Instant Confirmation</li>
                     </ul>
                   </div>
-                  <p className="text-gray-600 text-center mb-4">Click "Pay Now" to open the secure payment gateway.</p>
-              </div>
+                  <p className="text-gray-600 text-center mb-4">
+                    Click "Pay Now" to open the secure payment gateway.
+                  </p>
+                </div>
               )}
               <div className="mt-8 flex justify-between">
                 {step === 2 && (
@@ -385,10 +470,14 @@ const Checkout = () => {
                   onClick={handleNextStep}
                   disabled={isSubmitting}
                   className={`ml-auto px-8 py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center ${
-                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                    isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
-                  {isSubmitting ? 'Processing...' : step === 2 ? 'Pay Now' : 'Continue'}
+                  {isSubmitting
+                    ? "Processing..."
+                    : step === 2
+                    ? "Pay Now"
+                    : "Continue"}
                   {!isSubmitting && <ChevronRight className="ml-2 h-5 w-5" />}
                 </button>
               </div>
@@ -398,16 +487,43 @@ const Checkout = () => {
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
+                Order Summary
+              </h3>
               <div className="space-y-4 mb-6 max-h-60 overflow-y-auto">
                 {cartItems.map((item) => (
-                  <div key={`${item.id}-${item.type}`} className="flex items-center space-x-4">
-                    <img src={item.image} alt={item.title} className="w-16 h-16 rounded-lg object-cover" />
+                  <div key={item._id || item.id} className="flex space-x-4">
+                    <img
+                      src={
+                        item.product?.images?.[0]?.url ||
+                        item.service?.image ||
+                        item.image ||
+                        "https://via.placeholder.com/150"
+                      }
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
                     <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-gray-900 line-clamp-1">{item.title}</h4>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                      <h4 className="font-medium text-gray-900 line-clamp-2">
+                        {item.title}
+                      </h4>
+                      {item.packageName && (
+                        <p className="text-xs text-blue-600 font-medium">
+                          Package: {item.packageName}
+                        </p>
+                      )}
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-sm text-gray-500">
+                          Qty: {item.quantity}
+                        </span>
+                        <span className="font-bold text-gray-900">
+                          {formatCurrency(
+                            (item.currentPrice || item.price) * item.quantity,
+                            currency
+                          )}
+                        </span>
+                      </div>
                     </div>
-                    <span className="font-bold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -415,15 +531,15 @@ const Checkout = () => {
               <div className="border-t border-gray-100 pt-4 space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>${(total / 1.08).toFixed(2)}</span>
+                  <span>{formatCurrency(total / 1.08, currency)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Tax (8%)</span>
-                  <span>${(total - (total / 1.08)).toFixed(2)}</span>
+                  <span>{formatCurrency(total - total / 1.08, currency)}</span>
                 </div>
-                <div className="flex justify-between text-xl font-bold text-gray-900 pt-3 border-t border-gray-100">
+                <div className="flex justify-between font-bold text-gray-900 text-lg">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatCurrency(total, currency)}</span>
                 </div>
               </div>
             </div>
@@ -434,9 +550,23 @@ const Checkout = () => {
   );
 };
 
-const InputField = ({ label, name, value, onChange, error, type = "text", placeholder, icon: Icon, iconElement, rightElement, maxLength }) => (
+const InputField = ({
+  label,
+  name,
+  value,
+  onChange,
+  error,
+  type = "text",
+  placeholder,
+  icon: Icon,
+  iconElement,
+  rightElement,
+  maxLength,
+}) => (
   <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label}
+    </label>
     <div className="relative">
       <input
         type={type}
@@ -446,11 +576,17 @@ const InputField = ({ label, name, value, onChange, error, type = "text", placeh
         placeholder={placeholder}
         maxLength={maxLength}
         className={`w-full px-4 py-3 rounded-lg border ${
-          error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-        } focus:border-transparent focus:ring-2 outline-none transition-all pl-10 ${rightElement ? 'pr-10' : ''}`}
+          error
+            ? "border-red-500 focus:ring-red-500"
+            : "border-gray-300 focus:ring-blue-500"
+        } focus:border-transparent focus:ring-2 outline-none transition-all pl-10 ${
+          rightElement ? "pr-10" : ""
+        }`}
       />
       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-5 h-5">
-        {iconElement ? iconElement : (Icon && <Icon className="text-gray-400 h-5 w-5" />)}
+        {iconElement
+          ? iconElement
+          : Icon && <Icon className="text-gray-400 h-5 w-5" />}
       </div>
       {rightElement}
     </div>

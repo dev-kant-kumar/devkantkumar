@@ -3,16 +3,21 @@ import { LogOut, Menu, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useGetCartQuery } from '../../../../store/cart/cartApi'; // Assuming this import is needed for useGetCartQuery
 import { useLogoutMutation } from '../../store/auth/authApi';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
-import { selectCartItemCount } from '../../store/cart/cartSlice';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const cartCount = useSelector(selectCartItemCount);
+  // const cartCount = useSelector(selectCartItemCount);  // Fetch cart data for real-time count
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const { data: cartData } = useGetCartQuery(undefined, {
+    skip: !isAuthenticated // Skip if not logged in
+  });
+
+  const cartCount = cartData?.cart?.items?.length || 0;
   const user = useSelector(selectCurrentUser);
   const location = useLocation();
   const dispatch = useDispatch();

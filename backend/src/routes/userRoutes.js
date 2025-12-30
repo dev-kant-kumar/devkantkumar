@@ -18,6 +18,12 @@ router.get('/downloads', userController.getUserDownloads);
 router.get('/favorites', userController.getFavorites);
 router.post('/favorites/:itemId', userController.addToFavorites);
 router.delete('/favorites/:itemId', userController.removeFromFavorites);
+router.delete('/me', userController.deleteMe);
+
+// Address Management
+router.post('/addresses', userController.addAddress);
+router.put('/addresses/:addressId', userController.updateAddress);
+router.delete('/addresses/:addressId', userController.deleteAddress);
 
 // Admin only routes
 router.get('/all', adminAuth, userController.getAllUsers);

@@ -20,7 +20,6 @@ export const API_CONFIG = {
 
   // Headers
   DEFAULT_HEADERS: {
-    "Content-Type": "application/json",
     Accept: "application/json",
   },
 };
@@ -32,6 +31,16 @@ console.log('API_URL:', API_URL);
 // API Endpoints
 export const API_ENDPOINTS = {
   // Authentication endpoints
+  USERS: {
+    PROFILE: `${API_URL}/users/profile`, // Public profile
+    DASHBOARD: `${API_URL}/users/dashboard`,
+    UPDATE_PROFILE: `${API_URL}/users/profile`,
+    ORDERS: `${API_URL}/users/orders`,
+    DOWNLOADS: `${API_URL}/users/downloads`,
+    FAVORITES: `${API_URL}/users/favorites`,
+    DELETE_ME: `${API_URL}/users/me`,
+    ADDRESSES: `${API_URL}/users/addresses`,
+  },
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
@@ -41,6 +50,10 @@ export const API_ENDPOINTS = {
     ME: '/auth/me',
     UPDATE_PROFILE: '/auth/update-profile',
     CHANGE_PASSWORD: '/auth/change-password',
+    VERIFY_EMAIL: '/auth/verify-email',
+    RESEND_VERIFICATION: '/auth/resend-verification',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
   },
 
   // Admin endpoints
@@ -83,7 +96,12 @@ export const API_ENDPOINTS = {
     GENERAL_SETTINGS: '/admin/settings/general',
     SEO_SETTINGS: '/admin/settings/seo',
 
-    // File Uploads
+    // Marketplace
+    MARKETPLACE: {
+      PRODUCTS: '/admin/products',
+      SERVICES: '/admin/services',
+      ORDERS: '/admin/marketplace/orders',
+    },
     UPLOAD_IMAGE: '/admin/upload/image',
     UPLOAD_PROJECT_IMAGE: '/admin/upload/project-image',
   },
@@ -120,9 +138,7 @@ export const API_REQUEST_CONFIG = {
 
 // API upload configuration
 export const API_UPLOAD_CONFIG = {
-  headers: {
-    'Content-Type': 'multipart/form-data',
-  },
+  headers: {},
   timeout: API_CONFIG.TIMEOUT * 2, // Double timeout for uploads
 };
 

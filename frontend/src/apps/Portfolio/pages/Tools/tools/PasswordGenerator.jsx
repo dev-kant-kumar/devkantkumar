@@ -10,6 +10,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../../../../../components/SEO/SEOHead';
+import StructuredData from '../../../../../components/SEO/StructuredData';
 
 const PasswordGenerator = () => {
   const [password, setPassword] = useState('');

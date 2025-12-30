@@ -15,6 +15,17 @@ const BlogManagement = React.lazy(() => import("./pages/BlogManagement/BlogManag
 const BlogPost = React.lazy(() => import("./pages/BlogManagement/BlogPost.jsx"));
 const Settings = React.lazy(() => import("./pages/Settings/Settings.jsx"));
 
+// Marketplace Pages
+const MarketplaceOverview = React.lazy(() => import("./pages/Marketplace/Overview.jsx"));
+const MarketProducts = React.lazy(() => import("./pages/Marketplace/Products.jsx"));
+const ProductEditor = React.lazy(() => import("./pages/Marketplace/ProductEditor.jsx"));
+const MarketServices = React.lazy(() => import("./pages/Marketplace/Services.jsx"));
+const ServiceEditor = React.lazy(() => import("./pages/Marketplace/ServiceEditor.jsx"));
+const MarketOrders = React.lazy(() => import("./pages/Marketplace/Orders.jsx"));
+const MarketCustomers = React.lazy(() => import("./pages/Marketplace/Customers.jsx"));
+const MarketCustomerDetail = React.lazy(() => import("./pages/Marketplace/CustomerDetail.jsx"));
+const MarketSettings = React.lazy(() => import("./pages/Marketplace/Settings.jsx"));
+
 const AdminPanelRoutes = () => {
   return (
     <ProtectedRoute>
@@ -23,6 +34,21 @@ const AdminPanelRoutes = () => {
         <Route path="/" element={<AdminPanelLayout />}>
           {/* Dashboard - Analytics and overview */}
           <Route index element={<Dashboard />} />
+
+          {/* Marketplace Routes */}
+          <Route path="marketplace">
+            <Route index element={<MarketplaceOverview />} />
+            <Route path="products" element={<MarketProducts />} />
+            <Route path="products/new" element={<ProductEditor />} />
+            <Route path="products/edit/:id" element={<ProductEditor />} />
+            <Route path="services" element={<MarketServices />} />
+            <Route path="services/new" element={<ServiceEditor />} />
+            <Route path="services/edit/:id" element={<ServiceEditor />} />
+            <Route path="orders" element={<MarketOrders />} />
+            <Route path="customers" element={<MarketCustomers />} />
+            <Route path="customers/:id" element={<MarketCustomerDetail />} />
+            <Route path="settings" element={<MarketSettings />} />
+          </Route>
 
           {/* Content Management - General content editing */}
           <Route path="content" element={<ContentManagement />} />

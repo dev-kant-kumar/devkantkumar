@@ -20,6 +20,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bullmq": "^5.66.4",
     "cloudinary": "^1.41.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
@@ -32,6 +33,7 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "hpp": "^0.2.3",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "morgan": "^1.10.0",
@@ -39,7 +41,7 @@
     "nodemailer": "^6.9.7",
     "puppeteer": "^24.26.0",
     "razorpay": "^2.9.6",
-    "redis": "^4.6.10",
+    "redis": "^4.7.1",
     "stripe": "^14.7.0",
     "winston": "^3.11.0",
     "xss-clean": "^0.1.4"

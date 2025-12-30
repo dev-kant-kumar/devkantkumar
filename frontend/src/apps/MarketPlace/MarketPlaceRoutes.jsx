@@ -39,6 +39,7 @@ const SignIn = React.lazy(() => import('./pages/UserManagement/forms/SignIn/Sign
 const SignUp = React.lazy(() => import('./pages/UserManagement/forms/SignUp/SignUp'));
 const ForgotPassword = React.lazy(() => import('./pages/UserManagement/forms/ForgotPassword/ForgotPassword'));
 const ResetPassword = React.lazy(() => import('./pages/UserManagement/forms/ResetPassword/ResetPassword'));
+const VerifyEmail = React.lazy(() => import('./pages/UserManagement/VerifyEmail'));
 
 import PersistLogin from './common/components/PersistLogin';
 
@@ -88,6 +89,7 @@ const MarketPlaceRoutes = () => {
             <Route path="signup" element={<SignUp />} />
             <Route path="forgot-password" element={<ForgotPassword />} />
             <Route path="reset-password" element={<ResetPassword />} />
+            <Route path="verify-email/:token" element={<VerifyEmail />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

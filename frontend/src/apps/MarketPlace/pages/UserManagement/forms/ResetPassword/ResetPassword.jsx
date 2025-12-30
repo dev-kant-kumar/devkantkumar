@@ -1,11 +1,13 @@
 import { Eye, EyeOff, Lock } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
+import { useResetPasswordMutation } from '../../../../store/auth/authApi';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const { token } = useParams();
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
@@ -13,8 +15,9 @@ const ResetPassword = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReset, setIsReset] = useState(false);
+
+  const [resetPassword, { isLoading: isSubmitting }] = useResetPasswordMutation();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,12 +43,15 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
-        setIsSubmitting(false);
+      try {
+        await resetPassword({ token, password: formData.password }).unwrap();
         setIsReset(true);
-      }, 1500);
+      } catch (err) {
+        setErrors(prev => ({
+          ...prev,
+          password: err?.data?.message || 'Failed to reset password. Token may be expired.'
+        }));
+      }
     }
   };
 

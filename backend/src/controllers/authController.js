@@ -4,24 +4,28 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const emailService = require('../services/emailService');
+const { getRedisClient } = require('../db/redis'); // Import Redis client getter
 const { validationResult } = require('express-validator');
 
 // Helper function to send token response
-const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
+const sendTokenResponse = (user, statusCode, res, message) => {
   const token = user.generateAuthToken();
   const refreshToken = user.generateRefreshToken();
 
   const options = {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    expires: new Date(
+      Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000
+    ),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    path: '/'
   };
 
   res
     .status(statusCode)
     .cookie('token', token, options)
-    .cookie('refreshToken', refreshToken, { ...options, expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) })
+    .cookie('refreshToken', refreshToken, { ...options, maxAge: 30 * 24 * 60 * 60 * 1000 })
     .json({
       success: true,
       message,
@@ -41,8 +45,12 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
         location: user.profile?.location,
         company: user.profile?.company,
         socialLinks: user.profile?.socialLinks,
+        preferences: user.preferences,
         gender: user.gender,
-        dateOfBirth: user.dateOfBirth
+        dateOfBirth: user.dateOfBirth,
+        createdAt: user.createdAt,
+        addresses: user.addresses,
+        cart: user.cart
       }
     });
 };
@@ -79,11 +87,10 @@ const register = async (req, res, next) => {
       lastName,
       email: email.toLowerCase(),
       password,
-      isEmailVerified: true // Skip email verification for now
+      isEmailVerified: false // Enforce email verification
     });
 
-    // Generate email verification token (Optional: keep logic if we want to enable it later, but for now we skip sending)
-    /*
+    // Generate email verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
     user.emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
     user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
@@ -94,9 +101,8 @@ const register = async (req, res, next) => {
       await emailService.sendVerificationEmail(user.email, verificationToken, user.firstName);
     } catch (emailError) {
       logger.error('Failed to send verification email:', emailError);
-      // Don't fail registration if email fails
+      // Don't fail registration if email fails, but log it
     }
-    */
 
     logger.info(`New user registered and auto-logged in: ${user.email}`);
     sendTokenResponse(user, 201, res, 'User registered successfully');
@@ -156,6 +162,15 @@ const login = async (req, res, next) => {
       });
     }
 
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      logger.warn(`Login failed - Email not verified: ${email}`);
+      return res.status(401).json({
+        success: false,
+        message: 'Please verify your email address before logging in'
+      });
+    }
+
     // Check password
     const isPasswordValid = await user.comparePassword(password);
 
@@ -198,6 +213,29 @@ const login = async (req, res, next) => {
 // @access  Private
 const logout = async (req, res, next) => {
   try {
+    const { refreshToken } = req.body;
+
+    // Check if refresh token exists in cookies if not in body
+    const tokenToBlacklist = refreshToken || (req.cookies && req.cookies.refreshToken);
+
+    if (tokenToBlacklist) {
+      const redisClient = getRedisClient();
+      if (redisClient && redisClient.isOpen) {
+        // Decode to get expiration time
+        const decoded = jwt.decode(tokenToBlacklist);
+        if (decoded && decoded.exp) {
+          const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+          if (ttl > 0) {
+            // Add to blacklist with expiration
+            await redisClient.set(`blacklist:${tokenToBlacklist}`, 'true', { EX: ttl });
+            logger.info('Refresh token blacklisted via Redis');
+          }
+        }
+      } else {
+        logger.warn('Redis client not available for token blacklisting');
+      }
+    }
+
     res
       .status(200)
       .clearCookie('token')
@@ -221,7 +259,7 @@ const getMe = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: {
+      user: {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -235,9 +273,12 @@ const getMe = async (req, res, next) => {
         location: user.profile?.location,
         company: user.profile?.company,
         socialLinks: user.profile?.socialLinks,
+        preferences: user.preferences,
         gender: user.gender,
         dateOfBirth: user.dateOfBirth,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        addresses: user.addresses,
+        cart: user.cart
       }
     });
   } catch (error) {
@@ -263,6 +304,19 @@ const refreshToken = async (req, res, next) => {
         success: false,
         message: 'Refresh token is required'
       });
+    }
+
+    // Check Redis blacklist
+    const redisClient = getRedisClient();
+    if (redisClient && redisClient.isOpen) {
+      const isBlacklisted = await redisClient.get(`blacklist:${refreshToken}`);
+      if (isBlacklisted) {
+        logger.warn('Attempt to use blacklisted refresh token');
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid refresh token (Revoked)'
+        });
+      }
     }
 
     try {
@@ -329,6 +383,64 @@ const verifyEmail = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Resend verification email
+// @route   POST /api/v1/auth/resend-verification
+// @access  Public
+const resendVerification = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No user found with this email'
+      });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    await user.save();
+
+    // Send verification email
+    try {
+      await emailService.sendVerificationEmail(
+        user.email,
+        verificationToken,
+        user.firstName
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Verification email sent'
+      });
+    } catch (err) {
+      user.emailVerificationToken = undefined;
+      user.emailVerificationExpires = undefined;
+      await user.save();
+
+      return res.status(500).json({
+        success: false,
+        message: 'Email could not be sent'
+      });
+    }
+  } catch (error) {
+    logger.error('Resend verification error:', error);
+    next(error);
+  }
+};
+
 
 // @desc    Forgot password
 // @route   POST /api/v1/auth/forgot-password
@@ -465,6 +577,21 @@ const updateProfile = async (req, res, next) => {
       if (socialLinks.instagram) user.profile.socialLinks.instagram = socialLinks.instagram;
     }
 
+    // Update preferences
+    if (req.body.preferences) {
+      const { newsletter, notifications, theme } = req.body.preferences;
+      if (!user.preferences) user.preferences = {};
+
+      if (newsletter !== undefined) user.preferences.newsletter = newsletter;
+      if (theme) user.preferences.theme = theme;
+
+      if (notifications) {
+        if (!user.preferences.notifications) user.preferences.notifications = {};
+        if (notifications.email !== undefined) user.preferences.notifications.email = notifications.email;
+        if (notifications.push !== undefined) user.preferences.notifications.push = notifications.push;
+      }
+    }
+
     await user.save();
 
     logger.info(`Profile updated for user: ${user.email}`);
@@ -528,6 +655,7 @@ const changePassword = async (req, res, next) => {
 
     // Update password
     user.password = newPassword;
+    user.passwordChangedAt = Date.now();
     await user.save();
 
     logger.info(`Password changed for user: ${user.email}`);
@@ -548,6 +676,7 @@ module.exports = {
   getMe,
   refreshToken,
   verifyEmail,
+  resendVerification,
   forgotPassword,
   resetPassword,
   updateProfile,

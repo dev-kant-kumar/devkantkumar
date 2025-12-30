@@ -5,7 +5,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
 import { useRegisterMutation } from '../../../../store/auth/authApi';
-import { setCredentials } from '../../../../store/auth/authSlice';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -24,6 +23,7 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [register, { isLoading }] = useRegisterMutation();
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -63,21 +63,41 @@ const SignUp = () => {
     e.preventDefault();
     if (validateForm()) {
       try {
-        const userData = await register({
+        await register({
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password
         }).unwrap();
 
-        dispatch(setCredentials(userData));
-        const from = location.state?.from || '/marketplace/dashboard';
-        navigate(from, { replace: true });
+        setIsSuccess(true);
+        // Don't auto-login anymore as email verification is required
       } catch (error) {
         setErrors(prev => ({ ...prev, email: error?.data?.message || 'Registration failed' }));
       }
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+        <Mail className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+        <p className="text-gray-600 mb-6">
+          We've sent a verification link to <strong>{formData.email}</strong>.<br />
+          Please click the link to activate your account.
+        </p>
+        <p className="text-sm text-gray-500">
+          Didn't receive the email? <button className="text-blue-600 hover:text-blue-500 font-medium">Resend Code</button>
+        </p>
+        <div className="mt-6 border-t pt-4">
+          <Link to="/marketplace/auth/signin" className="text-blue-600 hover:text-blue-500 font-medium">
+            Back to Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -188,24 +208,6 @@ const SignUp = () => {
           >
             {isLoading ? 'Creating account...' : 'Create account'}
           </button>
-
-          {/* Development Helper */}
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              type="button"
-              onClick={() => setFormData({
-                firstName: 'Test',
-                lastName: 'User',
-                email: `test${Math.floor(Math.random() * 1000)}@example.com`,
-                password: 'Password123!',
-                confirmPassword: 'Password123!',
-                agreeTerms: true
-              })}
-              className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none"
-            >
-              Dev: Fill Test Data
-            </button>
-          )}
         </div>
       </form>
     </div>

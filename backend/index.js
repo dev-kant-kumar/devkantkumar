@@ -34,11 +34,16 @@ const portfolioRoutes = require('./src/routes/portfolioRoutes');
 const marketplaceRoutes = require('./src/routes/marketplaceRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
-const pdfRoutes = require('./src/routes/pdfRoutes'); // ADD THIS
+const pdfRoutes = require('./src/routes/pdfRoutes');
+const cartRoutes = require('./src/routes/cartRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
 const notFound = require('./src/middlewares/notFound');
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
 
 const app = express();
 
@@ -70,38 +75,44 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'https://devkantkumar.vercel.app',
-  'https://www.devkantkumar.com',
-  'https://devkantkumar.com',
-  'https://api.devkantkumar.com'
-];
-
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    console.log('=== CORS Debug ===');
+    console.log('Request Origin:', origin);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Origin in allowed list?', allowedOrigins.indexOf(origin) !== -1);
 
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      console.log('✓ No origin - allowing');
+      return callback(null, true);
     }
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✓ Origin in allowed list - allowing');
+      return callback(null, true);
+    }
+
+    // In development mode, allow ANY origin to prevent CORS headaches
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✓ Development mode - allowing');
+      return callback(null, true);
+    }
+
+    console.log('✗ Blocked by CORS:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-environment'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-country-code', 'x-environment'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(cookieParser());
 
 // Compression middleware
@@ -166,7 +177,8 @@ app.use('/api/v1/portfolio', portfolioRoutes);
 app.use('/api/v1/marketplace', marketplaceRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/upload', uploadRoutes);
-app.use('/api/v1/pdf', pdfRoutes); // ADD THIS
+app.use('/api/v1/pdf', pdfRoutes);
+app.use('/api/v1/cart', cartRoutes);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

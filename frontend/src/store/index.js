@@ -10,6 +10,7 @@ import checkoutReducer from '../apps/MarketPlace/store/checkout/checkoutSlice';
 import productsReducer from '../apps/MarketPlace/store/products/productsSlice';
 import servicesReducer from '../apps/MarketPlace/store/services/servicesSlice';
 import marketplaceUIReducer from '../apps/MarketPlace/store/ui/marketplaceUISlice';
+import regionReducer from './region/regionSlice';
 import portfolioUIReducer from "../apps/Portfolio/store/ui/portfolioUISlice";
 
 /**
@@ -24,6 +25,9 @@ export const store = configureStore({
   reducer: {
     // Base API slice for all RTK Query
     [baseApiSlice.reducerPath]: baseApiSlice.reducer,
+
+    // Global Slices
+    region: regionReducer,
 
     // Panel-specific UI slices
     portfolioUI: portfolioUIReducer,

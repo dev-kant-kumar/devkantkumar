@@ -35,6 +35,12 @@ const baseQuery = fetchBaseQuery({
       headers.set("Authorization", `Bearer ${token}`);
     }
 
+    // Add region header
+    const countryCode = state.region?.countryCode;
+    if (countryCode) {
+      headers.set("x-country-code", countryCode);
+    }
+
     // Add environment-specific headers
     if (API_CONFIG.IS_DEVELOPMENT) {
       headers.set("X-Environment", "development");
@@ -103,6 +109,12 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
   // Handle 401 unauthorized responses (Fallback)
   if (result.error && result.error.status === 401) {
+    // Don't try to refresh if the failed request was already a refresh attempt
+    if (args.url === API_ENDPOINTS.AUTH.REFRESH_TOKEN) {
+      api.dispatch(logout());
+      return result;
+    }
+
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
