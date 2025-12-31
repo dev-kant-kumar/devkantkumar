@@ -5,7 +5,9 @@ import {
     Clock,
     FileText,
     FolderOpen,
-    Sparkles
+    Sparkles,
+    Eye,
+    MessageSquare
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
