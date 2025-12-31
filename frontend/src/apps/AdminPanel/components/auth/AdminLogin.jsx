@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle,
   Eye,
   EyeOff,
   Lock,
   Mail,
-  AlertCircle,
-  ArrowLeft,
-  Sparkles,
   Shield,
-  CheckCircle,
+  Sparkles,
   XCircle,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useAdminLoginMutation, useVerify2FALoginMutation } from "../../store/api/adminApiSlice";
 import {
   clearError,
-  selectAuthLoading,
+  loginSuccess,
   selectAuthError,
   selectIsAuthenticated,
 } from "../../store/auth/adminAuthSlice";
-import { useAdminLoginMutation } from "../../store/api/adminApiSlice";
 
 const AdminLogin = () => {
   const dispatch = useDispatch();
@@ -31,28 +31,33 @@ const AdminLogin = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const authError = useSelector(selectAuthError);
 
+  // 2FA State
+  const [verify2FALogin, { isLoading: isVerifying2FA }] = useVerify2FALoginMutation();
+  const [authFlow, setAuthFlow] = useState({
+    show2FA: false,
+    tempToken: null
+  });
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
   const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin/dashboard");
+      navigate("/admin");
     }
   }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
-    dispatch(clearError());
-  }, [dispatch]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) return "Email is required";
-    if (!emailRegex.test(email)) return "Please enter a valid email";
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
     return "";
   };
 
@@ -66,15 +71,17 @@ const AdminLogin = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
+    // Real-time validation as user types
     if (touched[name]) {
-      const error =
-        name === "email" ? validateEmail(value) : validatePassword(value);
+      const error = name === "email" ? validateEmail(value) : validatePassword(value);
       setFieldErrors((prev) => ({ ...prev, [name]: error }));
     }
 
+    // Clear global errors when user types
     if (authError || loginError) {
       dispatch(clearError());
     }
+    if (serverError) setServerError("");
   };
 
   const handleBlur = (field) => {
@@ -89,6 +96,10 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear previous errors
+    setFieldErrors({ email: "", password: "" });
+    setServerError("");
+
     const emailError = validateEmail(formData.email);
     const passwordError = validatePassword(formData.password);
 
@@ -98,30 +109,153 @@ const AdminLogin = () => {
     if (emailError || passwordError) return;
 
     try {
-      console.log("🚀 [AdminLogin] Login attempt:", {
-        timestamp: new Date().toISOString(),
-        email: formData.email,
-      });
-
       const result = await adminLogin({
         email: formData.email,
         password: formData.password,
       }).unwrap();
 
-      console.log("✅ [AdminLogin] Success:", {
-        timestamp: new Date().toISOString(),
-        userRole: result.user?.role,
-      });
+      // Check if 2FA is required - be explicit about the check
+      const requires2FA = Boolean(
+        result?.otpRequired === true ||
+        result?.twoFactorRequired === true ||
+        (result?.tempToken && result?.tempToken.length > 0)
+      );
+
+      if (requires2FA) {
+        if (!result.tempToken) {
+          console.error('❌ [Login] ERROR: 2FA required but no tempToken provided!');
+          setServerError("Authentication error: Missing verification token. Please try again.");
+          return;
+        }
+
+        setAuthFlow({
+          show2FA: true,
+          tempToken: result.tempToken
+        });
+        setServerError("");
+        return;
+      }
+
+      navigate("/admin");
     } catch (error) {
-      console.error("❌ [AdminLogin] Error:", {
-        timestamp: new Date().toISOString(),
-        error: error.message || error.data?.message,
-        status: error.status,
-      });
+      // Extract error message from various possible error structures
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        "An unexpected error occurred. Please try again.";
+
+      const lowerMsg = errorMessage.toLowerCase();
+
+      // Map specific errors to appropriate fields
+      if (
+        lowerMsg.includes("user not found") ||
+        lowerMsg.includes("no user found") ||
+        lowerMsg.includes("invalid email") ||
+        lowerMsg.includes("email")
+      ) {
+        setFieldErrors({
+          email: "No account found with this email address",
+          password: ""
+        });
+        setServerError("");
+      } else if (
+        lowerMsg.includes("invalid password") ||
+        lowerMsg.includes("password incorrect") ||
+        lowerMsg.includes("password")
+      ) {
+        setFieldErrors({
+          email: "",
+          password: "Incorrect password. Please try again."
+        });
+        setServerError("");
+      } else if (lowerMsg.includes("account locked") || lowerMsg.includes("too many")) {
+        setServerError("Your account has been temporarily locked due to too many failed login attempts. Please try again later.");
+        setFieldErrors({ email: "", password: "" });
+      } else if (lowerMsg.includes("deactivated") || lowerMsg.includes("inactive")) {
+        setServerError("Your account has been deactivated. Please contact support for assistance.");
+        setFieldErrors({ email: "", password: "" });
+      } else if (lowerMsg.includes("verify") || lowerMsg.includes("verification")) {
+        setServerError("Please verify your email address before logging in. Check your inbox for the verification link.");
+        setFieldErrors({ email: "", password: "" });
+      } else if (error.status === 429) {
+        setServerError("Too many login attempts. Please wait a few minutes and try again.");
+        setFieldErrors({ email: "", password: "" });
+      } else if (error.status === "FETCH_ERROR" || lowerMsg.includes("network")) {
+        setServerError("Network error. Please check your internet connection and try again.");
+        setFieldErrors({ email: "", password: "" });
+      } else {
+        // Generic error for anything else
+        setServerError(errorMessage);
+        setFieldErrors({ email: "", password: "" });
+      }
+    }
+  };
+
+  const handleOtpChange = (index, value) => {
+  if (value.length > 1) value = value[0];
+  if (!/^\d*$/.test(value)) return;
+
+  const newOtp = [...otp];
+  newOtp[index] = value;
+  setOtp(newOtp);
+
+  // Auto focus next input with proper delay
+  if (value && index < 5) {
+    requestAnimationFrame(() => {
+      const nextInput = document.getElementById(`login-otp-${index + 1}`);
+      if (nextInput) {
+        nextInput.focus();
+      }
+    });
+  }
+};
+
+  const handle2FASubmit = async (e) => {
+    e.preventDefault();
+
+    // Clear any previous errors
+    setServerError("");
+
+    if (otp.some(d => !d)) {
+      setServerError("Please enter the complete 6-digit code");
+      return;
+    }
+
+    try {
+      const result = await verify2FALogin({ tempToken: authFlow.tempToken, otp: otp.join("") }).unwrap();
+      console.log('🔐 [2FA] verify response:', result);
+
+      // Normalize response shape to find token/user in common locations
+      const token = result?.token || result?.data?.token || result?.data?.data?.token;
+      const user = result?.user || result?.data?.user || result?.data?.data?.user;
+
+      if (token) {
+        // Persist in localStorage and update auth slice (mirrors loginSuccess behavior)
+        dispatch(loginSuccess({ token, user }));
+        // Ensure local state cleared
+        setAuthFlow({ show2FA: false, tempToken: null });
+        setOtp(["", "", "", "", "", ""]);
+        navigate("/admin");
+        return;
+      }
+
+      // If we don't have a token, surface an error instead of navigating
+      setServerError("Verification succeeded but no authentication token was returned. Please try logging in again.");
+      console.error('❌ [2FA] Missing token in verify response', result);
+    } catch (error) {
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        "Invalid verification code. Please try again.";
+
+      setServerError(errorMessage);
+      setOtp(["", "", "", "", "", ""]);
+      document.getElementById("login-otp-0")?.focus();
     }
   };
 
   const getErrorMessage = () => {
+    if (serverError) return serverError;
     if (loginError) {
       if (loginError.status === 401) return "Invalid email or password";
       if (loginError.status === 403)
@@ -142,7 +276,7 @@ const AdminLogin = () => {
     !fieldErrors.password;
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-900">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-900">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-indigo-600/30 rounded-full blur-3xl animate-pulse" />
@@ -194,7 +328,7 @@ const AdminLogin = () => {
 
           {/* Error Alert */}
           <AnimatePresence mode="wait">
-            {(authError || loginError) && (
+            {(authError || loginError || serverError) && (
               <motion.div
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -219,13 +353,85 @@ const AdminLogin = () => {
           </AnimatePresence>
 
           {/* Login Form */}
+          <AnimatePresence mode="wait">
+            {authFlow.show2FA && authFlow.tempToken ? (
+              <motion.form
+                key="2fa-form"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+                onSubmit={handle2FASubmit}
+              >
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">Two-Factor Authentication</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Enter the 6-digit code from your authenticator app</p>
+                </div>
+
+                <div className="flex gap-2 justify-center">
+                  {otp.map((digit, idx) => (
+                    <input
+                      key={`otp-input-${idx}`}
+                      id={`login-otp-${idx}`}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="\d*"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && !digit && idx > 0) {
+                          const prevInput = document.getElementById(`login-otp-${idx-1}`);
+                          if (prevInput) prevInput.focus();
+                        }
+                      }}
+                      className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                      autoFocus={idx === 0}
+                    />
+                  ))}
+                </div>
+
+                <motion.button
+                  type="submit"
+                  disabled={isVerifying2FA || otp.some(d => !d)}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg hover:shadow-blue-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isVerifying2FA ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Verifying...</span>
+                    </div>
+                  ) : (
+                    "Verify Code"
+                  )}
+                </motion.button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthFlow({ show2FA: false, tempToken: null });
+                    setOtp(["", "", "", "", "", ""]);
+                    setServerError("");
+                  }}
+                  className="w-full text-center text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                >
+                  Back to Login
+                </button>
+              </motion.form>
+            ) : (
           <motion.form
+            key="login-form"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ delay: 0.1, duration: 0.5 }}
             onSubmit={handleSubmit}
             className="space-y-5"
           >
+
             {/* Email Field */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -380,6 +586,9 @@ const AdminLogin = () => {
               </span>
             </motion.button>
           </motion.form>
+          )}
+          </AnimatePresence>
+
 
           {/* Footer */}
           <motion.div
@@ -433,7 +642,7 @@ const AdminLogin = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">Admin Portal</h3>
-                  <p className="text-xs text-blue-200">DevKant Kumar</p>
+                  <p className="text-xs text-blue-200">Dev Kant Kumar</p>
                 </div>
               </div>
             </motion.div>

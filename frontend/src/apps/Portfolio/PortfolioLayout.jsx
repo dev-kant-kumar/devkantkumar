@@ -4,8 +4,12 @@ import Header from "./common/components/Header";
 import MagneticCursor from "./common/components/ui/MagneticCursor";
 import PerformanceMonitor from "./common/components/ui/PerformanceMonitor";
 import "./common/styles/animations.css";
+import usePageTracking from "./hooks/usePageTracking";
 
 const PortfolioLayout = () => {
+  // Use automatic page tracking
+  usePageTracking();
+
   // Show performance monitor in development mode
   const isDevelopment = process.env.NODE_ENV === "development";
 

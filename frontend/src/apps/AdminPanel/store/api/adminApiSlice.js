@@ -20,7 +20,6 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Auth', 'Admin'],
       transformResponse: (response) => {
-        console.log('🔐 [Admin API] Login response:', response);
         return response;
       },
       transformErrorResponse: (response) => {
@@ -37,6 +36,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Auth', 'Admin', 'User'],
     }),
 
+
     refreshToken: builder.mutation({
       query: (refreshToken) => ({
         url: API_ENDPOINTS.AUTH.REFRESH_TOKEN,
@@ -44,6 +44,40 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         body: { refreshToken },
       }),
       invalidatesTags: ['Auth'],
+    }),
+
+    verify2FALogin: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.AUTH.LOGIN_2FA,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Auth', 'Admin'],
+    }),
+
+    setup2FA: builder.mutation({
+      query: () => ({
+        url: API_ENDPOINTS.AUTH.SETUP_2FA,
+        method: 'POST',
+      }),
+    }),
+
+    verify2FASetup: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.AUTH.VERIFY_2FA,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    disable2FA: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.AUTH.DISABLE_2FA,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
     }),
 
     verifyToken: builder.query({
@@ -88,35 +122,44 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Admin', 'User'],
     }),
 
-    // ===================
-    // UPLOAD ENDPOINTS
-    // ===================
-    // Removed duplicate uploadImage here. Using the one defined later.
-
-    uploadFiles: builder.mutation({
-      query: (formData) => ({
-        url: '/upload/multiple',
+    initiateEmailChange: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.INITIATE_EMAIL_CHANGE,
         method: 'POST',
-        body: formData,
+        body: data,
       }),
+    }),
+
+    verifyEmailChangeOTP: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.VERIFY_EMAIL_CHANGE,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Admin', 'User'],
     }),
 
     // ===================
     // DASHBOARD ENDPOINTS
     // ===================
     getAdminDashboard: builder.query({
-      query: () => API_ENDPOINTS.ADMIN.DASHBOARD.OVERVIEW,
+      query: () => API_ENDPOINTS.ADMIN.DASHBOARD_OVERVIEW,
       providesTags: ['Admin'],
     }),
 
     getDashboardStats: builder.query({
-      query: () => API_ENDPOINTS.ADMIN.DASHBOARD.STATS,
+      query: () => API_ENDPOINTS.ADMIN.DASHBOARD_STATS,
       providesTags: ['Analytics'],
+    }),
+
+    getPortfolioStats: builder.query({
+      query: () => '/portfolio/stats',
+      providesTags: ['Project', 'Skill', 'Message'],
     }),
 
     getDashboardAnalytics: builder.query({
       query: (params) => ({
-        url: API_ENDPOINTS.ADMIN.DASHBOARD.ANALYTICS,
+        url: API_ENDPOINTS.ADMIN.DASHBOARD_ANALYTICS,
         params,
       }),
       providesTags: ['Analytics'],
@@ -130,6 +173,11 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     getAdminProjects: builder.query({
       query: () => API_ENDPOINTS.ADMIN.CONTENT.PROJECTS,
       providesTags: ['Project'],
+    }),
+
+    getProjectById: builder.query({
+      query: (id) => `${API_ENDPOINTS.ADMIN.CONTENT.PROJECTS}/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Project', id }],
     }),
 
     createProject: builder.mutation({
@@ -190,6 +238,43 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Skill'],
     }),
 
+    // Blog Management
+    getAdminBlogPosts: builder.query({
+      query: () => API_ENDPOINTS.ADMIN.CONTENT.BLOG,
+      providesTags: ['BlogPost'],
+    }),
+
+    getAdminBlogPostBySlug: builder.query({
+      query: (slug) => `${API_ENDPOINTS.ADMIN.CONTENT.BLOG}/${slug}`,
+      providesTags: (result, error, slug) => [{ type: 'BlogPost', id: slug }],
+    }),
+
+    createBlogPost: builder.mutation({
+      query: (blogData) => ({
+        url: API_ENDPOINTS.ADMIN.CONTENT.BLOG,
+        method: 'POST',
+        body: blogData,
+      }),
+      invalidatesTags: ['BlogPost'],
+    }),
+
+    updateBlogPost: builder.mutation({
+      query: ({ id, ...blogData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.CONTENT.BLOG}/${id}`,
+        method: 'PUT',
+        body: blogData,
+      }),
+      invalidatesTags: ['BlogPost'],
+    }),
+
+    deleteBlogPost: builder.mutation({
+      query: (id) => ({
+        url: `${API_ENDPOINTS.ADMIN.CONTENT.BLOG}/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['BlogPost'],
+    }),
+
     // Experience Management
     getAdminExperience: builder.query({
       query: () => API_ENDPOINTS.ADMIN.CONTENT.EXPERIENCE,
@@ -225,12 +310,9 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     // FILE UPLOAD ENDPOINTS
     // ===================
-    // ===================
-    // FILE UPLOAD ENDPOINTS
-    // ===================
     uploadImage: builder.mutation({
       query: (formData) => ({
-        url: '/upload/image',
+        url: API_ENDPOINTS.ADMIN.UPLOAD_IMAGE,
         method: 'POST',
         body: formData,
         formData: true,
@@ -238,9 +320,17 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Upload'],
     }),
 
+    uploadFiles: builder.mutation({
+      query: (formData) => ({
+        url: '/api/v1/upload/multiple',
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+
     uploadProjectImage: builder.mutation({
       query: (formData) => ({
-        url: API_ENDPOINTS.UPLOAD.PROJECT_IMAGE,
+        url: API_ENDPOINTS.ADMIN.UPLOAD_PROJECT_IMAGE,
         method: 'POST',
         body: formData,
         formData: true,
@@ -252,13 +342,13 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // CONTACT & MESSAGES
     // ===================
     getContactMessages: builder.query({
-      query: () => API_ENDPOINTS.CONTACT.GET_MESSAGES,
+      query: () => API_ENDPOINTS.ADMIN.MESSAGES,
       providesTags: ['Message'],
     }),
 
     markMessageAsRead: builder.mutation({
       query: (messageId) => ({
-        url: `${API_ENDPOINTS.CONTACT.MARK_AS_READ}/${messageId}/read`,
+        url: `${API_ENDPOINTS.ADMIN.MARK_MESSAGE_READ}/${messageId}/read`,
         method: 'PATCH',
       }),
       invalidatesTags: ['Message'],
@@ -266,7 +356,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     deleteMessage: builder.mutation({
       query: (messageId) => ({
-        url: `${API_ENDPOINTS.CONTACT.DELETE_MESSAGE}/${messageId}`,
+        url: `${API_ENDPOINTS.ADMIN.MESSAGES}/${messageId}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Message'],
@@ -302,6 +392,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Settings'],
     }),
+
     // ===================
     // MARKETPLACE ENDPOINTS
     // ===================
@@ -423,6 +514,21 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Customer', id }],
     }),
 
+    initiatePasswordChange: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.INITIATE_PASSWORD_CHANGE,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    verifyPasswordChangeOTP: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.VERIFY_PASSWORD_CHANGE,
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -434,22 +540,41 @@ export const {
   useRefreshTokenMutation,
   useVerifyTokenQuery,
 
+  // 2FA
+  useVerify2FALoginMutation,
+  useSetup2FAMutation,
+  useVerify2FASetupMutation,
+  useDisable2FAMutation,
+
   // Profile
   useGetAdminProfileQuery,
   useUpdateAdminProfileMutation,
   useChangeAdminPasswordMutation,
   useUploadAdminAvatarMutation,
+  useInitiateEmailChangeMutation,
+  useVerifyEmailChangeOTPMutation,
+  useInitiatePasswordChangeMutation,
+  useVerifyPasswordChangeOTPMutation,
 
   // Dashboard
   useGetAdminDashboardQuery,
   useGetDashboardStatsQuery,
   useGetDashboardAnalyticsQuery,
+  useGetPortfolioStatsQuery,
 
   // Projects
   useGetAdminProjectsQuery,
+  useGetProjectByIdQuery,
   useCreateProjectMutation,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+
+  // Blog
+  useGetAdminBlogPostsQuery,
+  useGetAdminBlogPostBySlugQuery,
+  useCreateBlogPostMutation,
+  useUpdateBlogPostMutation,
+  useDeleteBlogPostMutation,
 
   // Skills
   useGetAdminSkillsQuery,

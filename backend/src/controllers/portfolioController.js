@@ -1,24 +1,18 @@
 const logger = require('../utils/logger');
 const SystemSetting = require('../models/SystemSetting');
+const Project = require('../models/Project');
+const Skill = require('../models/Skill');
+const BlogPost = require('../models/BlogPost');
+const ContactMessage = require('../models/ContactMessage');
+const Visit = require('../models/Visit');
+const { getGAOverview } = require('../services/googleAnalytics');
 
 // @desc    Get all projects
 // @route   GET /api/v1/portfolio/projects
 // @access  Public
 const getProjects = async (req, res) => {
   try {
-    // Mock data for now
-    const projects = [
-      {
-        id: 1,
-        title: "E-commerce Platform",
-        description: "Full-stack e-commerce solution with React and Node.js",
-        technologies: ["React", "Node.js", "MongoDB", "Express"],
-        image: "/images/project1.jpg",
-        liveUrl: "https://example.com",
-        githubUrl: "https://github.com/example/project1",
-        featured: true
-      }
-    ];
+    const projects = await Project.find().sort({ priority: -1, createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -38,19 +32,14 @@ const getProjects = async (req, res) => {
 // @access  Public
 const getProjectById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const project = await Project.findById(req.params.id);
 
-    // Mock data for now
-    const project = {
-      id: parseInt(id),
-      title: "E-commerce Platform",
-      description: "Full-stack e-commerce solution with React and Node.js",
-      technologies: ["React", "Node.js", "MongoDB", "Express"],
-      image: "/images/project1.jpg",
-      liveUrl: "https://example.com",
-      githubUrl: "https://github.com/example/project1",
-      featured: true
-    };
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -70,25 +59,27 @@ const getProjectById = async (req, res) => {
 // @access  Public
 const getSkills = async (req, res) => {
   try {
-    // Mock data for now
-    const skills = [
-      {
-        category: "Frontend",
-        items: ["React", "Vue.js", "JavaScript", "TypeScript", "HTML5", "CSS3"]
-      },
-      {
-        category: "Backend",
-        items: ["Node.js", "Express", "Python", "Django", "PHP", "Laravel"]
-      },
-      {
-        category: "Database",
-        items: ["MongoDB", "MySQL", "PostgreSQL", "Redis"]
+    const skills = await Skill.find().sort({ priority: -1 });
+
+    // Group by category for frontend convenience
+    const groupedSkills = skills.reduce((acc, skill) => {
+      const category = skill.category;
+      if (!acc[category]) {
+        acc[category] = [];
       }
-    ];
+      acc[category].push(skill);
+      return acc;
+    }, {});
+
+    const formattedSkills = Object.entries(groupedSkills).map(([category, items]) => ({
+      category,
+      items: items.map(i => i.name),
+      details: items // Keep detailed objects for admin/advanced use
+    }));
 
     res.status(200).json({
       success: true,
-      data: skills
+      data: formattedSkills
     });
   } catch (error) {
     logger.error('Get skills error:', error);
@@ -104,7 +95,7 @@ const getSkills = async (req, res) => {
 // @access  Public
 const getExperience = async (req, res) => {
   try {
-    // Mock data for now
+    // For now keeping this as is, can be moved to model later if needed
     const experience = [
       {
         id: 1,
@@ -133,7 +124,6 @@ const getExperience = async (req, res) => {
 // @access  Public
 const getEducation = async (req, res) => {
   try {
-    // Mock data for now
     const education = [
       {
         id: 1,
@@ -162,9 +152,7 @@ const getEducation = async (req, res) => {
 // @access  Public
 const getBlogPosts = async (req, res) => {
   try {
-    // Import blog data (in production, this would come from database)
-    const { getBlogPosts: getBlogPostsData } = require('../data/blogData');
-    const blogPosts = getBlogPostsData();
+    const blogPosts = await BlogPost.find({ status: 'published' }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -184,11 +172,7 @@ const getBlogPosts = async (req, res) => {
 // @access  Public
 const getBlogPostBySlug = async (req, res) => {
   try {
-    const { slug } = req.params;
-
-    // Import blog data (in production, this would come from database)
-    const { getPostBySlug } = require('../data/blogData');
-    const blogPost = getPostBySlug(slug);
+    const blogPost = await BlogPost.findOne({ slug: req.params.slug, status: 'published' });
 
     if (!blogPost) {
       return res.status(404).json({
@@ -196,6 +180,10 @@ const getBlogPostBySlug = async (req, res) => {
         message: 'Blog post not found'
       });
     }
+
+    // Increment view count
+    blogPost.viewCount += 1;
+    await blogPost.save();
 
     res.status(200).json({
       success: true,
@@ -215,7 +203,6 @@ const getBlogPostBySlug = async (req, res) => {
 // @access  Public
 const getTestimonials = async (req, res) => {
   try {
-    // Mock data for now
     const testimonials = [
       {
         id: 1,
@@ -245,13 +232,21 @@ const getTestimonials = async (req, res) => {
 // @access  Public
 const submitContactForm = async (req, res) => {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, projectType } = req.body;
 
-    // Here you would typically save to database and send email
+    const contactMessage = await ContactMessage.create({
+      name,
+      email,
+      subject,
+      message,
+      projectType
+    });
+
     logger.info(`Contact form submitted by ${name} (${email}): ${subject}`);
 
     res.status(200).json({
       success: true,
+      data: contactMessage,
       message: 'Contact form submitted successfully'
     });
   } catch (error) {
@@ -269,14 +264,7 @@ const submitContactForm = async (req, res) => {
 // @access  Admin
 const createProject = async (req, res) => {
   try {
-    const projectData = req.body;
-
-    // Mock response for now
-    const project = {
-      id: Date.now(),
-      ...projectData,
-      createdAt: new Date()
-    };
+    const project = await Project.create(req.body);
 
     res.status(201).json({
       success: true,
@@ -287,7 +275,7 @@ const createProject = async (req, res) => {
     logger.error('Create project error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: error.message || 'Server error'
     });
   }
 };
@@ -297,15 +285,19 @@ const createProject = async (req, res) => {
 // @access  Admin
 const updateProject = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updateData = req.body;
+    let project = await Project.findById(req.params.id);
 
-    // Mock response for now
-    const project = {
-      id: parseInt(id),
-      ...updateData,
-      updatedAt: new Date()
-    };
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    project = await Project.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
 
     res.status(200).json({
       success: true,
@@ -326,9 +318,17 @@ const updateProject = async (req, res) => {
 // @access  Admin
 const deleteProject = async (req, res) => {
   try {
-    const { id } = req.params;
+    const project = await Project.findById(req.params.id);
 
-    // Mock response for now
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    await project.deleteOne();
+
     res.status(200).json({
       success: true,
       message: 'Project deleted successfully'
@@ -347,15 +347,10 @@ const deleteProject = async (req, res) => {
 // @access  Admin
 const createBlogPost = async (req, res) => {
   try {
-    const blogData = req.body;
-
-    // Mock response for now
-    const blogPost = {
-      id: Date.now(),
-      ...blogData,
-      slug: blogData.title.toLowerCase().replace(/\s+/g, '-'),
-      createdAt: new Date()
-    };
+    const blogPost = await BlogPost.create({
+      ...req.body,
+      author: req.user.id
+    });
 
     res.status(201).json({
       success: true,
@@ -366,7 +361,7 @@ const createBlogPost = async (req, res) => {
     logger.error('Create blog post error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: error.message || 'Server error'
     });
   }
 };
@@ -376,15 +371,19 @@ const createBlogPost = async (req, res) => {
 // @access  Admin
 const updateBlogPost = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updateData = req.body;
+    let blogPost = await BlogPost.findById(req.params.id);
 
-    // Mock response for now
-    const blogPost = {
-      id: parseInt(id),
-      ...updateData,
-      updatedAt: new Date()
-    };
+    if (!blogPost) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blog post not found'
+      });
+    }
+
+    blogPost = await BlogPost.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
 
     res.status(200).json({
       success: true,
@@ -405,9 +404,17 @@ const updateBlogPost = async (req, res) => {
 // @access  Admin
 const deleteBlogPost = async (req, res) => {
   try {
-    const { id } = req.params;
+    const blogPost = await BlogPost.findById(req.params.id);
 
-    // Mock response for now
+    if (!blogPost) {
+      return res.status(404).json({
+        success: false,
+        message: 'Blog post not found'
+      });
+    }
+
+    await blogPost.deleteOne();
+
     res.status(200).json({
       success: true,
       message: 'Blog post deleted successfully'
@@ -426,23 +433,18 @@ const deleteBlogPost = async (req, res) => {
 // @access  Admin
 const createSkill = async (req, res) => {
   try {
-    const { category, items } = req.body;
+    const skill = await Skill.create(req.body);
 
-    // Mock response for now
     res.status(201).json({
       success: true,
-      data: {
-        id: Date.now(),
-        category,
-        items
-      },
+      data: skill,
       message: 'Skill created successfully'
     });
   } catch (error) {
     logger.error('Create skill error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: error.message || 'Server error'
     });
   }
 };
@@ -452,17 +454,23 @@ const createSkill = async (req, res) => {
 // @access  Admin
 const updateSkill = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { category, items } = req.body;
+    let skill = await Skill.findById(req.params.id);
 
-    // Mock response for now
+    if (!skill) {
+      return res.status(404).json({
+        success: false,
+        message: 'Skill not found'
+      });
+    }
+
+    skill = await Skill.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+
     res.status(200).json({
       success: true,
-      data: {
-        id: parseInt(id),
-        category,
-        items
-      },
+      data: skill,
       message: 'Skill updated successfully'
     });
   } catch (error) {
@@ -479,9 +487,17 @@ const updateSkill = async (req, res) => {
 // @access  Admin
 const deleteSkill = async (req, res) => {
   try {
-    const { id } = req.params;
+    const skill = await Skill.findById(req.params.id);
 
-    // Mock response for now
+    if (!skill) {
+      return res.status(404).json({
+        success: false,
+        message: 'Skill not found'
+      });
+    }
+
+    await skill.deleteOne();
+
     res.status(200).json({
       success: true,
       message: 'Skill deleted successfully'
@@ -495,9 +511,140 @@ const deleteSkill = async (req, res) => {
   }
 };
 
-// @desc    Get system settings (public)
-// @route   GET /api/v1/portfolio/settings
-// @access  Public
+// @desc    Get all contact messages
+// @route   GET /api/v1/portfolio/contact
+// @access  Admin
+const getContactMessages = async (req, res) => {
+  try {
+    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: messages
+    });
+  } catch (error) {
+    logger.error('Get contact messages error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Mark message as read
+// @route   PATCH /api/v1/portfolio/contact/:id/read
+// @access  Admin
+const markMessageAsRead = async (req, res) => {
+  try {
+    const message = await ContactMessage.findById(req.params.id);
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found'
+      });
+    }
+
+    message.isRead = true;
+    await message.save();
+
+    res.status(200).json({
+      success: true,
+      data: message,
+      message: 'Message marked as read'
+    });
+  } catch (error) {
+    logger.error('Mark message as read error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Delete contact message
+// @route   DELETE /api/v1/portfolio/contact/:id
+// @access  Admin
+const deleteMessage = async (req, res) => {
+  try {
+    const message = await ContactMessage.findById(req.params.id);
+
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Message not found'
+      });
+    }
+
+    await message.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+  } catch (error) {
+    logger.error('Delete message error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Get portfolio stats
+// @route   GET /api/v1/portfolio/stats
+// @access  Admin
+const getPortfolioStats = async (req, res) => {
+  try {
+    const projectCount = await Project.countDocuments();
+    const blogCount = await BlogPost.countDocuments();
+    const skillCount = await Skill.countDocuments();
+    const unreadMessages = await ContactMessage.countDocuments({ isRead: false });
+
+    // Get recent activity (last 5 items across projects, blogs, messages)
+    const recentProjects = await Project.find().sort({ createdAt: -1 }).limit(3).select('title createdAt');
+    const recentBlogs = await BlogPost.find().sort({ createdAt: -1 }).limit(3).select('title createdAt');
+    const recentMessages = await ContactMessage.find().sort({ createdAt: -1 }).limit(3).select('name createdAt');
+
+    const activity = [
+      ...recentProjects.map(p => ({ action: `New project added: ${p.title}`, time: p.createdAt, type: 'project' })),
+      ...recentBlogs.map(b => ({ action: `Blog post published: ${b.title}`, time: b.createdAt, type: 'blog' })),
+      ...recentMessages.map(m => ({ action: `New message from ${m.name}`, time: m.createdAt, type: 'contact' }))
+    ].sort((a, b) => b.time - a.time).slice(0, 5);
+
+    const visitCount = await Visit.countDocuments();
+
+    // Add Google Analytics page views if available
+    let gaData = null;
+    try {
+      gaData = await getGAOverview().catch(() => null);
+    } catch (err) {
+      logger.error('Error fetching GA in portfolio stats:', err);
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        stats: {
+          projects: projectCount,
+          blogs: blogCount,
+          skills: skillCount,
+          messages: unreadMessages,
+          pageViews: gaData ? gaData.pageViews : visitCount,
+          gaData // Optional for frontend deeper dive
+        },
+        recentActivity: activity
+      }
+    });
+  } catch (error) {
+    logger.error('Get portfolio stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 const getSystemSettings = async (req, res) => {
   try {
     const settings = await SystemSetting.findOne();
@@ -533,5 +680,9 @@ module.exports = {
   createSkill,
   updateSkill,
   deleteSkill,
+  getContactMessages,
+  markMessageAsRead,
+  deleteMessage,
+  getPortfolioStats,
   getSystemSettings
 };

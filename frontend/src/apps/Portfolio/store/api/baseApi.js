@@ -85,10 +85,10 @@ export const portfolioApiSlice = baseApiSlice.injectEndpoints({
       }),
     }),
 
-    // Analytics (if needed for portfolio)
-    trackPageView: builder.mutation({
+    // Analytics
+    trackHit: builder.mutation({
       query: (data) => ({
-        url: "/analytics/pageview",
+        url: "/analytics/hit",
         method: "POST",
         body: data,
       }),
@@ -114,6 +114,6 @@ export const {
   useGetBlogPostBySlugQuery,
   useSubmitContactFormMutation,
   useSubscribeNewsletterMutation,
-  useTrackPageViewMutation,
+  useTrackHitMutation,
   useGetSettingsQuery,
 } = portfolioApiSlice;

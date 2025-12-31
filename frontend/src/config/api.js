@@ -54,6 +54,10 @@ export const API_ENDPOINTS = {
     RESEND_VERIFICATION: '/auth/resend-verification',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
+    LOGIN_2FA: '/auth/login/verify-2fa',
+    SETUP_2FA: '/auth/2fa/setup',
+    VERIFY_2FA: '/auth/2fa/verify',
+    DISABLE_2FA: '/auth/2fa/disable',
   },
 
   // Admin endpoints
@@ -67,30 +71,29 @@ export const API_ENDPOINTS = {
     // Profile
     PROFILE: '/admin/profile',
     UPDATE_PROFILE: '/admin/profile',
-    CHANGE_PASSWORD: '/admin/change-password',
+    PASSWORD_CHANGE: '/admin/change-password',
     UPLOAD_AVATAR: '/admin/upload-avatar',
+    INITIATE_EMAIL_CHANGE: '/admin/email-update/initiate',
+    VERIFY_EMAIL_CHANGE: '/admin/email-update/verify',
+    INITIATE_PASSWORD_CHANGE: '/admin/password-change/initiate',
+    VERIFY_PASSWORD_CHANGE: '/admin/password-change/verify',
 
     // Dashboard
-    DASHBOARD_OVERVIEW: '/admin/dashboard/overview',
-    DASHBOARD_STATS: '/admin/dashboard/stats',
-    DASHBOARD_ANALYTICS: '/admin/dashboard/analytics',
+    DASHBOARD_OVERVIEW: '/admin/dashboard',
+    DASHBOARD_STATS: '/admin/dashboard',
+    DASHBOARD_ANALYTICS: '/admin/analytics',
 
-    // Projects
-    PROJECTS: '/admin/projects',
-    PROJECT_BY_ID: '/admin/projects', // + /{id}
+    // Content Management (Portfolio)
+    CONTENT: {
+      PROJECTS: '/portfolio/projects',
+      SKILLS: '/portfolio/skills',
+      EXPERIENCE: '/portfolio/experience',
+      BLOG: '/portfolio/blog',
+    },
 
-    // Skills
-    SKILLS: '/admin/skills',
-    SKILL_BY_ID: '/admin/skills', // + /{id}
-
-    // Experience
-    EXPERIENCE: '/admin/experience',
-    EXPERIENCE_BY_ID: '/admin/experience', // + /{id}
-
-    // Contact Messages
-    MESSAGES: '/admin/messages',
-    MESSAGE_BY_ID: '/admin/messages', // + /{id}
-    MARK_MESSAGE_READ: '/admin/messages', // + /{id}/read
+    // Contact Messages (Admin)
+    MESSAGES: '/portfolio/contact',
+    MARK_MESSAGE_READ: '/portfolio/contact',
 
     // Settings
     GENERAL_SETTINGS: '/admin/settings/general',

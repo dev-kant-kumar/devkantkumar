@@ -20,6 +20,9 @@ router.get('/settings', portfolioController.getSystemSettings);
 // Admin routes
 router.use(adminAuth);
 
+// Local stats
+router.get('/stats', portfolioController.getPortfolioStats);
+
 // Project management
 router.post('/projects', portfolioController.createProject);
 router.put('/projects/:id', portfolioController.updateProject);
@@ -34,5 +37,10 @@ router.delete('/blog/:id', portfolioController.deleteBlogPost);
 router.post('/skills', portfolioController.createSkill);
 router.put('/skills/:id', portfolioController.updateSkill);
 router.delete('/skills/:id', portfolioController.deleteSkill);
+
+// Contact message management
+router.get('/contact', portfolioController.getContactMessages);
+router.patch('/contact/:id/read', portfolioController.markMessageAsRead);
+router.delete('/contact/:id', portfolioController.deleteMessage);
 
 module.exports = router;

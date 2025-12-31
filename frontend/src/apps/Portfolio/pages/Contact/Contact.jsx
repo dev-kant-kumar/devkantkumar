@@ -4,6 +4,7 @@ import { useState } from "react";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendToDiscord } from "../../common/utils/Discords/sendContactFormData";
+import { useSubmitContactFormMutation } from "../../store/api/baseApi";
 import { portfolioData } from "../../store/data/portfolioData";
 
 const Contact = () => {
@@ -70,6 +71,8 @@ const Contact = () => {
     },
   ];
 
+  const [submitContact] = useSubmitContactFormMutation();
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -82,10 +85,18 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      sendToDiscord(formData);
+      console.log("Submitting contact form:", formData);
+      await submitContact(formData).unwrap();
+      console.log("Contact form submitted successfully");
+
+      // Optional: Maintain discord notification
+      try {
+        sendToDiscord(formData);
+      } catch (discordError) {
+        console.error("Discord notification failed:", discordError);
+      }
+
       setSubmitStatus("success");
       setFormData({
         name: "",
@@ -95,6 +106,7 @@ const Contact = () => {
         projectType: "web-development",
       });
     } catch (error) {
+      console.error("Submission error details:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

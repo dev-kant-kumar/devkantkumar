@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import AdminPanelLayout from "./AdminPanelLayout.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
@@ -14,8 +14,10 @@ const SkillsManagement = React.lazy(() => import("./pages/SkillsManagement/Skill
 const BlogManagement = React.lazy(() => import("./pages/BlogManagement/BlogManagement.jsx"));
 const BlogPost = React.lazy(() => import("./pages/BlogManagement/BlogPost.jsx"));
 const Subscribers = React.lazy(() => import("./pages/Subscribers/Subscribers.jsx"));
+const Messages = React.lazy(() => import("./pages/Messages/Messages.jsx"));
 const Settings = React.lazy(() => import("./pages/Settings/Settings.jsx"));
 const Announcements = React.lazy(() => import("./pages/Announcements/Announcements.jsx"));
+const AnalyticsPage = React.lazy(() => import("./pages/Analytics/Analytics.jsx"));
 
 // Marketplace Pages
 const MarketplaceOverview = React.lazy(() => import("./pages/Marketplace/Overview.jsx"));
@@ -36,6 +38,14 @@ const AdminPanelRoutes = () => {
         <Route path="/" element={<AdminPanelLayout />}>
           {/* Dashboard - Analytics and overview */}
           <Route index element={<Dashboard />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+
+          {/* Messages Management */}
+          <Route path="messages">
+            <Route index element={<Messages />} />
+            <Route path=":id" element={<Messages />} />
+          </Route>
 
           {/* Marketplace Routes */}
           <Route path="marketplace">
@@ -55,11 +65,6 @@ const AdminPanelRoutes = () => {
           {/* Content Management - General content editing */}
           <Route path="content" element={<ContentManagement />} />
 
-          {/* Blog Management - CRUD operations for blog posts */}
-          <Route path="blog" element={<BlogManagement />} />
-          <Route path="blog/new" element={<BlogPost />} />
-          <Route path="blog/edit/:slug" element={<BlogPost />} />
-
           {/* Subscribers Management */}
           <Route path="subscribers" element={<Subscribers />} />
 
@@ -67,19 +72,21 @@ const AdminPanelRoutes = () => {
           <Route path="announcements" element={<Announcements />} />
 
           {/* Projects Management - CRUD operations for projects */}
-          <Route path="projects" element={<ProjectsManagement />} />
-
-          {/* Individual project management */}
-          <Route path="projects/:projectId" element={<ProjectDetail />} />
+          <Route path="projects">
+            <Route index element={<ProjectsManagement />} />
+            <Route path="new" element={<ProjectDetail />} /> {/* Reusing or will rename ProjectDetail */}
+            <Route path="edit/:projectId" element={<ProjectDetail />} />
+          </Route>
 
           {/* Skills Management - Technical expertise management */}
           <Route path="skills" element={<SkillsManagement />} />
 
           {/* Blog Management - Blog posts CRUD */}
-          <Route path="blog" element={<BlogManagement />} />
-
-          {/* Individual blog post management */}
-          <Route path="blog/:slug" element={<BlogPost />} />
+          <Route path="blog">
+             <Route index element={<BlogManagement />} />
+             <Route path="new" element={<BlogPost />} />
+             <Route path="edit/:slug" element={<BlogPost />} />
+          </Route>
 
           {/* Settings - Admin panel configuration */}
           <Route path="settings" element={<Settings />} />

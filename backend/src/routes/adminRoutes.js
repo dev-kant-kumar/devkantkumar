@@ -71,5 +71,11 @@ router.get('/profile', adminController.getProfile);
 router.put('/profile', adminController.updateProfile);
 router.post('/change-password', adminController.changePassword);
 router.post('/upload-avatar', upload.single('avatar'), adminController.uploadAvatar);
+router.post('/email-update/initiate', adminController.initiateEmailChange);
+router.post('/email-update/verify', adminController.verifyEmailChangeOTP);
+
+// Password Change
+router.post('/password-change/initiate', adminController.initiatePasswordChange);
+router.post('/password-change/verify', adminController.verifyPasswordChangeOTP);
 
 module.exports = router;

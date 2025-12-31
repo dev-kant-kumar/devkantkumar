@@ -1,7 +1,15 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
+const Project = require('../models/Project');
+const BlogPost = require('../models/BlogPost');
+const Visit = require('../models/Visit');
+const { getGAOverview } = require('../services/googleAnalytics');
+const { getSearchConsoleOverview } = require('../services/searchConsole');
 const logger = require('../utils/logger');
 const cloudinary = require('../services/cloudinaryService');
+const emailService = require('../services/emailService');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 
 // @desc    Get admin dashboard data
@@ -9,33 +17,49 @@ const fs = require('fs');
 // @access  Admin
 const getDashboard = async (req, res) => {
   try {
-    // Mock dashboard data for now
-    const dashboardData = {
-      totalUsers: 150,
-      totalOrders: 75,
-      totalRevenue: 25000,
-      recentOrders: [
-        {
-          id: 1,
-          user: "John Doe",
-          amount: 299,
-          status: "completed",
-          date: new Date()
-        }
-      ],
-      recentUsers: [
-        {
-          id: 1,
-          name: "Jane Smith",
-          email: "jane@example.com",
-          joinDate: new Date()
-        }
-      ]
-    };
+    const totalUsers = await User.countDocuments();
+    const totalOrders = await Order.countDocuments({ status: { $in: ['confirmed', 'completed'] } });
+
+    const revenueAggregation = await Order.aggregate([
+      { $match: { status: { $in: ['confirmed', 'completed'] } } },
+      { $group: { _id: null, total: { $sum: "$payment.amount.subtotal" } } }
+    ]);
+    const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].total : 0;
+
+    const recentOrders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('user', 'firstName lastName email');
+
+    const recentUsers = await User.find()
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const projectCount = await Project.countDocuments();
+    const blogCount = await BlogPost.countDocuments();
 
     res.status(200).json({
       success: true,
-      data: dashboardData
+      data: {
+        totalUsers,
+        totalOrders,
+        totalRevenue,
+        projectCount,
+        blogCount,
+        recentOrders: recentOrders.map(order => ({
+          id: order._id,
+          user: `${order.billing?.firstName || 'User'} ${order.billing?.lastName || ''}`,
+          amount: order.payment.amount.total,
+          status: order.status,
+          date: order.createdAt
+        })),
+        recentUsers: recentUsers.map(user => ({
+          id: user._id,
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          joinDate: user.createdAt
+        }))
+      }
     });
   } catch (error) {
     logger.error('Get dashboard error:', error);
@@ -51,28 +75,91 @@ const getDashboard = async (req, res) => {
 // @access  Admin
 const getAnalytics = async (req, res) => {
   try {
-    // Mock analytics data for now
-    const analyticsData = {
-      userGrowth: [
-        { month: 'Jan', users: 10 },
-        { month: 'Feb', users: 25 },
-        { month: 'Mar', users: 40 }
-      ],
-      orderStats: [
-        { month: 'Jan', orders: 5 },
-        { month: 'Feb', orders: 15 },
-        { month: 'Mar', orders: 30 }
-      ],
-      revenueStats: [
-        { month: 'Jan', revenue: 1500 },
-        { month: 'Feb', revenue: 4500 },
-        { month: 'Mar', revenue: 8500 }
-      ]
-    };
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    // User Growth
+    const userGrowth = await User.aggregate([
+      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+          users: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Order Stats
+    const orderStats = await Order.aggregate([
+      { $match: { createdAt: { $gte: sixMonthsAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+          orders: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Revenue Stats
+    const revenueStats = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sixMonthsAgo },
+          status: { $in: ['confirmed', 'completed'] }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+          revenue: { $sum: "$payment.amount.subtotal" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Visit Stats (Last 30 Days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const visitStats = await Visit.aggregate([
+      { $match: { timestamp: { $gte: thirtyDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+          views: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Google Analytics and Search Console Overview
+    let googleAnalytics = null;
+    try {
+      const [ga, gsc] = await Promise.all([
+        getGAOverview().catch(err => {
+          logger.error('GA Fetch Error:', err.message);
+          return null;
+        }),
+        getSearchConsoleOverview().catch(err => {
+          logger.error('GSC Fetch Error:', err.message);
+          return null;
+        })
+      ]);
+      googleAnalytics = { ga, gsc };
+    } catch (err) {
+      logger.error('Error fetching Google analytics in getAnalytics:', err);
+    }
 
     res.status(200).json({
       success: true,
-      data: analyticsData
+      data: {
+        userGrowth: userGrowth.map(item => ({ month: item._id, users: item.users })),
+        orderStats: orderStats.map(item => ({ month: item._id, orders: item.orders })),
+        revenueStats: revenueStats.map(item => ({ month: item._id, revenue: item.revenue })),
+        visitStats: visitStats.map(item => ({ date: item._id, views: item.views })),
+        googleAnalytics
+      }
     });
   } catch (error) {
     logger.error('Get analytics error:', error);
@@ -429,12 +516,26 @@ const getProfile = async (req, res) => {
 // @access  Admin
 const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, title, bio } = req.body;
+    const { firstName, lastName, email, title, bio } = req.body;
 
     // Build update object
     const updateFields = {};
     if (firstName) updateFields.firstName = firstName;
     if (lastName) updateFields.lastName = lastName;
+
+    // Check email uniqueness if changing
+    if (email) {
+      if (email !== req.user.email) {
+        const emailExists = await User.findOne({ email });
+        if (emailExists) {
+          return res.status(400).json({
+            success: false,
+            message: 'Email already in use'
+          });
+        }
+        updateFields.email = email;
+      }
+    }
 
     // Update nested profile fields
     if (title !== undefined) updateFields['profile.title'] = title;
@@ -465,12 +566,12 @@ const updateProfile = async (req, res) => {
 // @access  Admin
 const changePassword = async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
     const user = await User.findById(req.user.id).select('+password');
 
     // Check old password
-    const isMatch = await user.matchPassword(oldPassword);
+    const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -546,6 +647,192 @@ const uploadAvatar = async (req, res) => {
   }
 };
 
+// @desc    Initiate email change (Step 1: Send OTP to current email OR Step 3: Send OTP to new email)
+// @route   POST /api/v1/admin/email-update/initiate
+// @access  Admin
+const initiateEmailChange = async (req, res) => {
+  try {
+    const { type, newEmail } = req.body; // type: 'current' or 'new'
+    const user = await User.findById(req.user.id);
+
+    if (type === 'new') {
+      if (!newEmail) {
+        return res.status(400).json({ success: false, message: 'New email is required' });
+      }
+
+      // Check if new email is taken
+      const emailExists = await User.findOne({ email: newEmail });
+      if (emailExists) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+      }
+
+      user.tempNewEmail = newEmail;
+    }
+
+    // Generate 6 digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+    user.emailChangeOTP = otpHash;
+    user.emailChangeOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await user.save({ validateBeforeSave: false });
+
+    // Send correct OTP to correct email
+    const emailToSend = type === 'new' ? newEmail : user.email;
+    await emailService.sendEmailChangeOTP(emailToSend, otp, type);
+
+    res.status(200).json({
+      success: true,
+      message: `OTP sent to ${type === 'new' ? 'new' : 'current'} email address`
+    });
+
+  } catch (error) {
+    logger.error('Initiate email change error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Verify OTP and Finalize Email Change
+// @route   POST /api/v1/admin/email-update/verify
+// @access  Admin
+const verifyEmailChangeOTP = async (req, res) => {
+  try {
+    const { otp, type } = req.body;
+    const user = await User.findById(req.user.id);
+
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+    if (!user.emailChangeOTP || !user.emailChangeOTPExpires || user.emailChangeOTPExpires < Date.now()) {
+      return res.status(400).json({ success: false, message: 'OTP is invalid or has expired' });
+    }
+
+    if (user.emailChangeOTP !== otpHash) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+
+    if (type === 'current') {
+      // Step 2 Completed: Current email verified.
+      // Clear OTP but keep state ready for next step (frontend will now ask for new email)
+      user.emailChangeOTP = undefined;
+      user.emailChangeOTPExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Current email verified. Please enter new email.'
+      });
+    } else if (type === 'new') {
+      // Step 4 Completed: New email verified. Update actual email.
+      if (!user.tempNewEmail) {
+        return res.status(400).json({ success: false, message: 'No new email pending verification' });
+      }
+
+      user.email = user.tempNewEmail;
+      user.tempNewEmail = undefined;
+      user.emailChangeOTP = undefined;
+      user.emailChangeOTPExpires = undefined;
+
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Email address updated successfully'
+      });
+    }
+
+  } catch (error) {
+    logger.error('Verify email change error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// @desc    Initiate password change (Verify current & stash new password)
+// @route   POST /api/v1/admin/password-change/initiate
+// @access  Admin
+const initiatePasswordChange = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.id).select('+password');
+
+        // 1. Verify current password
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Invalid current password' });
+        }
+
+        // 2. Hash new password and stash it
+        const salt = await bcrypt.genSalt(10);
+        const duplicateCheck = await bcrypt.compare(newPassword, user.password);
+        if (duplicateCheck) {
+             return res.status(400).json({ success: false, message: 'New password cannot be the same as current password' });
+        }
+
+        user.tempNewPassword = await bcrypt.hash(newPassword, salt);
+
+        // 3. Generate and send OTP
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+        user.passwordChangeOTP = otpHash;
+        user.passwordChangeOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        await user.save({ validateBeforeSave: false });
+
+        await emailService.sendPasswordChangeOTP(user.email, otp);
+
+        res.status(200).json({
+            success: true,
+            message: 'OTP sent to your email address'
+        });
+
+    } catch (error) {
+        logger.error('Initiate password change error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+// @desc    Verify OTP and Finalize Password Change
+// @route   POST /api/v1/admin/password-change/verify
+// @access  Admin
+const verifyPasswordChangeOTP = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        const user = await User.findById(req.user.id).select('+tempNewPassword');
+
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+        if (!user.passwordChangeOTP || !user.passwordChangeOTPExpires || user.passwordChangeOTPExpires < Date.now()) {
+            return res.status(400).json({ success: false, message: 'OTP is invalid or has expired' });
+        }
+
+        if (user.passwordChangeOTP !== otpHash) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP' });
+        }
+
+        if (!user.tempNewPassword) {
+             return res.status(400).json({ success: false, message: 'No password change pending' });
+        }
+
+        // Commit change
+        user.password = user.tempNewPassword;
+        user.tempNewPassword = undefined;
+        user.passwordChangeOTP = undefined;
+        user.passwordChangeOTPExpires = undefined;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password updated successfully'
+        });
+
+    } catch (error) {
+        logger.error('Verify password change error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
 module.exports = {
   getDashboard,
   getAnalytics,
@@ -561,5 +848,9 @@ module.exports = {
   getProfile,
   updateProfile,
   changePassword,
-  uploadAvatar
+  uploadAvatar,
+  initiateEmailChange,
+  verifyEmailChangeOTP,
+  initiatePasswordChange,
+  verifyPasswordChangeOTP
 };

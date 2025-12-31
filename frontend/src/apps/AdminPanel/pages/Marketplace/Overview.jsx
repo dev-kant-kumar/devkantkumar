@@ -48,8 +48,8 @@ const Overview = () => {
       color: 'from-green-500 to-emerald-600',
       bgGlow: 'bg-green-500/10',
       text: 'text-green-600 dark:text-green-400',
-      trend: '+12.5%',
-      trendUp: true,
+      trend: `${stats.trends?.revenue || '0.0'}%`,
+      trendUp: parseFloat(stats.trends?.revenue || 0) >= 0,
       description: 'Total earnings'
     },
     {
@@ -59,8 +59,8 @@ const Overview = () => {
       color: 'from-blue-500 to-indigo-600',
       bgGlow: 'bg-blue-500/10',
       text: 'text-blue-600 dark:text-blue-400',
-      trend: '+4.3%',
-      trendUp: true,
+      trend: `${stats.trends?.orders || '0.0'}%`,
+      trendUp: parseFloat(stats.trends?.orders || 0) >= 0,
       description: 'All time orders'
     },
     {
@@ -70,7 +70,7 @@ const Overview = () => {
       color: 'from-purple-500 to-violet-600',
       bgGlow: 'bg-purple-500/10',
       text: 'text-purple-600 dark:text-purple-400',
-      trend: '+2.1%',
+      trend: '0.0%',
       trendUp: true,
       description: 'Digital assets available'
     },
@@ -81,7 +81,7 @@ const Overview = () => {
       color: 'from-orange-500 to-red-600',
       bgGlow: 'bg-orange-500/10',
       text: 'text-orange-600 dark:text-orange-400',
-      trend: '+5.4%',
+      trend: '0.0%',
       trendUp: true,
       description: 'Freelance services live'
     }

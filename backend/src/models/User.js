@@ -124,6 +124,38 @@ const userSchema = new mongoose.Schema({
   emailVerificationToken: String,
   emailVerificationExpires: Date,
 
+  // --- Email Change Verification ---
+  tempNewEmail: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+  },
+  emailChangeOTP: String,
+  emailChangeOTPExpires: Date,
+
+  // --- Password Change Verification ---
+  tempNewPassword: {
+    type: String,
+    select: false
+  },
+  passwordChangeOTP: String,
+  passwordChangeOTPExpires: Date,
+
+  // Two-Factor Authentication
+  twoFactorSecret: {
+    type: String,
+    select: false
+  },
+  isTwoFactorEnabled: {
+    type: Boolean,
+    default: false
+  },
+  twoFactorBackupCodes: {
+    type: [String],
+    select: false
+  },
+
   loginAttempts: { type: Number, default: 0 },
   lockUntil: Date,
   lastLogin: Date,

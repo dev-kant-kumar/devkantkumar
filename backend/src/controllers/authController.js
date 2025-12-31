@@ -6,6 +6,8 @@ const logger = require('../utils/logger');
 const emailService = require('../services/emailService');
 const { getRedisClient } = require('../db/redis'); // Import Redis client getter
 const { validationResult } = require('express-validator');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 // Helper function to send token response
 const sendTokenResponse = (user, statusCode, res, message) => {
@@ -138,7 +140,7 @@ const login = async (req, res, next) => {
       logger.warn(`Login failed - User not found: ${email}`);
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'User not found'
       });
     }
 
@@ -181,7 +183,7 @@ const login = async (req, res, next) => {
 
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid password'
       });
     }
 
@@ -199,6 +201,23 @@ const login = async (req, res, next) => {
       logger.info(`🔐 ADMIN LOGIN SUCCESSFUL: ${user.email} - Admin panel access granted`);
     } else {
       logger.info(`✅ User login successful: ${user.email} - Role: ${user.role}`);
+    }
+
+    // Check for Two-Factor Authentication
+    if (user.isTwoFactorEnabled) {
+      // Create a temporary token for 2FA verification
+      const tempToken = jwt.sign(
+        { id: user._id, role: user.role, type: '2fa_pending' },
+        process.env.JWT_SECRET,
+        { expiresIn: '10m' }
+      );
+
+      return res.status(200).json({
+        success: true,
+        otpRequired: true,
+        tempToken,
+        message: 'Please enter your 2FA code'
+      });
     }
 
     sendTokenResponse(user, 200, res, 'Login successful');
@@ -265,6 +284,7 @@ const getMe = async (req, res, next) => {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
+        isTwoFactorEnabled: user.isTwoFactorEnabled,
         avatar: user.avatar,
         isEmailVerified: user.isEmailVerified,
         phone: user.profile?.phone,
@@ -669,6 +689,137 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+// @desc    Setup 2FA (Generate Secret & QR Code)
+// @route   POST /api/v1/auth/2fa/setup
+// @access  Private
+const setup2FA = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    const secret = speakeasy.generateSecret({
+      issuer: 'Dev Kant Kumar Portfolio',
+      name: `Dev Kant Kumar Portfolio (${user.email})`
+    });
+
+    user.twoFactorSecret = secret.base32;
+    await user.save();
+
+    const url = await qrcode.toDataURL(secret.otpauth_url);
+
+    res.status(200).json({
+      success: true,
+      secret: secret.base32,
+      qrCode: url
+    });
+  } catch (error) {
+    logger.error('Setup 2FA error:', error);
+    next(error);
+  }
+};
+
+// @desc    Verify 2FA Setup & Enable
+// @route   POST /api/v1/auth/2fa/verify
+// @access  Private
+const verify2FASetup = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    const user = await User.findById(req.user.id).select('+twoFactorSecret');
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token
+    });
+
+    if (verified) {
+      user.isTwoFactorEnabled = true;
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: '2FA enabled successfully'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid OTP'
+      });
+    }
+  } catch (error) {
+    logger.error('Verify 2FA setup error:', error);
+    next(error);
+  }
+};
+
+// @desc    Disable 2FA
+// @route   POST /api/v1/auth/2fa/disable
+// @access  Private
+const disable2FA = async (req, res, next) => {
+  try {
+    const { password } = req.body;
+    const user = await User.findById(req.user.id).select('+password');
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid password'
+      });
+    }
+
+    user.isTwoFactorEnabled = false;
+    user.twoFactorSecret = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: '2FA disabled successfully'
+    });
+  } catch (error) {
+    logger.error('Disable 2FA error:', error);
+    next(error);
+  }
+};
+
+// @desc    Verify 2FA for Login
+// @route   POST /api/v1/auth/login/verify-2fa
+// @access  Public
+const verify2FALogin = async (req, res, next) => {
+  try {
+    const { tempToken, otp } = req.body;
+
+    if (!tempToken || !otp) {
+      return res.status(400).json({ success: false, message: 'Token and OTP required' });
+    }
+
+    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    if (decoded.type !== '2fa_pending') {
+      return res.status(400).json({ success: false, message: 'Invalid token type' });
+    }
+
+    const user = await User.findById(decoded.id).select('+twoFactorSecret');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token: otp
+    });
+
+    if (verified) {
+      sendTokenResponse(user, 200, res, 'Login successful');
+    } else {
+      res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+
+  } catch (error) {
+    logger.error('Verify 2FA login error:', error);
+    return res.status(401).json({ success: false, message: 'Invalid or expired session' });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -680,5 +831,9 @@ module.exports = {
   forgotPassword,
   resetPassword,
   updateProfile,
-  changePassword
+  changePassword,
+  setup2FA,
+  verify2FASetup,
+  disable2FA,
+  verify2FALogin
 };

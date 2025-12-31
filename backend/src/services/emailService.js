@@ -115,6 +115,59 @@ class EmailService {
       type: 'newsletter-welcome-email'
     });
   }
+
+  /**
+   * Send OTP for email change
+   * @param {string} email
+   * @param {string} otp
+   * @param {string} type - 'current' or 'new'
+   */
+  async sendEmailChangeOTP(email, otp, type) {
+    const subject = type === 'current'
+      ? 'Verify Request to Change Email'
+      : 'Verify Your New Email Address';
+
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>${subject}</h2>
+        <p>Use the following OTP to verify your request:</p>
+        <h1 style="background: #f4f4f4; padding: 20px; text-align: center; letter-spacing: 5px;">${otp}</h1>
+        <p>This OTP is valid for 10 minutes.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      </div>
+    `;
+
+    return addEmailToQueue({
+      to: email,
+      subject,
+      html,
+      type: 'email-change-otp'
+    });
+  }
+
+  /**
+   * Send OTP for password change
+   * @param {string} email
+   * @param {string} otp
+   */
+  async sendPasswordChangeOTP(email, otp) {
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Verify Request to Change Password</h2>
+        <p>Use the following OTP to verify your request:</p>
+        <h1 style="background: #f4f4f4; padding: 20px; text-align: center; letter-spacing: 5px;">${otp}</h1>
+        <p>This OTP is valid for 10 minutes.</p>
+        <p>If you didn't request this, please contact support immediately.</p>
+      </div>
+    `;
+
+    return addEmailToQueue({
+      to: email,
+      subject: 'Verify Password Change Request',
+      html,
+      type: 'password-change-otp'
+    });
+  }
 }
 
 module.exports = new EmailService();

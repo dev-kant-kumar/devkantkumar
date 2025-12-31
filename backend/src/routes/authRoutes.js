@@ -10,12 +10,12 @@ const router = express.Router();
 const registerValidation = [
   body('firstName').trim().isLength({ min: 2, max: 50 }),
   body('lastName').trim().isLength({ min: 2, max: 50 }),
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail().normalizeEmail({ gmail_remove_dots: false }),
   body('password').isLength({ min: 6 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
 ];
 
 const loginValidation = [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail().normalizeEmail({ gmail_remove_dots: false }),
   body('password').notEmpty()
 ];
 
@@ -28,8 +28,12 @@ router.post('/forgot-password', forgotPasswordLimiter, authController.forgotPass
 router.put('/reset-password/:token', authController.resetPassword);
 router.get('/verify-email/:token', authController.verifyEmail);
 router.post('/resend-verification', authController.resendVerification);
+router.post('/login/verify-2fa', authController.verify2FALogin);
 
 // Protected routes
+router.post('/2fa/setup', protect, authController.setup2FA);
+router.post('/2fa/verify', protect, authController.verify2FASetup);
+router.post('/2fa/disable', protect, authController.disable2FA);
 router.get('/me', protect, authController.getMe);
 router.put('/update-profile', protect, authController.updateProfile);
 router.put('/change-password', protect, authController.changePassword);

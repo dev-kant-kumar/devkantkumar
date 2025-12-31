@@ -15,7 +15,14 @@ import { adminApiSlice } from '../api/adminApiSlice';
 const parseStoredUser = () => {
   try {
     const storedUser = localStorage.getItem('adminUser');
-    return storedUser ? JSON.parse(storedUser) : null;
+
+    // Check if storedUser is null, undefined, or the string "undefined"
+    if (!storedUser || storedUser === 'undefined' || storedUser === 'null') {
+      localStorage.removeItem('adminUser');
+      return null;
+    }
+
+    return JSON.parse(storedUser);
   } catch (error) {
     console.error('Error parsing stored user data:', error);
     localStorage.removeItem('adminUser');
@@ -89,13 +96,26 @@ const adminAuthSlice = createSlice({
       const userStr = localStorage.getItem('adminUser');
       const lastLogin = localStorage.getItem('adminLastLogin');
 
-      if (token && userStr) {
+      // This is a synchronous operation, no loading state needed
+      state.isLoading = false;
+
+      // Validate that we have valid data (not null, undefined, or string "undefined")
+      const hasValidToken = token && token !== 'undefined' && token !== 'null';
+      const hasValidUserStr = userStr && userStr !== 'undefined' && userStr !== 'null';
+
+      if (hasValidToken && hasValidUserStr) {
         try {
           const user = JSON.parse(userStr);
-          state.adminToken = token;
-          state.adminUser = user;
-          state.isAuthenticated = true;
-          state.lastLoginTime = lastLogin;
+
+          // Additional validation: make sure parsed user is an object
+          if (user && typeof user === 'object') {
+            state.adminToken = token;
+            state.adminUser = user;
+            state.isAuthenticated = true;
+            state.lastLoginTime = lastLogin;
+          } else {
+            throw new Error('Invalid user data structure');
+          }
         } catch (error) {
           console.error('Error initializing auth from localStorage:', error);
           // If user data is corrupted, clear everything
@@ -108,7 +128,7 @@ const adminAuthSlice = createSlice({
           state.lastLoginTime = null;
         }
       } else {
-        // Clear any partial data
+        // Clear any partial or invalid data
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminUser');
         localStorage.removeItem('adminLastLogin');
@@ -140,6 +160,32 @@ const adminAuthSlice = createSlice({
       )
       .addMatcher(
         adminApiSlice.endpoints.adminLogin.matchFulfilled,
+        (state, action) => {
+          state.isLoading = false;
+
+          // If 2FA is required, we don't complete the authentication yet
+          if (action.payload.otpRequired) {
+            state.isAuthenticated = false;
+            state.adminToken = null;
+            state.adminUser = null;
+            state.error = null;
+            return;
+          }
+
+          state.isAuthenticated = true;
+          state.adminToken = action.payload.token;
+          state.adminUser = action.payload.user;
+          state.error = null;
+          state.lastLoginTime = new Date().toISOString();
+
+          // Store in localStorage
+          localStorage.setItem('adminToken', action.payload.token);
+          localStorage.setItem('adminUser', JSON.stringify(action.payload.user));
+          localStorage.setItem('adminLastLogin', state.lastLoginTime);
+        }
+      )
+      .addMatcher(
+        adminApiSlice.endpoints.verify2FALogin.matchFulfilled,
         (state, action) => {
           state.isLoading = false;
           state.isAuthenticated = true;

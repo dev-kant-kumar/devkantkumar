@@ -531,9 +531,54 @@ exports.getStats = async (req, res) => {
 
     const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].totalRevenue : 0;
 
-    // Revenue Timeline (Last 30 Days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Timeline & Trend Calculation
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000));
+
+    // Current period revenue/orders
+    const currentPeriod = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: { $in: ['confirmed', 'completed'] }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: "$payment.amount.subtotal" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Previous period revenue/orders
+    const previousPeriod = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+          status: { $in: ['confirmed', 'completed'] }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: "$payment.amount.subtotal" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const curRev = currentPeriod[0]?.revenue || 0;
+    const prevRev = previousPeriod[0]?.revenue || 0;
+    const curOrders = currentPeriod[0]?.count || 0;
+    const prevOrders = previousPeriod[0]?.count || 0;
+
+    const calcTrend = (cur, prev) => {
+      if (prev === 0) return cur > 0 ? 100 : 0;
+      return ((cur - prev) / prev) * 100;
+    };
 
     const revenueTimeline = await Order.aggregate([
       {
@@ -552,7 +597,6 @@ exports.getStats = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    // Order Status Distribution
     const statusDistribution = await Order.aggregate([
       {
         $group: {
@@ -570,7 +614,12 @@ exports.getStats = async (req, res) => {
         orders: totalOrders,
         revenue: totalRevenue,
         revenueTimeline,
-        statusDistribution
+        statusDistribution,
+        trends: {
+          revenue: calcTrend(curRev, prevRev).toFixed(1),
+          orders: calcTrend(curOrders, prevOrders).toFixed(1),
+          products: "0.0" // Content growth trend could be added similarly
+        }
       }
     });
   } catch (error) {

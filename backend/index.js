@@ -37,6 +37,7 @@ const uploadRoutes = require('./src/routes/uploadRoutes');
 const pdfRoutes = require('./src/routes/pdfRoutes');
 const cartRoutes = require('./src/routes/cartRoutes');
 const subscriberRoutes = require('./src/routes/subscriberRoutes');
+const analyticsRoutes = require('./src/routes/analyticsRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -44,7 +45,7 @@ const notFound = require('./src/middlewares/notFound');
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-  : ['http://localhost:5173', 'http://localhost:3000'];
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
 
 const app = express();
 
@@ -181,6 +182,7 @@ app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/pdf', pdfRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/subscribers', subscriberRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
 
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -201,6 +203,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 // Start server
+// Start server with port fallback
 const startServer = async () => {
   try {
     // Connect to MongoDB
@@ -213,27 +216,35 @@ const startServer = async () => {
       logger.warn(`Redis unavailable, continuing without caching: ${redisError.message}`);
     }
 
-    // Start the server
-    const server = app.listen(PORT, () => {
-      logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on http://localhost:${PORT}`);
-    });
-
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-      logger.info('SIGTERM received. Shutting down gracefully...');
-      server.close(() => {
-        logger.info('Process terminated');
-        process.exit(0);
+    const startListener = (port) => {
+      const portNum = parseInt(port, 10);
+      const server = app.listen(portNum, () => {
+        logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on http://localhost:${portNum}`);
       });
-    });
 
-    process.on('SIGINT', () => {
-      logger.info('SIGINT received. Shutting down gracefully...');
-      server.close(() => {
-        logger.info('Process terminated');
-        process.exit(0);
+      server.on('error', (e) => {
+        if (e.code === 'EADDRINUSE') {
+          logger.warn(`⚠️ Port ${portNum} is in use, trying ${portNum + 1}...`);
+          startListener(portNum + 1);
+        } else {
+          logger.error('Server error:', e);
+        }
       });
-    });
+
+      // Graceful shutdown
+      const shutdown = () => {
+        logger.info('Shutting down gracefully...');
+        server.close(() => {
+          logger.info('Process terminated');
+          process.exit(0);
+        });
+      };
+
+      process.on('SIGTERM', shutdown);
+      process.on('SIGINT', shutdown);
+    };
+
+    startListener(parseInt(PORT, 10));
 
   } catch (error) {
     logger.error('Failed to start server:', error);
