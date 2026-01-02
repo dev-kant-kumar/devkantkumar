@@ -1,27 +1,36 @@
 import {
-    AlertTriangle,
-    Calendar,
-    Check,
-    Clock,
-    Command,
-    Copy,
-    Download,
-    ExternalLink,
-    FileVideo,
-    Folder,
-    Image as ImageIcon,
-    Layers,
-    List,
-    Music,
-    Play,
-    Shield,
-    Tag,
-    Terminal,
-    Type,
-    User,
-    Youtube
+  AlertTriangle,
+  Calendar,
+  Check,
+  Clock,
+  Command,
+  Copy,
+  Download,
+  ExternalLink,
+  FileVideo,
+  Folder,
+  HelpCircle,
+  Image as ImageIcon,
+  Layers,
+  List,
+  Lock,
+  MessageSquare,
+  MousePointer2,
+  Music,
+  Play,
+  Repeat,
+  Search,
+  Shield,
+  ShieldAlert,
+  Tag,
+  Terminal,
+  Type,
+  User,
+  Youtube,
+  Zap
 } from "lucide-react";
 import React from "react";
+import { Link } from "react-router-dom";
 
 function YtDlpFeaturedImage({ className = "" }) {
   return (
@@ -180,6 +189,24 @@ function InfoBox({ type = "info", title, children, icon: Icon }) {
   );
 }
 
+function QuestionBox({ question, answer, icon: Icon = HelpCircle }) {
+  return (
+    <div className="my-6 p-6 rounded-xl border border-gray-800 bg-[#161616] hover:border-green-500/30 transition-colors group">
+      <div className="flex gap-4">
+        <div className="mt-1">
+          <Icon size={20} className="text-green-400 group-hover:scale-110 transition-transform" />
+        </div>
+        <div>
+          <h4 className="font-bold text-white text-lg mb-2">{question}</h4>
+          <div className="text-gray-400 leading-relaxed text-sm md:text-base">
+            {answer}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ArticleMetadata() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-8 border-b border-gray-800">
@@ -253,7 +280,7 @@ function YtDlpGuidePost() {
           </div>
           <div className="prose prose-lg prose-invert max-w-none">
             <p>
-              <strong>yt-dlp</strong> is a feature-rich command-line audio/video downloader. It is a fork of the now-inactive <em>youtube-dl</em> project, but with significant improvements:
+              <strong>yt-dlp</strong> is a feature-rich command-line audio/video downloader. It is a fork of the now-inactive <em>youtube-dl</em> project. If you're familiar with command-line tools like <Link to="/blog/git-guide-2025" className="text-green-400 hover:underline">Git</Link> or local AI tools like <Link to="/blog/ollama-guide" className="text-green-400 hover:underline">Ollama</Link>, you'll feel right at home.
             </p>
             <ul className="grid md:grid-cols-2 gap-4 my-6 list-none pl-0">
               <li className="flex items-start gap-3 bg-[#1e1e1e] p-4 rounded-lg border border-gray-800">
@@ -306,6 +333,43 @@ function YtDlpGuidePost() {
           <p>Open a new terminal window and type:</p>
           <CodeBlock language="bash" code="yt-dlp --version" />
           <p>If you see a date (e.g., <code>2025.01.15</code>), you are ready to go!</p>
+
+          {/* Manual PATH Guide */}
+          <div className="mt-12 p-8 rounded-2xl bg-[#161616] border border-gray-800">
+            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <ShieldAlert size={24} className="text-yellow-400" />
+              Manual Setup: Fixing "Not Recognized" Error
+            </h3>
+            <p className="text-gray-400 mb-6 font-light leading-relaxed">
+              If you didn't use Winget and downloaded the <code>.exe</code> manually, Windows won't know where it is. You need to "teach" Windows the path to your folder.
+            </p>
+
+            <div className="space-y-8">
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                <div className="flex-1 space-y-4">
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold border border-green-500/30">1</div>
+                    <p className="text-gray-300">Move <code>yt-dlp.exe</code> to a simple folder like <code>C:\yt-dlp\</code></p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold border border-green-500/30">2</div>
+                    <p className="text-gray-300">Search for <strong>"Environment Variables"</strong> in Windows Start.</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold border border-green-500/30">3</div>
+                    <p className="text-gray-300">Under <strong>System Variables</strong>, find <strong>Path</strong> and click <strong>Edit</strong>.</p>
+                  </div>
+                </div>
+                <div className="flex-1 rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
+                  <img src="/images/blog/windows_path_guide_ui.png" alt="Windows Environment Variables Guide" className="w-full h-auto" />
+                </div>
+              </div>
+
+              <div className="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg text-sm text-yellow-200/80 italic">
+                <strong>Pro Tip:</strong> After clicking <strong>New</strong>, paste <code>C:\yt-dlp</code> and click OK 3 times. <strong>Restart</strong> your terminal for changes to take effect.
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Basic Usage */}
@@ -454,6 +518,156 @@ function YtDlpGuidePost() {
           />
         </section>
 
+        {/* Real Questions from YT Viewers */}
+        <section id="faq-section" className="mb-16 scroll-mt-24">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
+              <MessageSquare size={24} className="text-red-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-white">Real Questions Viewers Are Asking</h2>
+          </div>
+
+          <p className="text-gray-400 mb-8 italic border-l-4 border-red-500/30 pl-4">
+            These questions are collected directly from people watching my yt-dlp tutorials on YouTube. Most viewers arrive via YouTube Search while trying to solve real-world problems.
+          </p>
+
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-green-400 mt-8 mb-4 flex items-center gap-2">
+              <Download size={20} /> Installation & Setup
+            </h3>
+
+            <QuestionBox
+              question="“yt-dlp is not recognized as a command”"
+              answer={
+                <>
+                  <p>This is the most common error. It means Windows cannot find the <code>yt-dlp.exe</code> file because its folder isn't in your <strong>PATH</strong> environment variable.</p>
+                  <p className="mt-2 text-green-400/80 font-mono text-xs">Fix: If you used Winget, restart your terminal. If you downloaded the EXE manually, add its folder to System Environment Variables.</p>
+                </>
+              }
+              icon={ShieldAlert}
+            />
+
+            <QuestionBox
+              question="“Do I need to configure .env for yt-dlp?”"
+              answer="No. Unlike Node.js or backend tools, yt-dlp is a direct CLI binary. It doesn't use .env files. Once it's in your PATH, it's ready to work globally."
+              icon={Zap}
+            />
+
+            <h3 className="text-xl font-bold text-green-400 mt-12 mb-4 flex items-center gap-2">
+              <Play size={20} /> Downloading Videos & Playlists
+            </h3>
+
+            <QuestionBox
+              question="“How do I download an entire YouTube playlist?”"
+              answer={
+                <>
+                  <p>Just paste the playlist URL! To make it robust, use the ignore-errors flag:</p>
+                  <code className="block bg-black/40 p-2 mt-2 rounded border border-gray-800 text-xs">yt-dlp -i "PLAYLIST_URL"</code>
+                  <p className="mt-2">This ensures the download continues even if one video is private or deleted.</p>
+                </>
+              }
+              icon={Repeat}
+            />
+
+            <QuestionBox
+              question="“Why does yt-dlp fail when pasting playlist links?”"
+              answer="Often, users copy URLs with extra tracking parameters (like &index=5). Try to use the clean URL that ends with &list=ID. Also, always wrap your URL in double quotes in the terminal to avoid special character errors."
+              icon={MousePointer2}
+            />
+
+            <h3 className="text-xl font-bold text-green-400 mt-12 mb-4 flex items-center gap-2">
+              <FileVideo size={20} /> Video Quality & Access
+            </h3>
+
+            <QuestionBox
+              question="“How do I change or control video quality?”"
+              answer="By default, yt-dlp picks the best quality. If you want a specific resolution like 1080p, use: yt-dlp -f 'bestvideo[height<=1080]+bestaudio/best'. Note: 4K/8K require FFmpeg to be installed."
+              icon={Search}
+            />
+
+            <QuestionBox
+              question="“How do I download member-only or age-restricted videos?”"
+              answer={
+                <>
+                  <p>This is a common hurdle. Since these videos are protected, you must prove to YouTube that you have access. There are two main ways to do this:</p>
+
+                  <div className="space-y-8 mt-6">
+                    {/* Method 1: Automatic */}
+                    <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                      <h5 className="text-white font-bold mb-3 flex items-center gap-2">
+                        <Zap size={18} className="text-blue-400" />
+                        Method 1: Direct Browser Access (Easiest)
+                      </h5>
+                      <p className="text-gray-400 mb-4 text-sm">Best for local machines. yt-dlp "borrows" your active session safely.</p>
+                      <code className="block bg-black/60 p-3 rounded border border-blue-500/30 text-blue-300 text-xs overflow-x-auto">yt-dlp --cookies-from-browser chrome "URL"</code>
+                    </div>
+
+                    {/* Method 2: Extension */}
+                    <div className="p-5 rounded-xl bg-green-500/5 border border-green-500/20">
+                      <h5 className="text-white font-bold mb-3 flex items-center gap-2">
+                        <Download size={18} className="text-green-400" />
+                        Method 2: Cookie Extension (Most Reliable)
+                      </h5>
+                      <p className="text-gray-400 mb-4 text-sm">Best if Method 1 fails or if you're using a remote server / VPS.</p>
+
+                      <div className="grid md:grid-cols-2 gap-6 items-start">
+                        <div className="space-y-4 text-sm">
+                          <p className="text-gray-300"><span className="text-green-400 font-bold">Step 1:</span> Install the <strong>"Get cookies.txt LOCALLY"</strong> extension in Chrome/Firefox.</p>
+                          <p className="text-gray-300"><span className="text-green-400 font-bold">Step 2:</span> Open YouTube, log in, and click the extension icon to <strong>Export</strong> your cookies to a file named <code>cookies.txt</code>.</p>
+                          <p className="text-gray-300"><span className="text-green-400 font-bold">Step 3:</span> Move the file to your download folder and run:</p>
+                          <code className="block bg-black/60 p-3 rounded border border-green-500/30 text-green-300 text-xs mt-2">yt-dlp --cookies cookies.txt "URL"</code>
+                        </div>
+                        <div className="rounded-lg overflow-hidden border border-gray-800 shadow-xl">
+                          <img src="/images/blog/yt_dlp_cookie_extension_steps.png" alt="Cookie Extension Guide" className="w-full h-auto" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 p-4 rounded-xl border border-gray-800 bg-[#1e1e1e] flex flex-col md:flex-row gap-6 items-center">
+                    <div className="flex-1 opacity-80 order-2 md:order-1">
+                       <img src="/images/blog/yt_dlp_cookies_security_concept.png" alt="How Cookies Work with yt-dlp" className="w-full h-auto rounded-lg shadow-lg border border-gray-700" />
+                    </div>
+                    <div className="flex-1 order-1 md:order-2">
+                       <p className="text-gray-300 text-sm leading-relaxed">
+                         <strong>Why use cookies?</strong> YouTube uses them to remember your login. By sharing them with yt-dlp, the tool sees exactly what you see—your memberships, your history, and your age verification.
+                       </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-6 text-yellow-400/80 text-xs text-italic">
+                    <strong>Note:</strong> Keep your <code>cookies.txt</code> private! It contains your login session. If using Method 1, close your browser first to avoid "database locked" errors.
+                  </p>
+                </>
+              }
+              icon={Lock}
+            />
+          </div>
+
+
+        </section>
+
+        {/* Uninstall Section */}
+        <section id="uninstallation" className="mb-16 scroll-mt-24">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+              <AlertTriangle size={24} className="text-orange-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-white">How to Uninstall yt-dlp</h2>
+          </div>
+          <p className="mb-4 text-gray-400">If you're cleaning up your environment or switching installation methods, here's how to remove it completely:</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-[#1e1e1e] p-4 rounded-lg border border-gray-800">
+              <p className="text-white font-bold mb-2">If installed via Winget:</p>
+              <code className="text-xs text-green-400">winget uninstall yt-dlp</code>
+            </div>
+            <div className="bg-[#1e1e1e] p-4 rounded-lg border border-gray-800">
+              <p className="text-white font-bold mb-2">If manual EXE:</p>
+              <p className="text-xs text-gray-400">Delete the <code>yt-dlp.exe</code> file and remove its folder from your PATH variables.</p>
+            </div>
+          </div>
+        </section>
+
         {/* Common Errors */}
         <section id="common-errors" className="mb-16 scroll-mt-24">
           <div className="flex items-center gap-3 mb-6">
@@ -511,7 +725,7 @@ function YtDlpGuidePost() {
 
         {/* Hidden SEO Keywords */}
         <div className="hidden">
-          yt-dlp commands, download YouTube videos terminal, YouTube video downloader CLI, yt-dlp tutorial 2025, download YouTube playlists, windows terminal downloader, best youtube downloader reddit, 4k video downloader free.
+          yt-dlp commands, download YouTube videos terminal, YouTube video downloader CLI, yt-dlp tutorial 2025, download YouTube playlists, windows terminal downloader, best youtube downloader reddit, 4k video downloader free, how to install yt-dlp windows, yt-dlp windows 11 tutorial, yt-dlp cookies from browser, yt-dlp not recognized as command fix, download 1080p youtube video cmd, yt-dlp winget install, youtube-dl alternative 2025.
         </div>
 
       </article>
@@ -560,6 +774,18 @@ YtDlpGuidePost.info = {
     {
       question: "How do I update yt-dlp?",
       answer: "Run 'yt-dlp -U' in your terminal."
+    },
+    {
+      question: "Why is yt-dlp not recognized as a command?",
+      answer: "This usually means the folder containing yt-dlp.exe is not in your Windows PATH environment variable. Restarting your terminal after installation often fixes this."
+    },
+    {
+      question: "How do I download a YouTube playlist with yt-dlp?",
+      answer: "Use the command: yt-dlp -i 'playlist_url'. The -i flag helps ignore errors for deleted or private videos in the playlist."
+    },
+    {
+      question: "Can I download 4K videos with yt-dlp?",
+      answer: "Yes, but you must have FFmpeg installed for yt-dlp to merge the high-quality video and audio streams."
     }
   ]
 };
