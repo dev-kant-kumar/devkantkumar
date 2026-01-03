@@ -38,6 +38,7 @@ const pdfRoutes = require('./src/routes/pdfRoutes');
 const cartRoutes = require('./src/routes/cartRoutes');
 const subscriberRoutes = require('./src/routes/subscriberRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
+const youtubeRoutes = require('./src/routes/youtubeRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -183,6 +184,7 @@ app.use('/api/v1/pdf', pdfRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/subscribers', subscriberRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/youtube', youtubeRoutes);
 
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -33,106 +33,28 @@ const Content = () => {
   const [youTubeError, setYouTubeError] = useState(null);
   const [playingVideoId, setPlayingVideoId] = useState(null);
 
-  const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-  const YOUTUBE_CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
   const YOUTUBE_CHANNEL_URL =
     import.meta.env.VITE_YOUTUBE_CHANNEL_URL ||
-    "https://www.youtube.com/@dev-kant-kumar";
+    "https://www.youtube.com/@dev-code-space";
 
-  // Fetch latest video, most viewed videos and channel stats
+  // Fetch latest video, most viewed videos and channel stats via backend
   useEffect(() => {
-    if (!YOUTUBE_API_KEY || !YOUTUBE_CHANNEL_ID) {
-      setIsYouTubeLoading(false);
-      setYouTubeError("YouTube configuration is missing.");
-      return;
-    }
-
     const fetchYouTubeData = async () => {
       try {
         setIsYouTubeLoading(true);
         setYouTubeError(null);
 
-        const base = "https://www.googleapis.com/youtube/v3";
+        const response = await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/youtube/data`);
+        const json = await response.json();
 
-        const [searchRes, statsRes, mostViewedRes] = await Promise.all([
-          // Latest video
-          fetch(
-            `${base}/search?key=${YOUTUBE_API_KEY}&channelId=${YOUTUBE_CHANNEL_ID}&part=snippet,id&order=date&type=video&maxResults=1`
-          ),
-          // Channel statistics + branding
-          fetch(
-            `${base}/channels?key=${YOUTUBE_API_KEY}&id=${YOUTUBE_CHANNEL_ID}&part=snippet,statistics,brandingSettings`
-          ),
-          // Most viewed videos for grid
-          fetch(
-            `${base}/search?key=${YOUTUBE_API_KEY}&channelId=${YOUTUBE_CHANNEL_ID}&part=snippet,id&order=viewCount&type=video&maxResults=7`
-          ),
-        ]);
+        if (json.status === 'success' && json.data) {
+          const { latestVideo, youTubeVideos, channelStats } = json.data;
 
-        const [searchJson, statsJson, mostViewedJson] = await Promise.all([
-          searchRes.json(),
-          statsRes.json(),
-          mostViewedRes.json(),
-        ]);
-
-        // Latest video
-        const latestItem = searchJson.items?.[0];
-        if (latestItem) {
-          const videoId = latestItem.id?.videoId || latestItem.id;
-          setLatestYouTubeVideo({
-            id: videoId,
-            title: latestItem.snippet.title,
-            description: latestItem.snippet.description,
-            publishedAt: latestItem.snippet.publishedAt,
-            thumbnail:
-              latestItem.snippet.thumbnails?.high?.url ||
-              latestItem.snippet.thumbnails?.medium?.url,
-          });
-        }
-
-        // Most viewed videos (for grid)
-        const mostViewedItems = (mostViewedJson.items || []).filter(
-          (item) => item.id?.videoId
-        );
-        setYouTubeVideos(
-          mostViewedItems.map((item) => ({
-            id: item.id.videoId,
-            title: item.snippet.title,
-            description: item.snippet.description,
-            publishedAt: item.snippet.publishedAt,
-            thumbnail:
-              item.snippet.thumbnails?.high?.url ||
-              item.snippet.thumbnails?.medium?.url,
-          }))
-        );
-
-        // Channel stats card
-        const channel = statsJson.items?.[0];
-        if (channel) {
-          // Some APIs return bannerExternalUrl without protocol; normalize it
-          const rawBanner = channel.brandingSettings?.image?.bannerExternalUrl;
-          const bannerUrl = rawBanner
-            ? rawBanner.startsWith("http")
-              ? rawBanner
-              : `https:${rawBanner}`
-            : null;
-
-          const rawAvatar = channel.snippet.thumbnails?.high?.url;
-          const avatarUrl = rawAvatar
-            ? rawAvatar.startsWith("http")
-              ? rawAvatar
-              : `https:${rawAvatar}`
-            : null;
-
-          setChannelStats({
-            title: channel.snippet.title,
-            description: channel.snippet.description,
-            subscribers: channel.statistics.subscriberCount,
-            videos: channel.statistics.videoCount,
-            views: channel.statistics.viewCount,
-            banner: bannerUrl,
-            avatar: avatarUrl,
-          });
+          if (latestVideo) setLatestYouTubeVideo(latestVideo);
+          if (youTubeVideos) setYouTubeVideos(youTubeVideos);
+          if (channelStats) setChannelStats(channelStats);
+        } else {
+          throw new Error(json.message || "Failed to load YouTube data");
         }
       } catch (error) {
         console.error("Failed to fetch YouTube data", error);
@@ -143,7 +65,7 @@ const Content = () => {
     };
 
     fetchYouTubeData();
-  }, [YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID]);
+  }, []);
 
   // Placeholder: Fetch recent LinkedIn posts
   useEffect(() => {
@@ -432,11 +354,11 @@ const Content = () => {
                         YouTube Channel
                       </p>
                       <h3 className="text-lg font-semibold text-white truncate">
-                        {channelStats?.title || personalInfo.name}
+                        {channelStats?.title || "Dev Code Space"}
                       </h3>
                       <p className="text-xs text-slate-400 truncate">
                         {channelStats?.description ||
-                          "Welcome to my coding & tech content hub."}
+                          "Modern Dev Tutorials & Tech Insights."}
                       </p>
                     </div>
                   </div>
@@ -532,7 +454,7 @@ const Content = () => {
                   </p>
                 </div>
                 <a
-                  href="https://www.youtube.com/@dev-kant-kumar/videos"
+                  href="https://www.youtube.com/@dev-code-space/videos"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/30 text-cyan-300 text-sm font-medium hover:bg-slate-900 hover:border-cyan-400 transition-all duration-300"

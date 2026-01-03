@@ -1,33 +1,33 @@
 import {
-  AlertTriangle,
-  Calendar,
-  Check,
-  Clock,
-  Command,
-  Copy,
-  Download,
-  ExternalLink,
-  FileVideo,
-  Folder,
-  HelpCircle,
-  Image as ImageIcon,
-  Layers,
-  List,
-  Lock,
-  MessageSquare,
-  MousePointer2,
-  Music,
-  Play,
-  Repeat,
-  Search,
-  Shield,
-  ShieldAlert,
-  Tag,
-  Terminal,
-  Type,
-  User,
-  Youtube,
-  Zap
+    AlertTriangle,
+    Calendar,
+    Check,
+    Clock,
+    Command,
+    Copy,
+    Download,
+    ExternalLink,
+    FileVideo,
+    Folder,
+    HelpCircle,
+    Image as ImageIcon,
+    Layers,
+    List,
+    Lock,
+    MessageSquare,
+    MousePointer2,
+    Music,
+    Play,
+    Repeat,
+    Search,
+    Shield,
+    ShieldAlert,
+    Tag,
+    Terminal,
+    Type,
+    User,
+    Youtube,
+    Zap
 } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -320,7 +320,6 @@ function YtDlpGuidePost() {
             filename="Terminal"
           />
 
-          <YouTubeEmbed videoId="xBo1kjwvnkE" title="How to Install yt-dlp using Winget" />
 
           <InfoBox type="tip" title="FFmpeg Required" icon={Layers}>
             For the best experience (merging video+audio, converting formats), you also need <strong>FFmpeg</strong>.
@@ -386,7 +385,6 @@ function YtDlpGuidePost() {
             code="yt-dlp https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           />
 
-          <YouTubeEmbed videoId="cohxxiF2dOg" title="How to Download YouTube Videos" />
           <p className="text-sm text-gray-500 italic">
             This will download the best available quality into your current folder.
           </p>
@@ -699,15 +697,52 @@ function YtDlpGuidePost() {
           </InfoBox>
         </section>
 
-        {/* Full Tutorial Video */}
+        {/* Support the New Channel Section */}
         <section className="mb-16">
-           <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-                  <Youtube size={24} className="text-red-400" />
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-600/20 via-red-950/40 to-slate-900 border border-red-500/30 p-8 md:p-12">
+            {/* Decorative background elements */}
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-red-500/10 rounded-full blur-[80px]" />
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-red-600/10 rounded-full blur-[80px]" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+              <div className="flex-shrink-0 animate-bounce-slow">
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-2xl shadow-red-500/40 border border-white/20">
+                  <Youtube size={64} className="text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-white">Watch the Full Guide</h2>
-           </div>
-           <YouTubeEmbed videoId="unqqyJj7j1s" title="Complete yt-dlp Guide: Installation & Usage" />
+              </div>
+
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider mb-4">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  New Channel Launch
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+                  Help Me Build a New Community 🚀
+                </h2>
+                <p className="text-gray-300 text-lg leading-relaxed mb-6">
+                  I've recently started a fresh journey at <strong>@dev-code-space</strong>. Every single sub at this stage means the world and helps me reach more developers like you.
+                </p>
+                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                  <a
+                    href="https://www.youtube.com/@dev-code-space?sub_confirmation=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-white text-red-600 hover:bg-red-50 rounded-2xl font-black text-lg transition-all shadow-xl hover:scale-105 active:scale-95"
+                  >
+                    Subscribe Now <ExternalLink size={20} />
+                  </a>
+                  <div className="flex -space-x-3 items-center">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center overflow-hidden">
+                        <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="avatar" />
+                      </div>
+                    ))}
+                    <span className="ml-4 text-gray-400 text-sm font-medium">Join 500+ developers</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Conclusion */}
@@ -717,7 +752,7 @@ function YtDlpGuidePost() {
             <p className="text-gray-300 mb-6">
               Once you get comfortable with yt-dlp, you'll never go back to sketchy websites. It's the ultimate power tool for video archiving.
             </p>
-            <a href="https://www.youtube.com/channel/UCV2ZTkM7UAT6g_Q513dOIoQ?sub_confirmation=1" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold transition-colors">
+            <a href="https://www.youtube.com/@dev-code-space?sub_confirmation=1" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold transition-colors">
               Subscribe for More Tutorials <ExternalLink size={18} />
             </a>
           </div>
