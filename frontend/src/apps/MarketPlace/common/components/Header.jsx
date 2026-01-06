@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { LogOut, Menu, Search, Settings, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -26,6 +26,7 @@ const Header = () => {
   const [logoutApi] = useLogoutMutation();
 
   const dropdownRef = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +37,9 @@ const Header = () => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsProfileOpen(false);
+      }
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        setIsPanelOpen(false);
       }
     };
 
@@ -145,52 +149,7 @@ const Header = () => {
 
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-3">
-            {/* Panel Switcher (Settings Icon) */}
-            <div className="relative">
-              <button
-                onClick={() => setIsPanelOpen(!isPanelOpen)}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  isPanelOpen
-                    ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
-                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-                title="Switch Panel"
-              >
-                <Settings size={18} />
-              </button>
 
-              <AnimatePresence>
-                {isPanelOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-[60]"
-                  >
-                    <div className="p-1.5">
-                      <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Switch Panel
-                      </div>
-                      {panelSwitchItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          to={item.path}
-                          onClick={() => setIsPanelOpen(false)}
-                          className={`block px-3 py-2 rounded-lg text-sm transition-all ${
-                            item.current
-                              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium"
-                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
-                        >
-                          {item.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
             {/* Search */}
             <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
@@ -291,6 +250,53 @@ const Header = () => {
                 </Link>
               </div>
             )}
+
+            {/* Panel Switcher (Settings Icon - at the end) */}
+            <div className="relative" ref={panelRef}>
+              <button
+                onClick={() => setIsPanelOpen(!isPanelOpen)}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  isPanelOpen
+                    ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+                title="Switch Panel"
+              >
+                <Settings size={18} />
+              </button>
+
+              <AnimatePresence>
+                {isPanelOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-[60]"
+                  >
+                    <div className="p-1.5">
+                      <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Switch Panel
+                      </div>
+                      {panelSwitchItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          to={item.path}
+                          onClick={() => setIsPanelOpen(false)}
+                          className={`block px-3 py-2 rounded-lg text-sm transition-all ${
+                            item.current
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Mobile menu button */}

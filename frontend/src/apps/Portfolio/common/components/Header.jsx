@@ -246,7 +246,10 @@ const Header = () => {
 
             {/* Right Side Actions */}
             <div className="hidden lg:flex items-center gap-2">
-              {/* Panel Switcher (Compact) */}
+              {/* Install Button */}
+              <InstallPrompt />
+
+              {/* Panel Switcher (Settings - at the end) */}
               <div className="relative">
                 <button
                   onClick={(e) => handleDropdownToggle("panels", e)}
@@ -291,9 +294,6 @@ const Header = () => {
                   )}
                 </AnimatePresence>
               </div>
-
-              {/* Install Button */}
-              <InstallPrompt />
             </div>
 
             {/* Mobile menu button */}
