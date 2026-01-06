@@ -1,33 +1,33 @@
 // Top-level imports
 import {
-    AlertCircle,
-    BookOpen,
-    Box,
-    CheckCircle,
-    ChevronRight,
-    Clock,
-    Code,
-    Copy,
-    Database,
-    FileCode,
-    FolderTree,
-    GitBranch,
-    HelpCircle,
-    Layers,
-    Lock,
-    Package,
-    PlayCircle,
-    Settings,
-    Share2,
-    Shield,
-    Sparkles,
-    Target,
-    Terminal,
-    TrendingUp,
-    Users,
-    Video,
-    Workflow,
-    Zap
+  AlertCircle,
+  BookOpen,
+  Box,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Code,
+  Copy,
+  Database,
+  FileCode,
+  FolderTree,
+  GitBranch,
+  HelpCircle,
+  Layers,
+  Lock,
+  Package,
+  PlayCircle,
+  Settings,
+  Share2,
+  Shield,
+  Sparkles,
+  Target,
+  Terminal,
+  TrendingUp,
+  Users,
+  Video,
+  Workflow,
+  Zap
 } from "lucide-react";
 import React from "react";
 
@@ -1176,7 +1176,7 @@ This is XCOPY deployment in action!`}
               </ul>
             </InfoBox>
 
-            <YouTubeEmbed videoId="rIKXJxv-8QQ" title="How to Create and Use Private Assembly" />
+            <YouTubeEmbed videoId="Xa0ghGOsVnI" title="How to Create and Use Private Assembly" />
           </div>
         </section>
 
@@ -1548,7 +1548,7 @@ gacutil /l MySharedLibrary
               description="Screenshot showing multiple versions of the same assembly in GAC"
             />
 
-            <YouTubeEmbed videoId="yZ36IDEXaKY" title="How to Create and Use Shared Assembly" />
+            <YouTubeEmbed videoId="qtT4JJG9IVo" title="How to Create and Use Shared Assembly" />
           </div>
         </section>
 
