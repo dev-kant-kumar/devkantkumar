@@ -37,12 +37,30 @@
     </news:news>
   </url>
 
-  <!-- Blog Post: yt-dlp Guide -->
+  <!-- Blog Post: yt-dlp Ultimate Guide 2025 -->
   <url>
-    <loc>https://devkantkumar.com/blog/yt-dlp-guide</loc>
-    <lastmod>2025-11-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://devkantkumar.com/blog/yt-dlp-ultimate-guide-2026</loc>
+    <lastmod>2026-01-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+
+    <!-- Image for this post -->
+    <image:image>
+      <image:loc>https://devkantkumar.com/images/blog/yt-dlp-guide.png</image:loc>
+      <image:title>Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites</image:title>
+      <image:caption>The most comprehensive yt-dlp guide covering YouTube, TikTok, Instagram and 1800+ platforms with 100+ commands</image:caption>
+    </image:image>
+
+    <!-- News attributes for Google News -->
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-01-06T00:00:00+05:30</news:publication_date>
+      <news:title>Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites</news:title>
+      <news:keywords>yt-dlp, youtube downloader, video download, command line, tutorial, ffmpeg, sponsorblock, tiktok, instagram</news:keywords>
+    </news:news>
   </url>
 
   <!-- Blog Post: Anti Gravity Editor -->

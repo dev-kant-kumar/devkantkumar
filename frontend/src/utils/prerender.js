@@ -20,13 +20,16 @@ const routes = [
   "/contact",
   "/content",
   // Blog posts
-  "/blog/yt-dlp-guide",
+  "/blog/yt-dlp-ultimate-guide-2026",
   "/blog/anti-gravity-editor",
   "/blog/git-survival-guide",
   "/blog/react-server-components-2025",
   "/blog/agentic-ai-2025-guide",
   "/blog/dotnet-assembly-guide",
   "/blog/ollama-guide",
+  "/blog/ultimate-ai-tools-directory-2025",
+  "/blog/react-native-cli-vs-expo-2025",
+  "/blog/react-native-vs-flutter-2026",
 ];
 
 async function getBrowser() {
