@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run prerender && npm run generate-rss",
+    "build": "vite build && npm run generate-rss",
     "generate-rss": "node src/utils/generateRss.js",
     "prerender": "node src/utils/prerender.js",
-    "postinstall": "puppeteer browsers install chrome",
     "lint": "eslint .",
     "preview": "vite preview",
     "validate-portfolio": "node src/utils/validatePortfolioData.js",
