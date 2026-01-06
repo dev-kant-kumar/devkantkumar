@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import {
     ArrowRight,
     Code,
+    Eye,
     FileJson,
     Hash,
     Lock,
@@ -170,6 +171,21 @@ const tools = [
     category: 'Text',
     popular: false,
     keywords: ['markdown editor', 'markdown preview', 'readme generator', 'md viewer']
+  },
+  {
+    id: 'og-preview',
+    slug: 'og-preview',
+    name: 'OG / Social Preview Tool',
+    shortName: 'OG Preview',
+    description: 'Preview how your links appear on Facebook, Twitter, LinkedIn, and Discord. Validate Open Graph meta tags.',
+    icon: Eye,
+    color: 'from-orange-500 to-red-500',
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/30',
+    textColor: 'text-orange-400',
+    category: 'Developer',
+    popular: true,
+    keywords: ['og preview', 'open graph', 'social share preview', 'twitter card', 'meta tags validator']
   }
 ];
 

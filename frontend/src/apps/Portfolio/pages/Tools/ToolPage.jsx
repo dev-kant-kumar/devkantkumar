@@ -12,6 +12,7 @@ const UuidGenerator = React.lazy(() => import('./tools/UuidGenerator'));
 const CssGradientGenerator = React.lazy(() => import('./tools/CssGradientGenerator'));
 const MetaTagGenerator = React.lazy(() => import('./tools/MetaTagGenerator'));
 const MarkdownPreviewer = React.lazy(() => import('./tools/MarkdownPreviewer'));
+const OgPreviewTool = React.lazy(() => import('./tools/OgPreviewTool'));
 
 // Tool mapping
 const toolComponents = {
@@ -24,7 +25,8 @@ const toolComponents = {
   'uuid-generator': UuidGenerator,
   'css-gradient-generator': CssGradientGenerator,
   'meta-tag-generator': MetaTagGenerator,
-  'markdown-previewer': MarkdownPreviewer
+  'markdown-previewer': MarkdownPreviewer,
+  'og-preview': OgPreviewTool
 };
 
 const ToolPage = () => {
