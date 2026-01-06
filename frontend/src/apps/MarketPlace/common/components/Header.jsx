@@ -11,6 +11,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   // const cartCount = useSelector(selectCartItemCount);  // Fetch cart data for real-time count
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const { data: cartData } = useGetCartQuery(undefined, {
@@ -143,22 +144,52 @@ const Header = () => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {/* Panel Switcher */}
-            <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-              {panelSwitchItems.map((panel) => (
-                <Link
-                  key={panel.name}
-                  to={panel.path}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
-                    panel.current
-                      ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                  }`}
-                >
-                  {panel.name}
-                </Link>
-              ))}
+          <div className="hidden lg:flex items-center space-x-3">
+            {/* Panel Switcher (Settings Icon) */}
+            <div className="relative">
+              <button
+                onClick={() => setIsPanelOpen(!isPanelOpen)}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  isPanelOpen
+                    ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+                title="Switch Panel"
+              >
+                <Settings size={18} />
+              </button>
+
+              <AnimatePresence>
+                {isPanelOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden z-[60]"
+                  >
+                    <div className="p-1.5">
+                      <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Switch Panel
+                      </div>
+                      {panelSwitchItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          to={item.path}
+                          onClick={() => setIsPanelOpen(false)}
+                          className={`block px-3 py-2 rounded-lg text-sm transition-all ${
+                            item.current
+                              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Search */}
