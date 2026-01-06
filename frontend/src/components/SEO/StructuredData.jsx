@@ -150,7 +150,16 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": `${siteUrl}/blog/${post.slug}`
-      }
+      },
+      "video": post.videos?.map(video => ({
+        "@type": "VideoObject",
+        "name": video.name,
+        "description": video.description,
+        "thumbnailUrl": video.thumbnailUrl,
+        "uploadDate": video.uploadDate,
+        "embedUrl": video.embedUrl,
+        "contentUrl": video.embedUrl
+      }))
     };
   };
 

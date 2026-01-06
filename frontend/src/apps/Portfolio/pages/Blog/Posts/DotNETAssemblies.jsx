@@ -1811,6 +1811,22 @@ AssembliesPost.info = {
     "tutorial",
     "advanced"
   ],
+  videos: [
+    {
+      name: "How to Create and Use Private Assembly in C#",
+      description: "Step-by-step tutorial on creating, building, and using private assemblies in .NET applications. Learn about XCOPY deployment and isolation.",
+      thumbnailUrl: "https://i.ytimg.com/vi/Xa0ghGOsVnI/maxresdefault.jpg",
+      uploadDate: "2024-01-01T12:00:00Z", // Approximate date, valid ISO format required
+      embedUrl: "https://www.youtube.com/embed/Xa0ghGOsVnI"
+    },
+    {
+      name: "How to Create and Use Shared Assembly (GAC) in C#",
+      description: "Complete guide to creating strong-named assemblies, signing them with a key, and installing them into the Global Assembly Cache (GAC).",
+      thumbnailUrl: "https://i.ytimg.com/vi/qtT4JJG9IVo/maxresdefault.jpg",
+      uploadDate: "2024-01-01T12:00:00Z", // Approximate date, valid ISO format required
+      embedUrl: "https://www.youtube.com/embed/qtT4JJG9IVo"
+    }
+  ]
 };
 
 export default AssembliesPost;
