@@ -18,7 +18,8 @@ const routes = [
   "/skills",
   "/blog",
   "/contact",
-  "/content",
+  "/tools",
+  "/tools/og-preview",
   // Blog posts
   "/blog/yt-dlp-ultimate-guide-2026",
   "/blog/anti-gravity-editor",
