@@ -45,7 +45,7 @@ export function AgenticFeaturedImage({ className = "" }) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
           </span>
-          <span className="text-cyan-300 text-sm font-medium">2025 Guide</span>
+          <span className="text-cyan-300 text-sm font-medium">2026 Guide</span>
         </div>
 
         {/* Icon Grid - larger */}
@@ -69,7 +69,7 @@ export function AgenticFeaturedImage({ className = "" }) {
 
         {/* Subtitle - larger */}
         <p className="text-slate-400 text-lg">
-          The Complete 2025 Engineering Guide
+          The Complete 2026 Engineering Guide
         </p>
       </div>
     </div>

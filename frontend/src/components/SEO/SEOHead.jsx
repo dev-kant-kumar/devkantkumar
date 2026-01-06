@@ -23,7 +23,17 @@ const SEOHead = ({
   const getCurrentPage = () => {
     if (typeof window === "undefined") return "home";
     const path = window.location.pathname.toLowerCase();
-    const firstSegment = path.split("/").filter(Boolean)[0] || "home";
+    const segments = path.split("/").filter(Boolean);
+    const firstSegment = segments[0] || "home";
+
+    // Handle specific tools matching
+    if (firstSegment === "tools" && segments[1]) {
+       // Map specific tool slugs to config keys if needed, or return segments[1] camelCased
+       if (segments[1] === "json-formatter") return "jsonFormatter";
+       // Add other tools here as you build them
+       return "tools"; // fallback if specific tool config not found, or use 'tools' generic
+    }
+
     return firstSegment;
   };
 

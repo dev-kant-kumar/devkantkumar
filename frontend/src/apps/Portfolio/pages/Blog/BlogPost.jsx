@@ -11,6 +11,7 @@ import { portfolioData } from "../../store/data/portfolioData";
 import AdPlaceholder from "./components/AdPlaceholder";
 import GiscusComments from "./components/GiscusComments";
 import ReadingToolbar from "./components/ReadingToolbar";
+import RelatedPosts from "./components/RelatedPosts";
 import { localPosts } from "./postsLocal";
 
 const BlogPost = () => {
@@ -110,21 +111,40 @@ const BlogPost = () => {
 
   const shareArticle = (platform) => {
     const url = window.location.href;
-    const title = blogPost?.title || "";
+    const title = blogPost?.title || "Check out this article";
+    const description = blogPost?.excerpt || "";
+
+    // Create a formatted share message
+    const shareText = `${title}\n\n${description}`.trim();
 
     const urls = {
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        url
-      )}&text=${encodeURIComponent(title)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-        url
-      )}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        url
-      )}`,
+      // Twitter/X - supports text parameter
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`,
+
+      // LinkedIn - uses shareArticle API (pulls from OG tags automatically)
+      linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description)}`,
+
+      // Facebook - pulls from OG tags
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
+
+      // Reddit - supports title parameter
+      reddit: `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`,
+
+      // WhatsApp - supports full text with URL
+      whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(`${title}\n\n${url}`)}`,
     };
 
-    window.open(urls[platform], "_blank", "width=600,height=400");
+    // Open in a properly sized popup window
+    const width = 600;
+    const height = 500;
+    const left = (window.innerWidth - width) / 2 + window.screenX;
+    const top = (window.innerHeight - height) / 2 + window.screenY;
+
+    window.open(
+      urls[platform],
+      `share-${platform}`,
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+    );
   };
 
   // Build table of contents from rendered headings (h2–h4)
@@ -348,27 +368,7 @@ const BlogPost = () => {
       setIsPaused(false);
   };
 
-  // Get related posts
-  const relatedPosts = React.useMemo(() => {
-    if (!blogPost) return [];
-    const currentTags = blogPost.tags || [];
-    const currentCategory = blogPost.category;
 
-    return localPosts
-      .filter((p) => p.meta.slug !== slug) // Exclude current post
-      .map((p) => {
-        let score = 0;
-        if (p.meta.category === currentCategory) score += 3;
-        const sharedTags = (p.meta.tags || []).filter((tag) =>
-          currentTags.includes(tag)
-        );
-        score += sharedTags.length;
-        return { ...p, score };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
-      .map((p) => ({ ...p.meta, Component: p.Component }));
-  }, [blogPost, slug]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -464,7 +464,7 @@ const BlogPost = () => {
       <SEOHead
         title={`${blogPost.title} | ${portfolioData.personalInfo.name}`}
         description={blogPost.excerpt}
-        keywords={blogPost.tags?.join(", ")}
+        keywords={blogPost.keywords || blogPost.tags?.join(", ")}
         canonicalUrl={`/blog/${blogPost.slug}`}
         image={blogPost.image}
         type="article"
@@ -499,8 +499,8 @@ const BlogPost = () => {
 
 
         {/* Main Content */}
-        <section className="relative pt-32 pb-16 lg:pb-24">
-          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 pt-12">
+        <section className="relative pt-20 pb-16 lg:pb-24">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 pt-8">
             <div className={`lg:grid ${isReadingMode ? "lg:grid-cols-1" : "lg:grid-cols-12"} lg:gap-8 xl:gap-12 transition-all duration-300`}>
 
 
@@ -524,7 +524,7 @@ const BlogPost = () => {
                            value={searchQuery}
                            onChange={(e) => setSearchQuery(e.target.value)}
                            onFocus={() => setIsSearchFocused(true)}
-                           onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)} // Delay to allow click
+                           onBlur={() => setTimeout(() => setIsSearchFocused(false), 300)} // Delay to allow click
                            placeholder="Search..."
                            className="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg leading-5 bg-slate-800/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-900 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 sm:text-sm transition-all shadow-inner"
                          />
@@ -544,7 +544,8 @@ const BlogPost = () => {
                                    <button
                                      key={idx}
                                      className="w-full text-left block px-4 py-2.5 hover:bg-slate-800 transition-colors group"
-                                     onClick={() => {
+                                     onMouseDown={(e) => {
+                                        e.preventDefault(); // Prevent blur from firing
                                         const element = document.getElementById(heading.id);
                                         if (element) {
                                           const offset = 100;
@@ -562,9 +563,9 @@ const BlogPost = () => {
                                      </div>
                                      <div className="text-xs text-slate-500 mt-0.5 capitalize">
                                         {heading.level === 2 ? "Section" : "Subsection"}
-                                     </div>
-                                   </button>
-                                 ))}
+                                      </div>
+                                    </button>
+                                  ))}
                                </div>
                              ) : (
                                <div className="px-4 py-6 text-center text-slate-500 text-sm">
@@ -677,7 +678,7 @@ const BlogPost = () => {
                                  }`}>
                                      <a
                                        href={`#${h2.id}`}
-                                       className="flex-1 py-2 px-3 text-sm flex items-center gap-3"
+                                       className="flex-1 py-2 px-3 text-sm flex items-center gap-3 min-w-0 overflow-hidden"
                                        onClick={(e) => {
                                          e.preventDefault();
                                          const element = document.getElementById(h2.id);
@@ -691,7 +692,7 @@ const BlogPost = () => {
                                          }
                                        }}
                                      >
-                                        <span className={`transition-colors truncate`}>
+                                        <span className="transition-colors truncate block max-w-[180px]" title={h2.text}>
                                           {h2.text}
                                         </span>
                                      </a>
@@ -749,9 +750,11 @@ const BlogPost = () => {
                                                    });
                                                }
                                              }}
-                                           >
-                                             {child.text}
-                                           </a>
+                                            >
+                                              <span className="truncate block max-w-[160px]" title={child.text}>
+                                                {child.text}
+                                              </span>
+                                            </a>
                                         )})}
                                    </div>
                                  )}
@@ -874,46 +877,77 @@ const BlogPost = () => {
                         </div>
                       </div>
 
-                      {/* Quick Actions */}
-                      <div className="flex items-center gap-2">
+                      {/* Quick Actions - Enhanced Share Bar */}
+                      <div className="flex items-center gap-3">
                          <button
                             onClick={() => copyToClipboard(window.location.href)}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all border border-slate-700/50 text-xs font-medium"
+                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                              copied
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 hover:border-slate-600"
+                            }`}
                             title="Copy link"
                           >
                             {copied ? (
                               <>
-                                <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                Copied
+                                Copied!
                               </>
                             ) : (
                               <>
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
                                 Copy link
                               </>
                             )}
                           </button>
-                         <div className="flex items-center gap-1">
+
+                         {/* Social Share Buttons */}
+                         <div className="flex items-center gap-1.5">
+                            {/* Twitter/X */}
                             <button
                               onClick={() => shareArticle("twitter")}
-                              className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-cyan-400 transition-all border border-slate-700/50"
-                              title="Share on Twitter"
+                              className="group p-2.5 bg-slate-800/80 hover:bg-[#1DA1F2] rounded-xl text-slate-400 hover:text-white transition-all duration-300 border border-slate-700/50 hover:border-[#1DA1F2] hover:shadow-lg hover:shadow-[#1DA1F2]/20"
+                              title="Share on X (Twitter)"
                             >
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                              <svg className="w-4 h-4 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                               </svg>
                             </button>
-                             <button
+
+                            {/* LinkedIn */}
+                            <button
                               onClick={() => shareArticle("linkedin")}
-                              className="p-1.5 bg-slate-800/50 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-blue-400 transition-all border border-slate-700/50"
+                              className="group p-2.5 bg-slate-800/80 hover:bg-[#0A66C2] rounded-xl text-slate-400 hover:text-white transition-all duration-300 border border-slate-700/50 hover:border-[#0A66C2] hover:shadow-lg hover:shadow-[#0A66C2]/20"
                               title="Share on LinkedIn"
                             >
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                              </svg>
+                            </button>
+
+                            {/* Reddit */}
+                            <button
+                              onClick={() => shareArticle("reddit")}
+                              className="group p-2.5 bg-slate-800/80 hover:bg-[#FF4500] rounded-xl text-slate-400 hover:text-white transition-all duration-300 border border-slate-700/50 hover:border-[#FF4500] hover:shadow-lg hover:shadow-[#FF4500]/20"
+                              title="Share on Reddit"
+                            >
+                              <svg className="w-4 h-4 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
+                              </svg>
+                            </button>
+
+                            {/* WhatsApp */}
+                            <button
+                              onClick={() => shareArticle("whatsapp")}
+                              className="group p-2.5 bg-slate-800/80 hover:bg-[#25D366] rounded-xl text-slate-400 hover:text-white transition-all duration-300 border border-slate-700/50 hover:border-[#25D366] hover:shadow-lg hover:shadow-[#25D366]/20"
+                              title="Share on WhatsApp"
+                            >
+                              <svg className="w-4 h-4 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                               </svg>
                             </button>
                          </div>
@@ -1063,67 +1097,12 @@ const BlogPost = () => {
 
 
         {/* Related Posts Section */}
-        {relatedPosts.length > 0 && (
-          <section className="py-16 bg-slate-900/50 border-t border-slate-800">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="text-3xl font-bold text-white mb-8">
-                Related Articles
-              </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                {relatedPosts.map((post) => (
-                  <Link
-                    key={post.id}
-                    to={`/blog/${post.slug}`}
-                    className="group block bg-slate-900/40 rounded-2xl overflow-hidden border border-slate-800/60 hover:border-cyan-500/30 transition-all duration-500 hover:transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-900/20"
-                  >
-                    <div className="relative h-48 overflow-hidden rounded-t-xl bg-slate-800">
-                      {(() => {
-                        const ImgComp =
-                          post.Component?.CardImage ||
-                          post.Component?.Image ||
-                          post.Component?.FeaturedImage;
-
-                        if (ImgComp) {
-                          return (
-                            <div className="w-full h-full">
-                              <ImgComp className="w-full h-full object-cover" />
-                            </div>
-                          );
-                        }
-
-                        return (
-                          <img
-                            src={post.image}
-                            alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        );
-                      })()}
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs font-medium rounded-full backdrop-blur-sm border border-slate-700/50">
-                          {post.category}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-slate-400 text-sm mb-4 line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-slate-500">
-                        <span>{post.readTime}</span>
-                        <span>
-                          {new Date(post.publishDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
+        {blogPost && (
+            <RelatedPosts
+                currentSlug={blogPost.slug}
+                tags={blogPost.tags}
+                category={blogPost.category}
+            />
         )}
 
         {/* Footer Ad Placeholder */}

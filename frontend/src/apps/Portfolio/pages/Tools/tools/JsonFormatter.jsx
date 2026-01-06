@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import {
     AlertCircle,
-    ArrowLeft,
     Check,
     CheckCircle,
     Copy,
@@ -15,6 +14,9 @@ import {
     Wand2
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import SEOHead from '../../../../../components/SEO/SEOHead';
+import StructuredData from '../../../../../components/SEO/StructuredData';
+import { portfolioData } from '../../../../Portfolio/store/data/portfolioData';
 
 const JsonFormatter = () => {
   const [input, setInput] = useState('');
@@ -390,6 +392,22 @@ const JsonFormatter = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 pb-16">
+      <SEOHead
+        title={portfolioData.seoConfig.pages.jsonFormatter.title}
+        description={portfolioData.seoConfig.pages.jsonFormatter.description}
+        keywords={portfolioData.seoConfig.pages.jsonFormatter.keywords}
+        url={`${portfolioData.seoConfig.site.url}/tools/json-formatter`}
+      />
+      <StructuredData
+        type="software"
+        pageData={{
+          name: "JSON Formatter & Validator",
+          description: portfolioData.seoConfig.pages.jsonFormatter.description,
+          category: "DeveloperApplication",
+          slug: "json-formatter",
+          keywords: ["json", "formatter", "validator", "developer tool"]
+        }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

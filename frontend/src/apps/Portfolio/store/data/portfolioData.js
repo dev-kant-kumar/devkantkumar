@@ -630,6 +630,16 @@ export const portfolioData = {
           "tutorials",
         ],
       },
+      tools: {
+        title: "Tools",
+        description: "Free developer tools and utilities by Dev Kant Kumar. JSON Formatter, Validators, and more.",
+        keywords: ["developer tools", "online utilities", "json formatter", "web tools"],
+      },
+      jsonFormatter: {
+        title: "JSON Formatter & Validator",
+        description: "Free online JSON formatter, beautifier, minifier and validator. Format JSON with syntax highlighting, validate JSON structure, and minify JSON data.",
+        keywords: ["json formatter", "json validator", "json beautifier", "json minifier", "online json tool"],
+      },
     },
     defaultMeta: {
       title:

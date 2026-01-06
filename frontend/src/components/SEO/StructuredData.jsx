@@ -235,11 +235,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
         "price": "0",
         "priceCurrency": "USD"
       },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "25"
-      },
+      // Removed hardcoded aggregateRating to avoid misleading schema
       "featureList": tool.keywords ? tool.keywords.join(", ") : "Online Tool",
       "author": {
         "@type": "Person",

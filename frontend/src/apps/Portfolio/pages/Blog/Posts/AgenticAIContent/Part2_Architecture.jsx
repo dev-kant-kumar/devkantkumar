@@ -8,7 +8,7 @@ export default function Part2_Architecture() {
       <section className="space-y-6">
         <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Part 2:</span> Core Architecture
-        </h2>
+        </h2>s
 
         <p className="text-xl text-slate-300 leading-relaxed font-light">
            An Agent isn't just a model; it's a <strong>Cognitive Architecture</strong>.
