@@ -1,33 +1,33 @@
 // Top-level imports
 import {
-  AlertCircle,
-  BookOpen,
-  Box,
-  CheckCircle,
-  ChevronRight,
-  Clock,
-  Code,
-  Copy,
-  Database,
-  FileCode,
-  FolderTree,
-  GitBranch,
-  HelpCircle,
-  Layers,
-  Lock,
-  Package,
-  PlayCircle,
-  Settings,
-  Share2,
-  Shield,
-  Sparkles,
-  Target,
-  Terminal,
-  TrendingUp,
-  Users,
-  Video,
-  Workflow,
-  Zap
+    AlertCircle,
+    BookOpen,
+    Box,
+    CheckCircle,
+    ChevronRight,
+    Clock,
+    Code,
+    Copy,
+    Database,
+    FileCode,
+    FolderTree,
+    GitBranch,
+    HelpCircle,
+    Layers,
+    Lock,
+    Package,
+    PlayCircle,
+    Settings,
+    Share2,
+    Shield,
+    Sparkles,
+    Target,
+    Terminal,
+    TrendingUp,
+    Users,
+    Video,
+    Workflow,
+    Zap
 } from "lucide-react";
 import React from "react";
 
@@ -1790,9 +1790,9 @@ AssembliesPost.CardImage = AssembliesCardImage;
 AssembliesPost.info = {
   id: "dotnet-assemblies-complete-guide",
   slug: "dotnet-assemblies-complete-guide",
-  title: "Mastering .NET Assemblies: Complete Guide to Private & Shared Assemblies",
+  title: "Mastering .NET Assemblies: Complete Guide to Private & Shared Assemblies (2026)",
   excerpt:
-    "A comprehensive guide to understanding .NET assemblies, including private and shared assemblies, side-by-side execution, GAC management, and step-by-step tutorials for Visual Studio 2026.",
+    "A comprehensive guide to understanding .NET assemblies. Learn about private vs shared assemblies, side-by-side execution, GAC management, strong naming, and step-by-step tutorials for Visual Studio 2026.",
   category: ".NET & C#",
   author: "Dev Kant Kumar",
   readTime: "35 min read",
@@ -1800,7 +1800,8 @@ AssembliesPost.info = {
   featuredImage: "/images/blog/dotnet-assemblies.png",
   featured: false,
   publishDate: "2025-11-29",
-  modifiedDate: "2025-11-29",
+  modifiedDate: "2026-01-07",
+  keywords: ".net assembly, .net assemblies, what is assembly in c#, private assembly vs shared assembly, gac global assembly cache, side by side execution .net, strong name assembly, dotnet dll tutorial, c# class library tutorial 2026, visual studio assembly tutorial",
   tags: [
     "dotnet",
     "csharp",
@@ -1811,19 +1812,41 @@ AssembliesPost.info = {
     "tutorial",
     "advanced"
   ],
+  faqs: [
+    {
+      question: "What is an Assembly in .NET?",
+      answer: "An assembly is a compiled code library in .NET (DLL or EXE file) that contains code, resources, and metadata. It's the fundamental unit of deployment, versioning, and security in .NET applications."
+    },
+    {
+      question: "What is the difference between private and shared assemblies?",
+      answer: "Private assemblies are stored in the application folder and used by only that application. Shared assemblies are stored in the Global Assembly Cache (GAC) and can be used by multiple applications. Shared assemblies require strong naming."
+    },
+    {
+      question: "What is the Global Assembly Cache (GAC)?",
+      answer: "The GAC is a machine-wide code cache where shared assemblies are stored. It allows multiple versions of the same assembly to exist side-by-side and enables system-wide sharing of .NET libraries."
+    },
+    {
+      question: "What is a strong name in .NET?",
+      answer: "A strong name is a unique identity for an assembly consisting of its simple name, version number, culture, and public key. Strong naming is required for assemblies to be installed in the GAC."
+    },
+    {
+      question: "What is side-by-side execution?",
+      answer: "Side-by-side execution allows multiple versions of the same assembly to run simultaneously on the same machine. This solves the 'DLL Hell' problem from earlier Windows versions."
+    }
+  ],
   videos: [
     {
       name: "How to Create and Use Private Assembly in C#",
       description: "Step-by-step tutorial on creating, building, and using private assemblies in .NET applications. Learn about XCOPY deployment and isolation.",
       thumbnailUrl: "https://i.ytimg.com/vi/Xa0ghGOsVnI/maxresdefault.jpg",
-      uploadDate: "2024-01-01T12:00:00Z", // Approximate date, valid ISO format required
+      uploadDate: "2024-01-01T12:00:00Z",
       embedUrl: "https://www.youtube.com/embed/Xa0ghGOsVnI"
     },
     {
       name: "How to Create and Use Shared Assembly (GAC) in C#",
       description: "Complete guide to creating strong-named assemblies, signing them with a key, and installing them into the Global Assembly Cache (GAC).",
       thumbnailUrl: "https://i.ytimg.com/vi/qtT4JJG9IVo/maxresdefault.jpg",
-      uploadDate: "2024-01-01T12:00:00Z", // Approximate date, valid ISO format required
+      uploadDate: "2024-01-01T12:00:00Z",
       embedUrl: "https://www.youtube.com/embed/qtT4JJG9IVo"
     }
   ]

@@ -598,9 +598,9 @@ OllamaGuidePost.CardImage = OllamaCardImage;
 
 // Post metadata
 OllamaGuidePost.info = {
-  id: "local-llm-ollama-guide-2025",
-  slug: "local-llm-ollama-guide-2025",
-  title: "Stop Paying for OpenAI: Run Llama 3 Locally with Ollama (2025 Guide)",
+  id: "local-llm-ollama-guide-2026",
+  slug: "local-llm-ollama-guide-2026",
+  title: "Stop Paying for OpenAI: Run Llama 3 Locally with Ollama (2026 Guide)",
   excerpt:
     "Learn how to run powerful AI models like Llama 3 entirely on your laptop. No subscription fees, total privacy, and offline access using Ollama.",
   category: "AI & ML",
@@ -610,7 +610,8 @@ OllamaGuidePost.info = {
   featuredImage: "/images/blog/ollama-guide.png",
   featured: true,
   publishDate: "2025-11-25",
-  modifiedDate: "2025-11-25",
+  modifiedDate: "2026-01-07",
+  keywords: "ollama tutorial, run llama 3 locally, local llm guide 2026, private ai, free chatgpt alternative, ollama react integration, install ollama windows, best local llm models 2026, ollama vs chatgpt, run ai offline",
   tags: [
     "ollama",
     "ai",
@@ -637,6 +638,10 @@ OllamaGuidePost.info = {
     {
       question: "How do I use Ollama with React?",
       answer: "Ollama provides a local REST API running on port 11434. You can make fetch requests to it directly from your React application."
+    },
+    {
+      question: "What is the best local LLM model for coding?",
+      answer: "CodeLlama is specifically trained for coding tasks. Run it with: ollama run codellama"
     }
   ]
 };

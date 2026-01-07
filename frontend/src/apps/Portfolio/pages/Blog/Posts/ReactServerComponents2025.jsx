@@ -1623,9 +1623,9 @@ RSCGuide2025.CardImage = RSCCardImage;
 RSCGuide2025.info = {
   id: "react-server-components-2025",
   slug: "react-server-components-2025",
-  title: "React Server Components (RSC) in 2025: Complete Mastery Guide",
+  title: "React Server Components (RSC) Complete Guide 2026: Architecture & Best Practices",
   excerpt:
-    "Master React Server Components with this comprehensive guide covering architecture, patterns, performance optimization, and production best practices for building lightning-fast web applications.",
+    "Master React Server Components with this comprehensive 2026 guide. Learn RSC architecture, Suspense streaming, client vs server components, and Next.js App Router patterns for lightning-fast apps.",
   category: "React",
   author: "Dev Kant Kumar",
   readTime: "15 min read",
@@ -1633,7 +1633,8 @@ RSCGuide2025.info = {
   featuredImage: "/images/blog/react-server-components.png",
   featured: true,
   publishDate: "2025-11-18",
-  modifiedDate: "2025-11-18",
+  modifiedDate: "2026-01-07",
+  keywords: "react server components, rsc tutorial, react 19 server components, nextjs app router, suspense streaming, client vs server components, react server components vs client components, rsc architecture, react 2026, next.js 15",
   tags: [
     "react",
     "server-components",
@@ -1645,6 +1646,24 @@ RSCGuide2025.info = {
     "web-development",
     "core-web-vitals",
   ],
+  faqs: [
+    {
+      question: "What are React Server Components?",
+      answer: "React Server Components (RSC) are components that render entirely on the server and send only HTML to the client. They reduce JavaScript bundle size and allow direct database/API access without exposing secrets."
+    },
+    {
+      question: "What is the difference between Server Components and Client Components?",
+      answer: "Server Components render on the server with zero client JavaScript, can access databases directly, but cannot use hooks or browser APIs. Client Components render on the client with full React interactivity but increase bundle size."
+    },
+    {
+      question: "Do I need Next.js to use React Server Components?",
+      answer: "While you can use RSC without Next.js, Next.js App Router provides the best production-ready implementation of React Server Components with built-in streaming and caching."
+    },
+    {
+      question: "How does Suspense work with Server Components?",
+      answer: "Suspense enables streaming HTML for Server Components. Slow components can be wrapped in Suspense boundaries, allowing the rest of the page to render immediately while the slow content streams in later."
+    }
+  ]
 };
 
 export default RSCGuide2025;
