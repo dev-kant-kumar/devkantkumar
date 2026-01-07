@@ -1,40 +1,40 @@
 import {
-    AlertTriangle,
-    Award,
-    BookOpen,
-    Calendar,
-    Check,
-    Clock,
-    Code,
-    Command,
-    Copy,
-    Cpu,
-    Database,
-    Download,
-    ExternalLink,
-    FileVideo,
-    Film,
-    Folder,
-    Globe,
-    HelpCircle,
-    Layers,
-    List,
-    Lock,
-    MessageSquare,
-    Music,
-    Play,
-    Repeat,
-    Search,
-    Server,
-    Settings,
-    Shield,
-    ShieldAlert,
-    Terminal,
-    TrendingUp,
-    User,
-    Video,
-    Youtube,
-    Zap
+  AlertTriangle,
+  Award,
+  BookOpen,
+  Calendar,
+  Check,
+  Clock,
+  Code,
+  Command,
+  Copy,
+  Cpu,
+  Database,
+  Download,
+  ExternalLink,
+  FileVideo,
+  Film,
+  Folder,
+  Globe,
+  HelpCircle,
+  Layers,
+  List,
+  Lock,
+  MessageSquare,
+  Music,
+  Play,
+  Repeat,
+  Search,
+  Server,
+  Settings,
+  Shield,
+  ShieldAlert,
+  Terminal,
+  TrendingUp,
+  User,
+  Video,
+  Youtube,
+  Zap
 } from "lucide-react";
 import React from "react";
 
@@ -457,9 +457,9 @@ pip install -U yt-dlp" />
               </h3>
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li>• <strong>TikTok</strong> (videos, profiles, hashtags)</li>
-                <li>• <strong>Instagram</strong> (posts, stories, reels, IGTV)</li>
-                <li>• <strong>Facebook</strong> (videos, live streams)</li>
-                <li>• <strong>Twitter/X</strong> (videos, spaces audio)</li>
+                <li>• <strong>Instagram</strong> (posts, stories, reels, IGTV) - requires cookies for private content</li>
+                <li>• <strong>Facebook</strong> (videos, live streams, stories)</li>
+                <li>• <strong>Twitter/X</strong> (videos, Twitter Spaces audio recordings)</li>
                 <li>• <strong>Reddit</strong> (videos, v.redd.it)</li>
                 <li>• <strong>LinkedIn</strong></li>
               </ul>
@@ -484,15 +484,15 @@ pip install -U yt-dlp" />
             <div className="bg-[#1e1e1e] p-6 rounded-xl border border-gray-800">
               <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
                 <Globe size={20} className="text-yellow-400" />
-                Regional Platforms
+                Regional Platforms (Korea, China, Japan, Russia)
               </h3>
               <ul className="space-y-2 text-gray-300 text-sm">
+                <li>• <strong>Naver TV</strong> (Korea) - Full support for Naver TV videos and channels</li>
+                <li>• <strong>Kakao TV</strong> (Korea) - Download Kakao TV content directly</li>
                 <li>• <strong>Bilibili</strong> (China)</li>
                 <li>• <strong>Niconico</strong> (Japan)</li>
-                <li>• <strong>VK</strong> (Russia)</li>
+                <li>• <strong>VK</strong> (Russia) - VK videos and stories</li>
                 <li>• <strong>Youku</strong> (China)</li>
-                <li>• <strong>Naver</strong> (Korea)</li>
-                <li>• <strong>Kakao</strong> (Korea)</li>
               </ul>
             </div>
 
@@ -529,6 +529,28 @@ pip install -U yt-dlp" />
             To see all 1800+ supported extractors, visit the official GitHub page or run:
             <CodeBlock code="yt-dlp --list-extractors" />
           </InfoBox>
+
+          {/* Netflix & DRM Warning - Targeting GSC queries */}
+          <div className="mt-8 p-6 bg-gradient-to-r from-red-900/20 to-orange-900/20 rounded-xl border border-red-500/30">
+            <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+              <ShieldAlert size={20} className="text-red-400" />
+              Does yt-dlp Support Netflix? (DRM-Protected Sites)
+            </h3>
+            <p className="text-gray-300 mb-4">
+              <strong className="text-red-400">No.</strong> yt-dlp does NOT support Netflix, Disney+, Amazon Prime Video, Hulu, or HBO Max. These platforms use <strong>DRM (Digital Rights Management)</strong> encryption that yt-dlp cannot bypass.
+            </p>
+            <div className="bg-black/30 p-4 rounded-lg border border-red-900/30">
+              <h4 className="text-white font-bold text-sm mb-2">Sites NOT supported:</h4>
+              <ul className="text-gray-400 text-sm space-y-1">
+                <li>• Netflix, Disney+, Amazon Prime Video</li>
+                <li>• HBO Max, Hulu, Peacock, Paramount+</li>
+                <li>• Apple TV+, Crunchyroll Premium</li>
+              </ul>
+              <p className="text-gray-500 text-xs mt-3">
+                These services use Widevine DRM. Attempting to bypass DRM is illegal in many jurisdictions.
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* Basic Commands */}
@@ -643,9 +665,15 @@ yt-dlp -o "%(uploader)s/%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s" URL
             </div>
 
             <div>
-              <h3 className="text-xl font-bold text-white mb-4">Format Selection Examples</h3>
+              <h3 className="text-xl font-bold text-white mb-4">Format Selection Examples (4K, 8K, HDR)</h3>
               <CodeBlock code='# Download specific format by ID
 yt-dlp -f 137+140 URL
+
+# Download 8K video (4320p) - if available
+yt-dlp -f "bestvideo[height<=4320]+bestaudio" URL
+
+# Download 4K video (2160p)
+yt-dlp -f "bestvideo[height<=2160]+bestaudio" URL
 
 # Best video with VP9 codec + best audio
 yt-dlp -f "bestvideo[vcodec^=vp9]+bestaudio" URL
@@ -656,10 +684,10 @@ yt-dlp -f "bestvideo[height<=1080]+bestaudio/best[height<=1080]" URL
 # Prefer 60fps
 yt-dlp -f "bestvideo[fps>=60]+bestaudio" URL
 
-# HDR video
+# HDR video (HEVC/H.265)
 yt-dlp -f "bestvideo[vcodec*=hev1]+bestaudio" URL
 
-# AV1 codec (modern, efficient)
+# AV1 codec (modern, efficient, best for 4K/8K)
 yt-dlp -f "bestvideo[vcodec^=av01]+bestaudio" URL
 
 # Best MP4 format (for compatibility)
@@ -753,21 +781,24 @@ yt-dlp --write-info-json --write-description --write-annotations URL' />
             </div>
 
             <div>
-              <h3 className="text-xl font-bold text-white mb-3">Post-Processing</h3>
-              <CodeBlock code='# Convert to MP4
+              <h3 className="text-xl font-bold text-white mb-3">Post-Processing & Chapter Embedding</h3>
+              <CodeBlock code='# Convert to MP4 (--recode-video)
 yt-dlp --recode-video mp4 URL
 
-# Re-encode audio
-yt-dlp --audio-quality 0 -x --audio-format mp3 URL
-
-# Remove sponsor segments (SponsorBlock)
-yt-dlp --sponsorblock-remove all URL
+# Embed chapters from YouTube (--embed-chapters)
+yt-dlp --embed-chapters URL
 
 # Split chapters into separate files
 yt-dlp --split-chapters URL
 
-# Add chapters from description
-yt-dlp --no-embed-chapters URL' />
+# Remove sponsor segments (SponsorBlock)
+yt-dlp --sponsorblock-remove all URL
+
+# Re-encode audio
+yt-dlp --audio-quality 0 -x --audio-format mp3 URL
+
+# Recode with specific codec
+yt-dlp --recode-video mp4 --postprocessor-args "ffmpeg:-c:v libx264 -preset fast" URL' />
             </div>
 
             <div>
@@ -1771,7 +1802,7 @@ YtDlpUltimateGuide.info = {
   // Optimized meta description for CTR
   excerpt: "Fix yt-dlp errors in 2026: 'Sign in to confirm you're not a bot', slow downloads, cookies setup. Step-by-step installation for Windows, Linux & macOS with 100+ commands.",
   // SEO keywords based on actual search queries
-  keywords: "yt-dlp 2026, yt-dlp not working, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp slow download fix, yt-dlp installation guide 2026, is yt-dlp still working, yt-dlp supported sites, yt-dlp netflix, yt-dlp instagram, yt-dlp tiktok",
+  keywords: "yt-dlp 2026, yt-dlp not working, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp slow download fix, yt-dlp installation guide 2026, is yt-dlp still working, yt-dlp supported sites, yt-dlp netflix, yt-dlp instagram, yt-dlp tiktok, yt-dlp naver tv support, yt-dlp kakao tv support, yt-dlp 8k support, yt-dlp embed chapters, yt-dlp twitter spaces, yt-dlp concurrent downloads, yt-dlp recode-video, yt-dlp vk, yt-dlp facebook, yt-dlp latest version january 2026",
   category: "Tutorials",
   author: "Dev Kant Kumar",
   readTime: "45 min read",
@@ -1818,6 +1849,26 @@ YtDlpUltimateGuide.info = {
     {
       question: "How do I download age-restricted YouTube videos?",
       answer: "Use cookies from your browser: yt-dlp --cookies-from-browser chrome URL"
+    },
+    {
+      question: "Does yt-dlp support Naver TV and Kakao TV?",
+      answer: "Yes! yt-dlp fully supports both Naver TV (Korea) and Kakao TV. Just paste the video URL directly: yt-dlp URL"
+    },
+    {
+      question: "Can yt-dlp download 8K videos?",
+      answer: "Yes! yt-dlp supports 8K (4320p) downloads if the source video is available in 8K. Use: yt-dlp -f 'bestvideo[height<=4320]+bestaudio' URL"
+    },
+    {
+      question: "How do I embed chapters in downloaded videos?",
+      answer: "Use the --embed-chapters flag: yt-dlp --embed-chapters URL. This embeds YouTube chapter markers into the video file."
+    },
+    {
+      question: "Can yt-dlp download Twitter Spaces?",
+      answer: "Yes! yt-dlp can download Twitter/X Spaces audio recordings. Just paste the Spaces recording URL."
+    },
+    {
+      question: "How do I use concurrent downloads with yt-dlp?",
+      answer: "Use --concurrent-fragments N for parallel fragment downloads: yt-dlp --concurrent-fragments 4 URL. For downloading multiple videos at once, use a batch file or xargs."
     }
   ]
 };
