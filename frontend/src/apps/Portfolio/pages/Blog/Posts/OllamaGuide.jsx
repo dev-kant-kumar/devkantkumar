@@ -583,7 +583,7 @@ console.log(res.text);`}
 
         {/* Hidden SEO Keywords */}
         <div className="hidden">
-          ollama tutorial, run llama 3 locally, local llm guide, private ai, free chatgpt alternative, ollama react integration, install ollama windows, best local llm models 2025.
+          ollama tutorial, run llama 3 locally, local llm guide 2026, private ai, free chatgpt alternative, ollama react integration, install ollama windows, best local llm models 2026.
         </div>
 
       </article>

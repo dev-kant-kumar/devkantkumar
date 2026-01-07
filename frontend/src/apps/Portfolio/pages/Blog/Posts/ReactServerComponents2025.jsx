@@ -41,7 +41,7 @@ function RSCFeaturedImage({ className = "" }) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
           </span>
-          <span className="text-cyan-300 text-sm font-medium">2025 Guide</span>
+          <span className="text-cyan-300 text-sm font-medium">2026 Guide</span>
         </div>
 
         {/* Icon Grid - larger */}
@@ -65,7 +65,7 @@ function RSCFeaturedImage({ className = "" }) {
 
         {/* Subtitle - larger */}
         <p className="text-slate-400 text-lg">
-          The Complete 2025 Mastery Guide
+          The Complete 2026 Mastery Guide
         </p>
       </div>
     </div>
@@ -354,7 +354,7 @@ function RSCGuide2025() {
               <TrendingUp size={24} className="text-white" />
             </div>
             <h2 className="text-4xl font-bold text-white">
-              Why RSC Matters in 2025
+              Why RSC Matters in 2026
             </h2>
           </div>
 

@@ -670,14 +670,15 @@ ReactNativeCliVsExpo.Image = ReactNativeCliVsExpoCardImage; // fallback alias
 // Blog post metadata for the blog system
 ReactNativeCliVsExpo.info = {
   id: "react-native-cli-vs-expo-2025",
-  slug: "react-native-cli-vs-expo-2025",
-  title: "React Native CLI vs Expo in 2025: The Final Verdict",
-  excerpt: "Stop wondering which tool to use. In 2025, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.",
-  description: "Stop wondering which tool to use. In 2025, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.",
+  slug: "react-native-cli-vs-expo-2026",
+  title: "React Native CLI vs Expo in 2026: The Final Verdict",
+  excerpt: "Stop wondering which tool to use. In 2026, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.",
+  description: "Stop wondering which tool to use. In 2026, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.",
   category: "React Native",
-  tags: ["React Native", "Expo", "Mobile", "2025 Guide"],
+  tags: ["React Native", "Expo", "Mobile", "2026 Guide"],
   author: "Dev Kant Kumar",
   publishDate: "2025-12-29",
+  modifiedDate: "2026-01-07",
   readTime: "12 min read",
   featured: true,
 };

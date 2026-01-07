@@ -57,17 +57,19 @@ import aiToolsData, { categories, pricingTypes } from "./data/aiToolsData";
 // BLOG POST METADATA
 // =====================================================
 export const info = {
-    slug: "ultimate-ai-tools-directory-2025",
-    title: "The Ultimate Directory of AI Tools (2025 Edition)",
-    description: "A comprehensive, curated list of 86+ best AI tools available in 2025. Explore chatbots, image generators, coding assistants, and more.",
-    excerpt: "A comprehensive, curated list of 86+ best AI tools available in 2025. Explore chatbots, image generators, coding assistants, and more.",
+    slug: "ultimate-ai-tools-directory-2026",
+    title: "The Ultimate Directory of AI Tools (2026 Edition)",
+    description: "A comprehensive, curated list of 86+ best AI tools available in 2026. Explore chatbots, image generators, coding assistants, and more.",
+    excerpt: "A comprehensive, curated list of 86+ best AI tools available in 2026. Explore chatbots, image generators, coding assistants, and more.",
     publishDate: "2024-12-26",
+    modifiedDate: "2026-01-07",
     category: "AI Resources",
-    tags: ["AI Tools", "Productivity", "Directory", "ChatGPT", "Midjourney"],
+    tags: ["AI Tools", "Productivity", "Directory", "ChatGPT", "Midjourney", "2026"],
     image: "/images/blog/ai-tools.png",
     featured: true,
     readTime: "15 min read",
     author: "Dev Kant Kumar",
+    keywords: "best ai tools 2026, ai tools directory, chatgpt alternatives, midjourney alternatives, ai image generator, ai coding assistant, free ai tools, ai productivity tools",
 };
 
 // =====================================================
@@ -480,7 +482,7 @@ export default function AIToolsDirectory() {
             <div className="text-center mb-10">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6">
                     <Sparkles size={16} className="text-cyan-400" />
-                    <span className="text-sm font-medium text-cyan-300">2025 AI Tools Directory</span>
+                    <span className="text-sm font-medium text-cyan-300">2026 AI Tools Directory</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                     Find Your Perfect <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">AI Tool</span>
@@ -595,7 +597,7 @@ function AIToolsCardImage({ className = "" }) {
                 <div className="w-14 h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3">
                     <Sparkles size={28} className="text-cyan-400" />
                 </div>
-                <span className="text-xs font-medium text-cyan-400 mb-1">2025 Edition</span>
+                <span className="text-xs font-medium text-cyan-400 mb-1">2026 Edition</span>
                 <h3 className="text-lg font-bold text-white leading-tight">AI Tools Directory</h3>
                 <p className="text-sm text-slate-400 mt-1">86+ Curated Tools</p>
             </div>
@@ -622,7 +624,7 @@ function AIToolsFeaturedImage({ className = "" }) {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                     </span>
-                    <span className="text-cyan-300 text-sm font-medium">2025 Edition</span>
+                    <span className="text-cyan-300 text-sm font-medium">2026 Edition</span>
                 </div>
 
                 {/* Icon Grid */}
