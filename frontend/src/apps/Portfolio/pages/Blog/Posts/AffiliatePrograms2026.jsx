@@ -929,10 +929,10 @@ const affiliatePrograms = [
         cookieDuration: "90 days",
         payout: "$30 min",
         recurring: true,
-        rating: 4,
+        rating: 5,
         description: "Email marketing. Start at 30%, reach 50% with 500+ referrals.",
-        url: "https://www.aweber.com/advocates.htm",
-        highlight: false,
+        url: "https://devkantkumar.aweber.com/",
+        highlight: true,
     },
     {
         id: 142,
