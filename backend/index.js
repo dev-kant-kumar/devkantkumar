@@ -46,7 +46,16 @@ const notFound = require('./src/middlewares/notFound');
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+  : [
+      // Production domains
+      'https://devkantkumar.com',
+      'https://www.devkantkumar.com',
+      'https://api.devkantkumar.com',
+      // Development domains
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173'
+    ];
 
 const app = express();
 
