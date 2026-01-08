@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Scale, AlertTriangle, Users, Mail, Calendar, Shield } from 'lucide-react';
+import { AlertTriangle, Calendar, FileText, Mail, Scale, Shield, Users } from 'lucide-react';
 
 const TermsOfService = () => {
   const lastUpdated = "October 1, 2025";
@@ -191,7 +190,7 @@ const TermsOfService = () => {
 
                   <div className="space-y-2">
                     <p className="text-slate-300">
-                      <span className="text-emerald-400 font-medium">Email:</span> dev.techdeveloper@gmail.com
+                      <span className="text-emerald-400 font-medium">Email:</span> support@devkantkumar.com
                     </p>
                     <p className="text-slate-300">
                       <span className="text-emerald-400 font-medium">Website:</span> https://devkantkumar.com/contact

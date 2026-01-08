@@ -1,20 +1,21 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    ChevronLeft,
-    ChevronRight,
-    Code,
-    FileText,
-    FolderOpen,
-    LayoutDashboard,
-    Mail,
-    Megaphone,
-    Package,
-    PenTool,
-    PieChart,
-    Settings,
-    ShoppingBag,
-    Users,
-    X
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  FileText,
+  FolderOpen,
+  LayoutDashboard,
+  Mail,
+  MailCheck,
+  Megaphone,
+  Package,
+  PenTool,
+  PieChart,
+  Settings,
+  ShoppingBag,
+  Users,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -49,6 +50,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
     { name: "Blog", path: "/admin/blog", icon: PenTool },
     { name: "Subscribers", path: "/admin/subscribers", icon: Users },
     { name: "Announcements", path: "/admin/announcements", icon: Megaphone },
+    { name: "Emails", path: "/admin/emails", icon: MailCheck },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 

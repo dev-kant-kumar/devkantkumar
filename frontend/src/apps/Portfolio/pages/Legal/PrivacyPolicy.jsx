@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Eye, Lock, Users, Mail, Globe, Calendar } from 'lucide-react';
+import { Calendar, Eye, Globe, Lock, Mail, Shield, Users } from 'lucide-react';
 
 const PrivacyPolicy = () => {
   const lastUpdated = "October 1, 2025";
@@ -195,7 +194,7 @@ const PrivacyPolicy = () => {
 
                   <div className="space-y-2">
                     <p className="text-slate-300">
-                      <span className="text-emerald-400 font-medium">Email:</span> dev.techdeveloper@gmail.com
+                      <span className="text-emerald-400 font-medium">Email:</span> support@devkantkumar.com
                     </p>
                     <p className="text-slate-300">
                       <span className="text-emerald-400 font-medium">Website:</span> https://devkantkumar.com/contact

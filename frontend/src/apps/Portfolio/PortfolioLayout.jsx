@@ -1,4 +1,5 @@
-import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import Footer from "./common/components/Footer";
 import Header from "./common/components/Header";
 import MagneticCursor from "./common/components/ui/MagneticCursor";
@@ -9,6 +10,14 @@ import usePageTracking from "./hooks/usePageTracking";
 const PortfolioLayout = () => {
   // Use automatic page tracking
   usePageTracking();
+
+  // Get current location for scroll-to-top
+  const location = useLocation();
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
 
   // Show performance monitor in development mode
   const isDevelopment = process.env.NODE_ENV === "development";

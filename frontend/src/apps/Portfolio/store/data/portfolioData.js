@@ -18,7 +18,7 @@ export const portfolioData = {
       workPreference: "Remote First, Open to Relocation",
     },
     contact: {
-      email: "dev.techdeveloper@gmail.com",
+      email: "hello@devkantkumar.com",
       phone: "+91 7294177563",
       whatsapp: "https://wa.me/917294177563",
       responseTime: "Within 2-4 hours",

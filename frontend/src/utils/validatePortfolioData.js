@@ -7,7 +7,7 @@ import { portfolioData } from '../apps/Portfolio/store/data/portfolioData.js';
 export const validatePortfolioData = () => {
   const errors = [];
   const warnings = [];
-  
+
   // Required fields validation
   const requiredFields = [
     'personalInfo.name',
@@ -39,7 +39,7 @@ export const validatePortfolioData = () => {
           errors.push(`Project ${index + 1} missing field: ${field}`);
         }
       });
-      
+
       // Check if at least one project is featured
       if (!portfolioData.projects.some(p => p.featured)) {
         warnings.push('No featured projects found. At least one project should be featured for the home page.');
@@ -71,7 +71,7 @@ export const validatePortfolioData = () => {
   // Check for placeholder/demo data
   const placeholderChecks = [
     { field: 'personalInfo.name', placeholder: 'Sneha Kumari' },
-    { field: 'personalInfo.contact.email', placeholder: 'dev.techdeveloper@gmail.com' },
+    { field: 'personalInfo.contact.email', placeholder: 'hello@devkantkumar.com' },
   ];
 
   placeholderChecks.forEach(check => {
@@ -107,31 +107,31 @@ function getNestedValue(obj, path) {
  */
 export const isProductionReady = () => {
   const validation = validatePortfolioData();
-  
+
   // Production-critical checks
   const productionErrors = [];
-  
+
   // Must have real contact info
-  if (portfolioData.personalInfo.contact.email === 'dev.techdeveloper@gmail.com') {
+  if (portfolioData.personalInfo.contact.email === 'hello@devkantkumar.com') {
     productionErrors.push('Using demo email address. Update with real email.');
   }
-  
+
   // Must have projects
   if (!portfolioData.projects || portfolioData.projects.length === 0) {
     productionErrors.push('No projects found. Add at least 3 projects for a complete portfolio.');
   }
-  
+
   // Must have work experience
   if (!portfolioData.workExperience || portfolioData.workExperience.length === 0) {
     productionErrors.push('No work experience found. Add professional experience.');
   }
-  
+
   // Must have valid social links
   const githubUrl = portfolioData.socialLinks?.professional?.github;
   if (!githubUrl || githubUrl.includes('github.com/username')) {
     productionErrors.push('Invalid GitHub URL. Update with real GitHub profile.');
   }
-  
+
   return {
     ready: validation.valid && productionErrors.length === 0,
     errors: [...validation.errors, ...productionErrors],
@@ -154,7 +154,7 @@ export const generateSitemap = () => {
     { loc: '/contact', priority: 0.7, changefreq: 'monthly' },
     { loc: '/marketplace', priority: 0.8, changefreq: 'weekly' },
   ];
-  
+
   // Add project pages
   if (portfolioData.projects) {
     portfolioData.projects.forEach(project => {
@@ -168,7 +168,7 @@ export const generateSitemap = () => {
       }
     });
   }
-  
+
   return urls.map(url => ({
     ...url,
     loc: baseUrl + url.loc,
@@ -180,22 +180,22 @@ export const generateSitemap = () => {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const validation = validatePortfolioData();
   const production = isProductionReady();
-  
+
   console.log('\n🔍 Portfolio Data Validation Report\n');
   console.log('📊 Summary:', validation.summary);
-  
+
   if (validation.errors.length > 0) {
     console.log('\n❌ Errors:');
     validation.errors.forEach(error => console.log(`  • ${error}`));
   }
-  
+
   if (validation.warnings.length > 0) {
     console.log('\n⚠️  Warnings:');
     validation.warnings.forEach(warning => console.log(`  • ${warning}`));
   }
-  
+
   console.log(`\n🚀 Production Ready: ${production.ready ? '✅ YES' : '❌ NO'}`);
-  
+
   if (!production.ready) {
     console.log('\n🔧 Fix these issues before production:');
     production.errors.forEach(error => console.log(`  • ${error}`));

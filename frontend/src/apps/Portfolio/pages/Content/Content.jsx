@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";

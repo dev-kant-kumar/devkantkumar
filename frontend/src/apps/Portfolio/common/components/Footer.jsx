@@ -514,12 +514,62 @@ const Footer = () => {
           </motion.div>
 
           {/* Bottom Bar */}
+          {/* Bottom Bar - Mobile Layout (Optimized for small devices) */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col md:flex-row justify-between items-center gap-6"
+            className="flex md:hidden flex-col items-center gap-6"
+          >
+            {/* Copyright */}
+            <div className="flex flex-col items-center gap-2 text-sm text-slate-400 text-center">
+              <span>
+                © {currentYear} {personalInfo.name}
+              </span>
+              <span className="flex items-center gap-1.5">
+                Crafted with{" "}
+                <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> in
+                India
+              </span>
+            </div>
+
+            {/* Policy Links - Centered Grid for Mobile */}
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-4">
+              <Link
+                to="/privacy"
+                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms"
+                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                to="/sitemap"
+                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
+              >
+                Sitemap
+              </Link>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 rounded-full border border-cyan-500/20">
+                <Sparkles className="w-3 h-3 text-cyan-400" />
+                <span className="text-xs text-slate-300 font-medium">
+                  v2.0.0
+                </span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Bottom Bar - Desktop Layout (Original) */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="hidden md:flex flex-row justify-between items-center gap-6"
           >
             <div className="flex items-center gap-2 text-sm text-slate-400">
               <span>

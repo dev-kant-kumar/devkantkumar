@@ -29,7 +29,7 @@ const systemSettingSchema = new mongoose.Schema({
     },
     supportEmail: {
       type: String,
-      default: 'contact@devkantkumar.com'
+      default: 'support@devkantkumar.com'
     }
   },
   seo: {

@@ -18,6 +18,7 @@ const Messages = React.lazy(() => import("./pages/Messages/Messages.jsx"));
 const Settings = React.lazy(() => import("./pages/Settings/Settings.jsx"));
 const Announcements = React.lazy(() => import("./pages/Announcements/Announcements.jsx"));
 const AnalyticsPage = React.lazy(() => import("./pages/Analytics/Analytics.jsx"));
+const EmailTracking = React.lazy(() => import("./pages/EmailTracking/EmailTracking.jsx"));
 
 // Marketplace Pages
 const MarketplaceOverview = React.lazy(() => import("./pages/Marketplace/Overview.jsx"));
@@ -87,6 +88,9 @@ const AdminPanelRoutes = () => {
              <Route path="new" element={<BlogPost />} />
              <Route path="edit/:slug" element={<BlogPost />} />
           </Route>
+
+          {/* Email Tracking */}
+          <Route path="emails" element={<EmailTracking />} />
 
           {/* Settings - Admin panel configuration */}
           <Route path="settings" element={<Settings />} />

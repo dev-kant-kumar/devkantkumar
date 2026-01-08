@@ -78,4 +78,14 @@ router.post('/email-update/verify', adminController.verifyEmailChangeOTP);
 router.post('/password-change/initiate', adminController.initiatePasswordChange);
 router.post('/password-change/verify', adminController.verifyPasswordChangeOTP);
 
+// --- EMAIL TRACKING ---
+const emailTrackingController = require('../controllers/emailTrackingController');
+
+router.get('/emails/stats', emailTrackingController.getEmailStats);
+router.get('/emails/types', emailTrackingController.getEmailTypes);
+router.get('/emails', emailTrackingController.getEmailLogs);
+router.get('/emails/:id', emailTrackingController.getEmailById);
+router.post('/emails/:id/retry', emailTrackingController.retryEmail);
+router.delete('/emails/cleanup', emailTrackingController.cleanupOldLogs);
+
 module.exports = router;
