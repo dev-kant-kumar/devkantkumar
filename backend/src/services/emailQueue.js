@@ -52,8 +52,14 @@ const createTransporter = () => {
       return null;
     }
 
-    const port = parseInt(process.env.BREVO_SMTP_PORT || '465'); // Default to 465 for SSL, fallback to env
-    const secure = port === 465; // True for 465, false for 587
+    // Determine port based on environment if not explicitly set
+    // Dev: Default to 587 (STARTTLS) to avoid local ISP blocks on 465
+    // Prod: Default to 465 (SSL) for better stability on cloud hosting
+    const isDev = process.env.NODE_ENV === 'development';
+    const defaultPort = isDev ? 587 : 465;
+
+    const port = parseInt(process.env.BREVO_SMTP_PORT || defaultPort);
+    const secure = port === 465; // SSL for 465, STARTTLS for 587
 
     return nodemailer.createTransport({
       host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
