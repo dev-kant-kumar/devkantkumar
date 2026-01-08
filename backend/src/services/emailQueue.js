@@ -40,6 +40,26 @@ const emailQueue = new Queue('email-queue', {
 
 // --- Worker Setup ---
 
+// Verify SMTP connection (call on startup)
+const verifyConnection = async () => {
+  const transporter = createTransporter();
+  if (!transporter) {
+    logger.error('Email transporter not configured - emails will not be sent');
+    return false;
+  }
+
+  try {
+    await transporter.verify();
+    logger.info('✅ Email SMTP connection verified successfully');
+    return true;
+  } catch (error) {
+    logger.error(`❌ Email SMTP connection failed: ${error.message}`);
+    logger.error(`   Error code: ${error.code || 'N/A'}`);
+    logger.error(`   This could be due to: blocked ports, invalid credentials, or network issues`);
+    return false;
+  }
+};
+
 // Email Transporter Configuration
 const createTransporter = () => {
   const emailService = process.env.EMAIL_SERVICE || 'gmail';
@@ -52,14 +72,12 @@ const createTransporter = () => {
       return null;
     }
 
-    // Determine port based on environment if not explicitly set
-    // Dev: Default to 587 (STARTTLS) to avoid local ISP blocks on 465
-    // Prod: Default to 465 (SSL) for better stability on cloud hosting
-    const isDev = process.env.NODE_ENV === 'development';
-    const defaultPort = isDev ? 587 : 465;
-
-    const port = parseInt(process.env.BREVO_SMTP_PORT || defaultPort);
+    // Always use port 465 (SSL) for cloud hosting - port 587 is often blocked
+    // Allow override via env var for local development
+    const port = parseInt(process.env.BREVO_SMTP_PORT || 465);
     const secure = port === 465; // SSL for 465, STARTTLS for 587
+
+    logger.info(`Creating Brevo transporter: host=smtp-relay.brevo.com, port=${port}, secure=${secure}`);
 
     return nodemailer.createTransport({
       host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
@@ -69,14 +87,22 @@ const createTransporter = () => {
         user: process.env.BREVO_SMTP_USER,
         pass: process.env.BREVO_SMTP_PASS
       },
-      // Recommended settings for robust connection
+      // Robust TLS settings for cloud environments
       tls: {
-        ciphers: "SSLv3",
-        rejectUnauthorized: false,
+        // Use modern ciphers (SSLv3 is deprecated and often rejected)
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: false, // Allow self-signed certs if any
       },
-      connectionTimeout: 30000, // Increased to 30s
-      greetingTimeout: 20000,   // Increased to 20s
-      socketTimeout: 30000      // Increased to 30s
+      // Connection pooling for better reliability
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100,
+      // Generous timeouts for cloud network latency
+      connectionTimeout: 60000, // 60s for initial connection
+      greetingTimeout: 30000,   // 30s for SMTP greeting
+      socketTimeout: 60000,     // 60s for socket operations
+      // DNS resolution timeout
+      dnsTimeout: 30000,
     });
   }
 
@@ -219,5 +245,6 @@ const addEmailToQueue = async (options) => {
 module.exports = {
   addEmailToQueue,
   emailQueue,
-  worker
+  worker,
+  verifyConnection
 };

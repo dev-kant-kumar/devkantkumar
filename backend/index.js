@@ -218,6 +218,14 @@ const startServer = async () => {
       logger.warn(`Redis unavailable, continuing without caching: ${redisError.message}`);
     }
 
+    // Verify email SMTP connection (non-blocking)
+    try {
+      const { verifyConnection } = require('./src/services/emailQueue');
+      await verifyConnection();
+    } catch (emailError) {
+      logger.warn(`Email service check failed: ${emailError.message}`);
+    }
+
     const startListener = (port) => {
       const portNum = parseInt(port, 10);
       const server = app.listen(portNum, () => {
