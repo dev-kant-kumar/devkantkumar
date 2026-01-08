@@ -38,19 +38,24 @@ const logger = winston.createLogger({
   ],
 });
 
-// If we're not in production, log to the console as well
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
+// Always log to console (important for cloud platforms like Render)
+const consoleFormat = process.env.NODE_ENV === 'production'
+  ? winston.format.combine(
       winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
       winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
-        // Create a clean, single-line format
         const metaStr = Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : '';
         return `${timestamp} [${level}] ${service}: ${message}${metaStr}`;
       })
     )
-  }));
-}
+  : winston.format.combine(
+      winston.format.colorize(),
+      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+      winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
+        const metaStr = Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : '';
+        return `${timestamp} [${level}] ${service}: ${message}${metaStr}`;
+      })
+    );
+
+logger.add(new winston.transports.Console({ format: consoleFormat }));
 
 module.exports = logger;
