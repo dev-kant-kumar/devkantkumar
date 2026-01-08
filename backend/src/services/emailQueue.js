@@ -52,10 +52,13 @@ const createTransporter = () => {
       return null;
     }
 
+    const port = parseInt(process.env.BREVO_SMTP_PORT || '465'); // Default to 465 for SSL, fallback to env
+    const secure = port === 465; // True for 465, false for 587
+
     return nodemailer.createTransport({
       host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
-      port: parseInt(process.env.BREVO_SMTP_PORT || '587'),
-      secure: false, // 587 is usually StartTLS
+      port: port,
+      secure: secure,
       auth: {
         user: process.env.BREVO_SMTP_USER,
         pass: process.env.BREVO_SMTP_PASS
@@ -65,9 +68,9 @@ const createTransporter = () => {
         ciphers: "SSLv3",
         rejectUnauthorized: false,
       },
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 5000,    // 5 seconds
-      socketTimeout: 10000      // 10 seconds
+      connectionTimeout: 30000, // Increased to 30s
+      greetingTimeout: 20000,   // Increased to 20s
+      socketTimeout: 30000      // Increased to 30s
     });
   }
 
