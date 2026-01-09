@@ -1,23 +1,33 @@
-import { Download, Loader2, Mail, Search, Trash2, Users } from "lucide-react";
+import { AlertTriangle, Download, Loader2, Mail, Search, Trash2, Users, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { AnimatePresence, motion } from "framer-motion";
 import { useGetSubscribersQuery, useUnsubscribeMutation } from "../../../Portfolio/store/api/subscriberApiSlice";
 
 const Subscribers = () => {
     const { data, isLoading } = useGetSubscribersQuery();
-    const [unsubscribe] = useUnsubscribeMutation();
+    const [unsubscribe, { isLoading: isUnsubscribing }] = useUnsubscribeMutation();
     const [searchTerm, setSearchTerm] = useState("");
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedSubscriber, setSelectedSubscriber] = useState(null);
 
     const subscribers = data?.data || [];
 
-    const handleUnsubscribe = async (email) => {
-        if (window.confirm(`Are you sure you want to unsubscribe ${email}?`)) {
-            try {
-                await unsubscribe(email).unwrap();
-                toast.success("Subscriber removed successfully");
-            } catch (error) {
-                toast.error("Failed to remove subscriber");
-            }
+    const handleUnsubscribeClick = (email) => {
+        setSelectedSubscriber(email);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmUnsubscribe = async () => {
+        if (!selectedSubscriber) return;
+
+        try {
+            await unsubscribe(selectedSubscriber).unwrap();
+            toast.success("Subscriber removed successfully");
+            setDeleteModalOpen(false);
+            setSelectedSubscriber(null);
+        } catch (error) {
+            toast.error("Failed to remove subscriber");
         }
     };
 
@@ -157,7 +167,7 @@ const Subscribers = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button
-                                                onClick={() => handleUnsubscribe(sub.email)}
+                                                onClick={() => handleUnsubscribeClick(sub.email)}
                                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                                                 title="Unsubscribe customer"
                                             >
@@ -185,6 +195,72 @@ const Subscribers = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Custom Delete Confirmation Modal */}
+            <AnimatePresence>
+                {deleteModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setDeleteModalOpen(false)}
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700"
+                        >
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                                        <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                                    </div>
+                                    <button
+                                        onClick={() => setDeleteModalOpen(false)}
+                                        className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                    Unsubscribe User?
+                                </h3>
+
+                                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                                    Are you sure you want to unsubscribe <span className="font-semibold text-gray-700 dark:text-gray-300">{selectedSubscriber}</span>? This action cannot be undone.
+                                </p>
+
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setDeleteModalOpen(false)}
+                                        className="flex-1 px-4 py-2.5 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl font-medium transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={confirmUnsubscribe}
+                                        disabled={isUnsubscribing}
+                                        className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        {isUnsubscribing ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Removing...
+                                            </>
+                                        ) : (
+                                            "Unsubscribe"
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
