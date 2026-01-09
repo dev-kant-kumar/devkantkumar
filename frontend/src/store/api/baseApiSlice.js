@@ -195,6 +195,10 @@ export const baseApiSlice = createApi({
     // System
     "Health",
     "Settings",
+
+    // Marketplace
+    "Service",
+    "Product",
   ],
 
   // No endpoints defined here - each panel will inject their own

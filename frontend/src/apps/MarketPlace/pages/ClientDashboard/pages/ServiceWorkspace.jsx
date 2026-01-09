@@ -1,30 +1,151 @@
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, Clock, FileText, MessageSquare } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, Clock, FileText, MessageSquare, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { useGetOrderByIdQuery } from '../../../store/orders/ordersApi';
 import ServiceChat from '../components/ServiceChat';
 import ServiceFiles from '../components/ServiceFiles';
 
+// Status colors mapping
+const STATUS_COLORS = {
+  pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
+  in_progress: 'bg-purple-100 text-purple-800 border-purple-200',
+  completed: 'bg-green-100 text-green-800 border-green-200',
+  cancelled: 'bg-red-100 text-red-800 border-red-200',
+};
+
+// Timeline status colors
+const TIMELINE_STATUS_COLORS = {
+  completed: 'bg-green-500',
+  active: 'bg-blue-500',
+  in_progress: 'bg-blue-500',
+  pending: 'bg-gray-200',
+  created: 'bg-gray-400',
+  payment_completed: 'bg-green-500',
+  delivered: 'bg-green-500',
+  message: 'bg-indigo-500',
+};
+
+// Loading skeleton
+const LoadingSkeleton = () => (
+  <div className="animate-pulse space-y-6">
+    <div className="h-4 bg-gray-200 rounded w-32" />
+    <div className="h-8 bg-gray-200 rounded w-96" />
+    <div className="h-4 bg-gray-200 rounded w-64" />
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+      <div className="lg:col-span-2 bg-gray-200 rounded-xl h-96" />
+      <div className="bg-gray-200 rounded-xl h-64" />
+    </div>
+  </div>
+);
+
+// Error state
+const ErrorState = ({ error, onRetry }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="flex flex-col items-center justify-center py-16"
+  >
+    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+      <AlertCircle className="h-8 w-8 text-red-600" />
+    </div>
+    <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load order</h3>
+    <p className="text-gray-500 mb-6 text-center max-w-md">
+      {error?.data?.message || error?.message || 'Something went wrong while loading order details.'}
+    </p>
+    <button
+      onClick={onRetry}
+      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+    >
+      <RefreshCw className="h-4 w-4" />
+      Try Again
+    </button>
+  </motion.div>
+);
+
 const ServiceWorkspace = () => {
-  const { serviceId } = useParams();
+  const { serviceId } = useParams(); // This is actually the orderId
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.tab || 'overview');
 
-  const service = {
-    id: serviceId || 'SRV-001',
-    name: 'Custom E-commerce Development',
-    status: 'active',
-    progress: 65,
-    manager: 'Alex M.',
-    milestones: [
-      { id: 1, title: 'Project Kickoff & Requirements', status: 'completed', date: 'Oct 20, 2023' },
-      { id: 2, title: 'UI/UX Design Phase', status: 'completed', date: 'Oct 28, 2023' },
-      { id: 3, title: 'Frontend Integration', status: 'active', date: 'In Progress' },
-      { id: 4, title: 'Backend Development', status: 'pending', date: 'Upcoming' },
-      { id: 5, title: 'Testing & QA', status: 'pending', date: 'Upcoming' },
-      { id: 6, title: 'Final Delivery', status: 'pending', date: 'Upcoming' },
-    ]
+  // Fetch real order data
+  const { data: order, isLoading, isError, error, refetch } = useGetOrderByIdQuery(serviceId, {
+    skip: !serviceId,
+    pollingInterval: 60000, // Refresh every minute
+  });
+
+  // Calculate progress from timeline
+  const calculateProgress = (order) => {
+    if (!order?.timeline || order.timeline.length === 0) return 0;
+    if (order.status === 'completed') return 100;
+    if (order.status === 'cancelled') return 0;
+
+    // Count completed milestones
+    const completedStatuses = ['completed', 'delivered', 'payment_completed'];
+    const completed = order.timeline.filter(entry =>
+      completedStatuses.includes(entry.status)
+    ).length;
+
+    // Assume 5 major milestones: created, confirmed, in_progress, delivered, completed
+    const totalMilestones = 5;
+    return Math.min(Math.round((completed / totalMilestones) * 100), 95);
   };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  // Format currency
+  const formatCurrency = (amount, currency = 'INR') => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+    }).format(amount || 0);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <LoadingSkeleton />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-6">
+        <Link to="/marketplace/dashboard/services" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-6">
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to My Services
+        </Link>
+        <ErrorState error={error} onRetry={refetch} />
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="p-6">
+        <Link to="/marketplace/dashboard/services" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-6">
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to My Services
+        </Link>
+        <div className="text-center py-16 text-gray-500">
+          Order not found
+        </div>
+      </div>
+    );
+  }
+
+  const progress = calculateProgress(order);
+  const serviceItem = order.items?.find(item => item.itemType === 'service');
+  const serviceName = serviceItem?.title || order.items?.[0]?.title || 'Service Project';
 
   return (
     <motion.div
@@ -40,20 +161,27 @@ const ServiceWorkspace = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{service.name}</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide border bg-blue-100 text-blue-800 border-blue-200">
-                {service.status}
+              <h1 className="text-2xl font-bold text-gray-900">{serviceName}</h1>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide border ${STATUS_COLORS[order.status] || STATUS_COLORS.pending}`}>
+                {order.status?.replace('_', ' ')}
               </span>
             </div>
-            <p className="mt-1 text-sm text-gray-500">Order ID: {service.id} • Managed by {service.manager}</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Order: {order.orderNumber} • Created {formatDate(order.createdAt)}
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              Request Support
+            <button
+              onClick={() => setActiveTab('messages')}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Contact Support
             </button>
-            <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
-              Approve Milestone
-            </button>
+            {order.status === 'in_progress' && (
+              <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                View Progress
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -86,6 +214,11 @@ const ServiceWorkspace = () => {
           >
             <MessageSquare className="h-4 w-4" />
             Messages
+            {order.communication?.messages?.length > 0 && (
+              <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                {order.communication.messages.length}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab('files')}
@@ -118,30 +251,37 @@ const ServiceWorkspace = () => {
                 <div className="relative">
                   <div className="absolute top-0 left-4 h-full w-0.5 bg-gray-200" />
                   <div className="space-y-8">
-                    {service.milestones.map((milestone, index) => (
-                      <div key={milestone.id} className="relative flex items-start pl-12">
-                        <div
-                          className={`
-                            absolute left-0 top-1 h-8 w-8 rounded-full border-4 border-white shadow-sm flex items-center justify-center z-10
-                            ${milestone.status === 'completed' ? 'bg-green-500' : milestone.status === 'active' ? 'bg-blue-500' : 'bg-gray-200'}
-                          `}
-                        >
-                          {milestone.status === 'completed' && <CheckCircle className="h-4 w-4 text-white" />}
-                          {milestone.status === 'active' && <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />}
+                    {order.timeline && order.timeline.length > 0 ? (
+                      order.timeline.map((entry, index) => (
+                        <div key={entry._id || index} className="relative flex items-start pl-12">
+                          <div
+                            className={`
+                              absolute left-0 top-1 h-8 w-8 rounded-full border-4 border-white shadow-sm flex items-center justify-center z-10
+                              ${TIMELINE_STATUS_COLORS[entry.status] || 'bg-gray-300'}
+                            `}
+                          >
+                            {['completed', 'delivered', 'payment_completed'].includes(entry.status) && (
+                              <CheckCircle className="h-4 w-4 text-white" />
+                            )}
+                            {entry.status === 'in_progress' && (
+                              <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-gray-900">
+                              {entry.message}
+                            </h4>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatDate(entry.timestamp)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className={`text-sm font-bold ${milestone.status === 'pending' ? 'text-gray-500' : 'text-gray-900'}`}>
-                            {milestone.title}
-                          </h4>
-                          <p className="text-xs text-gray-500 mt-1">{milestone.date}</p>
-                          {milestone.status === 'active' && (
-                            <div className="mt-3 bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm text-blue-800">
-                              Current Phase: The team is working on integrating the frontend components with the API.
-                            </div>
-                          )}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        No timeline entries yet
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -155,32 +295,65 @@ const ServiceWorkspace = () => {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-500">Overall Progress</span>
-                      <span className="font-bold text-gray-900">{service.progress}%</span>
+                      <span className="font-bold text-gray-900">{progress}%</span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: `${service.progress}%` }} />
+                      <div
+                        className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                      />
                     </div>
                   </div>
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
                     <span className="text-sm text-gray-500">Start Date</span>
-                    <span className="text-sm font-medium text-gray-900">Oct 20, 2023</span>
+                    <span className="text-sm font-medium text-gray-900">{formatDate(order.createdAt)}</span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
                     <span className="text-sm text-gray-500">Est. Delivery</span>
-                    <span className="text-sm font-medium text-gray-900">Dec 25, 2023</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {formatDate(order.estimatedDelivery) || 'TBD'}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
-                    <span className="text-sm text-gray-500">Total Budget</span>
-                    <span className="text-sm font-medium text-gray-900">$2,500.00</span>
+                    <span className="text-sm text-gray-500">Total Amount</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {formatCurrency(order.payment?.amount?.total, order.payment?.amount?.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-3 border-t border-gray-100">
+                    <span className="text-sm text-gray-500">Payment Status</span>
+                    <span className={`text-sm font-medium ${order.payment?.status === 'completed' ? 'text-green-600' : 'text-yellow-600'}`}>
+                      {order.payment?.status?.replace('_', ' ') || 'Pending'}
+                    </span>
                   </div>
                 </div>
               </div>
+
+              {/* Order Items */}
+              {order.items && order.items.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Order Items</h3>
+                  <div className="space-y-3">
+                    {order.items.map((item, index) => (
+                      <div key={item._id || index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                          <p className="text-xs text-gray-500 capitalize">{item.itemType}</p>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {formatCurrency(item.price, order.payment?.amount?.currency)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
 
-        {activeTab === 'messages' && <ServiceChat />}
-        {activeTab === 'files' && <ServiceFiles />}
+        {activeTab === 'messages' && <ServiceChat orderId={serviceId} />}
+        {activeTab === 'files' && <ServiceFiles orderId={serviceId} order={order} />}
       </div>
     </motion.div>
   );

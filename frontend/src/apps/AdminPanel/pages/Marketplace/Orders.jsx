@@ -1,17 +1,17 @@
 import {
-  Check,
-  ChevronDown,
-  Eye,
-  Filter,
-  Package,
-  Search,
-  ShoppingBag
+    Check,
+    ChevronDown,
+    Eye,
+    Filter,
+    Package,
+    Search,
+    ShoppingBag
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import {
-  useGetAdminOrdersQuery,
-  useUpdateAdminOrderStatusMutation
+    useGetAdminOrdersQuery,
+    useUpdateAdminOrderStatusMutation
 } from '../../store/api/adminApiSlice';
 
 const STATUS_OPTIONS = [
@@ -253,9 +253,9 @@ const Orders = () => {
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all" title="View Details">
+                      <Link to={`/admin/marketplace/orders/${order._id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all inline-flex" title="View Details">
                         <Eye size={18} />
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}

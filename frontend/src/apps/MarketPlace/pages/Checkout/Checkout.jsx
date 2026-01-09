@@ -17,16 +17,14 @@ import {
   sanitize,
   validate,
 } from "../../../../utils/formValidation";
-import { formatCurrency } from "../../../../utils/price";
+import { useCurrency } from "../../context/CurrencyContext";
 import {
+  logout,
+  selectCurrentToken,
   selectCurrentUser,
   selectIsAuthenticated,
 } from "../../store/auth/authSlice";
-import {
-  clearCart,
-  selectCartItems,
-  selectCartTotal
-} from "../../store/cart/cartSlice";
+import { clearCart, selectCartItems } from "../../store/cart/cartSlice";
 import {
   resetCheckout,
   selectCheckoutState,
@@ -48,14 +46,71 @@ const loadRazorpayScript = () => {
   });
 };
 
+import { useGetCartQuery } from "../../../../store/cart/cartApi";
+
 const Checkout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const cartItems = useSelector(selectCartItems);
-  const total = useSelector(selectCartTotal);
-  const currency = 'INR'; // Todo: Get from global settings
+  const localCartItems = useSelector(selectCartItems);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // Fetch backend cart if authenticated
+  const { data: cartData, isLoading: isLoadingCart, error: cartError } = useGetCartQuery(undefined, {
+    skip: !isAuthenticated,
+    // Refetch on mount to ensure freshness
+    refetchOnMountOrArgChange: true
+  });
+
+  // Determine which cart items to use
+  // Determine which cart items to use
+  const cartItems = isAuthenticated ? (cartData?.cart?.items || []) : localCartItems;
+
+  // We ignore selectCartTotal as it is in base currency. We recalculate for the selected currency.
+  const { getPrice, formatPrice, currency: currentCurrency, countryCode: detectedCountryCode } = useCurrency();
+
+  const getCartItemPrice = (item) => {
+      const displayItem = item.product || item.service;
+      if (!displayItem) return { amount: 0, currency: currentCurrency };
+
+      if (item.type === 'service') {
+           if (item.package && displayItem.packages) {
+                const pkg = displayItem.packages.find(p => p.name === item.package);
+                if (pkg) return getPrice(pkg);
+           }
+           // Fallback: Use startingPrice if package not found
+           return getPrice({ ...displayItem, price: displayItem.startingPrice || 0 });
+      }
+      return getPrice(displayItem);
+  };
+
+  // Calculate totals with regional pricing and determine consistent currency
+  const calculateTotals = () => {
+    let total = 0;
+    // Default to first item's currency or currentCurrency if empty
+    let usedCurrency = currentCurrency;
+    let currencySet = false;
+
+    cartItems.forEach((item) => {
+      const displayItem = item.product || item.service;
+      if (displayItem) {
+          const { amount, currency } = getCartItemPrice(item);
+          total += amount * item.quantity;
+
+          // Capture the currency from the first valid item to ensure consistency
+          if (!currencySet && amount > 0) {
+              usedCurrency = currency;
+              currencySet = true;
+          }
+      }
+    });
+    return { total, currency: usedCurrency };
+  };
+
+  const { total: subtotal, currency: summaryCurrency } = calculateTotals();
+  const tax = subtotal * 0.08; // Assuming 8% tax
+  const total = subtotal + tax;
   const user = useSelector(selectCurrentUser);
+  const token = useSelector(selectCurrentToken);
   const { step, billingInfo, errors, isSubmitting } =
     useSelector(selectCheckoutState);
 
@@ -67,10 +122,55 @@ const Checkout = () => {
       return;
     }
 
-    if (cartItems.length === 0 && step !== 3) {
+    // Wait for cart load before redirecting empty cart
+    // Don't redirect if there's an error (user might retry) or if still loading
+    if (!isLoadingCart && !cartError && cartItems.length === 0 && step !== 3) {
       navigate("/marketplace/cart");
     }
-  }, [cartItems, navigate, step, isAuthenticated]);
+  }, [cartItems, navigate, step, isAuthenticated, isLoadingCart, cartError]);
+
+  // Auto-fill form from user profile
+  useEffect(() => {
+    if (user) {
+      const defaultAddress =
+        user.addresses?.find((addr) => addr.isDefault) || user.addresses?.[0];
+
+      const prefillData = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.profile?.phone || "",
+        address: defaultAddress?.street || "",
+        city: defaultAddress?.city || "",
+        state: defaultAddress?.state || "",
+        zipCode: defaultAddress?.zipCode || "",
+      };
+
+      const dataToUpdate = {};
+
+      if (!billingInfo.firstName && prefillData.firstName)
+        dataToUpdate.firstName = prefillData.firstName;
+      if (!billingInfo.lastName && prefillData.lastName)
+        dataToUpdate.lastName = prefillData.lastName;
+      if (!billingInfo.email && prefillData.email)
+        dataToUpdate.email = prefillData.email;
+      if (!billingInfo.phone && prefillData.phone)
+        dataToUpdate.phone = prefillData.phone;
+      if (!billingInfo.address && prefillData.address)
+        dataToUpdate.address = prefillData.address;
+      if (!billingInfo.city && prefillData.city)
+        dataToUpdate.city = prefillData.city;
+      if (!billingInfo.state && prefillData.state)
+        dataToUpdate.state = prefillData.state;
+      if (!billingInfo.zipCode && prefillData.zipCode)
+        dataToUpdate.zipCode = prefillData.zipCode;
+
+      if (Object.keys(dataToUpdate).length > 0) {
+        dispatch(updateBillingInfo(dataToUpdate));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, dispatch]);
 
   const handleBillingChange = (e) => {
     const { name, value } = e.target;
@@ -147,11 +247,12 @@ const Checkout = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
+            "x-country-code": detectedCountryCode || "US",
           },
           body: JSON.stringify({
             amount: total,
-            currency: currency,
+            currency: summaryCurrency,
             items: cartItems.map((item) => ({
               itemType: item.type,
               product: item.type === "product" ? item.id : undefined,
@@ -181,7 +282,7 @@ const Checkout = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Use ENV variable
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "DevKant Marketplace",
+        name: "Dev Kant Kumar Marketplace",
         description: "Digital Purchase",
         image: "https://your-logo-url", // Optional
         order_id: orderData.id,
@@ -194,7 +295,7 @@ const Checkout = () => {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
@@ -235,7 +336,21 @@ const Checkout = () => {
       dispatch(setIsSubmitting(false)); // Modal opened, stop loader
     } catch (err) {
       console.error(err);
-      toast.error("Failed to initiate payment: " + err.message);
+      const errorMessage = err.message || "Unknown error";
+
+      if (
+        errorMessage.includes("Invalid token") ||
+        errorMessage.includes("Access denied") ||
+        errorMessage.includes("jwt malformed")
+      ) {
+        toast.error("Session expired. Please log in again.");
+        dispatch(logout());
+        navigate("/marketplace/auth/signin", {
+          state: { from: "/marketplace/checkout" },
+        });
+      } else {
+        toast.error("Failed to initiate payment: " + errorMessage);
+      }
       dispatch(setIsSubmitting(false));
     }
   };
@@ -361,6 +476,7 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.firstName}
                       icon={User}
+                      placeholder="Enter your first name"
                     />
                     <InputField
                       label="Last Name"
@@ -369,6 +485,7 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.lastName}
                       icon={User}
+                      placeholder="Enter your last name"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -380,6 +497,7 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.email}
                       icon={Mail}
+                      placeholder="john@example.com"
                     />
                     <InputField
                       label="Phone Number"
@@ -389,6 +507,7 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.phone}
                       icon={Phone}
+                      placeholder="+91 98765 43210"
                     />
                   </div>
                   <InputField
@@ -398,8 +517,9 @@ const Checkout = () => {
                     onChange={handleBillingChange}
                     error={errors.address}
                     icon={MapPin}
+                    placeholder="123 Main St, Apt 4B"
                   />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <InputField
                       label="City"
                       name="city"
@@ -407,6 +527,7 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.city}
                       icon={MapPin}
+                      placeholder="Mumbai"
                     />
                     <InputField
                       label="State"
@@ -415,7 +536,10 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.state}
                       icon={MapPin}
+                      placeholder="Maharashtra"
                     />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <InputField
                       label="ZIP Code"
                       name="zipCode"
@@ -423,6 +547,16 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.zipCode}
                       icon={MapPin}
+                      placeholder="400001"
+                    />
+                     <InputField
+                      label="Country"
+                      name="country"
+                      value={billingInfo.country}
+                      onChange={handleBillingChange}
+                      error={errors.country}
+                      icon={MapPin}
+                      placeholder="India"
                     />
                   </div>
                 </div>
@@ -505,9 +639,18 @@ const Checkout = () => {
                       className="w-16 h-16 object-cover rounded-md"
                     />
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 line-clamp-2">
-                        {item.title}
-                      </h4>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-gray-900 line-clamp-2">
+                          {item.title}
+                        </h4>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          item.itemType === 'service'
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {item.itemType === 'service' ? 'Service' : 'Product'}
+                        </span>
+                      </div>
                       {item.packageName && (
                         <p className="text-xs text-blue-600 font-medium">
                           Package: {item.packageName}
@@ -518,10 +661,13 @@ const Checkout = () => {
                           Qty: {item.quantity}
                         </span>
                         <span className="font-bold text-gray-900">
-                          {formatCurrency(
-                            (item.currentPrice || item.price) * item.quantity,
-                            currency
-                          )}
+                          {(() => {
+                            const priceData = getCartItemPrice(item);
+                            return formatPrice(
+                              priceData.amount * item.quantity,
+                              priceData.currency
+                            );
+                          })()}
                         </span>
                       </div>
                     </div>
@@ -532,15 +678,15 @@ const Checkout = () => {
               <div className="border-t border-gray-100 pt-4 space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>{formatCurrency(total / 1.08, currency)}</span>
+                  <span>{formatPrice(subtotal, summaryCurrency)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Tax (8%)</span>
-                  <span>{formatCurrency(total - total / 1.08, currency)}</span>
+                  <span>{formatPrice(tax, summaryCurrency)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-gray-900 text-lg">
                   <span>Total</span>
-                  <span>{formatCurrency(total, currency)}</span>
+                  <span>{formatPrice(total, summaryCurrency)}</span>
                 </div>
               </div>
             </div>

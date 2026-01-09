@@ -11,6 +11,7 @@ router.get('/products', marketplaceController.getProducts);
 router.get('/products/:id', marketplaceController.getProductById);
 router.get('/categories', marketplaceController.getCategories);
 router.get('/search', marketplaceController.search);
+router.post('/payment/webhook', marketplaceController.handleRazorpayWebhook);
 
 // Protected routes
 router.use(protect);
@@ -28,13 +29,17 @@ router.post('/orders', marketplaceController.createOrder);
 router.get('/orders', marketplaceController.getUserOrders);
 router.get('/orders/:id', marketplaceController.getOrderById);
 
-// Payment routes
+// Order Communication routes
+router.get('/orders/:orderId/messages', marketplaceController.getOrderMessages);
+router.post('/orders/:orderId/messages', marketplaceController.addOrderMessage);
+
 // Payment routes
 router.post('/payment/create-order', marketplaceController.createRazorpayOrder);
 router.post('/payment/verify', marketplaceController.verifyRazorpayPayment);
 
-// Download route
+// Download routes
 router.get('/orders/:orderId/download/:itemId', marketplaceController.downloadPurchasedItem);
+router.post('/orders/:orderId/regenerate/:itemId', marketplaceController.regenerateDownloadLinks);
 
 // Review routes
 router.post('/reviews', marketplaceController.createReview);

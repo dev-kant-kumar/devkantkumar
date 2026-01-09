@@ -27,6 +27,7 @@ const ProductEditor = React.lazy(() => import("./pages/Marketplace/ProductEditor
 const MarketServices = React.lazy(() => import("./pages/Marketplace/Services.jsx"));
 const ServiceEditor = React.lazy(() => import("./pages/Marketplace/ServiceEditor.jsx"));
 const MarketOrders = React.lazy(() => import("./pages/Marketplace/Orders.jsx"));
+const MarketOrderDetail = React.lazy(() => import("./pages/Marketplace/OrderDetail.jsx"));
 const MarketCustomers = React.lazy(() => import("./pages/Marketplace/Customers.jsx"));
 const MarketCustomerDetail = React.lazy(() => import("./pages/Marketplace/CustomerDetail.jsx"));
 const MarketSettings = React.lazy(() => import("./pages/Marketplace/Settings.jsx"));
@@ -58,6 +59,7 @@ const AdminPanelRoutes = () => {
             <Route path="services/new" element={<ServiceEditor />} />
             <Route path="services/edit/:id" element={<ServiceEditor />} />
             <Route path="orders" element={<MarketOrders />} />
+            <Route path="orders/:id" element={<MarketOrderDetail />} />
             <Route path="customers" element={<MarketCustomers />} />
             <Route path="customers/:id" element={<MarketCustomerDetail />} />
             <Route path="settings" element={<MarketSettings />} />

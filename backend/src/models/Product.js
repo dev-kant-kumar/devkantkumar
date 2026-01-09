@@ -312,14 +312,11 @@ productSchema.pre("save", function (next) {
   next();
 });
 
-// Pre-save middleware to calculate discounted price
+// Pre-save middleware to auto-calculate discount percentage if originalPrice and price are set
 productSchema.pre("save", function (next) {
-  if (this.isModified("price") || this.isModified("discount")) {
-    if (this.discount > 0) {
-      this.originalPrice = this.originalPrice || this.price;
-      this.price =
-        this.originalPrice - (this.originalPrice * this.discount) / 100;
-    }
+  // If both originalPrice and price are set, calculate discount percentage
+  if (this.originalPrice && this.price && this.originalPrice > this.price) {
+    this.discount = Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
   }
   next();
 });

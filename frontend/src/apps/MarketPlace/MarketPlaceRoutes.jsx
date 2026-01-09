@@ -43,60 +43,64 @@ const VerifyEmail = React.lazy(() => import('./pages/UserManagement/VerifyEmail'
 
 import PersistLogin from './common/components/PersistLogin';
 
+import { CurrencyProvider } from './context/CurrencyContext';
+
 const MarketPlaceRoutes = () => {
   return (
-    <Suspense fallback={<Loader />}>
-      <Routes>
-        <Route element={<PersistLogin />}>
-          <Route path="/" element={<MarketPlaceLayout />}>
-            <Route index element={<Home />} />
-          <Route path="services" element={<Services />} />
-          <Route path="services/:serviceId" element={<ServiceDetail />} />
-          <Route path="products" element={<DigitalProducts />} />
-          <Route path="products/templates" element={<DigitalProducts category="templates" />} />
-          <Route path="products/components" element={<DigitalProducts category="components" />} />
-          <Route path="products/tools" element={<DigitalProducts category="tools" />} />
-          <Route path="products/courses" element={<DigitalProducts category="courses" />} />
-          <Route path="products/:productId" element={<ProductDetail />} />
-          <Route path="custom-solutions" element={<CustomSolutions />} />
-          <Route path="support" element={<Support />} />
-          <Route path="docs" element={<Docs />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="faq" element={<FAQ />} />
-          <Route path="terms" element={<Terms />} />
-          <Route path="privacy" element={<Privacy />} />
-          <Route path="refunds" element={<Refunds />} />
-          <Route path="license" element={<License />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          {/* Dashboard Routes */}
-          <Route path="dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardOverview />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="services" element={<PurchasedServices />} />
-            <Route path="services/:serviceId" element={<ServiceWorkspace />} />
-            <Route path="products" element={<PurchasedProducts />} />
-            <Route path="orders/:orderId/invoice" element={<Invoice />} />
-            <Route path="notifications" element={<Notifications />} />
-            <Route path="support" element={<SupportTickets />} />
-            <Route path="billing" element={<Billing />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
+    <CurrencyProvider>
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route element={<PersistLogin />}>
+            <Route path="/" element={<MarketPlaceLayout />}>
+              <Route index element={<Home />} />
+            <Route path="services" element={<Services />} />
+            <Route path="services/:serviceId" element={<ServiceDetail />} />
+            <Route path="products" element={<DigitalProducts />} />
+            <Route path="products/templates" element={<DigitalProducts category="templates" />} />
+            <Route path="products/components" element={<DigitalProducts category="components" />} />
+            <Route path="products/tools" element={<DigitalProducts category="tools" />} />
+            <Route path="products/courses" element={<DigitalProducts category="courses" />} />
+            <Route path="products/:productId" element={<ProductDetail />} />
+            <Route path="custom-solutions" element={<CustomSolutions />} />
+            <Route path="support" element={<Support />} />
+            <Route path="docs" element={<Docs />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="terms" element={<Terms />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="refunds" element={<Refunds />} />
+            <Route path="license" element={<License />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="checkout" element={<Checkout />} />
+            {/* Dashboard Routes */}
+            <Route path="dashboard" element={<DashboardLayout />}>
+              <Route index element={<DashboardOverview />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="services" element={<PurchasedServices />} />
+              <Route path="services/:serviceId" element={<ServiceWorkspace />} />
+              <Route path="products" element={<PurchasedProducts />} />
+              <Route path="orders/:orderId/invoice" element={<Invoice />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="support" element={<SupportTickets />} />
+              <Route path="billing" element={<Billing />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
 
-          {/* User Management Routes */}
-          <Route path="auth" element={<AuthLayout />}>
-            <Route path="signin" element={<SignIn />} />
-            <Route path="signup" element={<SignUp />} />
-            <Route path="forgot-password" element={<ForgotPassword />} />
-            <Route path="reset-password" element={<ResetPassword />} />
-            <Route path="verify-email/:token" element={<VerifyEmail />} />
-          </Route>
+            {/* User Management Routes */}
+            <Route path="auth" element={<AuthLayout />}>
+              <Route path="signin" element={<SignIn />} />
+              <Route path="signup" element={<SignUp />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="reset-password" element={<ResetPassword />} />
+              <Route path="verify-email/:token" element={<VerifyEmail />} />
+            </Route>
 
-          <Route path="*" element={<NotFound />} />
-        </Route>
-        </Route>
-      </Routes>
-    </Suspense>
+            <Route path="*" element={<NotFound />} />
+          </Route>
+          </Route>
+        </Routes>
+      </Suspense>
+    </CurrencyProvider>
   );
 };
 

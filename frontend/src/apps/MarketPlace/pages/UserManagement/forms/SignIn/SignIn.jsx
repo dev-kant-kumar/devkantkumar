@@ -1,17 +1,18 @@
 
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
 import { useLoginMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
-import { setCredentials } from '../../../../store/auth/authSlice';
+import { selectIsAuthenticated, setCredentials } from '../../../../store/auth/authSlice';
 
 const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,6 +20,12 @@ const SignIn = () => {
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/marketplace/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const [login, { isLoading }] = useLoginMutation();
   const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();

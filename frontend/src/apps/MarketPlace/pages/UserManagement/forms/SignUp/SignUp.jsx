@@ -1,15 +1,18 @@
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
 import { useRegisterMutation } from '../../../../store/auth/authApi';
+import { selectIsAuthenticated } from '../../../../store/auth/authSlice';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -21,6 +24,12 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+      if (isAuthenticated) {
+        navigate('/marketplace/dashboard', { replace: true });
+      }
+    }, [isAuthenticated, navigate]);
 
   const [register, { isLoading }] = useRegisterMutation();
   const [isSuccess, setIsSuccess] = useState(false);

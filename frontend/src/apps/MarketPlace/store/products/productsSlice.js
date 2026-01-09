@@ -1,9 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { products } from '../../data/products';
 
 const initialState = {
-  items: products,
-  filteredItems: products,
+  items: [],
+  filteredItems: [],
   loading: false,
   error: null,
 };

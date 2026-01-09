@@ -3,9 +3,11 @@ import { LogOut, Menu, Search, Settings, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useGetCartQuery } from '../../../../store/cart/cartApi'; // Assuming this import is needed for useGetCartQuery
+import { useGetCartQuery } from '../../../../store/cart/cartApi'; // Points to src/store/cart/cartApi
 import { useLogoutMutation } from '../../store/auth/authApi';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
+import { selectCartItemCount } from '../../store/cart/cartSlice';
+import LocationSelector from "./LocationSelector";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +20,9 @@ const Header = () => {
     skip: !isAuthenticated // Skip if not logged in
   });
 
-  const cartCount = cartData?.cart?.items?.length || 0;
+  const localCartCount = useSelector(selectCartItemCount);
+  const cartCount = isAuthenticated ? (cartData?.cart?.items?.length || 0) : localCartCount;
+
   const user = useSelector(selectCurrentUser);
   const location = useLocation();
   const dispatch = useDispatch();
@@ -147,8 +151,10 @@ const Header = () => {
             ))}
           </div>
 
+
           {/* Right Side Actions */}
           <div className="hidden lg:flex items-center space-x-3">
+
 
 
             {/* Search */}
@@ -297,6 +303,11 @@ const Header = () => {
                 )}
               </AnimatePresence>
             </div>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
+
+            {/* Location Selector */}
+            <LocationSelector />
           </div>
 
           {/* Mobile menu button */}

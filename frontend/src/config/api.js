@@ -96,6 +96,7 @@ export const API_ENDPOINTS = {
     MARK_MESSAGE_READ: '/portfolio/contact',
 
     // Settings
+    SETTINGS: '/admin/settings',
     GENERAL_SETTINGS: '/admin/settings/general',
     SEO_SETTINGS: '/admin/settings/seo',
 
@@ -126,6 +127,20 @@ export const API_ENDPOINTS = {
     IMAGE: '/upload/image',
     FILE: '/upload/file',
     AVATAR: '/upload/avatar',
+  },
+
+  // Marketplace endpoints (public/user)
+  MARKETPLACE: {
+    SERVICES: '/marketplace/services',
+    PRODUCTS: '/marketplace/products',
+    CATEGORIES: '/marketplace/categories',
+    SEARCH: '/marketplace/search',
+    ORDERS: '/marketplace/orders',
+    CART: '/cart',
+    PAYMENT: {
+      CREATE_ORDER: '/marketplace/payment/create-order',
+      VERIFY: '/marketplace/payment/verify',
+    },
   },
 };
 

@@ -25,12 +25,15 @@ router.get('/orders', adminController.getOrders);
 router.put('/orders/:id/status', adminController.updateOrderStatus);
 
 // System settings
-router.get('/settings', adminController.getSettings);
-router.put('/settings', adminController.updateSettings);
-router.get('/settings/general', adminController.getSettings);
-router.put('/settings/general', adminController.updateSettings);
-router.get('/settings/seo', adminController.getSettings);
-router.put('/settings/seo', adminController.updateSettings);
+const settingsController = require('../controllers/settingsController');
+
+// System settings
+router.get('/settings', settingsController.getSettings);
+router.put('/settings', settingsController.updateSettings);
+router.get('/settings/general', settingsController.getSettings);
+router.put('/settings/general', settingsController.updateSettings);
+router.get('/settings/seo', settingsController.getSettings);
+router.put('/settings/seo', settingsController.updateSettings);
 
 // --- MARKETPLACE MANAGEMENT ---
 const adminMarketplaceController = require('../controllers/adminMarketplaceController');
@@ -52,7 +55,12 @@ router.delete('/services/:id', adminMarketplaceController.deleteService);
 
 // Marketplace Orders
 router.get('/marketplace/orders', adminMarketplaceController.getAllOrders);
+router.get('/marketplace/orders/:id', adminMarketplaceController.getOrderById);
 router.put('/marketplace/orders/:id', adminMarketplaceController.updateAdminOrderStatus);
+router.post('/marketplace/orders/:id/milestones', adminMarketplaceController.addMilestone);
+router.put('/marketplace/orders/:id/milestones/:milestoneId', adminMarketplaceController.updateMilestone);
+router.post('/marketplace/orders/:id/messages', adminMarketplaceController.addAdminMessage);
+router.post('/marketplace/orders/:id/deliver', adminMarketplaceController.markDelivered);
 router.get('/marketplace/stats', adminMarketplaceController.getStats);
 
 // Customers

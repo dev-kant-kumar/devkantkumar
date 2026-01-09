@@ -36,18 +36,31 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const newItem = action.payload;
-      const existingItem = state.items.find(item => item.id === newItem.id && item.type === newItem.type);
+      console.log('🛒 Cart Reducer - Adding item:', newItem);
+      console.log('🛒 Current cart items:', state.items.length);
+
+      // Use itemType for consistency (products/services use itemType field)
+      const existingItem = state.items.find(item =>
+        item.id === newItem.id && (item.itemType || item.type) === (newItem.itemType || newItem.type)
+      );
 
       if (existingItem) {
+        console.log('🛒 Item exists, incrementing quantity');
         existingItem.quantity += 1;
       } else {
+        console.log('🛒 New item, adding to cart');
         state.items.push({ ...newItem, quantity: 1 });
       }
+      console.log('🛒 Cart items after add:', state.items.length);
+      console.log('🛒 Full cart state:', JSON.parse(JSON.stringify(state.items)));
       saveState(state);
     },
     removeFromCart: (state, action) => {
-      const { id, type } = action.payload;
-      state.items = state.items.filter(item => !(item.id === id && item.type === type));
+      const { id, itemType, type } = action.payload;
+      const typeToMatch = itemType || type;
+      state.items = state.items.filter(item =>
+        !(item.id === id && (item.itemType || item.type) === typeToMatch)
+      );
       saveState(state);
     },
     updateQuantity: (state, action) => {

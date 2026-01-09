@@ -1,49 +1,38 @@
 import { motion } from 'framer-motion';
 import {
-  ArrowRight,
-  CheckCircle,
-  Clock,
-  Code,
-  Globe,
-  Layers,
-  Shield,
-  Smartphone,
-  Star,
-  TrendingUp,
-  Users,
-  Zap
+    ArrowRight,
+    CheckCircle,
+    Clock,
+    Layers,
+    Loader2,
+    Star,
+    Users
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
-
-const iconMap = {
-  CheckCircle,
-  Star,
-  Users,
-  Layers,
-  Shield,
-  Zap,
-  TrendingUp,
-  Globe,
-  Smartphone,
-  Code
-};
+import { useGetProductsQuery, useGetServicesQuery } from '../../store/api/marketplaceApi';
 
 const Home = () => {
-  const allServices = useSelector(state => state.services.items);
-  const allProducts = useSelector(state => state.products.items);
-  const { trustData } = useSelector(state => state.marketplaceUI);
+  // Fetch real services and products from API
+  const { data: servicesData, isLoading: servicesLoading } = useGetServicesQuery({ limit: 6 });
+  const { data: productsData, isLoading: productsLoading } = useGetProductsQuery({ limit: 6 });
 
-  const featuredServices = [
-    allServices.find(s => s.id === 'web-development'),
-    allServices.find(s => s.id === 'mobile-app'),
-    allServices.find(s => s.id === 'custom-solution')
-  ].filter(Boolean);
+  const services = servicesData?.services || [];
+  const products = productsData?.products || [];
 
-  const featuredProducts = allProducts.slice(0, 3);
+  const featuredServices = services.slice(0, 3);
+  const featuredProducts = products.slice(0, 3);
+
+  const isLoading = servicesLoading || productsLoading;
+
+  const stats = [
+    { number: "500+", label: "Projects Delivered", icon: CheckCircle },
+    { number: "98%", label: "Client Satisfaction", icon: Star },
+    { number: "24/7", label: "Expert Support", icon: Users },
+    { number: "100+", label: "Premium Products", icon: Layers }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,29 +98,26 @@ const Home = () => {
       <section className="py-12 -mt-20 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {trustData?.stats?.map((stat, index) => {
-              const Icon = iconMap[stat.icon] || CheckCircle;
-              return (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 text-center transform hover:-translate-y-1 transition-transform duration-300"
-                >
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-full mb-4">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div className="text-3xl font-extrabold text-gray-900 mb-1">
-                    {stat.number}
-                  </div>
-                  <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              );
-            })}
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-2xl p-6 shadow-xl border border-gray-100 text-center transform hover:-translate-y-1 transition-transform duration-300"
+              >
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-full mb-4">
+                  <stat.icon className="h-6 w-6" />
+                </div>
+                <div className="text-3xl font-extrabold text-gray-900 mb-1">
+                  {stat.number}
+                </div>
+                <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -156,75 +142,88 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredServices.map((service, index) => (
-              <motion.div
-                key={service.id || index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col"
-              >
-                {/* Service Image */}
-                <div className="h-48 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 flex items-center shadow-sm">
-                    <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                    {service.rating} ({service.reviews})
-                  </div>
-                </div>
-
-                <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
-                      {service.category}
-                    </span>
-                    <div className="flex items-center text-gray-500 text-xs">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {service.deliveryTime}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+            </div>
+          ) : featuredServices.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl">
+              <p className="text-gray-500">No services available yet. Add services in the admin panel!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredServices.map((service, index) => (
+                <motion.div
+                  key={service._id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col"
+                >
+                  <div className="h-48 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
+                    <img
+                      src={service.images?.[0]?.url || '/api/placeholder/400/250'}
+                      alt={service.title}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 flex items-center shadow-sm">
+                      <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                      {service.rating?.average || 0} ({service.rating?.count || 0})
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                    {service.title}
-                  </h3>
-
-                  <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed flex-1">
-                    {service.description}
-                  </p>
-
-                  <div className="space-y-3 mb-6 border-t border-gray-100 pt-4">
-                    {service.features.slice(0, 3).map((feature) => (
-                      <div key={feature} className="flex items-center text-sm text-gray-500">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
-                        {feature}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
+                        {service.category?.replace(/-/g, ' ') || 'Service'}
+                      </span>
+                      <div className="flex items-center text-gray-500 text-xs">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {service.packages?.[0]?.deliveryTime || 7} days
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
-                    <div>
-                      <p className="text-xs text-gray-500 font-medium uppercase">Starting at</p>
-                      <p className="text-2xl font-bold text-gray-900">${service.price.toLocaleString()}</p>
                     </div>
-                    <Link
-                      to={`/marketplace/services/${service.id}`}
-                      className="px-4 py-2 bg-gray-50 text-gray-700 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center"
-                    >
-                      View Details
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                      {service.title}
+                    </h3>
+
+                    <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed flex-1">
+                      {service.description}
+                    </p>
+
+                    {service.features && service.features.length > 0 && (
+                      <div className="space-y-3 mb-6 border-t border-gray-100 pt-4">
+                        {service.features.slice(0, 3).map((feature, idx) => (
+                          <div key={idx} className="flex items-center text-sm text-gray-500">
+                            <CheckCircle className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
+                            {typeof feature === 'string' ? feature : feature.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium uppercase">Starting at</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          ${(service.packages?.[0]?.price || service.startingPrice || 0).toLocaleString()}
+                        </p>
+                      </div>
+                      <Link
+                        to={`/marketplace/services/${service._id}`}
+                        className="px-4 py-2 bg-gray-50 text-gray-700 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center"
+                      >
+                        View Details
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 text-center md:hidden">
             <Link
@@ -257,59 +256,69 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProducts.map((product, index) => (
-              <motion.div
-                key={product.id || index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group bg-gray-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
-              >
-                <div className="relative h-56 overflow-hidden">
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 flex items-center shadow-sm">
-                    <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                    {product.rating}
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <div className="mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors truncate">
-                      {product.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {product.description}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-2xl font-bold text-gray-900">
-                        ${product.price}
-                      </span>
-                      <span className="text-xs text-gray-500 block">
-                        One-time payment
-                      </span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-2xl">
+              <p className="text-gray-500">No products available yet. Add products in the admin panel!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product._id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="group bg-gray-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100"
+                >
+                  <div className="relative h-56 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
+                    <img
+                      src={product.images?.[0]?.url || '/api/placeholder/400/250'}
+                      alt={product.title}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 flex items-center shadow-sm">
+                      <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                      {product.rating?.average || 0}
                     </div>
-                    <Link
-                      to={`/marketplace/products/${product.id}`}
-                      className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-all"
-                    >
-                      View Details
-                    </Link>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+
+                  <div className="p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors truncate">
+                        {product.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-2xl font-bold text-gray-900">
+                          ${product.price || 0}
+                        </span>
+                        <span className="text-xs text-gray-500 block">
+                          One-time payment
+                        </span>
+                      </div>
+                      <Link
+                        to={`/marketplace/products/${product._id}`}
+                        className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-all"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 text-center md:hidden">
             <Link
@@ -323,7 +332,6 @@ const Home = () => {
       </section>
 
       <WhyChooseUs />
-
       <Testimonials />
       <FAQ />
 

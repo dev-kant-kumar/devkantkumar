@@ -393,6 +393,20 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Settings'],
     }),
 
+    getSettings: builder.query({
+      query: () => API_ENDPOINTS.ADMIN.SETTINGS,
+      providesTags: ['Settings'],
+    }),
+
+    updateSettings: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.SETTINGS,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Settings'],
+    }),
+
     // ===================
     // MARKETPLACE ENDPOINTS
     // ===================
@@ -493,6 +507,52 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         body: statusData,
       }),
       invalidatesTags: ['Order'],
+    }),
+
+    // Get single order detail
+    getAdminOrderById: builder.query({
+      query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Order', id }],
+    }),
+
+    // Add milestone to order
+    addMilestone: builder.mutation({
+      query: ({ id, ...milestoneData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/milestones`,
+        method: 'POST',
+        body: milestoneData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
+    }),
+
+    // Update milestone
+    updateMilestone: builder.mutation({
+      query: ({ orderId, milestoneId, ...data }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${orderId}/milestones/${milestoneId}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }],
+    }),
+
+    // Add admin message to order
+    addAdminMessage: builder.mutation({
+      query: ({ id, ...messageData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/messages`,
+        method: 'POST',
+        body: messageData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
+    }),
+
+    // Mark order as delivered
+    markOrderDelivered: builder.mutation({
+      query: ({ id, ...deliveryData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/deliver`,
+        method: 'POST',
+        body: deliveryData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
     }),
 
     getMarketplaceStats: builder.query({
@@ -603,6 +663,8 @@ export const {
   useUpdateGeneralSettingsMutation,
   useGetSeoSettingsQuery,
   useUpdateSeoSettingsMutation,
+  useGetSettingsQuery,
+  useUpdateSettingsMutation,
 
   // Marketplace
   useGetAdminProductsQuery,
@@ -617,6 +679,11 @@ export const {
   useDeleteServiceMutation,
   useGetAdminOrdersQuery,
   useUpdateAdminOrderStatusMutation,
+  useGetAdminOrderByIdQuery,
+  useAddMilestoneMutation,
+  useUpdateMilestoneMutation,
+  useAddAdminMessageMutation,
+  useMarkOrderDeliveredMutation,
   useGetMarketplaceStatsQuery,
   useGetCustomersQuery,
   useGetCustomerByIdQuery,

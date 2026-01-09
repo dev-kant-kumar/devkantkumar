@@ -75,6 +75,16 @@ const serviceSchema = new mongoose.Schema(
           required: true,
           min: [0, "Price cannot be negative"],
         },
+        originalPrice: {
+          type: Number,
+          min: [0, "Original Price cannot be negative"],
+        },
+        discount: {
+          type: Number,
+          default: 0,
+          min: 0,
+          max: 100,
+        },
         regionalPricing: [
           {
             region: {
@@ -92,6 +102,10 @@ const serviceSchema = new mongoose.Schema(
               required: true,
               min: 0,
             },
+            discount: {
+              type: Number,
+              default: 0,
+            },
           },
         ],
         deliveryTime: {
@@ -100,8 +114,8 @@ const serviceSchema = new mongoose.Schema(
           min: [1, "Delivery time must be at least 1 day"],
         },
         revisions: {
-          type: String,
-          default: "unlimited",
+          type: Number,
+          default: -1, // -1 for unlimited
         },
         features: [
           {
@@ -291,6 +305,19 @@ serviceSchema.index({ title: "text", description: "text", tags: "text" });
 serviceSchema.pre("save", function (next) {
   if (this.isModified("title")) {
     this.slug = generateSlug(this.title);
+  }
+  next();
+});
+
+// Pre-save middleware to auto-calculate discount percentage for packages
+serviceSchema.pre("save", function (next) {
+  if (this.packages && this.packages.length > 0) {
+    this.packages.forEach(pkg => {
+      // If both originalPrice and price are set, calculate discount percentage
+      if (pkg.originalPrice && pkg.price && pkg.originalPrice > pkg.price) {
+        pkg.discount = Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100);
+      }
+    });
   }
   next();
 });

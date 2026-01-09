@@ -3,9 +3,29 @@ const mongoose = require('mongoose');
 const systemSettingSchema = new mongoose.Schema({
   marketplace: {
     currency: {
-      type: String,
-      default: 'INR',
-      enum: ['INR', 'USD', 'EUR', 'GBP']
+      baseCurrency: {
+        type: String,
+        default: 'INR',
+        required: true
+      },
+      exchangeRates: [{
+        code: {
+          type: String,
+          required: true,
+          uppercase: true
+        },
+        name: String,
+        symbol: String,
+        rate: {
+          type: Number,
+          required: true,
+          default: 1
+        },
+        isActive: {
+          type: Boolean,
+          default: true
+        }
+      }]
     },
     taxRate: {
       type: Number,
@@ -87,7 +107,18 @@ systemSettingSchema.statics.getSettings = async function() {
   if (settings) return settings;
 
   // Create defaults if not found
-  return await this.create({});
+  return await this.create({
+    marketplace: {
+      currency: {
+        baseCurrency: 'INR',
+        exchangeRates: [
+          { code: 'USD', name: 'US Dollar', symbol: '$', rate: 0.012, isActive: true },
+          { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.011, isActive: true },
+          { code: 'GBP', name: 'British Pound', symbol: '£', rate: 0.0094, isActive: true }
+        ]
+      }
+    }
+  });
 };
 
 module.exports = mongoose.model('SystemSetting', systemSettingSchema);

@@ -70,6 +70,8 @@ const Settings = () => {
   const [changePassword, { isLoading: isChangingPassword }] = useChangeAdminPasswordMutation();
   const [uploadAvatar, { isLoading: isUploading }] = useUploadAdminAvatarMutation();
 
+
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",

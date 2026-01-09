@@ -1,60 +1,110 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 ,Package } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
-  useGetCartQuery,
-  useRemoveFromCartMutation,
-  useUpdateCartItemMutation,
+    useGetCartQuery,
+    useRemoveFromCartMutation,
+    useUpdateCartItemMutation,
 } from "../../../../store/cart/cartApi";
-import { formatCurrency } from "../../../../utils/price";
+import { useCurrency } from "../../context/CurrencyContext";
+import { selectIsAuthenticated } from "../../store/auth/authSlice";
+import { removeFromCart as removeFromLocalCart, selectCartItems, updateQuantity } from "../../store/cart/cartSlice";
 
 const Cart = () => {
-  const { data: cartData, isLoading } = useGetCartQuery();
-  const [updateCartItem, { isLoading: isUpdating }] =
-    useUpdateCartItemMutation();
-  const [removeFromCart, { isLoading: isRemoving }] =
-    useRemoveFromCartMutation();
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  const cartItems = cartData?.cart?.items || [];
+  // Use backend cart for authenticated users, local cart for unauthenticated
+  const { data: backendCartData, isLoading: isLoadingBackend } = useGetCartQuery(undefined, {
+    skip: !isAuthenticated, // Skip API call if not authenticated
+  });
+  const localCartItems = useSelector(selectCartItems);
 
-  // Calculate totals with regional pricing
-  const calculateTotals = () => {
-    let total = 0;
-    let activeCurrency = "USD";
+  // Determine which cart to use
+  const cartItems = isAuthenticated ? (backendCartData?.cart?.items || []) : localCartItems;
+  const isLoading = isAuthenticated ? isLoadingBackend : false;
 
-    cartItems.forEach((item, index) => {
+  // Backend cart mutations (only for authenticated users)
+  const [updateCartItem, { isLoading: isUpdating }] = useUpdateCartItemMutation();
+  const [removeFromCartApi, { isLoading: isRemoving }] = useRemoveFromCartMutation();
+
+  const { getPrice, formatPrice, currency: currentCurrency } = useCurrency();
+
+  const getCartItemPrice = (item) => {
       const displayItem = item.product || item.service;
-      if (displayItem) {
-        const { price, currency } = getPriceForRegion(displayItem, countryCode);
-        total += price * item.quantity;
-        if (index === 0) activeCurrency = currency;
+      if (!displayItem) return { amount: 0, currency: currentCurrency };
+
+      if (item.type === 'service') {
+           if (item.package && displayItem.packages) {
+                const pkg = displayItem.packages.find(p => p.name === item.package);
+                if (pkg) return getPrice(pkg);
+           }
+           // Fallback: Use startingPrice if package not found
+           return getPrice({ ...displayItem, price: displayItem.startingPrice || 0 });
       }
-    });
-    return { subtotal: total, currency: activeCurrency };
+      return getPrice(displayItem);
   };
 
-  const { subtotal, currency } = calculateTotals();
+  // Calculate totals with regional pricing and determine consistent currency
+  const calculateTotals = () => {
+    let total = 0;
+    // Default to first item's currency or currentCurrency if empty
+    let usedCurrency = currentCurrency;
+    let currencySet = false;
+
+    cartItems.forEach((item) => {
+      const displayItem = item.product || item.service;
+      if (displayItem) {
+          const { amount, currency } = getCartItemPrice(item);
+          total += amount * item.quantity;
+
+          // Capture the currency from the first valid item to ensure consistency
+          if (!currencySet && amount > 0) {
+              usedCurrency = currency;
+              currencySet = true;
+          }
+      }
+    });
+    return { total, currency: usedCurrency };
+  };
+
+  const { total: subtotal, currency: summaryCurrency } = calculateTotals();
   const tax = subtotal * 0.08; // Assuming 8% tax
   const total = subtotal + tax;
 
-  const handleQuantityChange = async (itemId, newQuantity) => {
+  const handleQuantityChange = async (item, newQuantity) => {
     if (newQuantity < 1) return;
-    try {
-      await updateCartItem({ itemId, quantity: newQuantity }).unwrap();
-    } catch (error) {
-      console.error("Failed to update quantity:", error);
-      toast.error(error?.data?.message || "Failed to update quantity");
+
+    if (isAuthenticated) {
+      // Backend cart
+      try {
+        await updateCartItem({ itemId: item._id, quantity: newQuantity }).unwrap();
+      } catch (error) {
+        console.error("Failed to update quantity:", error);
+        toast.error(error?.data?.message || "Failed to update quantity");
+      }
+    } else {
+      // Local cart
+      dispatch(updateQuantity({ id: item.id, itemType: item.itemType, quantity: newQuantity }));
     }
   };
 
-  const handleRemoveItem = async (itemId) => {
-    try {
-      await removeFromCart(itemId).unwrap();
+  const handleRemoveItem = async (item) => {
+    if (isAuthenticated) {
+      // Backend cart
+      try {
+        await removeFromCartApi(item._id).unwrap();
+        toast.success("Item removed from cart");
+      } catch (error) {
+        console.error("Failed to remove item:", error);
+        toast.error("Failed to remove item");
+      }
+    } else {
+      // Local cart
+      dispatch(removeFromLocalCart({ id: item.id, itemType: item.itemType }));
       toast.success("Item removed from cart");
-    } catch (error) {
-      console.error("Failed to remove item:", error);
-      toast.error("Failed to remove item");
     }
   };
 
@@ -108,44 +158,70 @@ const Cart = () => {
               <div className="bg-white rounded-lg shadow-md">
                 {cartItems.map((item, index) => {
                   const displayItem = item.product || item.service;
-                  if (!displayItem) return null;
 
-                  // Handle different image structures (products often have 'images' array, services might have 'image' string)
+                  // Handle different image structures
+                  // For local cart (unauthenticated): item.image is set directly
+                  // For backend cart (authenticated): displayItem.images[0].url or displayItem.image
                   const imageUrl =
-                    displayItem.images?.[0]?.url ||
-                    displayItem.image ||
-                    "https://via.placeholder.com/150";
+                    item.image ||  // Local cart has image directly on item
+                    displayItem?.images?.[0]?.url ||  // Backend product structure
+                    displayItem?.image;  // Backend service structure
+
+                  // For local cart, use item data directly; for backend cart, use displayItem
+                  const title = item.title || displayItem?.title || "Unknown Item";
+                  const category = item.category || displayItem?.category || (item.itemType === "service" ? "Service" : "Product");
 
                   return (
                     <motion.div
-                      key={item._id}
+                      key={item._id || item.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       className="p-6 border-b border-gray-200 last:border-b-0"
                     >
                       <div className="flex items-center space-x-4">
-                        <img
-                          src={imageUrl}
-                          alt={displayItem.title}
-                          className="w-20 h-20 object-cover rounded-lg"
-                        />
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={title}
+                            className="w-20 h-20 object-cover rounded-lg"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center ${imageUrl ? 'hidden' : 'flex'}`}
+                        >
+                          <Package className="w-8 h-8 text-gray-400" />
+                        </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {displayItem.title}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {displayItem.category ||
-                              (item.type === "service" ? "Service" : "Product")}
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {title}
+                            </h3>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
+                              (item.itemType || item.type) === 'service'
+                                ? 'bg-purple-100 text-purple-700'
+                                : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {(item.itemType || item.type) === 'service' ? 'Service' : 'Product'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-1">
+                            {category}
                           </p>
+                          {(item.package || item.packageName) && (
+                            <p className="text-xs text-purple-600 font-medium mb-2">
+                              📦 Package: {item.package || item.packageName}
+                            </p>
+                          )}
                           <div className="flex items-center mt-2">
                             <span className="text-xl font-bold text-blue-600">
                               {(() => {
-                                const { price, currency } = getPriceForRegion(
-                                  displayItem,
-                                  countryCode
-                                );
-                                return formatCurrency(price, currency);
+                                const priceData = getCartItemPrice(item);
+                                return formatPrice(priceData.amount, priceData.currency);
                               })()}
                             </span>
                           </div>
@@ -155,7 +231,7 @@ const Cart = () => {
                             <button
                               onClick={() =>
                                 handleQuantityChange(
-                                  item._id,
+                                  item,
                                   item.quantity - 1
                                 )
                               }
@@ -170,7 +246,7 @@ const Cart = () => {
                             <button
                               onClick={() =>
                                 handleQuantityChange(
-                                  item._id,
+                                  item,
                                   item.quantity + 1
                                 )
                               }
@@ -181,7 +257,7 @@ const Cart = () => {
                             </button>
                           </div>
                           <button
-                            onClick={() => handleRemoveItem(item._id)}
+                            onClick={() => handleRemoveItem(item)}
                             disabled={isRemoving}
                             className="p-2 text-red-500 hover:bg-red-50 rounded-lg disabled:opacity-50"
                           >
@@ -207,16 +283,17 @@ const Cart = () => {
                 </h2>
 
                 <div className="space-y-4 mb-6">
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">
-                      {formatCurrency(subtotal, currency)}
+                      {formatPrice(subtotal, summaryCurrency)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax (8%)</span>
                     <span className="font-medium">
-                      {formatCurrency(tax, currency)}
+                      {formatPrice(tax, summaryCurrency)}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">
@@ -225,7 +302,7 @@ const Cart = () => {
                         Total
                       </span>
                       <span className="text-lg font-bold text-blue-600">
-                        {formatCurrency(total, currency)}
+                        {formatPrice(total, summaryCurrency)}
                       </span>
                     </div>
                   </div>

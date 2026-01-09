@@ -1,378 +1,308 @@
-import { motion } from "framer-motion";
-import { toast } from "react-hot-toast";
+import { motion } from 'framer-motion';
 import {
-  FaArrowLeft,
-  FaBolt,
-  FaCheckCircle,
-  FaDownload,
-  FaEye,
-  FaFileAlt,
-  FaHeart,
-  FaShareAlt,
-  FaShieldAlt,
-  FaShoppingCart,
-  FaStar,
-} from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useAddToCartMutation } from "../../../../store/cart/cartApi";
-import { selectCountryCode } from "../../../../store/region/regionSlice";
-import { formatCurrency, getPriceForRegion } from "../../../../utils/price";
-import { selectCurrentUser } from "../../store/auth/authSlice";
-import { selectProductById } from "../../store/products/productsSlice";
+    AlertCircle,
+    ArrowLeft,
+    Check,
+    Download,
+    Loader2,
+    RefreshCw,
+    Share2,
+    ShoppingCart
+} from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router-dom';
+import { useAddToCartMutation } from '../../../../store/cart/cartApi';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useGetProductByIdQuery } from '../../store/api/marketplaceApi';
+import { selectIsAuthenticated } from '../../store/auth/authSlice';
+import { addToCart } from '../../store/cart/cartSlice';
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const product = useSelector((state) => selectProductById(state, productId));
-  const user = useSelector(selectCurrentUser);
-  const countryCode = useSelector(selectCountryCode);
-  const [addToCart, { isLoading: isAddingToCart }] = useAddToCartMutation();
+  const [activeTab, setActiveTab] = useState('overview');
 
-  if (!product) {
+  // Fetch real product data
+  const { data: productData, isLoading, isError, error, refetch } = useGetProductByIdQuery(productId, {
+    skip: !productId,
+  });
+
+  const product = productData?.product || productData;
+  const { getPrice, formatPrice } = useCurrency();
+  const priceData = getPrice(product);
+
+  // Handle add to cart
+  // Handle add to cart
+  const [addToCartApi, { isLoading: isAdding }] = useAddToCartMutation();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    if (isAuthenticated) {
+        try {
+            await addToCartApi({
+                productId: product._id,
+                quantity: 1
+            }).unwrap();
+            toast.success('Added to cart!');
+        } catch (error) {
+            toast.error(error?.data?.message || 'Failed to add to cart');
+        }
+    } else {
+        dispatch(addToCart({
+            id: product._id,
+            itemId: product._id,
+            itemType: 'product',
+            title: product.title,
+            price: product.price,
+            originalPrice: product.originalPrice,
+            discount: product.discount,
+            regionalPricing: product.regionalPricing,
+            image: product.images?.[0]?.url,
+            quantity: 1,
+        }));
+        toast.success('Added to cart!');
+    }
+  };
+
+  const tabs = [
+    { id: 'overview', name: 'Overview' },
+    { id: 'features', name: 'Features' },
+    { id: 'files', name: 'Files Included' },
+    { id: 'requirements', name: 'Requirements' },
+  ];
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center flex-col">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Product Not Found
-        </h2>
-        <Link
-          to="/marketplace/products"
-          className="text-blue-600 hover:underline"
-        >
-          Back to Products
-        </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+          <p className="text-gray-500">Loading product...</p>
+        </div>
       </div>
     );
   }
 
-  const { price, currency } = getPriceForRegion(product, countryCode);
-  const displayPrice = formatCurrency(price, currency);
+  if (isError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Failed to load product</h3>
+          <p className="text-gray-600 mb-4">{error?.data?.message || 'Something went wrong'}</p>
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <RefreshCw className="h-4 w-4" /> Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const discountPercentage =
-    product.originalPrice > price
-      ? Math.round(
-          ((product.originalPrice - price) / product.originalPrice) * 100
-        )
-      : 0;
-
-  const handleAddToCart = async () => {
-    if (!user) {
-      toast.error("Please login to add items to cart");
-      navigate("/marketplace/auth/signin");
-      return;
-    }
-
-    try {
-      await addToCart({ productId: product._id, quantity: 1 }).unwrap();
-      toast.success(`Added ${product.title} to cart`);
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-      toast.error(error?.data?.message || "Failed to add to cart");
-    }
-  };
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h2>
+          <Link to="/marketplace/products" className="text-blue-600 hover:underline">
+            Back to Products
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb & Navigation */}
-      <div className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Link to="/marketplace" className="hover:text-blue-600">
-                Marketplace
-              </Link>
-              <span>/</span>
-              <Link to="/marketplace/products" className="hover:text-blue-600">
-                Products
-              </Link>
-              <span>/</span>
-              <span className="text-gray-900 font-medium truncate max-w-[200px]">
-                {product.title}
-              </span>
-            </div>
-            <Link
-              to="/marketplace/products"
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
-            >
-              <FaArrowLeft className="mr-2" /> Back to List
-            </Link>
-          </div>
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 h-14 flex items-center">
+          <Link to="/marketplace/products" className="flex items-center text-gray-500 hover:text-blue-600 transition-colors">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Products
+          </Link>
+          <div className="h-4 w-px bg-gray-300 mx-4"></div>
+          <span className="text-gray-900 font-medium truncate max-w-[200px]">{product.title}</span>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Product Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8"
-            >
-              <div className="relative aspect-video bg-gray-100">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
-                {product.isPopular && (
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-blue-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center border border-white/50">
-                    <FaStar className="mr-1.5 text-yellow-400" /> POPULAR CHOICE
-                  </div>
-                )}
-              </div>
-            </motion.div>
+          {/* Main Content - Left Column */}
+          <div className="lg:col-span-2 space-y-8">
 
-            {/* Product Info & Description */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <span className="px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-bold uppercase tracking-wide">
-                  {product.category}
-                </span>
-                <div className="flex items-center space-x-4">
-                  <button className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-full">
-                    <FaHeart className="h-5 w-5" />
-                  </button>
-                  <button className="text-gray-400 hover:text-blue-500 transition-colors p-2 hover:bg-blue-50 rounded-full">
-                    <FaShareAlt className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
+            {/* Gallery Section */}
+            <div className="bg-white rounded-2xl p-2 shadow-sm border border-gray-200 overflow-hidden">
+               <div className="aspect-video rounded-xl overflow-hidden bg-gray-100 relative">
+                   <img
+                      src={product.images?.[0]?.url || '/api/placeholder/800/450'}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                   />
+               </div>
+               {product.images?.length > 1 && (
+                   <div className="flex gap-2 mt-2 px-2 pb-2 overflow-x-auto">
+                       {product.images.map((img, idx) => (
+                           <button key={idx} className="w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all flex-shrink-0">
+                               <img src={img.url} alt="" className="w-full h-full object-cover" />
+                           </button>
+                       ))}
+                   </div>
+               )}
+            </div>
 
-              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
-                {product.title}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600 mb-8 pb-8 border-b border-gray-100">
-                <div className="flex items-center">
-                  <div className="flex text-yellow-400 mr-2">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar
-                        key={i}
-                        className={
-                          i < Math.floor(product.rating)
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
-                  </div>
-                  <span className="font-bold text-gray-900">
-                    {product.rating}
-                  </span>
-                  <span className="ml-1">({product.reviews} reviews)</span>
-                </div>
-                <div className="flex items-center">
-                  <FaDownload className="mr-2 text-blue-500" />
-                  <span className="font-medium">
-                    {product.downloads.toLocaleString()} Sales
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <FaCheckCircle className="mr-2 text-green-500" />
-                  <span className="font-medium">Last Updated: Jan 2024</span>
-                </div>
-              </div>
-
-              <div className="prose max-w-none text-gray-600 leading-relaxed mb-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  Description
-                </h3>
-                <p className="mb-4">
-                  {product.longDescription || product.description}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {product.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Features Grid */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8"
-            >
-              <h3 className="text-xl font-bold text-gray-900 mb-6">
-                Key Features
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {product.features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <FaCheckCircle className="text-green-500 mt-1 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700 font-medium">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Specifications & Includes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {product.specifications && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"
-                >
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">
-                    Specifications
-                  </h3>
-                  <div className="space-y-4">
-                    {Object.entries(product.specifications).map(
-                      ([key, value]) => (
-                        <div
-                          key={key}
-                          className="flex justify-between pb-3 border-b border-gray-50 last:border-0"
-                        >
-                          <span className="text-gray-500">{key}</span>
-                          <span className="font-bold text-gray-900">
-                            {value}
-                          </span>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
-              {product.includes && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"
-                >
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">
-                    What's Included
-                  </h3>
-                  <div className="space-y-4">
-                    {product.includes.map((item, index) => (
-                      <div key={index} className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 text-sm">
-                          <FaFileAlt />
-                        </div>
-                        <span className="text-gray-700 font-medium">
-                          {item}
+            {/* Product Info & Tabs */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-8 pb-0">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                        <span className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full font-medium">
+                            {product.category}
                         </span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+                        <span>v{product.version || '1.0.0'}</span>
+                        <span>•</span>
+                        <span>Updated {new Date(product.lastUpdated || product.updatedAt).toLocaleDateString()}</span>
+                    </div>
+
+                    <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                        {product.description}
+                    </p>
+                </div>
+
+                {/* Tabs Header */}
+                <div className="border-b border-gray-200 px-8">
+                    <div className="flex gap-8">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
+                                    activeTab === tab.id
+                                        ? 'border-blue-600 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                                }`}
+                            >
+                                {tab.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Tabs Content */}
+                <div className="p-8 min-h-[300px]">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {activeTab === 'overview' && (
+                            <div className="prose max-w-none">
+                                <h3 className="text-xl font-semibold mb-4 text-gray-900">Product Overview</h3>
+                                <div dangerouslySetInnerHTML={{ __html: product.longDescription || product.description }} />
+                            </div>
+                        )}
+
+                        {activeTab === 'features' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {(product.features || []).map((feature, idx) => (
+                                    <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
+                                        <Check className="h-5 w-5 text-green-500 mt-0.5" />
+                                        <span className="text-gray-700">{feature}</span>
+                                    </div>
+                                ))}
+                                {(!product.features || product.features.length === 0) && (
+                                    <p className="text-gray-500 italic">No specific features listed.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'files' && (
+                             <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Included Files</h3>
+                                {(product.downloadFiles || []).map((file, idx) => (
+                                    <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                                <Download size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900">{file.name}</p>
+                                                <p className="text-xs text-gray-500">{file.size ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'N/A'} • {file.format || 'ZIP'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                             </div>
+                        )}
+
+                        {activeTab === 'requirements' && (
+                             <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">System Requirements</h3>
+                                 <ul className="space-y-2">
+                                     {(product.requirements || ['Standard web server', 'Modern browser']).map((req, idx) => (
+                                         <li key={idx} className="flex items-center gap-2 text-gray-600">
+                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                             {req}
+                                         </li>
+                                     ))}
+                                 </ul>
+                             </div>
+                        )}
+                    </motion.div>
+                </div>
             </div>
           </div>
 
-          {/* Sidebar - Sticky Purchase Card */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 overflow-hidden relative"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+          {/* Sidebar - Right Column */}
+          <div className="lg:col-span-1 space-y-6">
 
-                <div className="mb-6">
-                  <p className="text-sm text-gray-500 font-medium mb-1 uppercase tracking-wider">
-                    Total Price
-                  </p>
-                  <div className="flex items-end gap-3">
-                    {price === 0 ? (
-                      <span className="text-4xl font-extrabold text-green-600">
-                        Free
-                      </span>
-                    ) : (
-                      <>
-                        <span className="text-4xl font-extrabold text-gray-900">
-                          {displayPrice}
-                        </span>
-                        {product.originalPrice > price && currency === 'USD' && (
-                          <span className="text-xl text-gray-400 line-through mb-1">
-                            ${product.originalPrice}
-                          </span>
-                        )}
-                      </>
+            {/* Purchase Card */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 sticky top-24">
+                <div className="flex items-baseline gap-2 mb-6">
+                    <span className="text-4xl font-bold text-gray-900">
+                        {formatPrice(priceData.amount, priceData.currency)}
+                    </span>
+                    {/* Only show original price if in base currency or if we implement conversion for it later */
+                     product.originalPrice > product.price && priceData.currency === 'INR' && (
+                        <span className="text-lg text-gray-400 line-through">₹{product.originalPrice}</span>
                     )}
-                  </div>
-                  {discountPercentage > 0 && (
-                    <div className="mt-2 inline-block bg-red-50 text-red-600 px-3 py-1 rounded-lg text-sm font-bold">
-                      Save {discountPercentage}% Today
+                </div>
+
+                <div className="space-y-4 mb-8">
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={isAdding}
+                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
+                    >
+                        {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart size={20} />}
+                        {isAdding ? 'Adding...' : 'Add to Cart'}
+                    </button>
+                    <button className="w-full py-4 bg-white border-2 border-gray-200 hover:border-blue-500 text-gray-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                        <Share2 size={20} />
+                        Share Product
+                    </button>
+                </div>
+
+                <div className="space-y-4 pt-6 border-t border-gray-100">
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <span>Instant Download</span>
                     </div>
-                  )}
+                     <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <span>Lifetime Updates</span>
+                    </div>
+                     <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <span>{product.license || 'Personal'} License</span>
+                    </div>
                 </div>
-
-                <div className="space-y-3 mb-6">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart}
-                    className={`w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-0.5 flex items-center justify-center ${
-                      isAddingToCart ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    <FaShoppingCart className="mr-2" />
-                    {isAddingToCart
-                      ? "Adding..."
-                      : product.price === 0
-                      ? "Download Now"
-                      : "Add to Cart"}
-                  </button>
-                  <button className="w-full bg-white border-2 border-gray-100 text-gray-700 py-3 px-6 rounded-xl font-bold hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center">
-                    <FaEye className="mr-2" /> Live Preview
-                  </button>
-                </div>
-
-                <div className="space-y-4 text-sm text-gray-600 bg-gray-50 p-4 rounded-xl">
-                  <div className="flex items-center">
-                    <FaBolt className="text-yellow-500 mr-3 text-lg" />
-                    <span>Instant Download Access</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaShieldAlt className="text-blue-500 mr-3 text-lg" />
-                    <span>Secure 256-bit Payment</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaCheckCircle className="text-green-500 mr-3 text-lg" />
-                    <span>Quality Verified by Team</span>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Support Card */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
-              >
-                <h4 className="font-bold text-gray-900 mb-4">Need Help?</h4>
-                <p className="text-sm text-gray-600 mb-4">
-                  Have questions about this product? Our support team is here to
-                  help you.
-                </p>
-                <button className="text-blue-600 font-bold text-sm hover:underline">
-                  Contact Support &rarr;
-                </button>
-              </motion.div>
             </div>
           </div>
         </div>

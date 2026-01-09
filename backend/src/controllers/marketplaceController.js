@@ -22,7 +22,8 @@ const getServices = async (req, res) => {
     const skip = (page - 1) * limit;
     const { category, minPrice, maxPrice, search } = req.query;
 
-    let query = { status: "active" };
+    let query = { isActive: true };
+    // let query = {};
 
     if (category) query.category = category;
     if (minPrice || maxPrice) {
@@ -81,7 +82,8 @@ const getProducts = async (req, res) => {
     const skip = (page - 1) * limit;
     const { category, minPrice, maxPrice, search } = req.query;
 
-    let query = { status: "active" };
+    let query = { isActive: true };
+    // let query = {};
 
     if (category) query.category = category;
     if (minPrice || maxPrice) {
@@ -263,7 +265,7 @@ const clearCart = async (req, res) => {
 // Order management
 const createOrder = async (req, res) => {
   try {
-    const { billing, paymentMethod, currency = "INR" } = req.body;
+    let { billing, paymentMethod, currency = "INR" } = req.body;
     const countryCode = req.headers["x-country-code"];
 
     // Fetch user with populated cart
@@ -427,7 +429,7 @@ const getOrderById = async (req, res) => {
 
 const createRazorpayOrder = async (req, res) => {
   try {
-    const { currency = "INR", shippingAddress } = req.body;
+    let { currency = "INR", shippingAddress } = req.body;
     const countryCode = req.headers["x-country-code"];
 
     // 1. Fetch and Validate Cart
@@ -516,7 +518,10 @@ const createRazorpayOrder = async (req, res) => {
     console.log("Razorpay Order Created:", razorpayOrder.id);
 
     // 4. Create MongoDB Order (Pending)
+    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    console.log("Creating order with orderNumber:", orderNumber);
     const newOrder = new Order({
+      orderNumber: orderNumber,
       user: req.user.id,
       items: orderItems,
       billing: {
@@ -584,24 +589,74 @@ const verifyRazorpayPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      // Payment Verified
-      await Order.findByIdAndUpdate(orderId, {
-        status: "confirmed", // Updated to match Schema Enum
-        payment: {
-          method: "razorpay",
-          status: "completed",
-          transactionId: razorpay_payment_id,
-          razorpayOrderId: razorpay_order_id,
-          razorpaySignature: razorpay_signature,
-          paidAt: new Date(),
-          currency: "INR",
-        },
+      // Payment Verified - Fetch the order
+      const order = await Order.findById(orderId);
+
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Generate download links for product items
+      for (const item of order.items) {
+        if (item.itemType === "product") {
+          const product = await Product.findById(item.itemId);
+          if (product && product.files && product.files.length > 0) {
+            item.downloadLinks = product.files.map((file) => ({
+              name: file.name || "Download",
+              url: file.url,
+              expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
+            }));
+          }
+        }
+      }
+
+      // Update order status and payment info
+      order.status = "confirmed";
+      order.payment.method = "razorpay";
+      order.payment.status = "completed";
+      order.payment.transactionId = razorpay_payment_id;
+      order.payment.razorpayOrderId = razorpay_order_id;
+      order.payment.razorpaySignature = razorpay_signature;
+      order.payment.paidAt = new Date();
+
+      // Add timeline entry
+      order.timeline.push({
+        status: "payment_completed",
+        message: "Payment verified successfully",
+        timestamp: new Date(),
       });
 
-      // Also clear cart if not already cleared
-      await User.findByIdAndUpdate(req.user.id, { cart: [] });
+      // For digital products, mark fulfillment as delivered immediately
+      const hasOnlyProducts = order.items.every(
+        (item) => item.itemType === "product"
+      );
+      if (hasOnlyProducts) {
+        order.fulfillment.status = "delivered";
+        order.fulfillment.deliveredAt = new Date();
+        order.status = "completed";
+        order.timeline.push({
+          status: "delivered",
+          message: "Digital products delivered - download links available",
+          timestamp: new Date(),
+        });
+      }
 
-      res.json({ message: "Payment verified successfully" });
+      await order.save();
+
+      // Also clear cart if not already cleared
+      await User.findByIdAndUpdate(req.user.id, {
+        "cart.items": [],
+        "cart.updatedAt": Date.now(),
+      });
+
+      logger.info(`Payment verified for order ${orderId}`);
+
+      res.json({
+        success: true,
+        message: "Payment verified successfully",
+        orderId: order._id,
+        orderNumber: order.orderNumber,
+      });
     } else {
       res.status(400).json({ message: "Invalid payment signature" });
     }
@@ -620,7 +675,7 @@ const downloadPurchasedItem = async (req, res) => {
     const order = await Order.findOne({
       _id: orderId,
       user: req.user.id,
-      status: { $in: ["confirmed", "completed", "in_progress"] }, // Accept various paid statuses
+      status: { $in: ["confirmed", "completed", "in_progress"] },
     });
 
     if (!order) {
@@ -640,21 +695,245 @@ const downloadPurchasedItem = async (req, res) => {
       return res.status(404).json({ message: "Item not found in order" });
     }
 
-    // 3. Serve File (Mocking a file path for now - in production use S3 presigned URL)
-    // For demo, we'll assume files are in `backend/uploads/products/`
-    // You would fetch the actual filename from the Product model using `itemId`
+    // 3. Check if item has download links
+    if (item.downloadLinks && item.downloadLinks.length > 0) {
+      const validLinks = item.downloadLinks.filter(
+        (link) => !link.expiresAt || new Date(link.expiresAt) > new Date()
+      );
 
-    // MOCK: Sending a dummy file or redirecting
-    // In real app: const product = await Product.findById(itemId);
-    // const filePath = product.filePath;
+      if (validLinks.length > 0) {
+        // Redirect to the first valid download link
+        return res.redirect(validLinks[0].url);
+      }
+    }
 
-    // For now, let's send a JSON as "download" to prove it works securely
-    const mockContent = `This is a secure download for Product ID: ${itemId}\n\nThank you for your purchase!\n- DevKant`;
-    res.attachment(`product-${itemId}.txt`);
-    res.send(mockContent);
+    // 4. Fetch product and serve file
+    const product = await Product.findById(itemId);
+    if (product && product.files && product.files.length > 0) {
+      const file = product.files[0];
+
+      // Track download count
+      await Product.findByIdAndUpdate(itemId, { $inc: { downloads: 1 } });
+
+      // If it's an external URL, redirect
+      if (
+        file.url &&
+        (file.url.startsWith("http://") || file.url.startsWith("https://"))
+      ) {
+        return res.redirect(file.url);
+      }
+
+      // If it's a local file path
+      if (file.path) {
+        const filePath = path.join(__dirname, "../../uploads", file.path);
+        if (fs.existsSync(filePath)) {
+          return res.download(filePath, file.name || "download");
+        }
+      }
+    }
+
+    // Fallback: Return download info as JSON
+    res.json({
+      success: true,
+      message: "Download info retrieved",
+      data: {
+        itemId,
+        orderId,
+        downloadLinks: item.downloadLinks || [],
+      },
+    });
   } catch (error) {
     logger.error("Download error:", error);
     res.status(500).json({ message: "Download failed" });
+  }
+};
+
+// Regenerate download links for an order item
+const regenerateDownloadLinks = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.params;
+
+    const order = await Order.findOne({
+      _id: orderId,
+      user: req.user.id,
+      status: { $in: ["confirmed", "completed"] },
+    });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    const item = order.items.find(
+      (i) => i.itemId && i.itemId.toString() === itemId
+    );
+
+    if (!item || item.itemType !== "product") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product item not found" });
+    }
+
+    // Fetch product for fresh download links
+    const product = await Product.findById(itemId);
+    if (!product || !product.files || product.files.length === 0) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "No files available for this product",
+        });
+    }
+
+    // Generate new download links with 48 hour expiry
+    item.downloadLinks = product.files.map((file) => ({
+      name: file.name || "Download",
+      url: file.url,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+    }));
+
+    await order.save();
+
+    logger.info(
+      `Download links regenerated for order ${orderId}, item ${itemId}`
+    );
+
+    res.json({
+      success: true,
+      message: "Download links regenerated",
+      data: {
+        downloadLinks: item.downloadLinks,
+      },
+    });
+  } catch (error) {
+    logger.error("Regenerate download links error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to regenerate links" });
+  }
+};
+
+// --- ORDER COMMUNICATION ---
+
+// Add message to order
+const addOrderMessage = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { message, attachments = [] } = req.body;
+    const userId = req.user.id;
+
+    if (!message || !message.trim()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Message is required" });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    // Verify user owns this order
+    if (order.user.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    // Initialize communication if not exists
+    if (!order.communication) {
+      order.communication = { messages: [] };
+    }
+
+    // Add the new message
+    const newMessage = {
+      sender: userId,
+      message: message.trim(),
+      timestamp: new Date(),
+      attachments: attachments.map((att) => ({
+        name: att.name,
+        url: att.url,
+        size: att.size || 0,
+      })),
+    };
+
+    order.communication.messages.push(newMessage);
+    order.communication.lastMessageAt = new Date();
+
+    // Also add to timeline
+    order.timeline.push({
+      status: "message",
+      message: "Customer sent a message",
+      timestamp: new Date(),
+      updatedBy: userId,
+    });
+
+    await order.save();
+
+    logger.info(`Message added to order ${orderId} by user ${userId}`);
+
+    res.json({
+      success: true,
+      message: "Message sent successfully",
+      data: {
+        message: newMessage,
+        totalMessages: order.communication.messages.length,
+      },
+    });
+  } catch (error) {
+    logger.error("Add order message error:", error);
+    res.status(500).json({ success: false, message: "Failed to send message" });
+  }
+};
+
+// Get order messages
+const getOrderMessages = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.user.id;
+
+    const order = await Order.findById(orderId)
+      .populate(
+        "communication.messages.sender",
+        "firstName lastName email avatar role"
+      )
+      .select("communication orderNumber user");
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    // Verify user owns this order
+    if (order.user.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const messages = order.communication?.messages || [];
+
+    res.json({
+      success: true,
+      data: {
+        orderNumber: order.orderNumber,
+        messages: messages.map((msg) => ({
+          id: msg._id,
+          sender: msg.sender,
+          message: msg.message,
+          timestamp: msg.timestamp,
+          attachments: msg.attachments || [],
+          isOwn: msg.sender?._id?.toString() === userId.toString(),
+        })),
+        lastMessageAt: order.communication?.lastMessageAt,
+      },
+    });
+  } catch (error) {
+    logger.error("Get order messages error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch messages" });
   }
 };
 
@@ -679,6 +958,115 @@ const getReviews = async (req, res) => {
   }
 };
 
+const handleRazorpayWebhook = async (req, res) => {
+  try {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+    if (!secret) {
+      logger.error("RAZORPAY_WEBHOOK_SECRET is not defined");
+      return res.status(500).json({ message: "Configuration error" });
+    }
+
+    const shasum = crypto.createHmac("sha256", secret);
+    shasum.update(req.rawBody);
+    const digest = shasum.digest("hex");
+
+    if (digest !== req.headers["x-razorpay-signature"]) {
+      logger.warn("Invalid Razorpay webhook signature");
+      return res.status(400).json({ message: "Invalid signature" });
+    }
+
+    const event = req.body;
+    logger.info(`Razorpay Webhook Event: ${event.event}`);
+
+    if (event.event === "payment.captured" || event.event === "order.paid") {
+      const payment = event.payload.payment.entity;
+      const razorpayOrderId = payment.order_id;
+
+      if (!razorpayOrderId) {
+        logger.warn("Webhook received but no razorpayOrderId found");
+        return res.status(200).json({ status: "ok" });
+      }
+
+      const order = await Order.findOne({
+        "payment.razorpayOrderId": razorpayOrderId,
+      });
+
+      if (!order) {
+        logger.error(
+          `Order not found for Razorpay Order ID: ${razorpayOrderId}`
+        );
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Idempotency check
+      if (
+        order.payment.status === "completed" ||
+        order.status === "confirmed"
+      ) {
+        logger.info(`Order ${order._id} already confirmed. Skipping webhook.`);
+        return res.status(200).json({ status: "ok" });
+      }
+
+      // Generate download links for product items
+      for (const item of order.items) {
+        if (item.itemType === "product") {
+          const product = await Product.findById(item.itemId);
+          if (product && product.files && product.files.length > 0) {
+            item.downloadLinks = product.files.map((file) => ({
+              name: file.name || "Download",
+              url: file.url,
+              expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
+            }));
+          }
+        }
+      }
+
+      order.status = "confirmed";
+      order.payment.method = "razorpay";
+      order.payment.status = "completed";
+      order.payment.transactionId = payment.id;
+      order.payment.paidAt = new Date();
+
+      order.timeline.push({
+        status: "payment_completed",
+        message: `Payment verified via Webhook (${event.event})`,
+        timestamp: new Date(),
+      });
+
+      // Digital delivery logic
+      const hasOnlyProducts = order.items.every(
+        (item) => item.itemType === "product"
+      );
+      if (hasOnlyProducts) {
+        order.fulfillment.status = "delivered";
+        order.fulfillment.deliveredAt = new Date();
+        order.status = "completed";
+        order.timeline.push({
+          status: "delivered",
+          message: "Digital products delivered via Webhook",
+          timestamp: new Date(),
+        });
+      }
+
+      await order.save();
+
+      // Clear cart
+      await User.findByIdAndUpdate(order.user, {
+        "cart.items": [],
+        "cart.updatedAt": Date.now(),
+      });
+
+      logger.info(`Order ${order._id} confirmed via Webhook`);
+    }
+
+    res.status(200).json({ status: "ok" });
+  } catch (error) {
+    logger.error("Webhook Error:", error);
+    res.status(500).json({ message: "Webhook error" });
+  }
+};
+
 module.exports = {
   getServices,
   getServiceById,
@@ -697,6 +1085,10 @@ module.exports = {
   createRazorpayOrder,
   verifyRazorpayPayment,
   downloadPurchasedItem,
+  regenerateDownloadLinks,
+  addOrderMessage,
+  getOrderMessages,
   createReview,
   getReviews,
+  handleRazorpayWebhook,
 };
