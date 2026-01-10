@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import PriceDisplay from '../../../../components/common/PriceDisplay';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetServiceByIdQuery } from '../../store/api/marketplaceApi';
@@ -234,28 +235,21 @@ const ServiceDetail = () => {
                              <div className="flex flex-col">
                                  <span className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">{packages[selectedPackage]?.name}</span>
                                  {/* Dynamic Badge if Discount */}
-                                 {(packages[selectedPackage]?.regionalPricing?.find(rp => rp.currency === priceData.currency)?.discount || packages[selectedPackage]?.discount) > 0 && (
+                                 {packages[selectedPackage]?.discount > 0 && (
                                      <span className="inline-block self-start text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                                         SAVE {(packages[selectedPackage]?.regionalPricing?.find(rp => rp.currency === priceData.currency)?.discount || packages[selectedPackage]?.discount)}%
+                                         SAVE {packages[selectedPackage]?.discount}%
                                      </span>
                                  )}
                              </div>
 
                              <div className="text-right">
-                                <div className="flex flex-col items-end">
-                                    <span className="text-3xl font-bold text-gray-900">
-                                        {formatPrice(priceData.amount, priceData.currency)}
-                                    </span>
-                                    {/* Original Price Display */}
-                                    {(packages[selectedPackage]?.regionalPricing?.find(rp => rp.currency === priceData.currency)?.discount || packages[selectedPackage]?.discount) > 0 && (
-                                        <span className="text-sm text-gray-400 line-through">
-                                            {formatPrice(
-                                                Math.round(priceData.amount / (1 - ((packages[selectedPackage]?.regionalPricing?.find(rp => rp.currency === priceData.currency)?.discount || packages[selectedPackage]?.discount) / 100))),
-                                                priceData.currency
-                                            )}
-                                        </span>
-                                    )}
-                                </div>
+                                <PriceDisplay
+                                    price={packages[selectedPackage]?.price}
+                                    originalPrice={packages[selectedPackage]?.originalPrice}
+                                    showOriginal={true}
+                                    className="items-end"
+                                    textClass="text-gray-900"
+                                />
                              </div>
                         </div>
 
@@ -294,7 +288,7 @@ const ServiceDetail = () => {
                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-bold shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
                             >
                                 {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart size={20} />}
-                                {isAdding ? 'Adding...' : `Continue (${formatPrice(priceData.amount, priceData.currency)})`}
+                                {isAdding ? 'Adding...' : 'Continue'}
                             </button>
                             <Link
                                 to="/marketplace/contact"

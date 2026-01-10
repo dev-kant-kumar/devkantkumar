@@ -45,12 +45,44 @@ const orderSchema = new mongoose.Schema({
       deliveryTime: Number,
       revisions: String
     },
-    // For products
+    // For products - Secure download links
     downloadLinks: [{
+      token: {
+        type: String,
+        required: true,
+        index: true
+      },
       name: String,
-      url: String,
-      expiresAt: Date
+      fileId: String,        // Reference to product file
+      fileUrl: String,       // Original file URL (not exposed to frontend)
+      expiresAt: {
+        type: Date,
+        required: true
+      },
+      maxDownloads: {
+        type: Number,
+        default: 5
+      },
+      downloadCount: {
+        type: Number,
+        default: 0
+      },
+      lastDownloadAt: Date,
+      lastDownloadIP: String,
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
     }],
+    // Track regeneration attempts
+    regenerationCount: {
+      type: Number,
+      default: 0
+    },
+    maxRegenerations: {
+      type: Number,
+      default: 3
+    },
     licenseType: String
   }],
   billing: {

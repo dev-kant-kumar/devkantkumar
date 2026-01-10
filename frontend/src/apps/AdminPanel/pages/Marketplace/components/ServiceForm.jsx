@@ -1,26 +1,24 @@
 import {
-  Briefcase,
-  Check,
-  ChevronDown,
-  Image as ImageIcon,
-  IndianRupee,
-  Layers,
-  Loader,
-  Package,
-  Plus,
-  Sparkles,
-  Star,
-  Trash2,
-  Upload,
-  X,
+    Briefcase,
+    Check,
+    ChevronDown,
+    Image as ImageIcon,
+    IndianRupee,
+    Layers,
+    Loader,
+    Package,
+    Plus,
+    Sparkles,
+    Star,
+    Trash2,
+    Upload,
+    X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-  useGetSettingsQuery,
-  useUploadImageMutation,
+    useUploadImageMutation
 } from "../../../store/api/adminApiSlice";
-import { calculateRegionalPricing } from "../../../utils/currencyConverter";
 
 const CATEGORIES = [
   { value: "web-development", label: "Web Development", icon: "💻" },
@@ -193,9 +191,8 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
 
   const [errors, setErrors] = useState({});
   const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
-  const { data: settingsData } = useGetSettingsQuery();
-  const baseCurrency =
-    settingsData?.data?.settings?.currency?.baseCurrency || "USD";
+
+  const baseCurrency = "INR";
 
   useEffect(() => {
     if (initialData) {
@@ -304,39 +301,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     });
   };
 
-  const handleUpdateRegionalPrice = (pkgIndex, currency, newPrice) => {
-    setFormData((prev) => {
-      const newPackages = [...prev.packages];
-      const pkg = { ...newPackages[pkgIndex] };
 
-      const existingIndex = pkg.regionalPricing.findIndex(
-        (rp) => rp.currency === currency
-      );
-      if (existingIndex >= 0) {
-        // Update existing
-        const newPricing = [...pkg.regionalPricing];
-        newPricing[existingIndex] = {
-          ...newPricing[existingIndex],
-          price: parseFloat(newPrice),
-        };
-        pkg.regionalPricing = newPricing;
-      } else {
-        // Add new (though usually we populate from exchange rates)
-        pkg.regionalPricing = [
-          ...pkg.regionalPricing,
-          {
-            currency,
-            price: parseFloat(newPrice),
-            region: currency === "USD" ? "US" : "GLOBAL",
-            discount: pkg.discount || 0,
-          },
-        ];
-      }
-
-      newPackages[pkgIndex] = pkg;
-      return { ...prev, packages: newPackages };
-    });
-  };
 
   const handleFeatureChange = (pkgIndex, featureIndex, value) => {
     setFormData((prev) => {
@@ -402,17 +367,6 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       return;
     }
     const validPackages = formData.packages.map((pkg) => {
-      let pkgPricing = pkg.regionalPricing || [];
-
-      // Safety Check: Ensure pricing exists on submit
-      // If price is set, but regionalPricing is empty (or incomplete), recalculate it
-      if (pkg.price !== "" && pkgPricing.length === 0) {
-        const basePrice = parseFloat(pkg.price);
-        if (!isNaN(basePrice)) {
-          pkgPricing = calculateRegionalPricing(basePrice);
-        }
-      }
-
       return {
         ...pkg,
         price: Number(pkg.price),
@@ -420,7 +374,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         discount: Number(pkg.discount),
         deliveryTime: Number(pkg.deliveryTime),
         features: pkg.features.filter((f) => f.trim()),
-        regionalPricing: pkgPricing,
+        regionalPricing: [], // Clear/Ignore legacy field
       };
     });
     onSubmit({ ...formData, packages: validPackages });
@@ -735,101 +689,30 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  {/* Price & Discount Section */}
+                  {/* Price Section */}
                   <div className="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl space-y-3 border border-gray-100 dark:border-gray-700/50">
                     <div className="flex justify-between items-center">
                       <label className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold tracking-wider flex items-center gap-1">
                         <IndianRupee size={12} /> Pricing ({baseCurrency})
                       </label>
-                      {pkg.discount > 0 && (
-                        <span className="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
-                          {pkg.discount}% OFF
-                        </span>
-                      )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[10px] text-gray-400 mb-1 block">
-                          Sale Price
-                        </label>
-                        <input
-                          type="number"
-                          value={pkg.price}
-                          onChange={(e) =>
-                            handlePackageChange(index, "price", e.target.value)
-                          }
-                          className={`w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
-                            errors.packages?.[index]?.price
-                              ? "border-red-500"
-                              : "border-gray-200 dark:border-gray-600"
-                          } text-gray-900 dark:text-white`}
-                          min="0"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-gray-400 mb-1 block">
-                          Original Price
-                        </label>
-                        <input
-                          type="number"
-                          value={pkg.originalPrice}
-                          onChange={(e) =>
-                            handlePackageChange(
-                              index,
-                              "originalPrice",
-                              e.target.value
-                            )
-                          }
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-900 dark:text-white"
-                          min="0"
-                          placeholder="Optional"
-                        />
-                      </div>
+                    <div>
+                      <input
+                        type="number"
+                        value={pkg.price}
+                        onChange={(e) =>
+                          handlePackageChange(index, "price", e.target.value)
+                        }
+                        className={`w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
+                          errors.packages?.[index]?.price
+                            ? "border-red-500"
+                            : "border-gray-200 dark:border-gray-600"
+                        } text-gray-900 dark:text-white`}
+                        min="0"
+                        placeholder="0"
+                      />
                     </div>
-                  </div>
-
-                  {/* Regional Pricing */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold tracking-wider block">
-                      Regional Pricing
-                    </label>
-                    {!pkg.regionalPricing?.length ? (
-                      <div className="text-center py-4 border-2 border-dashed border-gray-100 dark:border-gray-700/50 rounded-lg">
-                        <p className="text-[10px] text-gray-400">
-                          Set base price to generate
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-2">
-                        {pkg.regionalPricing.map((rp) => (
-                          <div
-                            key={rp.currency}
-                            className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/30 p-2 rounded-lg border border-gray-100 dark:border-gray-700/50"
-                          >
-                            <div className="w-8 h-8 rounded-md bg-white dark:bg-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-700 dark:text-gray-300 shadow-sm shrink-0">
-                              {rp.currency}
-                            </div>
-                            <div className="flex-1">
-                              <input
-                                type="number"
-                                value={rp.price}
-                                onChange={(e) =>
-                                  handleUpdateRegionalPrice(
-                                    index,
-                                    rp.currency,
-                                    e.target.value
-                                  )
-                                }
-                                className="w-full bg-transparent text-xs font-medium text-gray-900 dark:text-white outline-none border-b border-transparent focus:border-blue-500 transition-colors"
-                                placeholder="Price"
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
                   {/* Features */}

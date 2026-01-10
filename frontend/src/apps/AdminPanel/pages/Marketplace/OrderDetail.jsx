@@ -176,7 +176,7 @@ const OrderDetail = () => {
             <ArrowLeft className="h-4 w-4 mr-1" /> Back to Orders
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
               Order #{order.orderNumber}
             </h1>
             <span className={`px-3 py-1 rounded-full text-sm font-medium ring-1 ring-inset ${STATUS_COLORS[order.status]}`}>
@@ -191,19 +191,19 @@ const OrderDetail = () => {
             value={order.status}
             onChange={(e) => handleStatusChange(e.target.value)}
             disabled={isUpdatingStatus}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-4 py-2 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-blue-500 disabled:opacity-50 text-gray-900 dark:text-gray-100"
           >
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="pending" className="bg-white dark:bg-gray-800">Pending</option>
+            <option value="confirmed" className="bg-white dark:bg-gray-800">Confirmed</option>
+            <option value="in_progress" className="bg-white dark:bg-gray-800">In Progress</option>
+            <option value="completed" className="bg-white dark:bg-gray-800">Completed</option>
+            <option value="cancelled" className="bg-white dark:bg-gray-800">Cancelled</option>
           </select>
 
           {order.status !== 'completed' && order.status !== 'cancelled' && (
             <button
               onClick={() => setShowDeliveryModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20"
             >
               <Truck className="h-4 w-4" /> Mark Delivered
             </button>
@@ -216,7 +216,7 @@ const OrderDetail = () => {
         {/* Left Column - Order Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Customer Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <User className="h-5 w-5 text-blue-500" /> Customer Information
             </h3>
@@ -249,13 +249,13 @@ const OrderDetail = () => {
           </div>
 
           {/* Order Items */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Package className="h-5 w-5 text-purple-500" /> Order Items
             </h3>
             <div className="space-y-4">
               {order.items?.map((item, index) => (
-                <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100/50 dark:border-gray-700/50 last:border-0">
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">{item.title}</p>
                     <p className="text-sm text-gray-500 capitalize">{item.itemType} × {item.quantity}</p>
@@ -265,7 +265,7 @@ const OrderDetail = () => {
                   </p>
                 </div>
               ))}
-              <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex justify-between pt-4 border-t border-gray-200/50 dark:border-gray-600/50">
                 <p className="font-bold text-gray-900 dark:text-white">Total</p>
                 <p className="font-bold text-gray-900 dark:text-white">
                   {formatCurrency(order.payment?.amount?.total, order.payment?.amount?.currency)}
@@ -275,16 +275,16 @@ const OrderDetail = () => {
           </div>
 
           {/* Messages Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-indigo-500" />
               Messages ({order.communication?.messages?.length || 0})
             </h3>
 
-            <div className="max-h-64 overflow-y-auto space-y-3 mb-4">
+            <div className="max-h-64 overflow-y-auto space-y-3 mb-4 pr-1">
               {order.communication?.messages?.length > 0 ? (
                 order.communication.messages.map((msg, index) => (
-                  <div key={index} className={`p-3 rounded-lg ${msg.sender?.role === 'admin' ? 'bg-blue-50 dark:bg-blue-900/20 ml-8' : 'bg-gray-50 dark:bg-gray-700/50 mr-8'}`}>
+                  <div key={index} className={`p-3 rounded-lg ${msg.sender?.role === 'admin' ? 'bg-blue-50/50 dark:bg-blue-900/20 ml-8' : 'bg-gray-50/50 dark:bg-gray-700/30 mr-8'} border border-gray-100/50 dark:border-gray-700/30`}>
                     <div className="flex justify-between items-start mb-1">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {msg.sender?.firstName || 'Customer'}
@@ -305,12 +305,12 @@ const OrderDetail = () => {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a reply..."
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                className="flex-1 px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm dark:text-white placeholder-gray-500"
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim() || isSendingMessage}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-lg shadow-blue-600/20"
               >
                 {isSendingMessage ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
               </button>
@@ -321,7 +321,7 @@ const OrderDetail = () => {
         {/* Right Column - Timeline & Payment */}
         <div className="space-y-6">
           {/* Payment Info */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-green-500" /> Payment Details
             </h3>
@@ -348,7 +348,7 @@ const OrderDetail = () => {
                   {formatCurrency(order.payment?.amount?.tax, order.payment?.amount?.currency)}
                 </span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex justify-between pt-2 border-t border-gray-200/50 dark:border-gray-600/50">
                 <span className="font-bold text-gray-900 dark:text-white">Total</span>
                 <span className="font-bold text-gray-900 dark:text-white">
                   {formatCurrency(order.payment?.amount?.total, order.payment?.amount?.currency)}
@@ -358,25 +358,25 @@ const OrderDetail = () => {
           </div>
 
           {/* Timeline */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <Clock className="h-5 w-5 text-purple-500" /> Timeline
               </h3>
               <button
                 onClick={() => setShowMilestoneForm(!showMilestoneForm)}
-                className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
               >
                 <Plus className="h-5 w-5" />
               </button>
             </div>
 
             {showMilestoneForm && (
-              <form onSubmit={handleAddMilestone} className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
+              <form onSubmit={handleAddMilestone} className="mb-4 p-3 bg-white/40 dark:bg-gray-800/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl space-y-3 backdrop-blur-sm">
                 <select
                   value={newMilestone.status}
                   onChange={(e) => setNewMilestone(p => ({ ...p, status: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300/50 dark:border-gray-600/50 rounded-lg text-sm bg-white/50 dark:bg-gray-800/50 dark:text-white"
                 >
                   <option value="">Select status...</option>
                   <option value="in_progress">In Progress</option>
@@ -389,7 +389,7 @@ const OrderDetail = () => {
                   value={newMilestone.message}
                   onChange={(e) => setNewMilestone(p => ({ ...p, message: e.target.value }))}
                   placeholder="Milestone description..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300/50 dark:border-gray-600/50 rounded-lg text-sm bg-white/50 dark:bg-gray-800/50 dark:text-white"
                 />
                 <button
                   type="submit"
@@ -402,11 +402,11 @@ const OrderDetail = () => {
             )}
 
             <div className="relative">
-              <div className="absolute top-0 left-3 h-full w-0.5 bg-gray-200 dark:bg-gray-600" />
+              <div className="absolute top-0 left-3 h-full w-0.5 bg-gray-200/50 dark:bg-gray-600/50" />
               <div className="space-y-4">
                 {order.timeline?.map((entry, index) => (
                   <div key={index} className="relative flex items-start pl-8">
-                    <div className={`absolute left-0 top-1 h-6 w-6 rounded-full ${TIMELINE_COLORS[entry.status] || 'bg-gray-400'} flex items-center justify-center`}>
+                    <div className={`absolute left-0 top-1 h-6 w-6 rounded-full ${TIMELINE_COLORS[entry.status] || 'bg-gray-400'} ring-4 ring-white dark:ring-gray-900 flex items-center justify-center`}>
                       <CheckCircle className="h-3 w-3 text-white" />
                     </div>
                     <div>
@@ -423,11 +423,11 @@ const OrderDetail = () => {
 
       {/* Delivery Modal */}
       {showDeliveryModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700 shadow-2xl"
           >
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Mark Order as Delivered</h3>
             <textarea
@@ -435,19 +435,19 @@ const OrderDetail = () => {
               onChange={(e) => setDeliveryNotes(e.target.value)}
               placeholder="Delivery notes (optional)..."
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white mb-4"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700/50 dark:text-white mb-4 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeliveryModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelivery}
                 disabled={isDelivering}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors shadow-lg shadow-green-600/20"
               >
                 {isDelivering ? 'Processing...' : 'Confirm Delivery'}
               </button>

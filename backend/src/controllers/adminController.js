@@ -22,7 +22,7 @@ const getDashboard = async (req, res) => {
 
     const revenueAggregation = await Order.aggregate([
       { $match: { status: { $in: ['confirmed', 'completed'] } } },
-      { $group: { _id: null, total: { $sum: "$payment.amount.subtotal" } } }
+      { $group: { _id: null, total: { $sum: "$payment.amount.total" } } }
     ]);
     const totalRevenue = revenueAggregation.length > 0 ? revenueAggregation[0].total : 0;
 

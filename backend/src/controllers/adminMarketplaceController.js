@@ -506,19 +506,41 @@ exports.getAllOrders = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const { status, search } = req.query;
 
-    const orders = await Order.find()
+    let query = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (search) {
+      // Check if search term looks like an ObjectID
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(search);
+
+      if (isObjectId) {
+        query._id = search;
+      } else {
+        query.$or = [
+          { orderNumber: { $regex: search, $options: "i" } },
+          // Note: Advanced search on populated fields requires aggregation
+          // For now, we support searching by Order Number or ID
+        ];
+      }
+    }
+
+    const orders = await Order.find(query)
       .populate("user", "firstName lastName email profile")
-      .populate("items.itemId") // Polymorphic population if supported or manual required
+      .populate("items.itemId")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Order.countDocuments();
+    const total = await Order.countDocuments(query);
 
     res.json({
       success: true,
-      data: orders,
+      orders,
       pagination: {
         page,
         limit,

@@ -3,14 +3,11 @@ import {
     Briefcase,
     Check,
     ChevronDown,
-    DollarSign,
     Globe,
     Percent,
-    Plus,
     Save,
     Settings as SettingsIcon,
-    ShoppingCart,
-    Trash2
+    ShoppingCart
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
@@ -119,24 +116,22 @@ const MarketplaceSettings = () => {
         baseCurrency: 'INR',
         exchangeRates: []
     },
-    taxRate: 18,
+    surchargeRate: 18,
     enableProductSales: true,
     enableServiceBooking: true
   });
 
   useEffect(() => {
-    if (data?.data?.marketplace) {
-      setFormData(data.data.marketplace);
+    if (data?.data) {
+      const { marketplace, currency } = data.data;
+      setFormData(prev => ({
+        ...prev,
+        ...marketplace,
+        currency: currency || prev.currency,
+        surchargeRate: marketplace?.surchargeRate ?? 18
+      }));
     }
   }, [data]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
 
   const handleToggle = (name) => {
     setFormData(prev => ({
@@ -153,8 +148,9 @@ const MarketplaceSettings = () => {
         ...data.data,
         marketplace: {
           ...formData,
-          taxRate: Number(formData.taxRate)
-        }
+          surchargeRate: Number(formData.surchargeRate)
+        },
+        currency: formData.currency
       };
 
       await updateSettings(updatedSettings).unwrap();
@@ -211,213 +207,23 @@ const MarketplaceSettings = () => {
 
             <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400">
-                    <DollarSign size={24} />
+                    <Percent size={24} />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Currency Configuration</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Pricing & Surcharges</h2>
             </div>
 
             <div className="space-y-6">
-                {/* Base Currency Selection */}
+                {/* Surcharge Rate */}
                 <div className="group">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Base Currency
-                    </label>
-                    <div className="relative">
-                        <PremiumDropdown
-                            name="baseCurrency"
-                            value={formData.currency.baseCurrency}
-                            onChange={(e) => setFormData(prev => ({
-                                ...prev,
-                                currency: { ...prev.currency, baseCurrency: e.target.value }
-                            }))}
-                            options={CURRENCY_OPTIONS}
-                        />
-                    </div>
-                    <p className="mt-2 text-xs text-gray-500">
-                        This is the primary currency for your store (e.g., INR). All other prices will be calculated from this.
-                    </p>
-                </div>
-
-                {/* Exchange Rates Table */}
-                <div className="group">
-                    <div className="flex justify-between items-center mb-4">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Exchange Rates (1 {formData.currency.baseCurrency} = ?)
-                        </label>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                const newRates = [
-                                    ...(formData.currency.exchangeRates || []),
-                                    { code: '', rate: 1, symbol: '', isActive: true }
-                                ];
-                                setFormData(prev => ({
-                                    ...prev,
-                                    currency: { ...prev.currency, exchangeRates: newRates }
-                                }));
-                            }}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
-                        >
-                            <Plus size={14} /> Add Currency
-                        </button>
-                    </div>
-
-                    <div className="space-y-3">
-                        {formData.currency.exchangeRates?.length > 0 ? (
-                            formData.currency.exchangeRates.map((rate, index) => {
-                                // Filter options: Exclude base currency and already selected currencies (except current one)
-                                const availableOptions = CURRENCY_OPTIONS.filter(opt =>
-                                    opt.value !== formData.currency.baseCurrency &&
-                                    (!formData.currency.exchangeRates.some((r, i) => r.code === opt.value && i !== index))
-                                );
-
-                                // Add the current value if it's not in options (custom case)
-                                const currentOptions = rate.code && !CURRENCY_OPTIONS.find(o => o.value === rate.code)
-                                    ? [...availableOptions, { value: rate.code, label: `${rate.code} (Custom)` }]
-                                    : availableOptions;
-
-                                return (
-                                    <div key={index} className="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all hover:border-blue-200 dark:hover:border-blue-800">
-
-                                        {/* Currency Selector */}
-                                        <div className="w-full md:w-64">
-                                            <PremiumDropdown
-                                                name="code"
-                                                value={rate.code}
-                                                onChange={(e) => {
-                                                    const newRates = [...formData.currency.exchangeRates];
-                                                    // Auto-fill symbol if known
-                                                    const symbolMap = { 'USD': '$', 'EUR': '€', 'GBP': '£', 'INR': '₹', 'JPY': '¥', 'AUD': '$', 'CAD': '$', 'SGD': '$' };
-                                                    const code = e.target.value;
-                                                    newRates[index] = {
-                                                        ...newRates[index],
-                                                        code,
-                                                        symbol: symbolMap[code] || newRates[index].symbol
-                                                    };
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        currency: { ...prev.currency, exchangeRates: newRates }
-                                                    }));
-                                                }}
-                                                options={currentOptions}
-                                                className="w-full"
-                                            />
-                                        </div>
-
-                                        {/* Rate Input */}
-                                        <div className="flex-1 relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span className="text-gray-400 font-mono text-sm">x</span>
-                                            </div>
-                                            <input
-                                                type="number"
-                                                step="0.000001"
-                                                value={rate.rate}
-                                                onChange={(e) => {
-                                                    const newRates = [...formData.currency.exchangeRates];
-                                                    newRates[index] = { ...newRates[index], rate: parseFloat(e.target.value) };
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        currency: { ...prev.currency, exchangeRates: newRates }
-                                                    }));
-                                                }}
-                                                className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder-gray-400 font-mono text-sm"
-                                                placeholder="Exchange Rate (e.g. 0.012)"
-                                            />
-                                        </div>
-
-                                        {/* Symbol Input */}
-                                        <div className="w-24 relative">
-                                             <input
-                                                type="text"
-                                                value={rate.symbol}
-                                                onChange={(e) => {
-                                                    const newRates = [...formData.currency.exchangeRates];
-                                                    newRates[index] = { ...newRates[index], symbol: e.target.value };
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        currency: { ...prev.currency, exchangeRates: newRates }
-                                                    }));
-                                                }}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white text-center focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder-gray-400"
-                                                placeholder="Sym"
-                                            />
-                                        </div>
-
-                                        {/* Actions */}
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const newRates = [...formData.currency.exchangeRates];
-                                                    newRates[index] = { ...newRates[index], isActive: !rate.isActive };
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        currency: { ...prev.currency, exchangeRates: newRates }
-                                                    }));
-                                                }}
-                                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                                                    rate.isActive
-                                                    ? 'bg-green-100/50 text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30 cursor-pointer'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 cursor-pointer'
-                                                }`}
-                                            >
-                                                {rate.isActive ? 'Active' : 'Hidden'}
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const newRates = formData.currency.exchangeRates.filter((_, i) => i !== index);
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        currency: { ...prev.currency, exchangeRates: newRates }
-                                                    }));
-                                                }}
-                                                className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-8 text-gray-500 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                                <p className="text-sm mb-3">No additional currencies configured.</p>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const defaults = [
-                                            { code: 'USD', name: 'US Dollar', symbol: '$', rate: 0.012, isActive: true },
-                                            { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.011, isActive: true },
-                                            { code: 'GBP', name: 'British Pound', symbol: '£', rate: 0.0094, isActive: true }
-                                        ];
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            currency: { ...prev.currency, exchangeRates: defaults }
-                                        }));
-                                    }}
-                                    className="text-blue-600 hover:underline text-xs"
-                                >
-                                    Load Defaults
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Tax Rate */}
-                <div className="group pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Default Tax Rate (%)
+                        Global Surcharge Rate (%)
                     </label>
                     <div className="relative">
                         <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
                         <input
                             type="number"
-                            name="taxRate"
-                            value={formData.taxRate}
+                            name="surchargeRate"
+                            value={formData.surchargeRate}
                             onChange={(e) => {
                                 const { name, value } = e.target;
                                 setFormData(prev => ({ ...prev, [name]: value }));
@@ -453,7 +259,7 @@ const MarketplaceSettings = () => {
                     className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 group
                     ${formData.enableProductSales
                         ? 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800'
-                        : 'bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}
+                        : 'bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}` }
                 >
                     <div className={`p-3 rounded-xl ${formData.enableProductSales ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
                         <ShoppingCart size={24} />
@@ -477,7 +283,7 @@ const MarketplaceSettings = () => {
                     className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 group
                     ${formData.enableServiceBooking
                         ? 'bg-purple-50/50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800'
-                        : 'bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}
+                        : 'bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}` }
                 >
                     <div className={`p-3 rounded-xl ${formData.enableServiceBooking ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-500'}`}>
                         <Briefcase size={24} />

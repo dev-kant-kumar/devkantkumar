@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import PriceDisplay from '../../../../components/common/PriceDisplay';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetProductByIdQuery } from '../../store/api/marketplaceApi';
@@ -95,7 +96,7 @@ const ProductDetail = () => {
           <p className="text-gray-600 mb-4">{error?.data?.message || 'Something went wrong'}</p>
           <button
             onClick={() => refetch()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <RefreshCw className="h-4 w-4" /> Try Again
           </button>
@@ -148,7 +149,7 @@ const ProductDetail = () => {
                {product.images?.length > 1 && (
                    <div className="flex gap-2 mt-2 px-2 pb-2 overflow-x-auto">
                        {product.images.map((img, idx) => (
-                           <button key={idx} className="w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all flex-shrink-0">
+                           <button key={idx} className="w-20 h-20 rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-all flex-shrink-0 cursor-pointer">
                                <img src={img.url} alt="" className="w-full h-full object-cover" />
                            </button>
                        ))}
@@ -181,7 +182,7 @@ const ProductDetail = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
+                                className={`pb-4 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
                                     activeTab === tab.id
                                         ? 'border-blue-600 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -264,26 +265,24 @@ const ProductDetail = () => {
 
             {/* Purchase Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 sticky top-24">
-                <div className="flex items-baseline gap-2 mb-6">
-                    <span className="text-4xl font-bold text-gray-900">
-                        {formatPrice(priceData.amount, priceData.currency)}
-                    </span>
-                    {/* Only show original price if in base currency or if we implement conversion for it later */
-                     product.originalPrice > product.price && priceData.currency === 'INR' && (
-                        <span className="text-lg text-gray-400 line-through">₹{product.originalPrice}</span>
-                    )}
-                </div>
+                <PriceDisplay
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    showOriginal={true}
+                    className="text-4xl mb-6"
+                    textClass="text-gray-900"
+                />
 
                 <div className="space-y-4 mb-8">
                     <button
                         onClick={handleAddToCart}
                         disabled={isAdding}
-                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
+                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-lg shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-75 cursor-pointer disabled:cursor-not-allowed"
                     >
                         {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart size={20} />}
                         {isAdding ? 'Adding...' : 'Add to Cart'}
                     </button>
-                    <button className="w-full py-4 bg-white border-2 border-gray-200 hover:border-blue-500 text-gray-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                    <button className="w-full py-4 bg-white border-2 border-gray-200 hover:border-blue-500 text-gray-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer">
                         <Share2 size={20} />
                         Share Product
                     </button>

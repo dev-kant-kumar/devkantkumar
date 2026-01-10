@@ -31,6 +31,9 @@ const License = React.lazy(() => import('./pages/License/License'));
 const Docs = React.lazy(() => import('./pages/Docs/Docs'));
 const Contact = React.lazy(() => import('./pages/Contact/Contact'));
 const FAQ = React.lazy(() => import('./pages/FAQ/FAQ'));
+const Tutorials = React.lazy(() => import('./pages/Tutorials/Tutorials'));
+const KnowledgeBase = React.lazy(() => import('./pages/KnowledgeBase/KnowledgeBase'));
+const CommunityForum = React.lazy(() => import('./pages/Community/CommunityForum'));
 const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
 
 // User Management
@@ -64,6 +67,9 @@ const MarketPlaceRoutes = () => {
             <Route path="custom-solutions" element={<CustomSolutions />} />
             <Route path="support" element={<Support />} />
             <Route path="docs" element={<Docs />} />
+            <Route path="tutorials" element={<Tutorials />} />
+            <Route path="kb" element={<KnowledgeBase />} />
+            <Route path="community" element={<CommunityForum />} />
             <Route path="contact" element={<Contact />} />
             <Route path="faq" element={<FAQ />} />
             <Route path="terms" element={<Terms />} />

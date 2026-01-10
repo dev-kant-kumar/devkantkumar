@@ -1,5 +1,7 @@
 const express = require('express');
 const marketplaceController = require('../controllers/marketplaceController');
+const quoteController = require('../controllers/quoteController');
+const supportController = require('../controllers/supportController');
 const { protect } = require('../middlewares/auth');
 
 const router = express.Router();
@@ -12,6 +14,13 @@ router.get('/products/:id', marketplaceController.getProductById);
 router.get('/categories', marketplaceController.getCategories);
 router.get('/search', marketplaceController.search);
 router.post('/payment/webhook', marketplaceController.handleRazorpayWebhook);
+
+// Quote request (public - no auth required)
+router.post('/quote-request', quoteController.submitQuote);
+
+// Support (public)
+router.get('/support/settings', supportController.getSupportSettings);
+router.post('/support', supportController.submitTicket);
 
 // Protected routes
 router.use(protect);

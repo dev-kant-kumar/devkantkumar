@@ -85,29 +85,7 @@ const serviceSchema = new mongoose.Schema(
           min: 0,
           max: 100,
         },
-        regionalPricing: [
-          {
-            region: {
-              type: String,
-              uppercase: true,
-              trim: true,
-            },
-            currency: {
-              type: String,
-              required: true,
-              uppercase: true,
-            },
-            price: {
-              type: Number,
-              required: true,
-              min: 0,
-            },
-            discount: {
-              type: Number,
-              default: 0,
-            },
-          },
-        ],
+        // Note: All prices are stored in INR. Surcharge is applied at display/checkout via settings.
         deliveryTime: {
           type: Number,
           required: true,
@@ -366,5 +344,8 @@ serviceSchema.methods.checkAvailability = function () {
     return false;
   return true;
 };
+
+// Alias for lowercase reference issues
+mongoose.model("service", serviceSchema);
 
 module.exports = mongoose.model("Service", serviceSchema);

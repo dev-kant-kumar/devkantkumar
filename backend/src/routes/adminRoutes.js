@@ -67,6 +67,23 @@ router.get('/marketplace/stats', adminMarketplaceController.getStats);
 router.get('/customers', adminMarketplaceController.getCustomers);
 router.get('/customers/:id', adminMarketplaceController.getCustomerById);
 
+// Quote Requests
+const quoteController = require('../controllers/quoteController');
+router.get('/marketplace/quotes/stats', quoteController.getQuoteStats);
+router.get('/marketplace/quotes', quoteController.getAllQuotes);
+router.get('/marketplace/quotes/:id', quoteController.getQuoteById);
+router.put('/marketplace/quotes/:id', quoteController.updateQuote);
+router.delete('/marketplace/quotes/:id', quoteController.deleteQuote);
+
+// Support Tickets
+const supportController = require('../controllers/supportController');
+router.get('/support/stats', supportController.getStats);
+router.get('/support/tickets', supportController.getAllTickets);
+router.get('/support/tickets/:id', supportController.getTicketById);
+router.put('/support/tickets/:id', supportController.updateTicket);
+router.post('/support/tickets/:id/respond', supportController.respondToTicket);
+router.delete('/support/tickets/:id', supportController.deleteTicket);
+
 const upload = require('../middlewares/upload');
 const uploadController = require('../controllers/uploadController');
 

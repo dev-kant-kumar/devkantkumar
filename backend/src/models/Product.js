@@ -71,31 +71,7 @@ const productSchema = new mongoose.Schema(
       max: [100, "Discount cannot exceed 100%"],
       default: 0,
     },
-    regionalPricing: [
-      {
-        region: {
-          type: String,
-          uppercase: true, // e.g., 'IN', 'US', 'EU'
-          trim: true,
-        },
-        currency: {
-          type: String,
-          required: true,
-          uppercase: true, // e.g., 'INR', 'USD'
-        },
-        price: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-        discount: {
-          type: Number,
-          min: 0,
-          max: 100,
-          default: 0,
-        },
-      },
-    ],
+    // Note: All prices are stored in INR. Surcharge is applied at display/checkout via settings.
     images: [
       {
         public_id: String,
@@ -355,5 +331,8 @@ productSchema.methods.updateRating = async function () {
 
   return this.save();
 };
+
+// Alias for lowercase reference issues
+mongoose.model("product", productSchema);
 
 module.exports = mongoose.model("Product", productSchema);

@@ -1,21 +1,23 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Code,
-  FileText,
-  FolderOpen,
-  LayoutDashboard,
-  Mail,
-  MailCheck,
-  Megaphone,
-  Package,
-  PenTool,
-  PieChart,
-  Settings,
-  ShoppingBag,
-  Users,
-  X
+    ChevronLeft,
+    ChevronRight,
+    Code,
+    FileText,
+    FolderOpen,
+    LayoutDashboard,
+    LifeBuoy,
+    Mail,
+    MailCheck,
+    Megaphone,
+    MessageSquare,
+    Package,
+    PenTool,
+    PieChart,
+    Settings,
+    ShoppingBag,
+    Users,
+    X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -60,6 +62,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
     { name: "Services", path: "/admin/marketplace/services", icon: Code },
     { name: "Orders", path: "/admin/marketplace/orders", icon: ShoppingBag },
     { name: "Customers", path: "/admin/marketplace/customers", icon: Users },
+    { name: "Quotes", path: "/admin/marketplace/quotes", icon: MessageSquare },
+    { name: "Support", path: "/admin/support/tickets", icon: LifeBuoy },
     { name: "Settings", path: "/admin/marketplace/settings", icon: Settings },
   ];
 

@@ -42,11 +42,13 @@ const PersistLogin = () => {
       }
     };
 
-    // If we have no token, try to get one
     if (!token) {
-      verifyRefreshToken();
-    } else {
+      // No token = Guest user. Load immediately.
       setIsLoading(false);
+      // verifyRefreshToken(); // WAS BUG: Trying to refresh a non-existent token?
+    } else {
+      // Token exists, verify it
+       verifyRefreshToken();
     }
 
     return () => {

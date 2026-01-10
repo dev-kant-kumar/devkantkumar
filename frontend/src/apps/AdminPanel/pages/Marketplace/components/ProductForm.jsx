@@ -1,30 +1,28 @@
 import {
-    Check,
-    ChevronDown,
-    Coins,
-    Eye,
-    FileText,
-    Github,
-    Globe,
-    Image as ImageIcon,
-    Info,
-    Layers,
-    Link as LinkIcon,
-    Loader,
-    Plus,
-    Tag,
-    Trash2,
-    Upload,
-    X,
+  Check,
+  ChevronDown,
+  Coins,
+  Eye,
+  FileText,
+  Github,
+  Globe,
+  Image as ImageIcon,
+  Layers,
+  Link as LinkIcon,
+  Loader,
+  Plus,
+  Tag,
+  Trash2,
+  Upload,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-    useGetSettingsQuery,
-    useUploadFilesMutation,
-    useUploadImageMutation,
+  useUploadFilesMutation,
+  useUploadImageMutation
 } from "../../../store/api/adminApiSlice";
-import { calculateRegionalPricing } from "../../../utils/currencyConverter";
+
 
 const CATEGORIES = [
   { value: "templates", label: "Templates", icon: "📄" },
@@ -35,16 +33,6 @@ const CATEGORIES = [
   { value: "fonts", label: "Fonts", icon: "🔤" },
   { value: "courses", label: "Courses", icon: "📚" },
   { value: "ebooks", label: "Ebooks", icon: "📖" },
-];
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$", label: "US Dollar" },
-  { code: "EUR", symbol: "€", label: "Euro" },
-  { code: "GBP", symbol: "£", label: "British Pound" },
-  { code: "AUD", symbol: "A$", label: "Australian Dollar" },
-  { code: "CAD", symbol: "C$", label: "Canadian Dollar" },
-  { code: "SGD", symbol: "S$", label: "Singapore Dollar" },
-  { code: "AED", symbol: "د.إ", label: "UAE Dirham" },
 ];
 
 const MAX_DESC_CHARS = 1000;
@@ -180,9 +168,8 @@ const CustomDropdown = ({ value, onChange, options, icon: Icon, label }) => {
 };
 
 const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
-  const { data: settingsData } = useGetSettingsQuery();
-  const baseCurrency =
-    settingsData?.data?.settings?.currency?.baseCurrency || "USD";
+  /* const { data: settingsData } = useGetSettingsQuery(); */
+  const baseCurrency = "INR";
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -197,10 +184,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     features: [],
   });
 
-  const [regionalInput, setRegionalInput] = useState({
-    currency: baseCurrency,
-    price: "",
-  });
+
   const [featureInput, setFeatureInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState({});
@@ -351,75 +335,10 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
 
     let newFormData = { ...formData, [name]: value };
 
-    // Auto-calculate regional pricing when base price changes
-    if (name === "price" && value !== "") {
-      const basePrice = parseFloat(value);
-      if (!isNaN(basePrice)) {
-        newFormData.regionalPricing = calculateRegionalPricing(basePrice);
-      }
-    }
-
     setFormData(newFormData);
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
-  };
-
-  const handleTagKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const tag = tagInput.trim().toLowerCase();
-      if (!tag) return;
-      if (formData.tags.includes(tag)) {
-        toast.error("Tag already exists");
-        return;
-      }
-      if (formData.tags.length >= MAX_TAGS) {
-        toast.error(`Max ${MAX_TAGS} tags allowed`);
-        return;
-      }
-      if (tag.length > MAX_TAG_CHARS) {
-        toast.error(`Tag too long (max ${MAX_TAG_CHARS} chars)`);
-        return;
-      }
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, tag],
-      }));
-      setTagInput("");
-    }
-  };
-
-  const removeTag = (tagToRemove) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
-    }));
-  };
-
-  const handleAddFeature = () => {
-    if (!featureInput.trim()) return;
-    setFormData((prev) => ({
-      ...prev,
-      features: [...prev.features, featureInput.trim()],
-    }));
-    setFeatureInput("");
-  };
-
-  const removeFeature = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleRegionalPriceChange = (currency, newPrice) => {
-    setFormData((prev) => ({
-      ...prev,
-      regionalPricing: prev.regionalPricing.map((p) =>
-        p.currency === currency ? { ...p, price: parseFloat(newPrice) } : p
-      ),
-    }));
   };
 
   const handleAddExternalFile = () => {
@@ -491,6 +410,52 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       })),
     };
     onSubmit(submissionData);
+  };
+
+  const handleTagKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (!tagInput.trim()) return;
+
+      if (formData.tags.length >= MAX_TAGS) {
+        toast.error(`Maximum ${MAX_TAGS} tags allowed`);
+        return;
+      }
+
+      if (formData.tags.includes(tagInput.trim())) {
+        toast.error("Tag already exists");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()],
+      }));
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
+  };
+
+  const handleAddFeature = () => {
+    if (!featureInput.trim()) return;
+    setFormData((prev) => ({
+      ...prev,
+      features: [...prev.features, featureInput.trim()],
+    }));
+    setFeatureInput("");
+  };
+
+  const removeFeature = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -915,94 +880,29 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         </div>
       </section>
 
-      {/* 3. Global Pricing */}
+      {/* 3. Pricing */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
           <div className="p-1.5 rounded-lg bg-emerald-100/50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
             <Coins size={18} />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Global Pricing
+            Pricing
           </h3>
         </div>
 
-        <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl flex items-start gap-3 border border-blue-100 dark:border-blue-900/30">
-          <Info
-            className="text-blue-600 dark:text-blue-400 mt-0.5 shrink-0"
-            size={18}
+        <div className="max-w-md">
+          <InputField
+            label="Price (INR)"
+            name="price"
+            type="number"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="0.00"
+            min="0"
+            icon={Coins}
+            error={errors.price}
           />
-          <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>Important:</strong> Pricing is displayed to users based on
-            their location. It is recommended to set prices for all major
-            currencies to ensure accurate global billing. The default INR price
-            will be used as a fallback.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Base Price */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 opacity-70">
-              Base Pricing ({baseCurrency})
-            </h4>
-            <InputField
-              label={`Base Price (${baseCurrency})`}
-              name="price"
-              type="number"
-              icon={Coins}
-              value={formData.price}
-              onChange={handleChange}
-              placeholder="0.00"
-              error={errors.price}
-            />
-          </div>
-
-          {/* Multi-Currency Pricing */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4 opacity-70">
-              Regional Pricing (Auto-Calculated)
-            </h4>
-
-            {/* Pricing List */}
-            <div className="space-y-3">
-              {formData.regionalPricing.length === 0 ? (
-                <div className="text-center py-6 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-xl">
-                  <p className="text-xs text-gray-400">
-                    Enter a base price to generate regional pricing.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {formData.regionalPricing.map((rp) => (
-                    <div
-                      key={rp.currency}
-                      className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold text-xs shrink-0">
-                        {rp.currency}
-                      </div>
-                      <div className="flex-1">
-                        <label className="text-[10px] font-semibold text-gray-500 uppercase">
-                          {rp.region || "Region"}
-                        </label>
-                        <input
-                          type="number"
-                          value={rp.price}
-                          onChange={(e) =>
-                            handleRegionalPriceChange(
-                              rp.currency,
-                              e.target.value
-                            )
-                          }
-                          className="w-full bg-transparent text-sm font-medium text-gray-900 dark:text-white outline-none border-b border-transparent focus:border-blue-500 transition-colors"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </section>
 

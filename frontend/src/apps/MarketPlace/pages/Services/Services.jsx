@@ -21,6 +21,7 @@ import React, { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import PriceDisplay from "../../../../components/common/PriceDisplay";
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
@@ -313,11 +314,8 @@ const Services = () => {
                       <div className="flex items-center justify-between mt-4">
                         {(() => {
                              const defaultPkg = service.packages?.[0] || { price: service.startingPrice || 0 };
-                             const priceData = getPrice(defaultPkg);
                              return (
-                                <div className="text-2xl font-bold text-blue-600">
-                                  {formatPrice(priceData.amount, priceData.currency)}
-                                </div>
+                                <PriceDisplay price={defaultPkg.price} className="text-2xl" textClass="text-blue-600" />
                              );
                         })()}
                         <Link

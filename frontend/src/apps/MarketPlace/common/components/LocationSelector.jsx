@@ -271,7 +271,7 @@ const LocationSelector = () => {
         setSelectedCountry(newCountry);
         // Auto-select currency based on country if possible
         const countryData = COUNTRIES.find(c => c.code === newCountry);
-        if (countryData && supportedCurrencies.includes(countryData.currency)) {
+        if (countryData && supportedCurrencies?.includes(countryData.currency)) {
             setSelectedCurrency(countryData.currency);
         }
     };
@@ -377,7 +377,7 @@ const LocationSelector = () => {
                                                 onChange={(e) => setSelectedCurrency(e.target.value)}
                                                 className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                             >
-                                                {supportedCurrencies.map(c => (
+                                                {(supportedCurrencies || []).map(c => (
                                                     <option key={c} value={c} className="bg-white dark:bg-gray-800">
                                                         {c}
                                                     </option>

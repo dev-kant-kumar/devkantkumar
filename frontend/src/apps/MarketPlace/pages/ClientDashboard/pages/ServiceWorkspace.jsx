@@ -348,6 +348,56 @@ const ServiceWorkspace = () => {
                   </div>
                 </div>
               )}
+
+              {/* Package Details */}
+              {serviceItem?.selectedPackage && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Package Details</h3>
+                  <div className="space-y-3">
+                    {/* Package Name */}
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="text-sm text-gray-500">Package</span>
+                      <span className="text-sm font-medium text-gray-900 capitalize px-2 py-0.5 bg-purple-50 rounded border border-purple-100">
+                        {serviceItem.selectedPackage.name || 'Standard'}
+                      </span>
+                    </div>
+                    {/* Delivery Time */}
+                    {serviceItem.selectedPackage.deliveryTime && (
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">Delivery Time</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {serviceItem.selectedPackage.deliveryTime} days
+                        </span>
+                      </div>
+                    )}
+                    {/* Revisions */}
+                    {serviceItem.selectedPackage.revisions !== undefined && (
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">Revisions</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {serviceItem.selectedPackage.revisions === -1 || serviceItem.selectedPackage.revisions === 'Unlimited'
+                            ? 'Unlimited'
+                            : serviceItem.selectedPackage.revisions}
+                        </span>
+                      </div>
+                    )}
+                    {/* Features */}
+                    {serviceItem.selectedPackage.features && serviceItem.selectedPackage.features.length > 0 && (
+                      <div className="pt-2">
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Includes</span>
+                        <ul className="mt-2 space-y-1.5">
+                          {serviceItem.selectedPackage.features.map((feature, idx) => (
+                            <li key={idx} className="flex items-center text-sm text-gray-700">
+                              <CheckCircle className="h-3.5 w-3.5 text-green-500 mr-2 flex-shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

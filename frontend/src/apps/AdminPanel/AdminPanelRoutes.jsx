@@ -30,7 +30,9 @@ const MarketOrders = React.lazy(() => import("./pages/Marketplace/Orders.jsx"));
 const MarketOrderDetail = React.lazy(() => import("./pages/Marketplace/OrderDetail.jsx"));
 const MarketCustomers = React.lazy(() => import("./pages/Marketplace/Customers.jsx"));
 const MarketCustomerDetail = React.lazy(() => import("./pages/Marketplace/CustomerDetail.jsx"));
+const MarketQuoteRequests = React.lazy(() => import("./pages/Marketplace/QuoteRequests.jsx"));
 const MarketSettings = React.lazy(() => import("./pages/Marketplace/Settings.jsx"));
+const SupportTickets = React.lazy(() => import("./pages/Support/SupportTickets.jsx"));
 
 const AdminPanelRoutes = () => {
   return (
@@ -62,8 +64,12 @@ const AdminPanelRoutes = () => {
             <Route path="orders/:id" element={<MarketOrderDetail />} />
             <Route path="customers" element={<MarketCustomers />} />
             <Route path="customers/:id" element={<MarketCustomerDetail />} />
+            <Route path="quotes" element={<MarketQuoteRequests />} />
             <Route path="settings" element={<MarketSettings />} />
           </Route>
+
+          {/* Support */}
+          <Route path="support/tickets" element={<SupportTickets />} />
 
           {/* Content Management - General content editing */}
           <Route path="content" element={<ContentManagement />} />

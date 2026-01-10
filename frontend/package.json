@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@dr.pogodin/react-helmet": "^3.0.4",
+    "@fawazahmed0/currency-api": "^2026.1.10",
     "@giscus/react": "^3.1.0",
     "@icons-pack/react-simple-icons": "^13.8.0",
     "@react-three/drei": "^10.7.6",

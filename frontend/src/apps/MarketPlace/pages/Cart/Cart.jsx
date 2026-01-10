@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 ,Package } from "lucide-react";
+import { ArrowRight, Minus, Package, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import PriceDisplay from "../../../../components/common/PriceDisplay";
 import {
-    useGetCartQuery,
-    useRemoveFromCartMutation,
-    useUpdateCartItemMutation,
+  useGetCartQuery,
+  useRemoveFromCartMutation,
+  useUpdateCartItemMutation,
 } from "../../../../store/cart/cartApi";
 import { useCurrency } from "../../context/CurrencyContext";
 import { selectIsAuthenticated } from "../../store/auth/authSlice";
@@ -30,49 +31,43 @@ const Cart = () => {
   const [updateCartItem, { isLoading: isUpdating }] = useUpdateCartItemMutation();
   const [removeFromCartApi, { isLoading: isRemoving }] = useRemoveFromCartMutation();
 
-  const { getPrice, formatPrice, currency: currentCurrency } = useCurrency();
+  const { getFinalPrice, surchargeRate } = useCurrency();
 
   const getCartItemPrice = (item) => {
       const displayItem = item.product || item.service;
-      if (!displayItem) return { amount: 0, currency: currentCurrency };
+      if (!displayItem) return 0;
 
-      if (item.type === 'service') {
-           if (item.package && displayItem.packages) {
-                const pkg = displayItem.packages.find(p => p.name === item.package);
-                if (pkg) return getPrice(pkg);
+      let price = 0;
+      if ((item.type === 'service' || item.itemType === 'service')) {
+           if ((item.package || item.packageName) && displayItem.packages) {
+                const pkgName = item.package || item.packageName;
+                const pkg = displayItem.packages.find(p => p.name === pkgName);
+                if (pkg) price = pkg.price;
+                else price = displayItem.startingPrice || 0;
+           } else {
+                price = displayItem.startingPrice || 0;
            }
-           // Fallback: Use startingPrice if package not found
-           return getPrice({ ...displayItem, price: displayItem.startingPrice || 0 });
+      } else {
+          price = displayItem.price || 0;
       }
-      return getPrice(displayItem);
+      return price;
   };
 
-  // Calculate totals with regional pricing and determine consistent currency
+  // Calculate totals
   const calculateTotals = () => {
-    let total = 0;
-    // Default to first item's currency or currentCurrency if empty
-    let usedCurrency = currentCurrency;
-    let currencySet = false;
-
+    let subtotal = 0;
     cartItems.forEach((item) => {
-      const displayItem = item.product || item.service;
-      if (displayItem) {
-          const { amount, currency } = getCartItemPrice(item);
-          total += amount * item.quantity;
-
-          // Capture the currency from the first valid item to ensure consistency
-          if (!currencySet && amount > 0) {
-              usedCurrency = currency;
-              currencySet = true;
-          }
-      }
+      const price = getCartItemPrice(item);
+      subtotal += price * item.quantity;
     });
-    return { total, currency: usedCurrency };
+
+    const total = getFinalPrice(subtotal);
+    const surchargeAmount = total - subtotal;
+
+    return { subtotal, surchargeAmount, total };
   };
 
-  const { total: subtotal, currency: summaryCurrency } = calculateTotals();
-  const tax = subtotal * 0.08; // Assuming 8% tax
-  const total = subtotal + tax;
+  const { subtotal, surchargeAmount, total } = calculateTotals();
 
   const handleQuantityChange = async (item, newQuantity) => {
     if (newQuantity < 1) return;
@@ -179,55 +174,59 @@ const Cart = () => {
                       transition={{ delay: index * 0.1 }}
                       className="p-6 border-b border-gray-200 last:border-b-0"
                     >
-                      <div className="flex items-center space-x-4">
-                        {imageUrl ? (
-                          <img
-                            src={imageUrl}
-                            alt={title}
-                            className="w-20 h-20 object-cover rounded-lg"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center ${imageUrl ? 'hidden' : 'flex'}`}
-                        >
-                          <Package className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {title}
-                            </h3>
-                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                              (item.itemType || item.type) === 'service'
-                                ? 'bg-purple-100 text-purple-700'
-                                : 'bg-blue-100 text-blue-700'
-                            }`}>
-                              {(item.itemType || item.type) === 'service' ? 'Service' : 'Product'}
-                            </span>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                        {/* Product Image & Info */}
+                        <div className="flex items-start flex-1 gap-4 w-full">
+                          {imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt={title}
+                              className="w-20 h-20 flex-shrink-0 object-cover rounded-lg bg-gray-100"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className={`w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center ${imageUrl ? 'hidden' : 'flex'}`}
+                          >
+                            <Package className="w-8 h-8 text-gray-400" />
                           </div>
-                          <p className="text-sm text-gray-500 mb-1">
-                            {category}
-                          </p>
-                          {(item.package || item.packageName) && (
-                            <p className="text-xs text-purple-600 font-medium mb-2">
-                              📦 Package: {item.package || item.packageName}
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-start gap-2 mb-1">
+                              <h3 className="text-lg font-semibold text-gray-900 truncate pr-2">
+                                {title}
+                              </h3>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap ${
+                                (item.itemType || item.type) === 'service'
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {(item.itemType || item.type) === 'service' ? 'Service' : 'Product'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-1 truncate">
+                              {category}
                             </p>
-                          )}
-                          <div className="flex items-center mt-2">
-                            <span className="text-xl font-bold text-blue-600">
-                              {(() => {
-                                const priceData = getCartItemPrice(item);
-                                return formatPrice(priceData.amount, priceData.currency);
-                              })()}
-                            </span>
+                            {(item.package || item.packageName) && (
+                              <p className="text-xs text-purple-600 font-medium mb-1">
+                                📦 Package: {item.package || item.packageName}
+                              </p>
+                            )}
+                            <div className="mt-1">
+                                {(() => {
+                                    const price = getCartItemPrice(item);
+                                    return <PriceDisplay price={price} className="text-lg font-bold" textClass="text-gray-900" />;
+                                })()}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center border border-gray-300 rounded-lg">
+
+                        {/* Actions (Quantity & Remove) */}
+                        <div className="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-none border-gray-100">
+                          <div className="flex items-center border border-gray-300 rounded-lg ml-auto sm:ml-0">
                             <button
                               onClick={() =>
                                 handleQuantityChange(
@@ -236,11 +235,11 @@ const Cart = () => {
                                 )
                               }
                               disabled={item.quantity <= 1 || isUpdating}
-                              className="p-2 hover:bg-gray-100 disabled:opacity-50"
+                              className="p-2 hover:bg-gray-100 disabled:opacity-50 text-gray-600 transition-colors"
                             >
                               <Minus className="h-4 w-4" />
                             </button>
-                            <span className="px-4 py-2 border-x border-gray-300 pointer-events-none">
+                            <span className="px-4 py-2 border-x border-gray-300 font-medium text-gray-900 min-w-[40px] text-center">
                               {item.quantity}
                             </span>
                             <button
@@ -251,7 +250,7 @@ const Cart = () => {
                                 )
                               }
                               disabled={isUpdating}
-                              className="p-2 hover:bg-gray-100 disabled:opacity-50"
+                              className="p-2 hover:bg-gray-100 disabled:opacity-50 text-gray-600 transition-colors"
                             >
                               <Plus className="h-4 w-4" />
                             </button>
@@ -259,9 +258,10 @@ const Cart = () => {
                           <button
                             onClick={() => handleRemoveItem(item)}
                             disabled={isRemoving}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg disabled:opacity-50"
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg disabled:opacity-50 transition-colors"
+                            title="Remove item"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
                       </div>
@@ -286,14 +286,14 @@ const Cart = () => {
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">
-                      {formatPrice(subtotal, summaryCurrency)}
+                    <span className="font-medium text-gray-900">
+                       {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax (8%)</span>
-                    <span className="font-medium">
-                      {formatPrice(tax, summaryCurrency)}
+                    <span className="text-gray-600">Surcharge ({surchargeRate}%)</span>
+                    <span className="font-medium text-gray-900">
+                       {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(surchargeAmount)}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-4">
@@ -302,7 +302,7 @@ const Cart = () => {
                         Total
                       </span>
                       <span className="text-lg font-bold text-blue-600">
-                        {formatPrice(total, summaryCurrency)}
+                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total)}
                       </span>
                     </div>
                   </div>

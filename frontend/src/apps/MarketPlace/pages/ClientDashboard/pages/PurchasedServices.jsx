@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, Briefcase, CheckCircle, Clock, FileText, Loader2, MessageSquare, MoreVertical, RefreshCw, Search, Shield } from 'lucide-react';
+import { AlertCircle, ArrowRight, Briefcase, Calendar, CheckCircle, Clock, FileText, Loader2, MessageSquare, MoreVertical, RefreshCw, RotateCcw, Search, Shield, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useGetUserOrdersQuery } from '../../../store/orders/ordersApi';
@@ -12,6 +12,12 @@ const STATUS_STYLES = {
   active: 'bg-blue-100 text-blue-800 border-blue-200',
   completed: 'bg-green-100 text-green-800 border-green-200',
   cancelled: 'bg-red-100 text-red-800 border-red-200',
+};
+
+const PACKAGE_COLORS = {
+  basic: 'bg-gray-100 text-gray-700 border-gray-200',
+  standard: 'bg-blue-100 text-blue-700 border-blue-200',
+  premium: 'bg-purple-100 text-purple-700 border-purple-200',
 };
 
 const PurchasedServices = () => {
@@ -41,11 +47,25 @@ const PurchasedServices = () => {
         } else if (order.status === 'confirmed') {
           progress = 25;
         } else if (order.status === 'pending') {
-          progress = 0;
+          progress = 10;
         }
 
         // Get latest milestone
         const latestMilestone = order.timeline?.[order.timeline.length - 1];
+
+        // Extract package info
+        const selectedPackage = item.selectedPackage || {};
+        const deliveryDays = selectedPackage.deliveryTime || null;
+        const revisions = selectedPackage.revisions;
+        const packageName = selectedPackage.name || 'standard';
+        const packageFeatures = selectedPackage.features || [];
+
+        // Calculate estimated delivery date
+        let estimatedDelivery = order.estimatedDelivery;
+        if (!estimatedDelivery && deliveryDays && order.createdAt) {
+          const orderDate = new Date(order.createdAt);
+          estimatedDelivery = new Date(orderDate.getTime() + deliveryDays * 24 * 60 * 60 * 1000);
+        }
 
         services.push({
           id: order._id,
@@ -55,20 +75,24 @@ const PurchasedServices = () => {
           status: order.status === 'in_progress' ? 'active' : order.status,
           progress,
           nextMilestone: latestMilestone?.message || 'Order placed',
-          dueDate: order.estimatedDelivery
-            ? new Date(order.estimatedDelivery).toLocaleDateString('en-US', {
+          dueDate: estimatedDelivery
+            ? new Date(estimatedDelivery).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric'
               })
             : 'TBD',
+          deliveryDays,
+          revisions: revisions === -1 ? 'Unlimited' : (revisions !== undefined ? `${revisions}` : null),
+          packageName,
+          packageFeatures,
           manager: 'Dev Kant Kumar',
           price: new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: order.payment?.amount?.currency || 'INR',
             minimumFractionDigits: 0,
           }).format(item.price || 0),
-          description: item.description || `${item.title} - Professional service`,
+          description: item.description || selectedPackage.description || `${item.title} - Professional service`,
           createdAt: order.createdAt,
         });
       });
@@ -86,6 +110,10 @@ const PurchasedServices = () => {
 
   const getStatusStyles = (status) => {
     return STATUS_STYLES[status] || STATUS_STYLES.pending;
+  };
+
+  const getPackageStyles = (packageName) => {
+    return PACKAGE_COLORS[packageName?.toLowerCase()] || PACKAGE_COLORS.standard;
   };
 
   if (isLoading) {
@@ -172,12 +200,18 @@ const PurchasedServices = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* Service Info */}
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3 flex-wrap">
                         <h3 className="text-lg font-bold text-gray-900">{service.name}</h3>
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide border ${getStatusStyles(service.status)}`}>
                           {service.status.replace('_', ' ')}
                         </span>
+                        {service.packageName && (
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium capitalize border ${getPackageStyles(service.packageName)}`}>
+                            <Sparkles className="inline h-3 w-3 mr-1" />
+                            {service.packageName}
+                          </span>
+                        )}
                       </div>
                       <button className="text-gray-400 hover:text-gray-600">
                         <MoreVertical className="h-5 w-5" />
@@ -186,16 +220,56 @@ const PurchasedServices = () => {
 
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
+                    {/* Package Details Row */}
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
                       <div className="flex items-center gap-1.5">
                         <Shield className="h-4 w-4 text-gray-400" />
                         <span>Order: <span className="font-medium text-gray-900">{service.orderNumber}</span></span>
                       </div>
+                      {service.deliveryDays && (
+                        <>
+                          <div className="w-1 h-1 rounded-full bg-gray-300" />
+                          <div className="flex items-center gap-1.5">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <span><span className="font-medium text-gray-900">{service.deliveryDays}</span> day delivery</span>
+                          </div>
+                        </>
+                      )}
+                      {service.revisions && (
+                        <>
+                          <div className="w-1 h-1 rounded-full bg-gray-300" />
+                          <div className="flex items-center gap-1.5">
+                            <RotateCcw className="h-4 w-4 text-gray-400" />
+                            <span><span className="font-medium text-gray-900">{service.revisions}</span> revisions</span>
+                          </div>
+                        </>
+                      )}
                       <div className="w-1 h-1 rounded-full bg-gray-300" />
-                      <div>Manager: <span className="font-medium text-gray-900">{service.manager}</span></div>
-                      <div className="w-1 h-1 rounded-full bg-gray-300" />
-                      <div>Due: <span className="font-medium text-gray-900">{service.dueDate}</span></div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4 text-gray-400" />
+                        <span>Due: <span className="font-medium text-gray-900">{service.dueDate}</span></span>
+                      </div>
                     </div>
+
+                    {/* Package Features */}
+                    {service.packageFeatures && service.packageFeatures.length > 0 && (
+                      <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-100">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Package Includes</p>
+                        <div className="flex flex-wrap gap-2">
+                          {service.packageFeatures.slice(0, 4).map((feature, idx) => (
+                            <span key={idx} className="inline-flex items-center text-xs text-gray-700 bg-white px-2 py-1 rounded border border-gray-200">
+                              <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                              {feature}
+                            </span>
+                          ))}
+                          {service.packageFeatures.length > 4 && (
+                            <span className="text-xs text-gray-500 px-2 py-1">
+                              +{service.packageFeatures.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Progress Section */}
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">

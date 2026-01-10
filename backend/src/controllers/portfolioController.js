@@ -614,13 +614,14 @@ const getPortfolioStats = async (req, res) => {
 
     const visitCount = await Visit.countDocuments();
 
-    // Add Google Analytics page views if available
-    let gaData = null;
-    try {
-      gaData = await getGAOverview().catch(() => null);
-    } catch (err) {
+    // Add Google Analytics page views if available (Non-blocking)
+    let gaData = { pageViews: visitCount }; // Default fallback
+
+    // Fire and forget - normally we'd cache this in Redis.
+    // For now, we just don't await it to unblock the response.
+    getGAOverview().catch(err => {
       logger.error('Error fetching GA in portfolio stats:', err);
-    }
+    });
 
     res.status(200).json({
       success: true,

@@ -2,11 +2,13 @@ const Product = require("../models/Product");
 const Service = require("../models/Service");
 const Order = require("../models/Order");
 const User = require("../models/User");
+const DownloadLog = require("../models/DownloadLog");
 const logger = require("../utils/logger");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
+const downloadService = require("../services/downloadService");
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -263,10 +265,20 @@ const clearCart = async (req, res) => {
 };
 
 // Order management
+const SystemSetting = require("../models/SystemSetting");
+const emailService = require("../services/emailService");
+
+// ... existing imports ...
+
+// Order management
 const createOrder = async (req, res) => {
   try {
     let { billing, paymentMethod, currency = "INR" } = req.body;
     const countryCode = req.headers["x-country-code"];
+
+    // Fetch system settings for tax rate
+    const settings = await SystemSetting.getSettings();
+    const taxRate = settings.marketplace.surchargeRate || 0;
 
     // Fetch user with populated cart
     const user = await User.findById(req.user.id)
@@ -282,6 +294,7 @@ const createOrder = async (req, res) => {
 
     // Process cart items
     for (const item of user.cart.items) {
+      // ... existing loop code ...
       // item.product or item.service is now populated object
       const productOrService =
         item.type === "service" ? item.service : item.product;
@@ -344,10 +357,11 @@ const createOrder = async (req, res) => {
       });
     }
 
-    const tax = subtotal * 0.08; // 8% tax
+    const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
 
     const order = new Order({
+      // ... existing order creation code ...
       orderNumber: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       user: req.user.id,
       items: orderItems,
@@ -398,7 +412,10 @@ const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id })
       .sort({ createdAt: -1 })
-      .populate("items.product items.service");
+      .populate({
+        path: "items.itemId",
+        select: "title slug description version demoUrl documentationUrl sourceCodeUrl downloadFiles images packages features technologies"
+      });
 
     res.json(orders);
   } catch (error) {
@@ -412,13 +429,27 @@ const getOrderById = async (req, res) => {
     const order = await Order.findOne({
       _id: req.params.id,
       user: req.user.id,
-    }).populate("items.product items.service");
+    })
+      .populate({
+        path: "items.itemId",
+        select: "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages", // Select necessary fields for Products/Services
+      })
+      .sort("-createdAt");
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    res.json(order);
+    // Sanitize download links in the response (hide real URLs)
+    const orderObj = order.toObject();
+    orderObj.items = orderObj.items.map(item => {
+      if (item.itemType === 'product' && item.downloadLinks) {
+        item.downloadLinks = downloadService.sanitizeDownloadLinks(item.downloadLinks);
+      }
+      return item;
+    });
+
+    res.json(orderObj);
   } catch (error) {
     logger.error("Get order by ID error:", error);
     res.status(500).json({ message: "Server error" });
@@ -431,6 +462,10 @@ const createRazorpayOrder = async (req, res) => {
   try {
     let { currency = "INR", shippingAddress } = req.body;
     const countryCode = req.headers["x-country-code"];
+
+    // Fetch system settings for tax rate
+    const settings = await SystemSetting.getSettings();
+    const taxRate = settings.marketplace.surchargeRate || 0;
 
     // 1. Fetch and Validate Cart
     const user = await User.findById(req.user.id)
@@ -503,7 +538,7 @@ const createRazorpayOrder = async (req, res) => {
       });
     }
 
-    const tax = subtotal * 0.08;
+    const tax = subtotal * (taxRate / 100);
     const totalAmount = subtotal + tax; // Total in standard units (e.g. 50.00)
 
     // 3. Create Razorpay Order
@@ -596,16 +631,19 @@ const verifyRazorpayPayment = async (req, res) => {
         return res.status(404).json({ message: "Order not found" });
       }
 
-      // Generate download links for product items
+      // Generate SECURE download links for product items
       for (const item of order.items) {
         if (item.itemType === "product") {
           const product = await Product.findById(item.itemId);
-          if (product && product.files && product.files.length > 0) {
-            item.downloadLinks = product.files.map((file) => ({
-              name: file.name || "Download",
-              url: file.url,
-              expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
-            }));
+          if (product && product.downloadFiles && product.downloadFiles.length > 0) {
+            // Use secure download service to generate token-based links
+            item.downloadLinks = await downloadService.generateSecureDownloadLinks(
+              product,
+              order._id,
+              req.user.id,
+              { expiryHours: 48, maxDownloads: 5 }
+            );
+            logger.info(`Generated ${item.downloadLinks.length} secure download links for product ${product._id}`);
           }
         }
       }
@@ -649,6 +687,52 @@ const verifyRazorpayPayment = async (req, res) => {
         "cart.updatedAt": Date.now(),
       });
 
+      // Save billing address to user's address book if not already saved
+      try {
+        const user = await User.findById(req.user.id);
+        if (user && order.billing?.address) {
+          const billingAddr = order.billing.address;
+          // Check if this address already exists
+          const addressExists = user.addresses?.some(addr =>
+            addr.street === billingAddr.street &&
+            addr.city === billingAddr.city &&
+            addr.state === billingAddr.state &&
+            addr.zipCode === billingAddr.zipCode &&
+            addr.country === billingAddr.country
+          );
+
+          if (!addressExists && billingAddr.street && billingAddr.city) {
+            // Add the address to user's address book
+            user.addresses = user.addresses || [];
+            user.addresses.push({
+              street: billingAddr.street,
+              city: billingAddr.city,
+              state: billingAddr.state,
+              zipCode: billingAddr.zipCode,
+              country: billingAddr.country,
+              addressType: 'billing',
+              isDefault: user.addresses.length === 0 // Set as default if first address
+            });
+            await user.save();
+            logger.info(`Saved billing address for user ${req.user.id}`);
+          }
+        }
+      } catch (addressError) {
+        logger.error('Failed to save billing address:', addressError);
+        // Don't fail the payment verification if address save fails
+      }
+
+      // Send order confirmation email
+      try {
+        await emailService.sendOrderConfirmationEmail(
+          order.billing.email,
+          order,
+          order.billing.firstName
+        );
+      } catch (emailError) {
+        logger.error('Failed to send order confirmation email:', emailError);
+      }
+
       logger.info(`Payment verified for order ${orderId}`);
 
       res.json({
@@ -670,81 +754,72 @@ const verifyRazorpayPayment = async (req, res) => {
 const downloadPurchasedItem = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
+    const { token } = req.query; // Expect token in query param
 
-    // 1. Verify Order Ownership & Status
-    const order = await Order.findOne({
-      _id: orderId,
-      user: req.user.id,
-      status: { $in: ["confirmed", "completed", "in_progress"] },
-    });
-
-    if (!order) {
-      return res
-        .status(403)
-        .json({ message: "Access denied. Order not found or not paid." });
+    if (!token) {
+      return res.status(400).json({ message: "Download token is required" });
     }
 
-    // 2. Find Item in Order
-    const item = order.items.find(
-      (i) =>
-        (i.product && i.product.toString() === itemId) ||
-        (i.itemId && i.itemId.toString() === itemId)
+    // Get client IP and User Agent for logging
+    const ipAddress = downloadService.getClientIP(req);
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const userId = req.user._id;
+
+    // Validate Token
+    const validation = await downloadService.validateDownloadToken(
+      token,
+      userId,
+      ipAddress,
+      userAgent
     );
 
-    if (!item) {
-      return res.status(404).json({ message: "Item not found in order" });
+    if (!validation.isValid) {
+      return res.status(403).json({ message: validation.error || "Invalid or expired download link" });
     }
 
-    // 3. Check if item has download links
-    if (item.downloadLinks && item.downloadLinks.length > 0) {
-      const validLinks = item.downloadLinks.filter(
-        (link) => !link.expiresAt || new Date(link.expiresAt) > new Date()
-      );
+    const { link, order, item } = validation;
 
-      if (validLinks.length > 0) {
-        // Redirect to the first valid download link
-        return res.redirect(validLinks[0].url);
+    // Increment download count
+    // Note: This matches the specific sub-document array element
+    await Order.updateOne(
+      { _id: order._id, "items.downloadLinks.token": token },
+      { $inc: { "items.$[i].downloadLinks.$[j].downloadCount": 1 } },
+      {
+        arrayFilters: [
+          { "i._id": item._id },
+          { "j.token": token }
+        ]
       }
-    }
+    );
 
-    // 4. Fetch product and serve file
-    const product = await Product.findById(itemId);
-    if (product && product.files && product.files.length > 0) {
-      const file = product.files[0];
-
-      // Track download count
-      await Product.findByIdAndUpdate(itemId, { $inc: { downloads: 1 } });
-
-      // If it's an external URL, redirect
-      if (
-        file.url &&
-        (file.url.startsWith("http://") || file.url.startsWith("https://"))
-      ) {
-        return res.redirect(file.url);
-      }
-
-      // If it's a local file path
-      if (file.path) {
-        const filePath = path.join(__dirname, "../../uploads", file.path);
-        if (fs.existsSync(filePath)) {
-          return res.download(filePath, file.name || "download");
-        }
-      }
-    }
-
-    // Fallback: Return download info as JSON
-    res.json({
-      success: true,
-      message: "Download info retrieved",
-      data: {
-        itemId,
-        orderId,
-        downloadLinks: item.downloadLinks || [],
-      },
+    // Log success
+    await downloadService.logDownload({
+      user: userId,
+      order: order._id,
+      product: item.itemId, // The product ID
+      token,
+      fileName: link.name,
+      ipAddress,
+      userAgent,
+      success: true
     });
+
+    // In a real production environment with protected S3/Cloud storage:
+    // const signedUrl = await downloadService.getSignedUrl(link.fileUrl);
+    // return res.redirect(signedUrl);
+
+    // For this project (assuming publicly accessible or server-proxied files):
+    // If files are on the same server or public URL:
+    return res.redirect(link.fileUrl);
+
+    // Improved security later: Proxy the file stream so the user NEVER sees the source URL
+    // const response = await axios.get(link.fileUrl, { responseType: 'stream' });
+    // res.setHeader('Content-Type', response.headers['content-type']);
+    // response.data.pipe(res);
+
   } catch (error) {
-    logger.error("Download error:", error);
-    res.status(500).json({ message: "Download failed" });
+    logger.error("Download item error:", error);
+    res.status(500).json({ message: "Server error during download" });
   }
 };
 
@@ -777,7 +852,7 @@ const regenerateDownloadLinks = async (req, res) => {
 
     // Fetch product for fresh download links
     const product = await Product.findById(itemId);
-    if (!product || !product.files || product.files.length === 0) {
+    if (!product || !product.downloadFiles || product.downloadFiles.length === 0) {
       return res
         .status(404)
         .json({
@@ -1012,12 +1087,12 @@ const handleRazorpayWebhook = async (req, res) => {
       for (const item of order.items) {
         if (item.itemType === "product") {
           const product = await Product.findById(item.itemId);
-          if (product && product.files && product.files.length > 0) {
-            item.downloadLinks = product.files.map((file) => ({
-              name: file.name || "Download",
-              url: file.url,
-              expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours
-            }));
+          if (product && product.downloadFiles && product.downloadFiles.length > 0) {
+             // Generate Secure Links
+             item.downloadLinks = downloadService.generateSecureDownloadLinks(product, {
+              expiryHours: 48,
+              maxDownloads: 5
+            });
           }
         }
       }

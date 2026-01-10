@@ -1,25 +1,30 @@
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import {
-  FaArrowRight,
-  FaBolt,
-  FaCalendarAlt,
-  FaCheckCircle,
-  FaChevronDown,
-  FaChevronUp,
-  FaCloud,
-  FaCode,
-  FaCogs,
-  FaDatabase,
-  FaGlobe,
-  FaHandshake,
-  FaMobileAlt,
-  FaQuoteLeft,
-  FaRocket,
-  FaShieldAlt,
-  FaStar,
-  FaUsers
+    FaArrowRight,
+    FaBolt,
+    FaCalendarAlt,
+    FaCheckCircle,
+    FaChevronDown,
+    FaChevronUp,
+    FaCloud,
+    FaCode,
+    FaCogs,
+    FaDatabase,
+    FaGlobe,
+    FaHandshake,
+    FaMobileAlt,
+    FaQuoteLeft,
+    FaRocket,
+    FaShieldAlt,
+    FaStar,
+    FaUsers,
+    FaEnvelope
 } from 'react-icons/fa';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const CustomSolutions = () => {
   const [formData, setFormData] = useState({
@@ -33,6 +38,9 @@ const CustomSolutions = () => {
     features: []
   });
   const [openFaq, setOpenFaq] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const projectTypes = [
     { id: 'web-app', name: 'Web Application', icon: FaGlobe },
@@ -124,6 +132,10 @@ const CustomSolutions = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleFeatureToggle = (feature) => {
@@ -135,10 +147,80 @@ const CustomSolutions = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+
+    if (!formData.projectType) {
+      newErrors.projectType = 'Please select a project type';
+    }
+
+    if (!formData.budget) {
+      newErrors.budget = 'Please select a budget range';
+    }
+
+    if (!formData.timeline) {
+      newErrors.timeline = 'Please select a timeline';
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Project description is required';
+    } else if (formData.description.trim().length < 20) {
+      newErrors.description = 'Please provide at least 20 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+
+    if (!validateForm()) {
+      toast.error('Please fill all required fields correctly');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await axios.post(`${API_BASE}/api/v1/marketplace/quote-request`, formData);
+
+      if (response.data.status === 'success') {
+        setShowSuccess(true);
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          company: '',
+          projectType: '',
+          budget: '',
+          timeline: '',
+          description: '',
+          features: []
+        });
+        toast.success('Quote request submitted successfully!');
+      }
+    } catch (error) {
+      console.error('Quote submission error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to submit quote request. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeSuccessModal = () => {
+    setShowSuccess(false);
   };
 
   return (
@@ -464,10 +546,10 @@ const CustomSolutions = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  required
                   placeholder="John Doe"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? 'border-red-500' : 'border-gray-200'}`}
                 />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -478,10 +560,10 @@ const CustomSolutions = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  required
                   placeholder="john@company.com"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-200'}`}
                 />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
             </div>
 
@@ -507,14 +589,14 @@ const CustomSolutions = () => {
                 name="projectType"
                 value={formData.projectType}
                 onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.projectType ? 'border-red-500' : 'border-gray-200'}`}
               >
                 <option value="">Select project type</option>
                 {projectTypes.map(type => (
                   <option key={type.id} value={type.id}>{type.name}</option>
                 ))}
               </select>
+              {errors.projectType && <p className="text-red-500 text-sm mt-1">{errors.projectType}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -526,14 +608,14 @@ const CustomSolutions = () => {
                   name="budget"
                   value={formData.budget}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.budget ? 'border-red-500' : 'border-gray-200'}`}
                 >
                   <option value="">Select budget range</option>
                   {budgetRanges.map(range => (
                     <option key={range.id} value={range.value}>{range.label}</option>
                   ))}
                 </select>
+                {errors.budget && <p className="text-red-500 text-sm mt-1">{errors.budget}</p>}
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -543,14 +625,14 @@ const CustomSolutions = () => {
                   name="timeline"
                   value={formData.timeline}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.timeline ? 'border-red-500' : 'border-gray-200'}`}
                 >
                   <option value="">Select timeline</option>
                   {timelineOptions.map(option => (
                     <option key={option.id} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+                {errors.timeline && <p className="text-red-500 text-sm mt-1">{errors.timeline}</p>}
               </div>
             </div>
 
@@ -560,7 +642,7 @@ const CustomSolutions = () => {
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {features.map(feature => (
-                  <label key={feature} className="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                  <label key={feature} className={`flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${formData.features.includes(feature) ? 'border-blue-500 bg-blue-50' : 'border-gray-100'}`}>
                     <input
                       type="checkbox"
                       checked={formData.features.includes(feature)}
@@ -581,23 +663,80 @@ const CustomSolutions = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                required
                 rows={6}
                 placeholder="Please describe your project requirements, goals, and any specific features you need..."
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.description ? 'border-red-500' : 'border-gray-200'}`}
               />
+              {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+              <p className="text-gray-400 text-sm mt-1">{formData.description.length}/5000 characters</p>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-0.5 flex items-center justify-center"
+              disabled={isSubmitting}
+              className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all shadow-lg transform flex items-center justify-center ${
+                isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5'
+              }`}
             >
-              Get Custom Quote
-              <FaArrowRight className="ml-2" />
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  Get Custom Quote
+                  <FaArrowRight className="ml-2" />
+                </>
+              )}
             </button>
           </motion.form>
         </div>
       </section>
+
+      {/* Success Modal */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={closeSuccessModal}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FaCheckCircle className="text-green-500 text-4xl" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Quote Request Submitted!</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                Thank you for your interest! Our team will review your project requirements and get back to you within 24 hours with a detailed proposal.
+              </p>
+              <div className="flex items-center justify-center text-sm text-gray-500 mb-6">
+                <FaEnvelope className="mr-2" />
+                <span>Check your email for confirmation</span>
+              </div>
+              <button
+                onClick={closeSuccessModal}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+              >
+                Got it, thanks!
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

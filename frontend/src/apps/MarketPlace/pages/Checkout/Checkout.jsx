@@ -4,14 +4,16 @@ import {
   ChevronRight,
   Mail,
   MapPin,
+  Package,
   Phone,
   Shield,
-  User,
+  User
 } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import PriceDisplay from "../../../../components/common/PriceDisplay";
 import {
   runValidation,
   sanitize,
@@ -65,50 +67,49 @@ const Checkout = () => {
   // Determine which cart items to use
   const cartItems = isAuthenticated ? (cartData?.cart?.items || []) : localCartItems;
 
-  // We ignore selectCartTotal as it is in base currency. We recalculate for the selected currency.
-  const { getPrice, formatPrice, currency: currentCurrency, countryCode: detectedCountryCode } = useCurrency();
+  // We ignore selectCartTotal as it is in base currency. We recalculate.
+  const { getFinalPrice, currency: currentCurrency, surchargeRate, countryCode: detectedCountryCode } = useCurrency();
 
   const getCartItemPrice = (item) => {
       const displayItem = item.product || item.service;
-      if (!displayItem) return { amount: 0, currency: currentCurrency };
+      if (!displayItem) return 0;
+
+      let basePrice = 0;
 
       if (item.type === 'service') {
            if (item.package && displayItem.packages) {
                 const pkg = displayItem.packages.find(p => p.name === item.package);
-                if (pkg) return getPrice(pkg);
+                if (pkg) basePrice = pkg.price;
+           } else {
+               // Fallback
+               basePrice = displayItem.startingPrice || 0;
            }
-           // Fallback: Use startingPrice if package not found
-           return getPrice({ ...displayItem, price: displayItem.startingPrice || 0 });
+      } else {
+          basePrice = displayItem.price;
       }
-      return getPrice(displayItem);
+      return basePrice;
   };
 
-  // Calculate totals with regional pricing and determine consistent currency
+  // Calculate totals
   const calculateTotals = () => {
-    let total = 0;
-    // Default to first item's currency or currentCurrency if empty
-    let usedCurrency = currentCurrency;
-    let currencySet = false;
-
+    let subtotal = 0;
     cartItems.forEach((item) => {
-      const displayItem = item.product || item.service;
-      if (displayItem) {
-          const { amount, currency } = getCartItemPrice(item);
-          total += amount * item.quantity;
-
-          // Capture the currency from the first valid item to ensure consistency
-          if (!currencySet && amount > 0) {
-              usedCurrency = currency;
-              currencySet = true;
-          }
-      }
+      const price = getCartItemPrice(item);
+      subtotal += price * item.quantity;
     });
-    return { total, currency: usedCurrency };
+
+    // Apply surcharge using the helper from context which handles the math
+    const total = getFinalPrice(subtotal);
+
+    // Surcharge Amount for display
+    const surchargeAmount = total - subtotal;
+
+    return { subtotal, surchargeAmount, total };
   };
 
-  const { total: subtotal, currency: summaryCurrency } = calculateTotals();
-  const tax = subtotal * 0.08; // Assuming 8% tax
-  const total = subtotal + tax;
+  const { subtotal, surchargeAmount, total } = calculateTotals();
+  // Legacy mappings for existing code
+  const summaryCurrency = 'INR';
   const user = useSelector(selectCurrentUser);
   const token = useSelector(selectCurrentToken);
   const { step, billingInfo, errors, isSubmitting } =
@@ -596,7 +597,7 @@ const Checkout = () => {
                 {step === 2 && (
                   <button
                     onClick={() => dispatch(setStep(1))}
-                    className="px-6 py-3 border border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="px-6 py-3 border border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     Back
                   </button>
@@ -604,7 +605,7 @@ const Checkout = () => {
                 <button
                   onClick={handleNextStep}
                   disabled={isSubmitting}
-                  className={`ml-auto px-8 py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center ${
+                  className={`ml-auto px-8 py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center cursor-pointer ${
                     isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
@@ -628,16 +629,25 @@ const Checkout = () => {
               <div className="space-y-4 mb-6 max-h-60 overflow-y-auto">
                 {cartItems.map((item) => (
                   <div key={item._id || item.id} className="flex space-x-4">
-                    <img
-                      src={
-                        item.product?.images?.[0]?.url ||
-                        item.service?.image ||
-                        item.image ||
-                        "https://via.placeholder.com/150"
+                    {(() => {
+                      const imageUrl = item.product?.images?.[0]?.url || item.service?.image || item.image;
+
+                      if (imageUrl) {
+                        return (
+                          <img
+                            src={imageUrl}
+                            alt={item.title}
+                            className="w-16 h-16 object-cover rounded-md"
+                          />
+                        );
                       }
-                      alt={item.title}
-                      className="w-16 h-16 object-cover rounded-md"
-                    />
+
+                      return (
+                        <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center shrink-0">
+                          <Package className="w-8 h-8 text-gray-400" />
+                        </div>
+                      );
+                    })()}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium text-gray-900 line-clamp-2">
@@ -663,9 +673,8 @@ const Checkout = () => {
                         <span className="font-bold text-gray-900">
                           {(() => {
                             const priceData = getCartItemPrice(item);
-                            return formatPrice(
-                              priceData.amount * item.quantity,
-                              priceData.currency
+                            return (
+                                <PriceDisplay price={priceData * item.quantity} className="text-right" textClass="text-gray-900" />
                             );
                           })()}
                         </span>
@@ -676,18 +685,45 @@ const Checkout = () => {
               </div>
 
               <div className="border-t border-gray-100 pt-4 space-y-3">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>{formatPrice(subtotal, summaryCurrency)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Tax (8%)</span>
-                  <span>{formatPrice(tax, summaryCurrency)}</span>
-                </div>
-                <div className="flex justify-between font-bold text-gray-900 text-lg">
-                  <span>Total</span>
-                  <span>{formatPrice(total, summaryCurrency)}</span>
-                </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Subtotal
+                    </span>
+                    <span className="font-medium text-gray-900">
+                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Surcharge ({surchargeRate}%)
+                    </span>
+                    <span className="font-medium text-gray-900">
+                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(surchargeAmount)}
+                    </span>
+                  </div>
+                  <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-base font-semibold text-gray-900 dark:text-white">
+                        Total
+                      </span>
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">
+                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total)}
+                      </span>
+                    </div>
+                    {currentCurrency !== 'INR' && (
+                        <p className="text-xs text-right text-gray-500 mb-2">
+                             (~{new Intl.NumberFormat('en-US', { style: 'currency', currency: currentCurrency }).format(total * 0.012 /* Rough estimate or need converter exposed */)})
+                        </p>
+                    )}
+                    {
+                      currentCurrency !== "INR" && (
+                        <p className="text-xs text-gray-400 text-center bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                        <strong>Note:</strong> You will be charged in <strong>INR</strong>. Your bank handles the currency conversion.
+                    </p>
+                      )
+                    }
+
+                  </div>
               </div>
             </div>
           </div>

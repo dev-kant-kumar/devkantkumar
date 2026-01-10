@@ -1,20 +1,21 @@
 import { motion } from 'framer-motion';
 import {
-    CheckCircle,
-    CreditCard,
-    Download,
-    Filter,
-    Flame,
-    Mail,
-    Rocket,
-    Search,
-    ShoppingCart,
-    Star
+  CheckCircle,
+  CreditCard,
+  Download,
+  Filter,
+  Flame,
+  Mail,
+  Rocket,
+  Search,
+  ShoppingCart,
+  Star,
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import PriceDisplay from '../../../../components/common/PriceDisplay';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
@@ -28,11 +29,19 @@ const DigitalProducts = ({ category: propCategory }) => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
-  const [searchTerm, setSearchTerm] = useState('');
+
   const [selectedCategory, setSelectedCategory] = useState(propCategory || 'all');
   const [priceRange, setPriceRange] = useState('all');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [email, setEmail] = useState('');
+  const [email,setEmail]=useState('');
+  /*
+     Use search params to sync URL with search state.
+     This allows external links (like from header) to drive the search.
+  */
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
 
   // Debounce search
   React.useEffect(() => {
@@ -41,6 +50,14 @@ const DigitalProducts = ({ category: propCategory }) => {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  // Update searchTerm if URL changes (e.g. back button or fresh navigation)
+  React.useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    if (urlSearch !== searchTerm) {
+       setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
 
   // Build query params
   const queryParams = useMemo(() => {
@@ -343,9 +360,6 @@ const DigitalProducts = ({ category: propCategory }) => {
             {!isLoading && !error && (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {products.map((product, index) => {
-                  const priceData = getPrice(product);
-                  const originalPriceData = getPrice({ ...product, price: product.originalPrice, regionalPricing: [] });
-
                   return (
                   <motion.div
                     key={product._id}
@@ -415,16 +429,13 @@ const DigitalProducts = ({ category: propCategory }) => {
                             {product.price === 0 ? (
                               <div className="text-2xl font-bold text-green-600">Free</div>
                             ) : (
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-extrabold text-gray-900">
-                                  {formatPrice(priceData.amount, priceData.currency)}
-                                </span>
-                                {product.originalPrice > product.price && (
-                                  <span className="text-sm text-gray-400 line-through">
-                                    {formatPrice(originalPriceData.amount, originalPriceData.currency)}
-                                  </span>
-                                )}
-                              </div>
+                                <PriceDisplay
+                                    price={product.price}
+                                    originalPrice={product.originalPrice}
+                                    showOriginal={product.originalPrice > product.price}
+                                    className="text-2xl mb-1"
+                                    textClass="text-gray-900"
+                                />
                             )}
                           </div>
                           {product.originalPrice > product.price && product.price > 0 && (

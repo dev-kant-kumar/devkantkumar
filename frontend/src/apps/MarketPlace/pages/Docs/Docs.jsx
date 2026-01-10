@@ -28,24 +28,26 @@ const Docs = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Documentation</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+              Documentation
+            </h1>
+            <p className="text-xl text-white/80 max-w-3xl mx-auto mb-8">
               Everything you need to build amazing products with our tools and services.
             </p>
 
-            <div className="max-w-xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <div className="max-w-2xl mx-auto relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
               <input
                 type="text"
                 placeholder="Search documentation..."
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                className="w-full pl-12 pr-4 py-4 bg-white border-2 border-white/20 rounded-xl focus:ring-4 focus:ring-white/30 focus:border-white text-lg text-gray-900 shadow-xl placeholder-gray-500"
               />
             </div>
           </motion.div>
@@ -61,7 +63,7 @@ const Docs = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border border-gray-100"
             >
               <div className="flex items-center space-x-3 mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -72,8 +74,8 @@ const Docs = () => {
               <ul className="space-y-2">
                 {category.links.map((link) => (
                   <li key={link}>
-                    <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center">
-                      <span className="w-1.5 h-1.5 bg-gray-300 rounded-full mr-2"></span>
+                    <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center group">
+                      <span className="w-1.5 h-1.5 bg-gray-300 rounded-full mr-2 group-hover:bg-blue-600 transition-colors"></span>
                       {link}
                     </a>
                   </li>

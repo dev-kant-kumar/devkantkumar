@@ -589,6 +589,87 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    // Quote Requests
+    getAdminQuotes: builder.query({
+      query: (params) => ({
+        url: '/admin/marketplace/quotes',
+        params,
+      }),
+      providesTags: ['Quote'],
+    }),
+
+    getAdminQuoteById: builder.query({
+      query: (id) => `/admin/marketplace/quotes/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Quote', id }],
+    }),
+
+    getQuoteStats: builder.query({
+      query: () => '/admin/marketplace/quotes/stats',
+      providesTags: ['Quote'],
+    }),
+
+    updateAdminQuote: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/marketplace/quotes/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Quote'],
+    }),
+
+    deleteAdminQuote: builder.mutation({
+      query: (id) => ({
+        url: `/admin/marketplace/quotes/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Quote'],
+    }),
+
+    // Support Tickets
+    getSupportTickets: builder.query({
+      query: (params) => ({
+        url: '/admin/support/tickets',
+        params,
+      }),
+      providesTags: ['SupportTicket'],
+    }),
+
+    getSupportTicketById: builder.query({
+      query: (id) => `/admin/support/tickets/${id}`,
+      providesTags: (result, error, id) => [{ type: 'SupportTicket', id }],
+    }),
+
+    updateSupportTicket: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/support/tickets/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => ['SupportTicket', { type: 'SupportTicket', id }],
+    }),
+
+    respondToSupportTicket: builder.mutation({
+      query: ({ id, message }) => ({
+        url: `/admin/support/tickets/${id}/respond`,
+        method: 'POST',
+        body: { message },
+      }),
+      invalidatesTags: (result, error, { id }) => ['SupportTicket', { type: 'SupportTicket', id }],
+    }),
+
+    deleteSupportTicket: builder.mutation({
+      query: (id) => ({
+        url: `/admin/support/tickets/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['SupportTicket'],
+    }),
+
+    getSupportStats: builder.query({
+      query: () => '/admin/support/stats',
+      providesTags: ['SupportTicket'],
+    }),
   }),
 });
 
@@ -687,4 +768,19 @@ export const {
   useGetMarketplaceStatsQuery,
   useGetCustomersQuery,
   useGetCustomerByIdQuery,
+
+  // Quote Requests
+  useGetAdminQuotesQuery,
+  useGetAdminQuoteByIdQuery,
+  useGetQuoteStatsQuery,
+  useUpdateAdminQuoteMutation,
+  useDeleteAdminQuoteMutation,
+
+  // Support Tickets
+  useGetSupportTicketsQuery,
+  useGetSupportTicketByIdQuery,
+  useUpdateSupportTicketMutation,
+  useRespondToSupportTicketMutation,
+  useDeleteSupportTicketMutation,
+  useGetSupportStatsQuery,
 } = adminApiSlice;

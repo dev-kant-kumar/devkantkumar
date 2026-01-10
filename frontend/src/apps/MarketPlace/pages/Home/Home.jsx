@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion';
 import {
-    ArrowRight,
-    CheckCircle,
-    Clock,
-    Layers,
-    Loader2,
-    Star,
-    Users
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Layers,
+  Loader2,
+  Star,
+  Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PriceDisplay from '../../../../components/common/PriceDisplay';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
@@ -207,9 +208,11 @@ const Home = () => {
                     <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
                       <div>
                         <p className="text-xs text-gray-500 font-medium uppercase">Starting at</p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          ${(service.packages?.[0]?.price || service.startingPrice || 0).toLocaleString()}
-                        </p>
+                        <PriceDisplay
+                          price={service.packages?.[0]?.price || service.startingPrice || 0}
+                          className="text-2xl"
+                          textClass="text-gray-900"
+                        />
                       </div>
                       <Link
                         to={`/marketplace/services/${service._id}`}
@@ -300,9 +303,11 @@ const Home = () => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-2xl font-bold text-gray-900">
-                          ${product.price || 0}
-                        </span>
+                        <PriceDisplay
+                          price={product.price || 0}
+                          className="text-2xl"
+                          textClass="text-gray-900"
+                        />
                         <span className="text-xs text-gray-500 block">
                           One-time payment
                         </span>

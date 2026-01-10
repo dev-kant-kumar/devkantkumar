@@ -1,33 +1,46 @@
 const mongoose = require('mongoose');
 
 const systemSettingSchema = new mongoose.Schema({
-  marketplace: {
-    currency: {
-      baseCurrency: {
-        type: String,
-        default: 'INR',
-        required: true
-      },
-      exchangeRates: [{
-        code: {
-          type: String,
-          required: true,
-          uppercase: true
-        },
-        name: String,
-        symbol: String,
-        rate: {
-          type: Number,
-          required: true,
-          default: 1
-        },
-        isActive: {
-          type: Boolean,
-          default: true
-        }
-      }]
+  currency: {
+    baseCurrency: {
+      type: String,
+      required: true,
+      default: 'INR',
+      uppercase: true,
+      trim: true
     },
-    taxRate: {
+    exchangeRates: [{
+      code: {
+        type: String,
+        required: true,
+        uppercase: true,
+        trim: true
+      },
+      rate: {
+        type: Number,
+        required: true,
+        min: 0
+      },
+      symbol: {
+        type: String,
+        required: true,
+        trim: true
+      },
+      isActive: {
+        type: Boolean,
+        default: true
+      }
+    }]
+  },
+  marketplace: {
+    // All prices stored in INR
+    baseCurrency: {
+      type: String,
+      default: 'INR',
+      immutable: true // Cannot be changed
+    },
+    // Surcharge rate applied to all prices (covers payment processing fees etc.)
+    surchargeRate: {
       type: Number,
       default: 18,
       min: 0,
@@ -109,14 +122,10 @@ systemSettingSchema.statics.getSettings = async function() {
   // Create defaults if not found
   return await this.create({
     marketplace: {
-      currency: {
-        baseCurrency: 'INR',
-        exchangeRates: [
-          { code: 'USD', name: 'US Dollar', symbol: '$', rate: 0.012, isActive: true },
-          { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.011, isActive: true },
-          { code: 'GBP', name: 'British Pound', symbol: '£', rate: 0.0094, isActive: true }
-        ]
-      }
+      baseCurrency: 'INR',
+      surchargeRate: 18,
+      enableProductSales: true,
+      enableServiceBooking: true
     }
   });
 };

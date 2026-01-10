@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { currencyService } from '../../../services/currencyService';
 import { useGetSettingsQuery } from '../../AdminPanel/store/api/adminApiSlice';
 
 const CurrencyContext = createContext();
@@ -7,32 +8,44 @@ const CurrencyContext = createContext();
 export const useCurrency = () => useContext(CurrencyContext);
 
 export const CurrencyProvider = ({ children }) => {
-    const { data: settingsData, isLoading: isLoadingSettings } = useGetSettingsQuery();
-    const [currency, setCurrency] = useState('INR');
+    // Always refetch settings on mount to ensure surcharge rate is synced with backend
+    // Also poll every 60 seconds to catch admin panel changes
+    const { data: settingsData, isLoading: isLoadingSettings } = useGetSettingsQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+        pollingInterval: 60000, // Refetch every 60 seconds
+    });
+    const [currency, setCurrency] = useState('INR'); // Only for display preference
     const [countryCode, setCountryCode] = useState('IN');
-    const [exchangeRates, setExchangeRates] = useState([]);
+    const [exchangeRates, setExchangeRates] = useState(null);
+    const [surchargeRate, setSurchargeRate] = useState(18); // Default 18%
     const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
-    // Initialize from settings
+    // Load Settings (Surcharge Rate)
     useEffect(() => {
-        if (settingsData?.data?.settings?.currency) {
-            setExchangeRates(settingsData.data.settings.currency.exchangeRates || []);
-            // Default to base currency initially if nothing saved
-            if (!localStorage.getItem('user_currency')) {
-                 setCurrency(settingsData.data.settings.currency.baseCurrency || 'INR');
-            }
+        // API returns: { status: 'success', data: { marketplace: { surchargeRate: X } } }
+        const marketplace = settingsData?.data?.marketplace;
+        if (marketplace) {
+            // "surchargeRate" or "taxRate" - handling both just in case, preferring new schema
+            const rate = marketplace.surchargeRate ?? marketplace.taxRate ?? 18;
+            console.log('[CurrencyContext] Loaded surcharge rate from settings:', rate);
+            setSurchargeRate(rate);
         }
     }, [settingsData]);
 
-    // Detect Location
+    // Load Exchange Rates (Cached or API)
+    useEffect(() => {
+        const loadRates = async () => {
+            const rates = await currencyService.getRates();
+            if (rates) setExchangeRates(rates);
+        };
+        loadRates();
+    }, []);
+
+    // Detect User Location (for default display currency)
     useEffect(() => {
         const detectLocation = async () => {
             const savedCurrency = localStorage.getItem('user_currency');
             const savedCountry = localStorage.getItem('user_country');
-
-            // Construct supported currencies list including base
-            const baseCurrency = settingsData?.data?.settings?.currency?.baseCurrency || 'INR';
-            const rates = settingsData?.data?.settings?.currency?.exchangeRates || [];
 
             if (savedCurrency && savedCountry) {
                 setCurrency(savedCurrency);
@@ -42,35 +55,37 @@ export const CurrencyProvider = ({ children }) => {
             }
 
             try {
-                const res = await axios.get('https://ipapi.co/json/');
-                const detectedCurrency = res.data.currency;
-                const detectedCountry = res.data.country_code; // e.g., 'IN', 'US'
+                // Determine user's country & currency with 1s timeout
+                // If it fails (CORS, block, timeout), we default to INR immediately
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1000);
+
+                const res = await axios.get('https://ipapi.co/json/', {
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                const detectedCountry = res.data.country_code || 'IN';
+                const detectedCurrency = res.data.currency || 'INR';
 
                 setCountryCode(detectedCountry);
-                localStorage.setItem('user_country', detectedCountry);
 
-                // If user hasn't manually set currency, use detected if supported
                 if (!savedCurrency) {
-                    const isSupported = detectedCurrency === baseCurrency || rates.some(r => r.code === detectedCurrency);
-
-                    const finalCurrency = isSupported ? detectedCurrency : baseCurrency;
-                    setCurrency(finalCurrency);
-                    localStorage.setItem('user_currency', finalCurrency);
+                    setCurrency(detectedCurrency);
+                     // Don't save auto-detected to localStorage so we can re-detect if they travel/VPN
+                     // unless they manually change it later.
                 }
             } catch (error) {
-                console.warn("Currency detection failed, using fallback", error);
-                // Fallback defaults
-                if (!savedCountry) setCountryCode('IN');
-                if (!savedCurrency) setCurrency(baseCurrency);
+                console.warn("Location detection failed/timed out, defaulting to INR/IN");
+                // Default fallback is already set (IN/INR)
             } finally {
                 setIsLoadingLocation(false);
             }
         };
 
-        if (settingsData) {
-            detectLocation();
-        }
-    }, [settingsData]);
+        detectLocation();
+    }, []);
 
     const changeCurrency = (code) => {
         setCurrency(code);
@@ -79,72 +94,105 @@ export const CurrencyProvider = ({ children }) => {
 
     const updateLocation = (newCountryCode, newCurrencyCode) => {
         setCountryCode(newCountryCode);
-        setCurrency(newCurrencyCode);
+        if (newCurrencyCode) changeCurrency(newCurrencyCode);
         localStorage.setItem('user_country', newCountryCode);
-        localStorage.setItem('user_currency', newCurrencyCode);
     };
 
-    // Helper to get the correct price object for a product/service
-    const getPrice = (item) => {
-        if (!item) return { amount: 0, currency: currency, symbol: '$' };
+    /**
+     * Calculates the Final Billing Price in INR.
+     * Applies the global surcharge/tax rate.
+     * @param {number} basePrice - The base price in INR
+     * @returns {number} Final price in INR
+     */
+    const getFinalPrice = (basePrice) => {
+        if (!basePrice || isNaN(basePrice)) return 0;
+        const multiplier = 1 + (surchargeRate / 100);
+        return Math.round(basePrice * multiplier);
+    };
 
-        // 1. Check for specific regional pricing match
-        if (item.regionalPricing && item.regionalPricing.length > 0) {
-            const regionPrice = item.regionalPricing.find(p => p.currency === currency);
-            if (regionPrice) {
-                const rateInfo = exchangeRates.find(r => r.code === currency);
-                return {
-                    amount: regionPrice.price,
+    /**
+     * Formats price for display.
+     * Returns object with final INR string and optional converted string.
+     * @param {number} basePrice
+     * @returns {{ finalInfo: string, convertedInfo: string|null }}
+     */
+    const getPriceDisplayInfo = (basePrice) => {
+        const finalInr = getFinalPrice(basePrice);
+
+        // Formatter for INR
+        const inrFormatter = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+
+        const finalInrString = inrFormatter.format(finalInr);
+
+        // If display currency is INR, no need for conversion
+        if (currency.toUpperCase() === 'INR') {
+            return {
+                final: finalInrString,
+                converted: null,
+                currency: 'INR'
+            };
+        }
+
+        // Calculate estimated conversion
+        let convertedString = null;
+        if (exchangeRates) {
+            const convertedAmount = currencyService.convertFromINR(finalInr, currency, exchangeRates);
+            if (convertedAmount) {
+                 const convertedFormatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
                     currency: currency,
-                    symbol: rateInfo?.symbol || getSymbol(currency)
-                };
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                convertedString = convertedFormatter.format(convertedAmount);
             }
         }
 
-        // 2. If no regional price, return BASE price.
-        const baseCurrency = settingsData?.data?.settings?.currency?.baseCurrency || 'INR';
-
-        // Fallback to base currency price
-        return { amount: item.price, currency: baseCurrency, symbol: '$' };
+        return {
+            final: finalInrString,
+            converted: convertedString, // e.g., "$12.50"
+            currency: currency
+        };
     };
 
-    const formatPrice = (amount, currencyCode = currency) => {
-        const rateInfo = exchangeRates.find(r => r.code === currencyCode);
-        // Ensure symbol is available, though Intl handles it mostly
-
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
+    // Legacy support helper (deprecating slowly)
+    const formatPrice = (amount) => {
+        const info = getPriceDisplayInfo(amount);
+        return info.final;
     };
 
-    // Helper to just get symbol if needed
-    const getSymbol = (code) => {
-        try {
-             return (0).toLocaleString(
-                undefined,
-                { style: 'currency', currency: code, minimumFractionDigits: 0, maximumFractionDigits: 0 }
-            ).replace(/\d/g, '').trim();
-        } catch {
-            return code;
-        }
-    };
+    const getPrice = (item) => {
+         // Return base price structure expected by some components
+         return {
+             amount: item?.price || 0,
+             currency: 'INR',
+             symbol: '₹'
+         }
+    }
+
+    const supportedCurrencies = exchangeRates
+        ? ['INR', ...Object.keys(exchangeRates).map(c => c.toUpperCase()).filter(c => c !== 'INR').sort()]
+        : ['INR'];
 
     return (
         <CurrencyContext.Provider value={{
             currency,
             countryCode,
+            surchargeRate,
+            supportedCurrencies,
+            isLoading: isLoadingSettings || isLoadingLocation,
             changeCurrency,
             updateLocation,
-            getPrice,
+            getFinalPrice,
+            getPriceDisplayInfo,
+            // Legacy/Compat
             formatPrice,
-            isLoading: isLoadingSettings || isLoadingLocation,
-            supportedCurrencies: [
-                settingsData?.data?.settings?.currency?.baseCurrency || 'INR',
-                ...exchangeRates.map(r => r.code)
-            ]
+            getPrice
         }}>
             {children}
         </CurrencyContext.Provider>

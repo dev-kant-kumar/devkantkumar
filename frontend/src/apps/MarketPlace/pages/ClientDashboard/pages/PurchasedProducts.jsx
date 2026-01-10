@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, Copy, Download, Key, Loader2, Package, RefreshCw, Search, Star } from 'lucide-react';
+import { AlertCircle, Book, Code, Download, Eye, Loader2, Package, Play, RefreshCw, Search, Star } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
@@ -22,16 +22,24 @@ const PurchasedProducts = () => {
     const orders = Array.isArray(ordersData) ? ordersData : ordersData.orders || [];
 
     orders.forEach(order => {
-      // Only show products from completed/confirmed orders
-      if (!['confirmed', 'completed'].includes(order.status)) return;
+      // Show products from orders where payment is completed or order is processed
+      const validStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'delivered'];
+      const hasValidStatus = validStatuses.includes(order.status);
+      const hasCompletedPayment = order.payment?.status === 'completed';
+
+      if (!hasValidStatus && !hasCompletedPayment) return;
 
       order.items?.forEach(item => {
         if (item.itemType === 'product') {
+          // Get populated product data
+          const populatedProduct = item.itemId && typeof item.itemId === 'object' ? item.itemId : null;
+
           products.push({
-            id: item._id || item.itemId,
+            id: item._id || (populatedProduct?._id) || item.itemId,
             orderId: order._id,
             name: item.title,
-            version: 'Latest',
+            // Use populated product data for version, or fallback
+            version: populatedProduct?.version || 'Latest',
             type: 'Digital Product',
             purchaseDate: new Date(order.createdAt).toLocaleDateString('en-US', {
               month: 'short',
@@ -39,11 +47,21 @@ const PurchasedProducts = () => {
               year: 'numeric'
             }),
             licenseKey: item.licenseType || 'Standard License',
-            fileSize: 'Click to download',
-            rating: 5,
-            image: '/placeholder-product.png', // Default image
+            rating: populatedProduct?.rating?.average || 5,
+            // Get image from populated product
+            image: populatedProduct?.images?.[0]?.url || '/placeholder-product.png',
+            // Download links from order item
             downloadLinks: item.downloadLinks || [],
+            // Download files from populated product
+            productFiles: populatedProduct?.downloadFiles || [],
+            // External links from populated product
+            demoUrl: populatedProduct?.demoUrl || null,
+            documentationUrl: populatedProduct?.documentationUrl || null,
+            sourceCodeUrl: populatedProduct?.sourceCodeUrl || null,
+            // Features
+            features: populatedProduct?.features || [],
             orderNumber: order.orderNumber,
+            slug: populatedProduct?.slug,
           });
         }
       });
@@ -65,19 +83,47 @@ const PurchasedProducts = () => {
     toast.success('License key copied!');
   };
 
-  // Handle download
+  // Handle download from order's downloadLinks
   const handleDownload = (product) => {
+    // 1. Prioritize Secure Token Links
     if (product.downloadLinks && product.downloadLinks.length > 0) {
       const validLink = product.downloadLinks.find(link =>
-        !link.expiresAt || new Date(link.expiresAt) > new Date()
+        (!link.expiresAt || new Date(link.expiresAt) > new Date()) &&
+        (!link.fileUrl && link.token) // Ensure it's a secure token link
       );
 
       if (validLink) {
-        window.open(validLink.url, '_blank');
+        // Construct Backend Download URL
+        // /api/v1/marketplace/orders/:orderId/items/:itemId/download?token=:token
+        const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/marketplace/orders/${product.orderId}/items/${product.id}/download?token=${validLink.token}`;
+
+        // Open in new tab which will trigger the file download
+        window.open(downloadUrl, '_blank');
+        toast.success('Secure download started!');
+        return;
+      }
+
+       // If links exist but none are valid
+       // Check if it's due to expiry or limit
+       const expiredLink = product.downloadLinks.find(l => l.isExpired);
+       const exhaustedLink = product.downloadLinks.find(l => l.isExhausted);
+
+       if (exhaustedLink) {
+          toast.error('Download limit reached.');
+       } else if (expiredLink) {
+          toast.error('Download link expired. Regenerating...');
+          handleRegenerate(product);
+       } else {
+           // Fallback for edge cases
+            handleRegenerate(product);
+       }
+
+    } else if (product.productFiles && product.productFiles.length > 0) {
+      // Legacy/Fallback to product download files (if unsafe mode active)
+      const file = product.productFiles[0];
+      if (file.url) {
+        window.open(file.url, '_blank');
         toast.success('Download started!');
-      } else {
-        toast.error('Download links expired. Regenerating...');
-        handleRegenerate(product);
       }
     } else {
       toast.error('No download links available');
@@ -180,7 +226,11 @@ const PurchasedProducts = () => {
             >
               {/* Product Image */}
               <div className="relative h-48 bg-gradient-to-br from-green-100 to-blue-100 group flex items-center justify-center">
-                <Package className="h-16 w-16 text-green-600/50" />
+                {product.image && product.image !== '/placeholder-product.png' ? (
+                  <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                ) : (
+                  <Package className="h-16 w-16 text-green-600/50" />
+                )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                   <button
                     onClick={() => handleDownload(product)}
@@ -189,9 +239,20 @@ const PurchasedProducts = () => {
                   >
                     <Download className="h-5 w-5" />
                   </button>
+                  {product.demoUrl && (
+                    <a
+                      href={product.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-white rounded-full text-gray-900 hover:text-blue-600 transition-colors"
+                      title="Live Demo"
+                    >
+                      <Play className="h-5 w-5" />
+                    </a>
+                  )}
                 </div>
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-gray-900 shadow-sm">
-                  {product.type}
+                  v{product.version}
                 </div>
               </div>
 
@@ -203,34 +264,71 @@ const PurchasedProducts = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex text-yellow-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-3.5 w-3.5 ${i < product.rating ? 'fill-current' : 'text-gray-300'}`} />
+                      <Star key={i} className={`h-3.5 w-3.5 ${i < Math.round(product.rating) ? 'fill-current' : 'text-gray-300'}`} />
                     ))}
                   </div>
                   <span className="text-xs text-gray-500">• {product.orderNumber}</span>
                 </div>
 
-                <p className="text-xs text-gray-500 mb-4">Purchased: {product.purchaseDate}</p>
+                <p className="text-xs text-gray-500 mb-2">Purchased: {product.purchaseDate}</p>
 
-                <div className="mt-auto space-y-3">
-                  {/* License Key */}
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100 group">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                        <Key className="h-3 w-3" /> License
+                {/* Download Stats */}
+                {product.downloadLinks?.length > 0 && (
+                  <div className="mb-4 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="text-gray-600 font-medium">Downloads Left</span>
+                      <span className={`${product.downloadLinks[0].isExhausted ? 'text-red-600' : 'text-green-600'}`}>
+                        {product.downloadLinks[0].maxDownloads - product.downloadLinks[0].downloadCount}/{product.downloadLinks[0].maxDownloads}
                       </span>
-                      <button
-                        onClick={() => handleCopyLicense(product.licenseKey)}
-                        className="text-gray-400 hover:text-blue-600 transition-colors"
-                        title="Copy License"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </button>
                     </div>
-                    <code className="text-xs font-mono text-gray-700 block truncate bg-white px-2 py-1 rounded border border-gray-200">
-                      {product.licenseKey}
-                    </code>
+                    {product.downloadLinks[0].expiresAt && (
+                      <div className="text-[10px] text-gray-500">
+                        Expires: {new Date(product.downloadLinks[0].expiresAt).toLocaleDateString()}
+                      </div>
+                    )}
                   </div>
+                )}
 
+                {/* External Links */}
+                {(product.demoUrl || product.documentationUrl || product.sourceCodeUrl) && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {product.demoUrl && (
+                      <a
+                        href={product.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-xs text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Demo
+                      </a>
+                    )}
+                    {product.documentationUrl && (
+                      <a
+                        href={product.documentationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-xs text-purple-600 hover:text-purple-700 bg-purple-50 px-2 py-1 rounded"
+                      >
+                        <Book className="h-3 w-3 mr-1" />
+                        Docs
+                      </a>
+                    )}
+                    {product.sourceCodeUrl && (
+                      <a
+                        href={product.sourceCodeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-xs text-gray-600 hover:text-gray-700 bg-gray-100 px-2 py-1 rounded"
+                      >
+                        <Code className="h-3 w-3 mr-1" />
+                        Source
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-auto">
                   {/* Download Button */}
                   <button
                     onClick={() => handleDownload(product)}
@@ -242,7 +340,7 @@ const PurchasedProducts = () => {
                     ) : (
                       <Download className="h-4 w-4" />
                     )}
-                    {product.downloadLinks?.length > 0 ? 'Download' : 'Request Download'}
+                    {product.downloadLinks?.length > 0 || product.productFiles?.length > 0 ? 'Download' : 'Request Download'}
                   </button>
                 </div>
               </div>

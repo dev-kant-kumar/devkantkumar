@@ -27,10 +27,30 @@ const Header = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef(null);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/marketplace/products?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
+
   const [logoutApi] = useLogoutMutation();
 
   const dropdownRef = useRef(null);
   const panelRef = useRef(null);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+        searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +64,9 @@ const Header = () => {
       }
       if (panelRef.current && !panelRef.current.contains(event.target)) {
         setIsPanelOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
       }
     };
 
@@ -158,9 +181,37 @@ const Header = () => {
 
 
             {/* Search */}
-            <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
-              <Search size={20} />
-            </button>
+            <div className="relative" ref={searchRef}>
+                <div className={`flex items-center transition-all duration-300 ${isSearchOpen ? 'w-64 bg-gray-100 dark:bg-gray-800 rounded-lg px-2' : 'w-10'}`}>
+                    <button
+                        onClick={() => setIsSearchOpen(!isSearchOpen)}
+                        className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 flex-shrink-0"
+                    >
+                        <Search size={20} />
+                    </button>
+
+                    <AnimatePresence>
+                        {isSearchOpen && (
+                            <motion.form
+                                initial={{ opacity: 0, width: 0 }}
+                                animate={{ opacity: 1, width: '100%' }}
+                                exit={{ opacity: 0, width: 0 }}
+                                className="flex-grow overflow-hidden"
+                                onSubmit={handleSearchSubmit}
+                            >
+                                <input
+                                    ref={searchInputRef}
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Search..."
+                                    className="w-full bg-transparent border-none focus:ring-0 text-sm py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                                />
+                            </motion.form>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </div>
 
             {/* Cart */}
             <Link
