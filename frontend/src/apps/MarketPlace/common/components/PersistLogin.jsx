@@ -43,12 +43,11 @@ const PersistLogin = () => {
     };
 
     if (!token) {
-      // No token = Guest user. Load immediately.
-      setIsLoading(false);
-      // verifyRefreshToken(); // WAS BUG: Trying to refresh a non-existent token?
+      // No token in state, try to restore from cookie
+      verifyRefreshToken();
     } else {
-      // Token exists, verify it
-       verifyRefreshToken();
+      // Token exists in state, we are good
+      setIsLoading(false);
     }
 
     return () => {
