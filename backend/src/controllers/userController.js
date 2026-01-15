@@ -245,24 +245,145 @@ const updateUserStatus = async (req, res) => {
   }
 };
 
-// @desc    Delete self (Close account)
+// @desc    Delete self (Close account) - Robust implementation
 // @route   DELETE /api/v1/users/me
 // @access  Private
 const deleteMe = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { password, reason } = req.body;
 
-    // Soft delete - set active to false
-    const user = await User.findByIdAndUpdate(userId, { isActive: false });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    // Require password confirmation
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password is required to delete your account'
+      });
     }
 
-    res.json({ message: 'Account closed successfully' });
+    // Get user with password
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid password. Please enter your correct password to confirm account deletion.'
+      });
+    }
+
+    // Calculate scheduled deletion date (30 days from now)
+    const scheduledDeletionAt = new Date();
+    scheduledDeletionAt.setDate(scheduledDeletionAt.getDate() + 30);
+
+    // Soft delete - deactivate account and set scheduled deletion
+    user.isActive = false;
+    user.deactivatedAt = new Date();
+    user.scheduledDeletionAt = scheduledDeletionAt;
+    user.accountDeletionReason = reason || 'User requested account deletion';
+    await user.save();
+
+    // Send deactivation confirmation email
+    try {
+      const emailService = require('../services/emailService');
+      await emailService.sendAccountDeactivationEmail(
+        user.email,
+        user.firstName,
+        scheduledDeletionAt
+      );
+    } catch (emailError) {
+      logger.error('Failed to send account deactivation email:', emailError);
+      // Don't fail the deletion if email fails
+    }
+
+    logger.info(`Account deactivated for user: ${user.email} - Scheduled deletion: ${scheduledDeletionAt.toISOString()}`);
+
+    res.json({
+      success: true,
+      message: 'Account deactivated successfully',
+      scheduledDeletionAt: scheduledDeletionAt.toISOString(),
+      gracePeriodDays: 30
+    });
   } catch (error) {
     logger.error('Delete self error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Reactivate deactivated account
+// @route   POST /api/v1/users/reactivate
+// @access  Public (uses email/password)
+const reactivateAccount = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      });
+    }
+
+    // Find deactivated user
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+      isActive: false,
+      scheduledDeletionAt: { $gt: new Date() } // Still within grace period
+    }).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No deactivated account found with this email or grace period has expired'
+      });
+    }
+
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid password'
+      });
+    }
+
+    // Reactivate account
+    user.isActive = true;
+    user.deactivatedAt = undefined;
+    user.scheduledDeletionAt = undefined;
+    user.accountDeletionReason = undefined;
+    await user.save();
+
+    // Send reactivation confirmation email
+    try {
+      const emailService = require('../services/emailService');
+      await emailService.sendAccountReactivationEmail(user.email, user.firstName);
+    } catch (emailError) {
+      logger.error('Failed to send account reactivation email:', emailError);
+    }
+
+    logger.info(`Account reactivated for user: ${user.email}`);
+
+    res.json({
+      success: true,
+      message: 'Account reactivated successfully! You can now sign in.'
+    });
+  } catch (error) {
+    logger.error('Reactivate account error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 };
 
@@ -417,6 +538,7 @@ module.exports = {
   updateUserStatus,
   deleteUser,
   deleteMe,
+  reactivateAccount,
   addAddress,
   updateAddress,
   deleteAddress

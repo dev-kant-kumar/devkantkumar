@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Public routes
 router.get('/profile/:userId', userController.getUserProfile);
+router.post('/reactivate', userController.reactivateAccount);
 
 // Protected routes
 router.use(protect); // All routes below require authentication

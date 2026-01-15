@@ -71,27 +71,84 @@ const getPasswordResetTemplate = ({ firstName, resetUrl }) => `
   <body style="background-color: #f4f6f8;">
     <div class="container">
       <div class="header" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
-        <h1 style="margin: 0; font-size: 24px;">Password Reset Request</h1>
+        <h1 style="margin: 0; font-size: 24px;">🔐 Password Reset Request</h1>
       </div>
       <div class="content">
         <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
-        <p>We received a request to reset your password. If this was you, you can set a new password here:</p>
+        <p>We received a request to reset your password for your DevKant Kumar account. Click the button below to create a new password:</p>
 
-        <div style="text-align: center;">
-          <a href="${resetUrl}" class="button" style="background: #ef4444; color: white;">Reset Password</a>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" class="button" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 14px 40px; font-size: 16px;">Reset My Password</a>
+        </div>
+
+        <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #92400e; font-size: 14px;">
+            <strong>⏰ This link expires in 10 minutes</strong> for your security.
+          </p>
         </div>
 
         <div class="warning">
-          <strong>⚠️ Security Notice:</strong> If you didn't request this, you can ignore this email. Your password will remain unchanged.
+          <strong>⚠️ Didn't request this?</strong> If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged and your account is secure.
         </div>
 
-        <p style="font-size: 14px; color: #6b7280;">Link not working? Paste this URL into your browser:</p>
-        <p style="word-break: break-all; color: #ef4444; font-size: 12px; background: #fff5f5; padding: 10px; border-radius: 4px;">${resetUrl}</p>
+        <div class="details-box">
+          <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;"><strong>Link not working?</strong> Copy and paste this URL into your browser:</p>
+          <p style="word-break: break-all; color: #ef4444; font-size: 12px; background: #fff5f5; padding: 12px; border-radius: 6px; margin: 0; font-family: monospace;">${resetUrl}</p>
+        </div>
 
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>DevKant Kumar Team</strong></p>
       </div>
       <div class="footer">
         <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p style="font-size: 11px; color: #9ca3af;">This is an automated security email. Please do not reply.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+`;
+
+const getPasswordResetSuccessTemplate = ({ firstName, resetTime, ipAddress, userAgent }) => `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Changed Successfully</title>
+    <style>${getBaseStyles()}</style>
+  </head>
+  <body style="background-color: #f4f6f8;">
+    <div class="container">
+      <div class="header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <h1 style="margin: 0; font-size: 24px;">✅ Password Changed Successfully</h1>
+      </div>
+      <div class="content">
+        <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+        <p>This is a confirmation that the password for your DevKant Kumar account was successfully changed.</p>
+
+        <div class="details-box" style="border-left: 4px solid #10b981;">
+          <h3 style="margin: 0 0 15px; color: #059669; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Change Details</h3>
+          <p style="margin: 8px 0; font-size: 14px;"><strong>Time:</strong> ${resetTime}</p>
+          ${ipAddress ? `<p style="margin: 8px 0; font-size: 14px;"><strong>IP Address:</strong> ${ipAddress}</p>` : ''}
+          ${userAgent ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Device:</strong> ${userAgent}</p>` : ''}
+        </div>
+
+        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #dc2626; font-size: 14px;">
+            <strong>🚨 Wasn't you?</strong> If you didn't change your password, your account may be compromised. Please <a href="${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/forgot-password" style="color: #dc2626; font-weight: bold;">reset your password immediately</a> and contact our support team.
+          </p>
+        </div>
+
+        <p>You can now sign in to your account using your new password.</p>
+
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/signin" class="button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 35px;">Sign In Now</a>
+        </div>
+
+        <p style="margin-bottom: 0;">Stay secure,<br><strong>DevKant Kumar Team</strong></p>
+      </div>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p style="font-size: 11px; color: #9ca3af;">This is an automated security notification. Please do not reply.</p>
       </div>
     </div>
   </body>
@@ -256,11 +313,96 @@ const getNewsletterWelcomeTemplate = ({ email }) => `
   </html>
 `;
 
+const getAccountDeactivationTemplate = ({ firstName, scheduledDeletionDate, reactivationUrl }) => `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deactivation Confirmation</title>
+    <style>${getBaseStyles()}</style>
+  </head>
+  <body style="background-color: #f4f6f8;">
+    <div class="container">
+      <div class="header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+        <h1 style="margin: 0; font-size: 24px;">Account Deactivation</h1>
+      </div>
+      <div class="content">
+        <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+        <p>We're sorry to see you go. Your account has been deactivated as requested.</p>
+
+        <div class="warning" style="background: #fef3c7; border-color: #fcd34d;">
+          <strong>⏳ Important:</strong> Your account and all associated data will be permanently deleted on <strong>${scheduledDeletionDate}</strong>.
+        </div>
+
+        <p>If you change your mind, you can reactivate your account at any time before the deletion date by:</p>
+        <ul style="color: #4b5563;">
+          <li>Simply signing in to your account, or</li>
+          <li>Clicking the button below</li>
+        </ul>
+
+        <div style="text-align: center;">
+          <a href="${reactivationUrl}" class="button" style="background: #10b981; color: white;">Reactivate My Account</a>
+        </div>
+
+        <p style="font-size: 14px; color: #6b7280; margin-top: 20px;">After ${scheduledDeletionDate}, your account and all data will be permanently removed and cannot be recovered.</p>
+
+        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+      </div>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>Questions? Contact our support team.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+`;
+
+const getAccountReactivationTemplate = ({ firstName }) => `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Back!</title>
+    <style>${getBaseStyles()}</style>
+  </head>
+  <body style="background-color: #f4f6f8;">
+    <div class="container">
+      <div class="header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <h1 style="margin: 0; font-size: 24px;">Welcome Back! 🎉</h1>
+      </div>
+      <div class="content">
+        <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+        <p>Great news! Your account has been successfully reactivated.</p>
+
+        <div class="details-box" style="border-left: 4px solid #10b981;">
+          <p style="margin: 0;"><strong>✅ Account Status:</strong> Active</p>
+          <p style="margin: 10px 0 0;"><strong>✅ Scheduled Deletion:</strong> Cancelled</p>
+        </div>
+
+        <p>All your data, orders, and settings have been restored. You can continue using your account as before.</p>
+
+        <p>We're glad to have you back in our community!</p>
+
+        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+      </div>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+`;
+
 module.exports = {
   getVerificationEmailTemplate,
   getPasswordResetTemplate,
+  getPasswordResetSuccessTemplate,
   getOrderConfirmationTemplate,
   getAdminContactTemplate,
   getUserContactAutoReplyTemplate,
-  getNewsletterWelcomeTemplate
+  getNewsletterWelcomeTemplate,
+  getAccountDeactivationTemplate,
+  getAccountReactivationTemplate
 };

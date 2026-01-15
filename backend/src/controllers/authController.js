@@ -77,10 +77,36 @@ const register = async (req, res, next) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this email'
-      });
+      // Check if the account is permanently deactivated (past grace period)
+      if (!existingUser.isActive && existingUser.scheduledDeletionAt) {
+        const gracePeriodExpired = new Date(existingUser.scheduledDeletionAt) <= new Date();
+
+        if (gracePeriodExpired) {
+          // Account is permanently deactivated - remove it to allow re-registration
+          await User.findByIdAndDelete(existingUser._id);
+          logger.info(`Permanently deactivated account removed for re-registration: ${email}`);
+        } else {
+          // Still within grace period - user should reactivate instead
+          return res.status(400).json({
+            success: false,
+            code: 'ACCOUNT_DEACTIVATED_RECOVERABLE',
+            message: 'An account with this email exists and is scheduled for deletion. Please sign in to reactivate it.',
+            hint: 'You can restore your account by signing in.'
+          });
+        }
+      } else if (existingUser.isActive) {
+        // Active account exists
+        return res.status(400).json({
+          success: false,
+          message: 'User already exists with this email'
+        });
+      } else {
+        // Deactivated but no scheduled deletion date (legacy) - don't allow duplicate
+        return res.status(400).json({
+          success: false,
+          message: 'User already exists with this email'
+        });
+      }
     }
 
     // Create user
@@ -106,8 +132,12 @@ const register = async (req, res, next) => {
       // Don't fail registration if email fails, but log it
     }
 
-    logger.info(`New user registered and auto-logged in: ${user.email}`);
-    sendTokenResponse(user, 201, res, 'User registered successfully');
+    logger.info(`New user registered: ${user.email} - awaiting verification`);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful. Please check your email to verify your account.'
+    });
   } catch (error) {
     logger.error('Registration error:', error);
     next(error);
@@ -155,12 +185,36 @@ const login = async (req, res, next) => {
       });
     }
 
-    // Check if account is active
+    // Check if account is active (handle deactivated accounts with grace period)
     if (!user.isActive) {
-      logger.warn(`Login failed - Account inactive: ${email}`);
+      // Check if within grace period
+      if (user.scheduledDeletionAt && new Date(user.scheduledDeletionAt) > new Date()) {
+        logger.warn(`Login attempt for deactivated account within grace period: ${email}`);
+
+        // Format the scheduled deletion date
+        const deletionDate = new Date(user.scheduledDeletionAt).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        return res.status(403).json({
+          success: false,
+          code: 'ACCOUNT_DEACTIVATED',
+          message: 'Your account is scheduled for deletion',
+          scheduledDeletionAt: user.scheduledDeletionAt,
+          scheduledDeletionFormatted: deletionDate,
+          canReactivate: true,
+          hint: 'You can reactivate your account before this date by clicking "Reactivate Account".'
+        });
+      }
+
+      logger.warn(`Login failed - Account permanently deactivated: ${email}`);
       return res.status(401).json({
         success: false,
-        message: 'Account is deactivated'
+        message: 'Account has been permanently deactivated',
+        canReactivate: false
       });
     }
 
@@ -373,6 +427,8 @@ const verifyEmail = async (req, res, next) => {
     // Hash the token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
+    logger.info(`Email verification attempt - Looking for token: ${hashedToken.substring(0, 10)}...`);
+
     // Find user with matching token
     const user = await User.findOne({
       emailVerificationToken: hashedToken,
@@ -380,9 +436,31 @@ const verifyEmail = async (req, res, next) => {
     });
 
     if (!user) {
+      // Let's diagnose what's happening
+      // Check if any user has this token but it's expired
+      const expiredTokenUser = await User.findOne({
+        emailVerificationToken: hashedToken
+      });
+
+      if (expiredTokenUser) {
+        logger.warn(`Verification token found but expired for: ${expiredTokenUser.email}`);
+        return res.status(400).json({
+          success: false,
+          code: 'TOKEN_EXPIRED',
+          message: 'Verification link has expired',
+          hint: 'Please request a new verification email.'
+        });
+      }
+
+      // Check if user is already verified (token cleared)
+      // We can't match exact user, but log for debugging
+      logger.warn(`No user found with token: ${hashedToken.substring(0, 10)}... - may be already used or invalid`);
+
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired verification token'
+        code: 'TOKEN_INVALID_OR_USED',
+        message: 'Invalid or expired verification token',
+        hint: 'If you have already verified your email, you can proceed to sign in.'
       });
     }
 
@@ -401,7 +479,7 @@ const verifyEmail = async (req, res, next) => {
   } catch (error) {
     logger.error('Email verification error:', error);
     next(error);
-  }
+  };
 };
 
 // @desc    Resend verification email
@@ -548,6 +626,23 @@ const resetPassword = async (req, res, next) => {
     await user.save();
 
     logger.info(`Password reset for user: ${user.email}`);
+
+    // Send password reset success confirmation email
+    try {
+      const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+      const userAgent = req.headers['user-agent'];
+
+      await emailService.sendPasswordResetSuccessEmail(
+        user.email,
+        user.firstName || 'User',
+        { ipAddress, userAgent }
+      );
+      logger.info(`Password reset success email sent to: ${user.email}`);
+    } catch (emailError) {
+      // Don't fail the reset if email fails, just log it
+      logger.error('Failed to send password reset success email:', emailError);
+    }
+
     sendTokenResponse(user, 200, res, 'Password reset successful');
   } catch (error) {
     logger.error('Reset password error:', error);

@@ -3,10 +3,13 @@ const { addEmailToQueue } = require('./emailQueue');
 const {
   getVerificationEmailTemplate,
   getPasswordResetTemplate,
+  getPasswordResetSuccessTemplate,
   getOrderConfirmationTemplate,
   getAdminContactTemplate,
   getUserContactAutoReplyTemplate,
-  getNewsletterWelcomeTemplate
+  getNewsletterWelcomeTemplate,
+  getAccountDeactivationTemplate,
+  getAccountReactivationTemplate
 } = require('../utils/emailTemplates');
 
 class EmailService {
@@ -57,6 +60,38 @@ class EmailService {
       subject: 'Reset Your Password - DevKant Kumar',
       html,
       type: 'password-reset-email'
+    });
+  }
+
+  /**
+   * Send password reset success confirmation email
+   * @param {string} email
+   * @param {string} firstName
+   * @param {Object} details - { ipAddress, userAgent }
+   */
+  async sendPasswordResetSuccessEmail(email, firstName, details = {}) {
+    const resetTime = new Date().toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+
+    const html = getPasswordResetSuccessTemplate({
+      firstName,
+      resetTime,
+      ipAddress: details.ipAddress,
+      userAgent: details.userAgent
+    });
+
+    return addEmailToQueue({
+      to: email,
+      subject: '✅ Password Changed Successfully - DevKant Kumar',
+      html,
+      type: 'password-reset-success-email'
     });
   }
 
@@ -166,6 +201,46 @@ class EmailService {
       subject: 'Verify Password Change Request',
       html,
       type: 'password-change-otp'
+    });
+  }
+
+  /**
+   * Send account deactivation confirmation email
+   * @param {string} email
+   * @param {string} firstName
+   * @param {Date} scheduledDeletionDate
+   */
+  async sendAccountDeactivationEmail(email, firstName, scheduledDeletionDate) {
+    const reactivationUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/signin`;
+    const formattedDate = new Date(scheduledDeletionDate).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const html = getAccountDeactivationTemplate({ firstName, scheduledDeletionDate: formattedDate, reactivationUrl });
+
+    return addEmailToQueue({
+      to: email,
+      subject: 'Account Deactivation Confirmation - DevKant Kumar',
+      html,
+      type: 'account-deactivation-email'
+    });
+  }
+
+  /**
+   * Send account reactivation confirmation email
+   * @param {string} email
+   * @param {string} firstName
+   */
+  async sendAccountReactivationEmail(email, firstName) {
+    const html = getAccountReactivationTemplate({ firstName });
+
+    return addEmailToQueue({
+      to: email,
+      subject: 'Welcome Back! Your Account is Reactivated - DevKant Kumar',
+      html,
+      type: 'account-reactivation-email'
     });
   }
 }

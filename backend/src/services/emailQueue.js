@@ -5,6 +5,7 @@ const { emailQueueName, connection } = require('../db/redis');
 const IORedis = require('ioredis');
 const emailConfig = require('../config/emailConfig');
 const EmailLog = require('../models/EmailLog');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
 // --- Configuration ---
 const REDIS_HOST = process.env.REDIS_HOST || 'redis-18949.c267.us-east-1-4.ec2.redns.redis-cloud.com';
@@ -38,10 +39,46 @@ const emailQueue = new Queue('email-queue', {
   }
 });
 
+// --- Helper for Brevo API ---
+const sendViaBrevoApi = async (to, subject, html, text, fromAddressString) => {
+  const defaultClient = SibApiV3Sdk.ApiClient.instance;
+  const apiKey = defaultClient.authentications['api-key'];
+  apiKey.apiKey = process.env.BREVO_API_KEY;
+
+  const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = html;
+  sendSmtpEmail.textContent = text;
+  sendSmtpEmail.to = [{ email: to }];
+
+  // Parse "Name <email>" from emailConfig
+  const match = fromAddressString.match(/(.*) <(.*)>/);
+  if (match) {
+    sendSmtpEmail.sender = { name: match[1], email: match[2] };
+  } else {
+    sendSmtpEmail.sender = { email: fromAddressString };
+  }
+
+  return apiInstance.sendTransacEmail(sendSmtpEmail);
+};
+
 // --- Worker Setup ---
 
 // Verify SMTP connection (call on startup)
 const verifyConnection = async () => {
+  try {
+    // If using Brevo API, we usually don't verify connection on startup the same way,
+    // but check if API key is present.
+    if (process.env.BREVO_API_KEY) {
+       logger.info('✅ Brevo API Key configured');
+       return true;
+    }
+  } catch (e) {
+    // ignore
+  }
+
   const transporter = createTransporter();
   if (!transporter) {
     logger.error('Email transporter not configured - emails will not be sent');
@@ -68,13 +105,15 @@ const createTransporter = () => {
   if (emailService === 'brevo') {
     // Check for Brevo credentials
     if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_SMTP_PASS) {
-      logger.error('Brevo SMTP credentials missing');
+      if (!process.env.BREVO_API_KEY) {
+         logger.error('Brevo SMTP credentials missing');
+      }
       return null;
     }
 
-    // Always use port 465 (SSL) for cloud hosting - port 587 is often blocked
-    // Allow override via env var for local development
-    const port = parseInt(process.env.BREVO_SMTP_PORT || 465);
+    // Use port 587 (STARTTLS) by default as 465 (SSL) can be problematic in some environments
+    // Allow override via env var
+    const port = parseInt(process.env.BREVO_SMTP_PORT || 587);
     const secure = port === 465; // SSL for 465, STARTTLS for 587
 
     logger.info(`Creating Brevo transporter: host=smtp-relay.brevo.com, port=${port}, secure=${secure}`);
@@ -142,13 +181,40 @@ const worker = new Worker('email-queue', async (job) => {
   // Update status to processing
   await updateEmailLogStatus(job.id, 'processing', { processedAt: new Date() });
 
+  // Get the appropriate sender based on email type
+  const fromAddress = emailConfig.getFromAddress(job.name);
+
+  // 1. Try Brevo API if Key is configured (Preferred method for Render)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      logger.info(`Sending email via Brevo API...`);
+      const data = await sendViaBrevoApi(to, subject, html, text, fromAddress);
+
+      logger.info(`Email sent successfully via Brevo API to ${to} (Job ${job.id})`);
+
+      // Update log with success
+      await updateEmailLogStatus(job.id, 'sent', {
+        sentAt: new Date(),
+        serverResponse: {
+          messageId: data.messageId,
+          response: 'Sent via Brevo API'
+        }
+      });
+
+      return data;
+    } catch (error) {
+      logger.error(`Failed to send via Brevo API: ${error.message}`);
+      // Only throw if we have no fallback.
+      // If we also have SMTP configured, we could fall through, but typically we want to fail if configured API fails.
+      throw error;
+    }
+  }
+
+  // 2. Fallback to Nodemailer SMTP
   const transporter = createTransporter();
   if (!transporter) {
     throw new Error('Email transporter not configured. Cannot process job.');
   }
-
-  // Get the appropriate sender based on email type
-  const fromAddress = emailConfig.getFromAddress(job.name);
 
   const mailOptions = {
     from: fromAddress,

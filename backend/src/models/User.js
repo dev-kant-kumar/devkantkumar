@@ -165,6 +165,14 @@ const userSchema = new mongoose.Schema({
     index: true
   },
 
+  // --- Account Deletion Tracking ---
+  deactivatedAt: Date,
+  scheduledDeletionAt: Date,
+  accountDeletionReason: {
+    type: String,
+    maxlength: 500
+  },
+
   // --- Profile Details ---
   gender: {
     type: String,

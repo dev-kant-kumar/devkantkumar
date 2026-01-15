@@ -413,7 +413,7 @@ const Settings = () => {
             <nav className="p-2">
               <button
                 onClick={() => setActiveSection('profile')}
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeSection === 'profile' ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors cursor-pointer ${activeSection === 'profile' ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-gray-50'}`}
               >
                 <div className="flex items-center">
                   <User className="h-5 w-5 mr-3" />
@@ -423,7 +423,7 @@ const Settings = () => {
               </button>
                 <button
                   onClick={() => setActiveSection('security')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all  cursor-pointer ${
                     activeSection === 'security'
                       ? 'bg-green-50 text-green-700 font-medium shadow-sm'
                       : 'text-gray-600 hover:bg-gray-50'
@@ -436,7 +436,7 @@ const Settings = () => {
 
                 <button
                   onClick={() => setActiveSection('addresses')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${
                     activeSection === 'addresses'
                       ? 'bg-green-50 text-green-700 font-medium shadow-sm'
                       : 'text-gray-600 hover:bg-gray-50'
@@ -448,7 +448,7 @@ const Settings = () => {
                 </button>
               <button
                 onClick={() => setActiveSection('notifications')}
-                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeSection === 'notifications' ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors cursor-pointer ${activeSection === 'notifications' ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-gray-50'}`}
               >
                 <div className="flex items-center">
                   <Mail className="h-5 w-5 mr-3" />
@@ -967,19 +967,16 @@ const Settings = () => {
                            <button
                              onClick={handleSubmitPasswordChange}
                              disabled={isChangingPassword}
-                             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-blue-700 disabled:opacity-50"
                            >
                              {isChangingPassword ? 'Updating...' : 'Update Password'}
                            </button>
                          </div>
                        </div>
                   </div>
-                  </div>
-
-                  <hr className="border-gray-100" />
 
                   {/* Two-Factor Authentication Section */}
-                  <div className="p-6 border-b border-gray-100">
+                  <div className="mt-6 pt-6 border-t border-gray-100">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="p-2 bg-purple-100 rounded-lg">
                         <Smartphone className="h-5 w-5 text-purple-600" />
@@ -1012,7 +1009,7 @@ const Settings = () => {
                             <button
                               onClick={handleDisable2FA}
                               disabled={isDisabling2FA}
-                              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium cursor-pointer hover:bg-red-700 disabled:opacity-50"
                             >
                               {isDisabling2FA ? 'Disabling...' : 'Disable 2FA'}
                             </button>
@@ -1110,6 +1107,7 @@ const Settings = () => {
                   </div>
 
                   {/* Danger Zone */}
+              </div>
               <div className="bg-red-50 rounded-xl p-6 border border-red-100 mt-8">
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-white rounded-lg shadow-sm text-red-600">
@@ -1132,7 +1130,7 @@ const Settings = () => {
                         <button
                           onClick={() => setShowDeleteModal(true)}
                           disabled={isDeletingAccount}
-                          className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm whitespace-nowrap"
+                          className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg cursor-pointer hover:bg-red-700 transition-colors shadow-sm whitespace-nowrap"
                         >
                           Delete Account
                         </button>
