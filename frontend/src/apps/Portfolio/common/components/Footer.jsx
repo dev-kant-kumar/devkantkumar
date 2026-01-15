@@ -285,14 +285,49 @@ const Footer = () => {
               </div>
 
               <div className="space-y-4">
-                <div className="relative group">
+                {/* Mobile Layout - Stacked */}
+                <div className="flex flex-col gap-3 sm:hidden">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address"
                     disabled={isSubmitting}
-                    className="w-full px-6 py-4 bg-[#1a2332] border border-cyan-500/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:bg-[#1e2838] transition-all duration-300 disabled:opacity-50"
+                    className="w-full px-5 py-4 bg-[#1a2332] border border-cyan-500/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:bg-[#1e2838] transition-all duration-300 disabled:opacity-50"
+                  />
+                  <button
+                    onClick={handleNewsletterSubmit}
+                    disabled={isSubmitting}
+                    className="w-full px-6 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                      />
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Subscribe Now</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Desktop Layout - Inline */}
+                <div className="relative group hidden sm:block">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    disabled={isSubmitting}
+                    className="w-full px-6 py-4 pr-40 bg-[#1a2332] border border-cyan-500/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:bg-[#1e2838] transition-all duration-300 disabled:opacity-50"
                   />
                   <button
                     onClick={handleNewsletterSubmit}
@@ -312,7 +347,7 @@ const Footer = () => {
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span className="hidden md:block">Subscribe</span>
+                        <span>Subscribe</span>
                       </>
                     )}
                   </button>

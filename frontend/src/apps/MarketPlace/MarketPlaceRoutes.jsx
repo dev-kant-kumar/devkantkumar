@@ -97,7 +97,7 @@ const MarketPlaceRoutes = () => {
               <Route path="signin" element={<SignIn />} />
               <Route path="signup" element={<SignUp />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
-              <Route path="reset-password" element={<ResetPassword />} />
+              <Route path="reset-password/:token" element={<ResetPassword />} />
               <Route path="verify-email/:token" element={<VerifyEmail />} />
             </Route>
 

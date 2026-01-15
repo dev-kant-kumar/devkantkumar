@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, Loader2, RefreshCw, X } from 'lucide-react';
+import { ArrowRight, Check, Loader2, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useVerifyEmailMutation } from '../../store/auth/authApi';
@@ -118,26 +118,26 @@ const VerifyEmail = () => {
         {status === 'error' && (
           <div className="flex flex-col items-center space-y-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-red-100 rounded-full blur-xl opacity-60"></div>
+              <div className="absolute inset-0 bg-amber-100 rounded-full blur-xl opacity-60"></div>
               <motion.div
                 variants={iconVariants}
                 initial="hidden"
                 animate="visible"
-                className="relative bg-white p-4 rounded-full shadow-lg ring-1 ring-red-100"
+                className="relative bg-white p-4 rounded-full shadow-lg ring-1 ring-amber-100"
               >
-                <div className="bg-red-500 rounded-full p-2">
-                  <X className="h-8 w-8 text-white" strokeWidth={3} />
+                <div className="bg-amber-500 rounded-full p-2">
+                  <RefreshCw className="h-8 w-8 text-white" strokeWidth={2.5} />
                 </div>
               </motion.div>
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Verification Failed</h2>
-              <p className="text-red-500 font-medium bg-red-50 px-4 py-2 rounded-md border border-red-100 mx-auto inline-block">
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Link Already Used</h2>
+              <p className="text-amber-600 font-medium bg-amber-50 px-4 py-2 rounded-md border border-amber-100 mx-auto inline-block">
                 {errorMessage}
               </p>
               <p className="text-gray-500 max-w-xs mx-auto text-sm mt-2">
-                The link may be expired or already used.
+                This usually means your email is already verified. Try signing in!
               </p>
             </div>
 
@@ -149,10 +149,10 @@ const VerifyEmail = () => {
             >
               <Link
                 to="/marketplace/auth/signin"
-                className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 group"
               >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Return to Sign In
+                Continue to Sign In
+                <ArrowRight className="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
               </Link>
               <p className="text-xs text-center text-gray-400">
                 Need help? <a href="/marketplace/support" className="text-blue-600 hover:underline">Contact Support</a>

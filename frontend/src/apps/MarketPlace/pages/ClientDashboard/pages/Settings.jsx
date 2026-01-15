@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { Camera, CheckCircle, AlertTriangle,ChevronRight, Eye, EyeOff, Lock, Mail, MapPin, Phone, RefreshCw, Shield, User } from 'lucide-react';
+import { AlertTriangle, Camera, CheckCircle, ChevronRight, Eye, EyeOff, Lock, Mail, MapPin, Phone, RefreshCw, Shield, Smartphone, User } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useAddAddressMutation, useChangePasswordMutation, useDeleteAccountMutation, useDeleteAddressMutation, useGetMeQuery, useLogoutMutation, useUpdateAddressMutation, useUpdateProfileMutation } from '../../../store/auth/authApi';
+import { useAddAddressMutation, useChangePasswordMutation, useDeleteAccountMutation, useDeleteAddressMutation, useDisable2FAMutation, useGetMeQuery, useLogoutMutation, useSetup2FAMutation, useUpdateAddressMutation, useUpdateProfileMutation, useVerify2FAMutation } from '../../../store/auth/authApi';
 import { logout, selectCurrentUser } from '../../../store/auth/authSlice';
 import { useUploadImageMutation } from '../../../store/upload/uploadApi';
 
@@ -23,7 +23,16 @@ const Settings = () => {
   const [updateAddress, { isLoading: isUpdatingAddress }] = useUpdateAddressMutation();
   const [deleteAddress, { isLoading: isDeletingAddress }] = useDeleteAddressMutation();
   const [logoutUser] = useLogoutMutation();
+  const [setup2FA, { isLoading: isSettingUp2FA }] = useSetup2FAMutation();
+  const [verify2FA, { isLoading: isVerifying2FA }] = useVerify2FAMutation();
+  const [disable2FA, { isLoading: isDisabling2FA }] = useDisable2FAMutation();
   const fileInputRef = useRef(null);
+
+  // 2FA States
+  const [show2FASetup, setShow2FASetup] = useState(false);
+  const [twoFAData, setTwoFAData] = useState({ qrCode: null, secret: null });
+  const [twoFACode, setTwoFACode] = useState('');
+  const [disablePassword, setDisablePassword] = useState('');
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -279,6 +288,50 @@ const Settings = () => {
     }
   };
 
+  // 2FA Handlers
+  const handleSetup2FA = async () => {
+    try {
+      const result = await setup2FA().unwrap();
+      setTwoFAData({ qrCode: result.qrCodeUrl, secret: result.secret });
+      setShow2FASetup(true);
+    } catch (error) {
+      console.error('Failed to setup 2FA:', error);
+      toast.error(error?.data?.message || 'Failed to setup 2FA');
+    }
+  };
+
+  const handleVerify2FA = async () => {
+    if (!twoFACode || twoFACode.length !== 6) {
+      toast.error('Please enter a valid 6-digit code');
+      return;
+    }
+    try {
+      await verify2FA({ token: twoFACode }).unwrap();
+      toast.success('Two-Factor Authentication enabled successfully!');
+      setShow2FASetup(false);
+      setTwoFACode('');
+      setTwoFAData({ qrCode: null, secret: null });
+    } catch (error) {
+      console.error('Failed to verify 2FA:', error);
+      toast.error(error?.data?.message || 'Invalid verification code');
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!disablePassword) {
+      toast.error('Password is required to disable 2FA');
+      return;
+    }
+    try {
+      await disable2FA({ password: disablePassword }).unwrap();
+      toast.success('Two-Factor Authentication disabled');
+      setDisablePassword('');
+    } catch (error) {
+      console.error('Failed to disable 2FA:', error);
+      toast.error(error?.data?.message || 'Failed to disable 2FA');
+    }
+  };
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -324,9 +377,9 @@ const Settings = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Sidebar for Settings */}
+        {/* Left Sidebar for Settings - Sticky */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-24">
             <div className="p-6 flex flex-col items-center border-b border-gray-100">
               <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
                 <div className="h-24 w-24 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-3xl font-bold border-4 border-white shadow-md overflow-hidden relative">
@@ -920,13 +973,141 @@ const Settings = () => {
                            </button>
                          </div>
                        </div>
-                    </div>
+                  </div>
                   </div>
 
                   <hr className="border-gray-100" />
 
+                  {/* Two-Factor Authentication Section */}
+                  <div className="p-6 border-b border-gray-100">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Smartphone className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Two-Factor Authentication (2FA)</h4>
+                        <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                      </div>
+                    </div>
 
-                  <hr className="border-gray-100" />
+                    {user?.isTwoFactorEnabled ? (
+                      // 2FA is ENABLED - show disable option
+                      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                          <div className="flex items-center gap-3">
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <div>
+                              <p className="font-medium text-green-800">2FA is Enabled</p>
+                              <p className="text-sm text-green-600">Your account is protected with two-factor authentication</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="password"
+                              value={disablePassword}
+                              onChange={(e) => setDisablePassword(e.target.value)}
+                              placeholder="Enter password"
+                              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500"
+                            />
+                            <button
+                              onClick={handleDisable2FA}
+                              disabled={isDisabling2FA}
+                              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {isDisabling2FA ? 'Disabling...' : 'Disable 2FA'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : show2FASetup ? (
+                      // 2FA Setup Flow
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <h5 className="font-medium text-gray-900 mb-4">Setup Two-Factor Authentication</h5>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {/* QR Code */}
+                          <div className="text-center">
+                            <p className="text-sm text-gray-600 mb-3">Scan this QR code with your authenticator app:</p>
+                            {twoFAData.qrCode && (
+                              <img
+                                src={twoFAData.qrCode}
+                                alt="2FA QR Code"
+                                className="mx-auto rounded-lg shadow-sm border bg-white p-2"
+                              />
+                            )}
+                            {twoFAData.secret && (
+                              <div className="mt-3">
+                                <p className="text-xs text-gray-500 mb-1">Or enter this code manually:</p>
+                                <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">{twoFAData.secret}</code>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Verification */}
+                          <div>
+                            <p className="text-sm text-gray-600 mb-3">Enter the 6-digit code from your app:</p>
+                            <input
+                              type="text"
+                              value={twoFACode}
+                              onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              placeholder="000000"
+                              maxLength={6}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-mono tracking-widest focus:ring-2 focus:ring-green-500"
+                            />
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                onClick={() => {
+                                  setShow2FASetup(false);
+                                  setTwoFACode('');
+                                  setTwoFAData({ qrCode: null, secret: null });
+                                }}
+                                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={handleVerify2FA}
+                                disabled={isVerifying2FA || twoFACode.length !== 6}
+                                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
+                              >
+                                {isVerifying2FA ? 'Verifying...' : 'Enable 2FA'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      // 2FA Not enabled - show enable button
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                          <div className="flex items-center gap-3">
+                            <AlertTriangle className="h-5 w-5 text-amber-500" />
+                            <div>
+                              <p className="font-medium text-gray-800">2FA is Not Enabled</p>
+                              <p className="text-sm text-gray-500">Protect your account with an authenticator app</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={handleSetup2FA}
+                            disabled={isSettingUp2FA}
+                            className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {isSettingUp2FA ? (
+                              <>
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                                Setting up...
+                              </>
+                            ) : (
+                              <>
+                                <Smartphone className="h-4 w-4" />
+                                Enable 2FA
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Danger Zone */}
               <div className="bg-red-50 rounded-xl p-6 border border-red-100 mt-8">

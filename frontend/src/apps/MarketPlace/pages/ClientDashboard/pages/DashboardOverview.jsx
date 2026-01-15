@@ -119,9 +119,9 @@ const DashboardOverview = () => {
               <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                 <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              <div className="ml-4 min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-600 truncate" title={stat.label}>{stat.label}</p>
+                <p className="text-2xl font-bold text-gray-900 truncate">{stat.value}</p>
               </div>
             </div>
           </div>

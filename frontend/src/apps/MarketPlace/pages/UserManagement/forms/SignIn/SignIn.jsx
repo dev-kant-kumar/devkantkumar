@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
-import { useLoginMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
+import { useLoginMutation, useReactivateAccountMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
 import { selectIsAuthenticated, setCredentials } from '../../../../store/auth/authSlice';
 
 const SignIn = () => {
@@ -29,7 +29,9 @@ const SignIn = () => {
 
   const [login, { isLoading }] = useLoginMutation();
   const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
+  const [reactivateAccount, { isLoading: isReactivating }] = useReactivateAccountMutation();
   const [verificationSent, setVerificationSent] = useState(false);
+  const [deactivatedAccount, setDeactivatedAccount] = useState(null); // { scheduledDeletionFormatted }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -83,11 +85,39 @@ const SignIn = () => {
         navigate(from, { replace: true });
       } catch (err) {
         const errorMessage = err?.data?.message || 'Login failed';
-        setErrors(prev => ({ ...prev, form: errorMessage }));
+
+        // Check if account is deactivated but within grace period
+        if (err?.data?.code === 'ACCOUNT_DEACTIVATED' && err?.data?.canReactivate) {
+          setDeactivatedAccount({
+            scheduledDeletionFormatted: err.data.scheduledDeletionFormatted,
+            scheduledDeletionAt: err.data.scheduledDeletionAt
+          });
+          setErrors(prev => ({ ...prev, form: null }));
+        } else {
+          setErrors(prev => ({ ...prev, form: errorMessage }));
+          setDeactivatedAccount(null);
+        }
 
         // Reset verification sent state on new attempt
         setVerificationSent(false);
       }
+    }
+  };
+
+  const handleReactivate = async () => {
+    try {
+      await reactivateAccount({ email: formData.email, password: formData.password }).unwrap();
+      setDeactivatedAccount(null);
+      setErrors({ form: null });
+      // Now try to login again
+      const userData = await login({ email: formData.email, password: formData.password }).unwrap();
+      dispatch(setCredentials(userData));
+      localStorage.setItem('token', userData.token);
+      localStorage.setItem('user', JSON.stringify(userData.user));
+      const from = location.state?.from || '/marketplace/dashboard';
+      navigate(from, { replace: true });
+    } catch (err) {
+      setErrors(prev => ({ ...prev, form: err?.data?.message || 'Failed to reactivate account' }));
     }
   };
 
@@ -111,6 +141,47 @@ const SignIn = () => {
           icon={Mail}
           placeholder="you@example.com"
         />
+
+        {/* Deactivated Account Alert */}
+        {deactivatedAccount && (
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <RefreshCw className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-sm font-semibold text-amber-800">Account Scheduled for Deletion</h3>
+                <p className="mt-1 text-sm text-amber-700">
+                  Your account will be permanently deleted on <strong>{deactivatedAccount.scheduledDeletionFormatted}</strong>.
+                </p>
+                <p className="mt-1 text-xs text-amber-600">
+                  You can restore your account before this date.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleReactivate}
+                  disabled={isReactivating}
+                  className="mt-3 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isReactivating ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Reactivating...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Reactivate My Account
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {errors.form && (
           <div className="rounded-md bg-red-50 p-4 mb-4">

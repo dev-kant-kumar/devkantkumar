@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
-import { useRegisterMutation } from '../../../../store/auth/authApi';
+import { useRegisterMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
 import { selectIsAuthenticated } from '../../../../store/auth/authSlice';
 
 const SignUp = () => {
@@ -32,7 +32,9 @@ const SignUp = () => {
     }, [isAuthenticated, navigate]);
 
   const [register, { isLoading }] = useRegisterMutation();
+  const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
   const [isSuccess, setIsSuccess] = useState(false);
+  const [resendStatus, setResendStatus] = useState(null); // 'sent', 'error', or null
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -89,21 +91,83 @@ const SignUp = () => {
 
   if (isSuccess) {
     return (
-      <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-        <Mail className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
-        <p className="text-gray-600 mb-6">
-          We've sent a verification link to <strong>{formData.email}</strong>.<br />
-          Please click the link to activate your account.
-        </p>
-        <p className="text-sm text-gray-500">
-          Didn't receive the email? <button className="text-blue-600 hover:text-blue-500 font-medium">Resend Code</button>
-        </p>
-        <div className="mt-6 border-t pt-4">
-          <Link to="/marketplace/auth/signin" className="text-blue-600 hover:text-blue-500 font-medium">
-            Back to Sign In
-          </Link>
+      <div className="text-center py-4">
+        {/* Animated Icon */}
+        <div className="relative mx-auto w-20 h-20 mb-6">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full blur-lg opacity-40 animate-pulse" />
+          <div className="relative flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg">
+            <Mail className="h-10 w-10 text-white" strokeWidth={1.5} />
+          </div>
         </div>
+
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+
+        {/* Subtitle */}
+        <p className="text-gray-600 mb-4 leading-relaxed">
+          We've sent a verification link to
+        </p>
+        <p className="font-semibold text-gray-800 bg-gray-100 py-2 px-4 rounded-lg inline-block mb-4">
+          {formData.email}
+        </p>
+        <p className="text-gray-500 text-sm mb-6">
+          Click the link in the email to activate your account.
+        </p>
+
+        {/* Resend Section */}
+        <div className="bg-gray-50 rounded-xl p-4 mb-6">
+          {resendStatus === 'sent' ? (
+            <div className="text-green-600 font-medium flex items-center justify-center gap-2">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Verification email sent!
+            </div>
+          ) : resendStatus === 'error' ? (
+            <div className="text-red-600 text-sm">Failed to resend. Please try again.</div>
+          ) : (
+            <>
+              <p className="text-sm text-gray-600 mb-2">
+                Didn't receive the email?
+              </p>
+              <button
+                onClick={async () => {
+                  try {
+                    await resendVerification({ email: formData.email }).unwrap();
+                    setResendStatus('sent');
+                  } catch (err) {
+                    setResendStatus('error');
+                  }
+                }}
+                disabled={isResending}
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isResending ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Resend Verification Email
+                  </>
+                )}
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Back Link */}
+        <Link
+          to="/marketplace/auth/signin"
+          className="inline-flex items-center text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors"
+        >
+          ← Back to Sign In
+        </Link>
       </div>
     );
   }

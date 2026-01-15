@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
     FAVORITES: `${API_URL}/users/favorites`,
     DELETE_ME: `${API_URL}/users/me`,
     ADDRESSES: `${API_URL}/users/addresses`,
+    REACTIVATE: `${API_URL}/users/reactivate`,
   },
   AUTH: {
     LOGIN: '/auth/login',

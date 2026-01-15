@@ -54,7 +54,7 @@ export const authApi = baseApiSlice.injectEndpoints({
     verifyEmail: builder.mutation({
       query: (token) => ({
         url: `${API_ENDPOINTS.AUTH.VERIFY_EMAIL}/${token}`,
-        method: 'GET',
+        method: 'POST',
       }),
     }),
     resendVerification: builder.mutation({
@@ -79,10 +79,41 @@ export const authApi = baseApiSlice.injectEndpoints({
       }),
     }),
     deleteAccount: builder.mutation({
-      query: () => ({
+      query: ({ password, reason }) => ({
         url: API_ENDPOINTS.USERS.DELETE_ME,
         method: 'DELETE',
+        body: { password, reason },
       }),
+    }),
+    reactivateAccount: builder.mutation({
+      query: ({ email, password }) => ({
+        url: API_ENDPOINTS.USERS.REACTIVATE,
+        method: 'POST',
+        body: { email, password },
+      }),
+    }),
+    // 2FA Mutations
+    setup2FA: builder.mutation({
+      query: () => ({
+        url: API_ENDPOINTS.AUTH.SETUP_2FA,
+        method: 'POST',
+      }),
+    }),
+    verify2FA: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.AUTH.VERIFY_2FA,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    disable2FA: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.AUTH.DISABLE_2FA,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
     }),
     addAddress: builder.mutation({
       query: (data) => ({
@@ -123,6 +154,10 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useDeleteAccountMutation,
+  useReactivateAccountMutation,
+  useSetup2FAMutation,
+  useVerify2FAMutation,
+  useDisable2FAMutation,
   useAddAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
