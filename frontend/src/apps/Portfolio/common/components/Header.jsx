@@ -272,7 +272,7 @@ const Header = () => {
                       transition={{ duration: 0.15 }}
                       className="absolute top-full right-0 mt-2 w-44 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60]"
                     >
-                      <div className="p-1.5">
+                      <div className="p-2 space-y-1">
                         <div className="px-3 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                           Switch Panel
                         </div>
