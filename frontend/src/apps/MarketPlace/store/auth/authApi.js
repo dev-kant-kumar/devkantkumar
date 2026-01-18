@@ -9,7 +9,8 @@ export const authApi = baseApiSlice.injectEndpoints({
         method: 'POST',
         body: credentials,
       }),
-      invalidatesTags: ['User'],
+      // Note: Don't invalidate tags here - causes race condition.
+      // Token is set via dispatch(setCredentials) after login returns.
     }),
     register: builder.mutation({
       query: (userData) => ({
