@@ -1,48 +1,34 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { API_CONFIG, API_URL } from "../../config/api";
+import { Mutex } from 'async-mutex';
+import { logout, setCredentials } from "../../apps/MarketPlace/store/auth/authSlice";
+import { API_CONFIG, API_ENDPOINTS, API_URL } from "../../config/api";
 
-/**
- * Base API Slice for RTK Query
- *
- * This is the foundation API slice that all panel-specific API slices will extend.
- * It contains common configuration like base URL, headers, error handling, etc.
- *
- * Each panel will create their own API slice by calling:
- * export const panelApiSlice = baseApiSlice.injectEndpoints({ ... })
- */
+const mutex = new Mutex();
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
-  timeout: API_CONFIG.TIMEOUT,
   credentials: API_CONFIG.CORS.credentials ? 'include' : 'same-origin',
 
   prepareHeaders: (headers, { getState }) => {
-    // Add default headers from config
     Object.entries(API_CONFIG.DEFAULT_HEADERS).forEach(([key, value]) => {
       headers.set(key, value);
     });
 
-    // Add auth token if available (from any panel's auth state)
     const state = getState();
-
-    // Check for auth tokens from different panels
-    const marketplaceToken = state.auth?.token; // Marketplace auth
+    const marketplaceToken = state.auth?.token;
     const portfolioToken = state.portfolioUI?.auth?.token;
     const adminToken = state.adminAuth?.adminToken;
-
-    const token = marketplaceToken || portfolioToken || adminToken; // Check marketplace first (most common)
+    const token = marketplaceToken || portfolioToken || adminToken;
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
 
-    // Add region header
     const countryCode = state.region?.countryCode;
     if (countryCode) {
       headers.set("x-country-code", countryCode);
     }
 
-    // Add environment-specific headers
     if (API_CONFIG.IS_DEVELOPMENT) {
       headers.set("X-Environment", "development");
     }
@@ -51,40 +37,26 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-/**
- * Enhanced base query with error handling and token refresh logic
- */
-import { Mutex } from 'async-mutex';
-import { logout, setCredentials } from "../../apps/MarketPlace/store/auth/authSlice";
-import { API_ENDPOINTS } from "../../config/api";
-
-const mutex = new Mutex();
-
-/**
- * Enhanced base query with error handling and token refresh logic
- * SIMPLIFIED: Removed aggressive smart refresh that was causing logout loops
- */
 const baseQueryWithReauth = async (args, api, extraOptions) => {
-  // Wait until the mutex is available without locking it
   await mutex.waitForUnlock();
 
   const state = api.getState();
   const token = state.auth?.token;
 
-  // Make the request
   let result = await baseQuery(args, api, extraOptions);
 
-  // Handle 401 unauthorized responses
   if (result.error && result.error.status === 401) {
-    // Don't try to refresh if:
-    // 1. The failed request was already a refresh attempt
-    // 2. User was never logged in (no token in state)
-    if (args.url === API_ENDPOINTS.AUTH.REFRESH_TOKEN || !token) {
-      // Just return the error, don't logout guests
+    const isRefreshRequest = typeof args === 'string'
+      ? args.includes('refresh')
+      : args.url?.includes('refresh');
+
+    if (isRefreshRequest || !token) {
+      if (token && isRefreshRequest) {
+        api.dispatch(logout());
+      }
       return result;
     }
 
-    // User was logged in but got 401 - try to refresh once
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
@@ -95,19 +67,19 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         );
 
         if (refreshResult.data) {
-          // Refresh succeeded - update credentials and retry original request
           const { token: newToken, user } = refreshResult.data;
-          api.dispatch(setCredentials({ user: user || state.auth.user, token: newToken }));
+          api.dispatch(setCredentials({
+            user: user || state.auth.user,
+            token: newToken
+          }));
           result = await baseQuery(args, api, extraOptions);
         } else {
-          // Refresh failed - token is truly invalid, logout the user
           api.dispatch(logout());
         }
       } finally {
         release();
       }
     } else {
-      // Another refresh is in progress, wait for it and retry
       await mutex.waitForUnlock();
       result = await baseQuery(args, api, extraOptions);
     }
@@ -119,67 +91,16 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const baseApiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-
-  // Keep data fresh for 60 seconds
   keepUnusedDataFor: 60,
-
-  // Refetch on mount and focus
   refetchOnMountOrArgChange: true,
   refetchOnFocus: true,
   refetchOnReconnect: true,
-
-  // Global tag types that can be used across all panels
   tagTypes: [
-    // Authentication
-    "Auth",
-    "User",
-    "Admin",
-
-    // Portfolio
-    "Project",
-    "Skill",
-    "Experience",
-    "Education",
-    "Testimonial",
-    "About",
-
-    // Content Management
-    "Blog",
-    "BlogPost",
-    "Category",
-    "Tag",
-
-    // Communication
-    "Contact",
-    "Message",
-    "Newsletter",
-
-    // File Management
-    "Upload",
-    "File",
-    "Image",
-
-    // Analytics
-    "Analytics",
-    "PageView",
-    "Interaction",
-
-    // System
-    "Health",
-    "Settings",
-
-    // Marketplace
-    "Service",
-    "Product",
+    "Auth", "User", "Admin", "Project", "Skill", "Experience",
+    "Education", "Testimonial", "About", "Blog", "BlogPost",
+    "Category", "Tag", "Contact", "Message", "Newsletter",
+    "Upload", "File", "Image", "Analytics", "PageView",
+    "Interaction", "Health", "Settings", "AdminSettings", "Service", "Product",
   ],
-
-  // No endpoints defined here - each panel will inject their own
   endpoints: () => ({}),
 });
-
-// Export hooks (these will be empty until endpoints are injected)
-export const {
-  // Portfolio endpoints will be added here when injected
-  // Admin endpoints will be added here when injected
-  // Marketplace endpoints will be added here when injected
-} = baseApiSlice;

@@ -367,7 +367,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     getGeneralSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
-      providesTags: ['Settings'],
+      providesTags: ['AdminSettings'],
     }),
 
     updateGeneralSettings: builder.mutation({
@@ -376,12 +376,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         method: 'PUT',
         body: settingsData,
       }),
-      invalidatesTags: ['Settings'],
+      invalidatesTags: ['AdminSettings'],
     }),
 
     getSeoSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.SEO_SETTINGS,
-      providesTags: ['Settings'],
+      providesTags: ['AdminSettings'],
     }),
 
     updateSeoSettings: builder.mutation({
@@ -390,12 +390,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         method: 'PUT',
         body: seoData,
       }),
-      invalidatesTags: ['Settings'],
+      invalidatesTags: ['AdminSettings'],
     }),
 
     getSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.SETTINGS,
-      providesTags: ['Settings'],
+      providesTags: ['AdminSettings'],
     }),
 
     updateSettings: builder.mutation({
@@ -404,7 +404,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Settings'],
+      invalidatesTags: ['AdminSettings'],
     }),
 
     // ===================
