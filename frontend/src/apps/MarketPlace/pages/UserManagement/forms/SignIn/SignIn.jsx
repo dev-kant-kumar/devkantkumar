@@ -75,6 +75,28 @@ const SignIn = () => {
     if (validateForm()) {
       try {
         const userData = await login({ email: formData.email, password: formData.password }).unwrap();
+
+        // Check if 2FA is required
+        if (userData?.otpRequired || userData?.twoFactorRequired) {
+          // 2FA is enabled - show error since marketplace doesn't have 2FA UI yet
+          // User should either disable 2FA or login via admin panel
+          setErrors(prev => ({
+            ...prev,
+            form: 'Two-Factor Authentication is required. Please use the Admin Panel to login or disable 2FA in your account settings.'
+          }));
+          return;
+        }
+
+        // Verify we got a valid token (not a 2FA response)
+        if (!userData.token) {
+          console.error('[SignIn] Login succeeded but no token in response:', userData);
+          setErrors(prev => ({
+            ...prev,
+            form: 'Login failed: No authentication token received. Please try again.'
+          }));
+          return;
+        }
+
         dispatch(setCredentials(userData));
 
         // Persist token explicitly for non-persistent store setups
