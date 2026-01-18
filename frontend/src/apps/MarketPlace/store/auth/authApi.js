@@ -116,6 +116,14 @@ export const authApi = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    // 2FA Login Verification (for login flow)
+    verify2FALogin: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.AUTH.LOGIN_2FA,
+        method: 'POST',
+        body: data, // { tempToken, otp }
+      }),
+    }),
     addAddress: builder.mutation({
       query: (data) => ({
         url: API_ENDPOINTS.USERS.ADDRESSES,
@@ -159,6 +167,7 @@ export const {
   useSetup2FAMutation,
   useVerify2FAMutation,
   useDisable2FAMutation,
+  useVerify2FALoginMutation,
   useAddAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,

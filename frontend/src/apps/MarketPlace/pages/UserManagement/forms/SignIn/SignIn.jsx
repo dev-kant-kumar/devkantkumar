@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
-import { useLoginMutation, useReactivateAccountMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
+import { useLoginMutation, useReactivateAccountMutation, useResendVerificationMutation, useVerify2FALoginMutation } from '../../../../store/auth/authApi';
 import { selectIsAuthenticated, setCredentials } from '../../../../store/auth/authSlice';
 
 const SignIn = () => {
@@ -20,6 +20,11 @@ const SignIn = () => {
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+
+  // 2FA State
+  const [verify2FALogin, { isLoading: isVerifying2FA }] = useVerify2FALoginMutation();
+  const [authFlow, setAuthFlow] = useState({ show2FA: false, tempToken: null });
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -70,6 +75,65 @@ const SignIn = () => {
     }
   };
 
+  // OTP Change Handler
+  const handleOtpChange = (index, value) => {
+    if (value.length > 1) value = value[0];
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto focus next input
+    if (value && index < 5) {
+      requestAnimationFrame(() => {
+        const nextInput = document.getElementById(`login-otp-${index + 1}`);
+        if (nextInput) nextInput.focus();
+      });
+    }
+  };
+
+  // 2FA Submit Handler
+  const handle2FASubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+
+    if (otp.some(d => !d)) {
+      setErrors({ form: 'Please enter the complete 6-digit code' });
+      return;
+    }
+
+    try {
+      const result = await verify2FALogin({
+        tempToken: authFlow.tempToken,
+        otp: otp.join('')
+      }).unwrap();
+
+      // Extract token and user from response
+      const token = result?.token || result?.data?.token;
+      const user = result?.user || result?.data?.user;
+
+      if (token) {
+        dispatch(setCredentials({ token, user }));
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        setAuthFlow({ show2FA: false, tempToken: null });
+        setOtp(['', '', '', '', '', '']);
+
+        const from = location.state?.from || '/marketplace/dashboard';
+        navigate(from, { replace: true });
+      } else {
+        setErrors({ form: 'Verification succeeded but no token received. Please try again.' });
+      }
+    } catch (error) {
+      const errorMessage = error?.data?.message || error?.message || 'Invalid verification code. Please try again.';
+      setErrors({ form: errorMessage });
+      setOtp(['', '', '', '', '', '']);
+      document.getElementById('login-otp-0')?.focus();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -78,12 +142,13 @@ const SignIn = () => {
 
         // Check if 2FA is required
         if (userData?.otpRequired || userData?.twoFactorRequired) {
-          // 2FA is enabled - show error since marketplace doesn't have 2FA UI yet
-          // User should either disable 2FA or login via admin panel
-          setErrors(prev => ({
-            ...prev,
-            form: 'Two-Factor Authentication is required. Please use the Admin Panel to login or disable 2FA in your account settings.'
-          }));
+          // Show 2FA verification screen
+          if (!userData.tempToken) {
+            setErrors({ form: 'Authentication error: Missing verification token. Please try again.' });
+            return;
+          }
+          setAuthFlow({ show2FA: true, tempToken: userData.tempToken });
+          setErrors({});
           return;
         }
 
@@ -146,12 +211,87 @@ const SignIn = () => {
   return (
     <div>
       <div className="mb-6">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Sign in to your account</h3>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          {authFlow.show2FA ? 'Two-Factor Authentication' : 'Sign in to your account'}
+        </h3>
         <p className="mt-1 text-sm text-gray-500">
-          Or <Link to="/marketplace/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">start your 14-day free trial</Link>
+          {authFlow.show2FA
+            ? 'Enter the 6-digit code from your authenticator app'
+            : <>Or <Link to="/marketplace/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">start your 14-day free trial</Link></>
+          }
         </p>
       </div>
 
+      {/* 2FA Verification Form */}
+      {authFlow.show2FA && authFlow.tempToken ? (
+        <form className="space-y-6" onSubmit={handle2FASubmit}>
+          {/* Error Message */}
+          {errors.form && (
+            <div className="rounded-md bg-red-50 p-4">
+              <p className="text-sm text-red-700">{errors.form}</p>
+            </div>
+          )}
+
+          {/* OTP Input */}
+          <div className="flex justify-center gap-3">
+            {otp.map((digit, idx) => (
+              <input
+                key={`otp-input-${idx}`}
+                id={`login-otp-${idx}`}
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleOtpChange(idx, e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Backspace' && !digit && idx > 0) {
+                    const prevInput = document.getElementById(`login-otp-${idx - 1}`);
+                    if (prevInput) prevInput.focus();
+                  }
+                }}
+                className="w-12 h-14 text-center text-xl font-bold rounded-lg border-2 border-gray-200 bg-white text-gray-900 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none transition-all"
+                autoFocus={idx === 0}
+              />
+            ))}
+          </div>
+
+          {/* Verify Button */}
+          <button
+            type="submit"
+            disabled={isVerifying2FA || otp.some(d => !d)}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isVerifying2FA ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Verifying...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Verify Code
+              </span>
+            )}
+          </button>
+
+          {/* Back to Login */}
+          <button
+            type="button"
+            onClick={() => {
+              setAuthFlow({ show2FA: false, tempToken: null });
+              setOtp(['', '', '', '', '', '']);
+              setErrors({});
+            }}
+            className="w-full text-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            ← Back to Login
+          </button>
+        </form>
+      ) : (
       <form className="space-y-6" onSubmit={handleSubmit}>
         <InputField
           label="Email address"
@@ -274,19 +414,9 @@ const SignIn = () => {
           >
             {isLoading ? 'Signing in...' : 'Sign in'}
           </button>
-
-          {/* Development Helper */}
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              type="button"
-              onClick={() => setFormData({ email: 'demo@example.com', password: 'Password123!', rememberMe: true })}
-              className="mt-4 w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none"
-            >
-              Dev: Fill Test Data
-            </button>
-          )}
         </div>
       </form>
+      )}
 
       <div className="mt-6">
         <div className="relative">
