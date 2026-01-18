@@ -26,10 +26,11 @@ const baseQuery = fetchBaseQuery({
     const state = getState();
 
     // Check for auth tokens from different panels
+    const marketplaceToken = state.auth?.token; // Marketplace auth
     const portfolioToken = state.portfolioUI?.auth?.token;
     const adminToken = state.adminAuth?.adminToken;
 
-    const token = portfolioToken || adminToken; // Add more as needed
+    const token = marketplaceToken || portfolioToken || adminToken; // Check marketplace first (most common)
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
