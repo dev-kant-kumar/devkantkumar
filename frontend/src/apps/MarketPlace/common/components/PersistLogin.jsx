@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useRefreshTokenMutation } from '../../store/auth/authApi';
-import { logout, selectCurrentToken, setCredentials } from '../../store/auth/authSlice';
+import { selectCurrentToken, setCredentials } from '../../store/auth/authSlice';
 
 const PersistLogin = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -31,8 +31,8 @@ const PersistLogin = () => {
           console.error('Failed to refresh token:', err);
         }
 
-        // If refresh fails, clear auth state
-        dispatch(logout());
+        // Don't dispatch logout for guests - just clean up localStorage as precaution
+        // Dispatching logout here was causing cascading 401 errors for guest users
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       } finally {

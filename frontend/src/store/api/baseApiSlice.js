@@ -112,7 +112,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   if (result.error && result.error.status === 401) {
     // Don't try to refresh if the failed request was already a refresh attempt
     if (args.url === API_ENDPOINTS.AUTH.REFRESH_TOKEN) {
-      api.dispatch(logout());
+      // Only logout if user was actually logged in (had a token)
+      if (token) {
+        api.dispatch(logout());
+      }
       return result;
     }
 
@@ -131,7 +134,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
           // Retry original request
           result = await baseQuery(args, api, extraOptions);
         } else {
-          api.dispatch(logout());
+          // Only logout if user was actually logged in (had a token)
+          if (token) {
+            api.dispatch(logout());
+          }
         }
       } finally {
         release();
