@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { currencyService } from '../../../services/currencyService';
-import { useGetSettingsQuery } from '../../AdminPanel/store/api/adminApiSlice';
+import { useGetSettingsQuery } from '../../Portfolio/store/api/baseApi'; // Use public settings API
 
 const CurrencyContext = createContext();
 
