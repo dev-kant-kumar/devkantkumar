@@ -217,7 +217,7 @@ const SignIn = () => {
         <p className="mt-1 text-sm text-gray-500">
           {authFlow.show2FA
             ? 'Enter the 6-digit code from your authenticator app'
-            : <>Or <Link to="/marketplace/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">start your 14-day free trial</Link></>
+            : <>Or <Link to="/marketplace/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">Create an account</Link></>
           }
         </p>
       </div>
