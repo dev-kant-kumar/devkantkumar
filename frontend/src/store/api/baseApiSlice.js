@@ -55,70 +55,36 @@ const baseQuery = fetchBaseQuery({
  * Enhanced base query with error handling and token refresh logic
  */
 import { Mutex } from 'async-mutex';
-import { jwtDecode } from "jwt-decode";
 import { logout, setCredentials } from "../../apps/MarketPlace/store/auth/authSlice";
 import { API_ENDPOINTS } from "../../config/api";
 
 const mutex = new Mutex();
 
 /**
- * Enhanced base query with error handling, smart token refresh, and concurrency control
+ * Enhanced base query with error handling and token refresh logic
+ * SIMPLIFIED: Removed aggressive smart refresh that was causing logout loops
  */
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   // Wait until the mutex is available without locking it
   await mutex.waitForUnlock();
 
-  // Smart Refresh: Check if token is expired or about to expire (within 1 minute)
   const state = api.getState();
   const token = state.auth?.token;
 
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-
-      // If token is expired or expires in less than 60 seconds
-      if (decoded.exp < currentTime + 60) {
-        if (!mutex.isLocked()) {
-          const release = await mutex.acquire();
-          try {
-            const refreshResult = await baseQuery(
-              { url: API_ENDPOINTS.AUTH.REFRESH_TOKEN, method: 'POST' },
-              api,
-              extraOptions
-            );
-
-            if (refreshResult.data) {
-              const { token: newToken, user } = refreshResult.data;
-              api.dispatch(setCredentials({ user: user || state.auth.user, token: newToken }));
-            } else {
-              api.dispatch(logout());
-            }
-          } finally {
-            release();
-          }
-        } else {
-          await mutex.waitForUnlock();
-        }
-      }
-    } catch (error) {
-      // If decoding fails, let the 401 handler deal with it
-    }
-  }
-
+  // Make the request
   let result = await baseQuery(args, api, extraOptions);
 
-  // Handle 401 unauthorized responses (Fallback)
+  // Handle 401 unauthorized responses
   if (result.error && result.error.status === 401) {
-    // Don't try to refresh if the failed request was already a refresh attempt
-    if (args.url === API_ENDPOINTS.AUTH.REFRESH_TOKEN) {
-      // Only logout if user was actually logged in (had a token)
-      if (token) {
-        api.dispatch(logout());
-      }
+    // Don't try to refresh if:
+    // 1. The failed request was already a refresh attempt
+    // 2. User was never logged in (no token in state)
+    if (args.url === API_ENDPOINTS.AUTH.REFRESH_TOKEN || !token) {
+      // Just return the error, don't logout guests
       return result;
     }
 
+    // User was logged in but got 401 - try to refresh once
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
@@ -129,20 +95,19 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         );
 
         if (refreshResult.data) {
+          // Refresh succeeded - update credentials and retry original request
           const { token: newToken, user } = refreshResult.data;
           api.dispatch(setCredentials({ user: user || state.auth.user, token: newToken }));
-          // Retry original request
           result = await baseQuery(args, api, extraOptions);
         } else {
-          // Only logout if user was actually logged in (had a token)
-          if (token) {
-            api.dispatch(logout());
-          }
+          // Refresh failed - token is truly invalid, logout the user
+          api.dispatch(logout());
         }
       } finally {
         release();
       }
     } else {
+      // Another refresh is in progress, wait for it and retry
       await mutex.waitForUnlock();
       result = await baseQuery(args, api, extraOptions);
     }
