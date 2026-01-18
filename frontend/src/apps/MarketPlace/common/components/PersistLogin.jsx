@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useRefreshTokenMutation } from '../../store/auth/authApi';
 import { selectCurrentToken, setCredentials } from '../../store/auth/authSlice';
 
@@ -9,10 +9,6 @@ const PersistLogin = () => {
   const token = useSelector(selectCurrentToken);
   const [refreshToken] = useRefreshTokenMutation();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const [trueSuccess, setTrueSuccess] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -22,17 +18,9 @@ const PersistLogin = () => {
         const response = await refreshToken().unwrap();
         if (isMounted) {
           dispatch(setCredentials({ ...response, token: response.token }));
-          setTrueSuccess(true);
         }
       } catch (err) {
-        // Only log errors if it's not a generic 401 (meaning just not logged in)
-        // or effectively treat 401 as "Guest User"
-        if (err?.status !== 401) {
-          console.error('Failed to refresh token:', err);
-        }
-
-        // Don't dispatch logout for guests - just clean up localStorage as precaution
-        // Dispatching logout here was causing cascading 401 errors for guest users
+        // Refresh failed - user is a guest, just clean up
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       } finally {
@@ -42,20 +30,23 @@ const PersistLogin = () => {
       }
     };
 
-    if (!token) {
-      // No token in state, try to restore from cookie
+    // Only try to restore session if:
+    // 1. No token in Redux state AND
+    // 2. There's a localStorage token (indicating a previous session)
+    const storedToken = localStorage.getItem('token');
+
+    if (!token && storedToken) {
+      // Previous session exists, try to refresh
       verifyRefreshToken();
     } else {
-      // Token exists in state, we are good
+      // Either already have token OR never had a session - just continue
       setIsLoading(false);
     }
 
     return () => {
       isMounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
-
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (
