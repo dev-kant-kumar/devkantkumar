@@ -70,8 +70,20 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
   const navigationItems = activeMode === 'portfolio' ? portfolioItems : marketplaceItems;
 
   const isActive = (path) => {
-    if (path === "/admin" && location.pathname === "/admin") return true;
-    if (path !== "/admin" && location.pathname.startsWith(path)) return true;
+    // Exact match is always active
+    if (location.pathname === path) return true;
+
+    // Index/Dashboard routes should ONLY be active on exact match
+    // This prevents "Overview" from being active when visiting "Products"
+    if (path === "/admin" || path === "/admin/marketplace") return false;
+
+    // For other routes, allow sub-path matching (e.g. "Products" active for "/products/new")
+    if (location.pathname.startsWith(path)) {
+        // Ensure we don't partial match (e.g. "/users" shouldn't match "/users-extra")
+        const nextChar = location.pathname.charAt(path.length);
+        return !nextChar || nextChar === '/';
+    }
+
     return false;
   };
 

@@ -322,7 +322,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     uploadFiles: builder.mutation({
       query: (formData) => ({
-        url: '/api/v1/upload/multiple',
+        url: '/upload/multiple',
         method: 'POST',
         body: formData,
       }),

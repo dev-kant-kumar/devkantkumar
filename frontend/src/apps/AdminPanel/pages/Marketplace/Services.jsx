@@ -9,6 +9,7 @@ import {
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import DeleteConfirmationModal from '../../common/components/DeleteConfirmationModal';
 import {
     useDeleteServiceMutation,
     useGetAdminServicesQuery
@@ -16,21 +17,31 @@ import {
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
   const navigate = useNavigate();
 
   const { data, isLoading } = useGetAdminServicesQuery({});
-  const [deleteService] = useDeleteServiceMutation();
+  const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
 
   const services = data?.services || [];
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this service?')) {
-      try {
-        await deleteService(id).unwrap();
-        toast.success('Service deleted');
-      } catch (error) {
-        toast.error('Failed to delete service');
-      }
+  const confirmDelete = (service) => {
+    setItemToDelete(service);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      await deleteService(itemToDelete._id).unwrap();
+      toast.success('Service deleted');
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
+    } catch (error) {
+      toast.error(error.data?.message || 'Failed to delete service');
     }
   };
 
@@ -157,7 +168,7 @@ const Services = () => {
                           <Edit2 size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(service._id)}
+                          onClick={() => confirmDelete(service)}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                           title="Delete"
                         >
@@ -172,6 +183,19 @@ const Services = () => {
           </div>
         )}
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+            setDeleteModalOpen(false);
+            setItemToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Service"
+        message="Are you sure you want to delete this service? This action cannot be undone."
+        itemName={itemToDelete?.title}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

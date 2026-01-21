@@ -3,11 +3,10 @@ import { ArrowRight, Minus, Package, Plus, ShoppingBag, Trash2 } from "lucide-re
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import PriceDisplay from "../../../../components/common/PriceDisplay";
 import {
-  useGetCartQuery,
-  useRemoveFromCartMutation,
-  useUpdateCartItemMutation,
+    useGetCartQuery,
+    useRemoveFromCartMutation,
+    useUpdateCartItemMutation,
 } from "../../../../store/cart/cartApi";
 import { useCurrency } from "../../context/CurrencyContext";
 import { selectIsAuthenticated } from "../../store/auth/authSlice";
@@ -35,22 +34,34 @@ const Cart = () => {
 
   const getCartItemPrice = (item) => {
       const displayItem = item.product || item.service;
-      if (!displayItem) return 0;
 
-      let price = 0;
+      // For local cart (unauthenticated), price is stored directly on item
+      // For backend cart (authenticated), price is on displayItem (item.product or item.service)
+
       if ((item.type === 'service' || item.itemType === 'service')) {
-           if ((item.package || item.packageName) && displayItem.packages) {
-                const pkgName = item.package || item.packageName;
-                const pkg = displayItem.packages.find(p => p.name === pkgName);
-                if (pkg) price = pkg.price;
-                else price = displayItem.startingPrice || 0;
-           } else {
-                price = displayItem.startingPrice || 0;
+           // Check local cart item price first
+           if (item.price !== undefined && item.price !== null) {
+               return item.price;
            }
+           // Backend cart - get from service packages
+           if (displayItem) {
+                if ((item.package || item.packageName) && displayItem.packages) {
+                     const pkgName = item.package || item.packageName;
+                     const pkg = displayItem.packages.find(p => p.name === pkgName);
+                     if (pkg) return pkg.price;
+                }
+                return displayItem.startingPrice || 0;
+           }
+           return 0;
       } else {
-          price = displayItem.price || 0;
+          // For products:
+          // 1. Check item.price (local cart stores price directly)
+          // 2. Check displayItem.price (backend cart has price on populated product)
+          if (item.price !== undefined && item.price !== null) {
+              return item.price;
+          }
+          return displayItem?.price || 0;
       }
-      return price;
   };
 
   // Calculate totals
@@ -61,8 +72,10 @@ const Cart = () => {
       subtotal += price * item.quantity;
     });
 
-    const total = getFinalPrice(subtotal);
-    const surchargeAmount = total - subtotal;
+    // Calculate surcharge as exact percentage
+    const surchargeAmount = subtotal * (surchargeRate / 100);
+    // Total = subtotal + surcharge (no rounding, show exact values)
+    const total = subtotal + surchargeAmount;
 
     return { subtotal, surchargeAmount, total };
   };
@@ -174,9 +187,9 @@ const Cart = () => {
                       transition={{ delay: index * 0.1 }}
                       className="p-6 border-b border-gray-200 last:border-b-0"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                         {/* Product Image & Info */}
-                        <div className="flex items-start flex-1 gap-4 w-full">
+                        <div className="flex items-start flex-1 gap-4 min-w-0">
                           {imageUrl ? (
                             <img
                               src={imageUrl}
@@ -195,11 +208,11 @@ const Cart = () => {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-start gap-2 mb-1">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate pr-2">
+                            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start gap-1 sm:gap-2 mb-1">
+                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 leading-snug" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                 {title}
                               </h3>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap ${
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase whitespace-nowrap w-fit flex-shrink-0 ${
                                 (item.itemType || item.type) === 'service'
                                   ? 'bg-purple-100 text-purple-700'
                                   : 'bg-blue-100 text-blue-700'
@@ -218,14 +231,19 @@ const Cart = () => {
                             <div className="mt-1">
                                 {(() => {
                                     const price = getCartItemPrice(item);
-                                    return <PriceDisplay price={price} className="text-lg font-bold" textClass="text-gray-900" />;
+                                    // Show base price without surcharge (surcharge is added in Order Summary)
+                                    return (
+                                        <span className="text-lg font-bold text-gray-900">
+                                            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(price)}
+                                        </span>
+                                    );
                                 })()}
                             </div>
                           </div>
                         </div>
 
                         {/* Actions (Quantity & Remove) */}
-                        <div className="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-none border-gray-100">
+                        <div className="flex items-center justify-between w-full sm:w-auto gap-4 pt-2 sm:pt-0 border-t sm:border-none border-gray-100 flex-shrink-0">
                           <div className="flex items-center border border-gray-300 rounded-lg ml-auto sm:ml-0">
                             <button
                               onClick={() =>

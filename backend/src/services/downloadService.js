@@ -29,8 +29,10 @@ const downloadService = {
    * @param {number} maxDownloads Limit per file (default 5)
    * @returns {Array} Array of secure link objects
    */
-  generateSecureDownloadLinks: (item, maxDownloads = 5) => {
-    const files = item.product.downloadFiles || [];
+  generateSecureDownloadLinks: (product, options = {}) => {
+    const files = product.downloadFiles || [];
+    const maxDownloads = options.maxDownloads || 5;
+    const expiryHours = options.expiryHours || DEFAULT_EXPIRY_HOURS;
 
     return files.map(file => ({
       token: crypto.randomBytes(TOKEN_LENGTH).toString('hex'),
@@ -39,7 +41,7 @@ const downloadService = {
       // It is retrieved internally when validateDownloadToken is called
       fileId: file.source?._id || file._id || 'unknown',
       fileUrl: file.url, // Stored internally, not sent to user in safe view
-      expiresAt: new Date(Date.now() + DEFAULT_EXPIRY_HOURS * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + expiryHours * 60 * 60 * 1000),
       maxDownloads: maxDownloads,
       downloadCount: 0,
       createdAt: new Date()

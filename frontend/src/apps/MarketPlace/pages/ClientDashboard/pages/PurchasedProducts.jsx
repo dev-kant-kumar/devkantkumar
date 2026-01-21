@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, Book, Code, Download, Eye, Loader2, Package, Play, RefreshCw, Search, Star } from 'lucide-react';
+import { AlertCircle, Book, Code, Eye, Loader2, Package, Play, RefreshCw, Search, Settings, Star } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useGetUserOrdersQuery, useRegenerateDownloadLinksMutation } from '../../../store/orders/ordersApi';
 
 const PurchasedProducts = () => {
@@ -35,7 +35,7 @@ const PurchasedProducts = () => {
           const populatedProduct = item.itemId && typeof item.itemId === 'object' ? item.itemId : null;
 
           products.push({
-            id: item._id || (populatedProduct?._id) || item.itemId,
+            id: (populatedProduct?._id) || item.itemId,
             orderId: order._id,
             name: item.title,
             // Use populated product data for version, or fallback
@@ -83,65 +83,11 @@ const PurchasedProducts = () => {
     toast.success('License key copied!');
   };
 
-  // Handle download from order's downloadLinks
-  const handleDownload = (product) => {
-    // 1. Prioritize Secure Token Links
-    if (product.downloadLinks && product.downloadLinks.length > 0) {
-      const validLink = product.downloadLinks.find(link =>
-        (!link.expiresAt || new Date(link.expiresAt) > new Date()) &&
-        (!link.fileUrl && link.token) // Ensure it's a secure token link
-      );
+  const navigate = useNavigate();
 
-      if (validLink) {
-        // Construct Backend Download URL
-        // /api/v1/marketplace/orders/:orderId/items/:itemId/download?token=:token
-        const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/marketplace/orders/${product.orderId}/items/${product.id}/download?token=${validLink.token}`;
-
-        // Open in new tab which will trigger the file download
-        window.open(downloadUrl, '_blank');
-        toast.success('Secure download started!');
-        return;
-      }
-
-       // If links exist but none are valid
-       // Check if it's due to expiry or limit
-       const expiredLink = product.downloadLinks.find(l => l.isExpired);
-       const exhaustedLink = product.downloadLinks.find(l => l.isExhausted);
-
-       if (exhaustedLink) {
-          toast.error('Download limit reached.');
-       } else if (expiredLink) {
-          toast.error('Download link expired. Regenerating...');
-          handleRegenerate(product);
-       } else {
-           // Fallback for edge cases
-            handleRegenerate(product);
-       }
-
-    } else if (product.productFiles && product.productFiles.length > 0) {
-      // Legacy/Fallback to product download files (if unsafe mode active)
-      const file = product.productFiles[0];
-      if (file.url) {
-        window.open(file.url, '_blank');
-        toast.success('Download started!');
-      }
-    } else {
-      toast.error('No download links available');
-    }
-  };
-
-  // Regenerate download links
-  const handleRegenerate = async (product) => {
-    try {
-      await regenerateLinks({
-        orderId: product.orderId,
-        itemId: product.id,
-      }).unwrap();
-      toast.success('Download links regenerated!');
-      refetch();
-    } catch (err) {
-      toast.error(err?.data?.message || 'Failed to regenerate links');
-    }
+  // Handle navigation to details
+  const handleManageProduct = (product) => {
+    navigate(`/marketplace/dashboard/products/${product.orderId}/${product.id}`);
   };
 
   if (isLoading) {
@@ -233,11 +179,11 @@ const PurchasedProducts = () => {
                 )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                   <button
-                    onClick={() => handleDownload(product)}
-                    className="p-2 bg-white rounded-full text-gray-900 hover:text-green-600 transition-colors"
-                    title="Download"
+                    onClick={() => handleManageProduct(product)}
+                    className="p-2 bg-white rounded-full text-gray-900 hover:text-green-600 transition-colors cursor-pointer"
+                    title="Manage & Download"
                   >
-                    <Download className="h-5 w-5" />
+                    <Settings className="h-5 w-5" />
                   </button>
                   {product.demoUrl && (
                     <a
@@ -331,16 +277,11 @@ const PurchasedProducts = () => {
                 <div className="mt-auto">
                   {/* Download Button */}
                   <button
-                    onClick={() => handleDownload(product)}
-                    disabled={isRegenerating}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
+                    onClick={() => handleManageProduct(product)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-50 text-green-700 font-medium rounded-lg hover:bg-green-100 transition-colors"
                   >
-                    {isRegenerating ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Download className="h-4 w-4" />
-                    )}
-                    {product.downloadLinks?.length > 0 || product.productFiles?.length > 0 ? 'Download' : 'Request Download'}
+                    <Settings className="h-4 w-4" />
+                    Manage Product
                   </button>
                 </div>
               </div>

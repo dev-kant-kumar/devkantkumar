@@ -18,6 +18,7 @@ const DashboardOverview = React.lazy(() => import('./pages/ClientDashboard/pages
 const PurchasedServices = React.lazy(() => import('./pages/ClientDashboard/pages/PurchasedServices'));
 const ServiceWorkspace = React.lazy(() => import('./pages/ClientDashboard/pages/ServiceWorkspace'));
 const PurchasedProducts = React.lazy(() => import('./pages/ClientDashboard/pages/PurchasedProducts'));
+const PurchasedProductDetails = React.lazy(() => import('./pages/ClientDashboard/pages/PurchasedProductDetails'));
 const Settings = React.lazy(() => import('./pages/ClientDashboard/pages/Settings'));
 const Orders = React.lazy(() => import('./pages/Orders/Orders'));
 const Invoice = React.lazy(() => import('./pages/Invoice/Invoice'));
@@ -85,6 +86,7 @@ const MarketPlaceRoutes = () => {
               <Route path="services" element={<PurchasedServices />} />
               <Route path="services/:serviceId" element={<ServiceWorkspace />} />
               <Route path="products" element={<PurchasedProducts />} />
+              <Route path="products/:orderId/:productId" element={<PurchasedProductDetails />} />
               <Route path="orders/:orderId/invoice" element={<Invoice />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="support" element={<SupportTickets />} />

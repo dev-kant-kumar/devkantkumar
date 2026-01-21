@@ -541,7 +541,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                 Click to upload or drag & drop
               </p>
               <p className="text-xs opacity-70 mt-1">
-                PNG, JPG, WEBP (Max 100MB)
+                PNG, JPG, WEBP (Max 100MB) • Rec: 1920x1080px (16:9)
               </p>
             </div>
             <input

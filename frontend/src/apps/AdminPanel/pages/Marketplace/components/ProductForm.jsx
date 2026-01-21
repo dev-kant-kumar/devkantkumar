@@ -1,26 +1,26 @@
 import {
-  Check,
-  ChevronDown,
-  Coins,
-  Eye,
-  FileText,
-  Github,
-  Globe,
-  Image as ImageIcon,
-  Layers,
-  Link as LinkIcon,
-  Loader,
-  Plus,
-  Tag,
-  Trash2,
-  Upload,
-  X,
+    Check,
+    ChevronDown,
+    Coins,
+    Eye,
+    FileText,
+    Github,
+    Globe,
+    Image as ImageIcon,
+    Layers,
+    Link as LinkIcon,
+    Loader,
+    Plus,
+    Tag,
+    Trash2,
+    Upload,
+    X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-  useUploadFilesMutation,
-  useUploadImageMutation
+    useUploadFilesMutation,
+    useUploadImageMutation
 } from "../../../store/api/adminApiSlice";
 
 
@@ -310,6 +310,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
               url: f.url,
               size: f.size,
               type: f.mimetype,
+              public_id: f.id,
             })),
           ],
         }));
@@ -417,19 +418,25 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       e.preventDefault();
       if (!tagInput.trim()) return;
 
-      if (formData.tags.length >= MAX_TAGS) {
-        toast.error(`Maximum ${MAX_TAGS} tags allowed`);
+      const newTags = tagInput
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0)
+        .filter((tag) => !formData.tags.includes(tag));
+
+      if (newTags.length === 0) {
+        setTagInput("");
         return;
       }
 
-      if (formData.tags.includes(tagInput.trim())) {
-        toast.error("Tag already exists");
+      if (formData.tags.length + newTags.length > MAX_TAGS) {
+        toast.error(`Maximum ${MAX_TAGS} tags allowed`);
         return;
       }
 
       setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, tagInput.trim()],
+        tags: [...prev.tags, ...newTags],
       }));
       setTagInput("");
     }
@@ -564,7 +571,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
               onKeyDown={handleTagKeyDown}
               placeholder={
                 formData.tags.length < MAX_TAGS
-                  ? "Type & Enter..."
+                  ? "Type tags separated by comma..."
                   : "Max tags reached"
               }
               disabled={formData.tags.length >= MAX_TAGS}
@@ -572,7 +579,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
             />
           </div>
           <p className="text-xs text-gray-400 mt-1 ml-1">
-            Type tag and press Enter
+            Type tags separated by comma and press Enter
           </p>
         </div>
       </section>
@@ -701,7 +708,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                 Click to upload or drag & drop
               </p>
               <p className="text-xs opacity-70 mt-1">
-                PNG, JPG, WEBP (Max 100MB)
+                PNG, JPG, WEBP (Max 100MB) • Rec: 1920x1080px (16:9)
               </p>
             </div>
             <input

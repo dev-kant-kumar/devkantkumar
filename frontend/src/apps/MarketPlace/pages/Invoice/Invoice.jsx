@@ -276,7 +276,7 @@ const Invoice = () => {
   }
 
   // Extract data from order
-  const currency = order.payment?.currency || 'INR';
+  const currency = (!order.payment?.currency || order.payment?.currency === 'USD') ? 'INR' : order.payment.currency;
   const paymentStatus = order.payment?.status === 'completed' ? 'Paid' : order.payment?.status || 'Pending';
   const isPaid = order.payment?.status === 'completed';
 
@@ -290,20 +290,20 @@ const Invoice = () => {
       <div className="flex justify-between items-center">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Orders
         </button>
         <div className="flex gap-3">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer"
           >
             <Printer className="h-4 w-4" /> Print
           </button>
           <button
             onClick={handleDownloadPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm cursor-pointer"
           >
             <Download className="h-4 w-4" /> Download PDF
           </button>
@@ -330,20 +330,36 @@ const Invoice = () => {
           {/* Info Grid */}
           <div className="info-grid grid grid-cols-2 gap-8 mb-8">
             <div>
-              <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Billed To</h3>
-              <p className="client-name font-bold text-gray-900">{order.billing?.firstName} {order.billing?.lastName}</p>
-              {order.billing?.company && (
-                <p className="client-detail text-sm text-gray-600">{order.billing.company}</p>
-              )}
-              {order.billing?.address && (
-                <p className="client-detail text-sm text-gray-600">
-                  {order.billing.address.street && `${order.billing.address.street}, `}
-                  {order.billing.address.city && `${order.billing.address.city}, `}
-                  {order.billing.address.state && `${order.billing.address.state} `}
-                  {order.billing.address.zipCode}
+              <div className="mb-8">
+                <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Billed To</h3>
+                <p className="client-name font-bold text-gray-900">{order.billing?.firstName} {order.billing?.lastName}</p>
+                {order.billing?.company && (
+                  <p className="client-detail text-sm text-gray-600">{order.billing.company}</p>
+                )}
+                {order.billing?.address && (
+                  <p className="client-detail text-sm text-gray-600">
+                    {order.billing.address.street && `${order.billing.address.street}, `}
+                    {order.billing.address.city && `${order.billing.address.city}, `}
+                    {order.billing.address.state && `${order.billing.address.state} `}
+                    {order.billing.address.zipCode}
+                  </p>
+                )}
+                <p className="client-detail text-sm text-gray-600">{order.billing?.email}</p>
+              </div>
+
+              <div>
+                <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sold By</h3>
+                <p className="client-name font-bold text-gray-900">Dev Kant Kumar</p>
+                <p className="client-detail text-sm text-gray-600">Mehta Residency, Near Gajraj Motors, Sindoor</p>
+                <p className="client-detail text-sm text-gray-600">Nearby Vinoba Bhave University, Hazaribagh</p>
+                <p className="client-detail text-sm text-gray-600">Jharkhand 825301</p>
+                <p className="client-detail text-sm text-gray-600 mt-1">
+                  <a href="mailto:support@devkantkumar.com" className="hover:text-green-600 hover:underline">support@devkantkumar.com</a>
                 </p>
-              )}
-              <p className="client-detail text-sm text-gray-600">{order.billing?.email}</p>
+                <p className="client-detail text-sm text-gray-600">
+                  <a href="https://www.devkantkumar.com" target="_blank" rel="noopener noreferrer" className="hover:text-green-600 hover:underline">www.devkantkumar.com</a>
+                </p>
+              </div>
             </div>
             <div className="text-right">
               <div className="mb-4">

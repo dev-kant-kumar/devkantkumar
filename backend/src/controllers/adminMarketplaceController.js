@@ -169,6 +169,14 @@ exports.updateProduct = async (req, res) => {
 // @access  Admin
 exports.deleteProduct = async (req, res) => {
   try {
+    // Check if product has been purchased
+    const existingOrders = await Order.exists({ 'items.itemId': req.params.id });
+    if (existingOrders) {
+      return res.status(400).json({
+        message: "Cannot delete this product as it has been purchased by users. Please deactivate it instead to preserve user history."
+      });
+    }
+
     const product = await Product.findByIdAndDelete(req.params.id);
 
     if (!product) {
@@ -480,6 +488,14 @@ exports.updateService = async (req, res) => {
 // @access  Admin
 exports.deleteService = async (req, res) => {
   try {
+    // Check if service has been purchased
+    const existingOrders = await Order.exists({ 'items.itemId': req.params.id });
+    if (existingOrders) {
+      return res.status(400).json({
+        message: "Cannot delete this service as it has been purchased by users. Please deactivate it instead to preserve user history."
+      });
+    }
+
     const service = await Service.findByIdAndDelete(req.params.id);
 
     if (!service) {

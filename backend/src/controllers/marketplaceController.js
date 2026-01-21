@@ -8,7 +8,9 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
+const axios = require("axios");
 const downloadService = require("../services/downloadService");
+const cloudinary = require("../services/cloudinaryService");
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -35,8 +37,9 @@ const getServices = async (req, res) => {
     }
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: "i" } },
+        { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -95,8 +98,9 @@ const getProducts = async (req, res) => {
     }
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: "i" } },
+        { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -382,11 +386,11 @@ const createOrder = async (req, res) => {
         method: paymentMethod || "razorpay",
         status: "pending",
         amount: {
+          total,
           subtotal,
           tax,
-          total,
-          currency: currency,
         },
+        currency: currency,
       },
       status: "pending",
     });
@@ -582,8 +586,8 @@ const createRazorpayOrder = async (req, res) => {
           total: totalAmount,
           subtotal,
           tax,
-          currency,
         },
+        currency,
       },
       status: "pending",
     });
@@ -637,10 +641,8 @@ const verifyRazorpayPayment = async (req, res) => {
           const product = await Product.findById(item.itemId);
           if (product && product.downloadFiles && product.downloadFiles.length > 0) {
             // Use secure download service to generate token-based links
-            item.downloadLinks = await downloadService.generateSecureDownloadLinks(
+            item.downloadLinks = downloadService.generateSecureDownloadLinks(
               product,
-              order._id,
-              req.user.id,
               { expiryHours: 48, maxDownloads: 5 }
             );
             logger.info(`Generated ${item.downloadLinks.length} secure download links for product ${product._id}`);
@@ -751,19 +753,43 @@ const verifyRazorpayPayment = async (req, res) => {
 };
 
 // --- DIGITAL DOWNLOADS ---
+/**
+ * Download Purchased Item - Industry-grade implementation
+ * Features:
+ * - Robust Cloudinary URL parsing for all resource types (raw, image, video)
+ * - Multiple fallback strategies if signed URL fails
+ * - Comprehensive error handling with user-friendly messages
+ * - Download count tracking
+ * - Security logging
+ */
 const downloadPurchasedItem = async (req, res) => {
-  try {
-    const { orderId, itemId } = req.params;
-    const { token } = req.query; // Expect token in query param
+  const startTime = Date.now();
+  const { orderId, itemId } = req.params;
+  const { token } = req.query;
 
+  // Get client info for logging
+  const ipAddress = downloadService.getClientIP(req);
+  const userAgent = req.headers['user-agent'] || 'Unknown';
+  const userId = req.user?._id;
+
+  try {
+    // Validate required params
     if (!token) {
-      return res.status(400).json({ message: "Download token is required" });
+      logger.warn(`Download attempt without token from IP: ${ipAddress}`);
+      return res.status(400).json({
+        success: false,
+        message: "Download token is required",
+        code: 'MISSING_TOKEN'
+      });
     }
 
-    // Get client IP and User Agent for logging
-    const ipAddress = downloadService.getClientIP(req);
-    const userAgent = req.headers['user-agent'] || 'Unknown';
-    const userId = req.user._id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+        code: 'AUTH_REQUIRED'
+      });
+    }
 
     // Validate Token
     const validation = await downloadService.validateDownloadToken(
@@ -774,54 +800,299 @@ const downloadPurchasedItem = async (req, res) => {
     );
 
     if (!validation.isValid) {
-      return res.status(403).json({ message: validation.error || "Invalid or expired download link" });
+      logger.warn(`Invalid download token: ${validation.error} - User: ${userId}, IP: ${ipAddress}`);
+
+      // Map internal errors to user-friendly messages
+      const errorMessages = {
+        'Invalid download link': 'This download link is not valid. Please refresh the page.',
+        'Unauthorized access': 'You do not have permission to download this file.',
+        'Order payment not completed': 'Payment for this order has not been completed.',
+        'Link not found': 'Download link not found. Try regenerating your links.',
+        'Download link has expired': 'This download link has expired. Please regenerate your links.',
+        'Download limit exceeded': 'You have reached the maximum download limit for this file. Please regenerate your links.'
+      };
+
+      return res.status(403).json({
+        success: false,
+        message: errorMessages[validation.error] || validation.error || "Invalid or expired download link",
+        code: 'INVALID_TOKEN'
+      });
     }
 
     const { link, order, item } = validation;
 
-    // Increment download count
-    // Note: This matches the specific sub-document array element
-    await Order.updateOne(
-      { _id: order._id, "items.downloadLinks.token": token },
-      { $inc: { "items.$[i].downloadLinks.$[j].downloadCount": 1 } },
-      {
-        arrayFilters: [
-          { "i._id": item._id },
-          { "j.token": token }
-        ]
+    // Get the file URL
+    let downloadUrl = link.fileUrl;
+
+    if (!downloadUrl) {
+      logger.error(`No file URL found for download link: ${link.token}`);
+      return res.status(404).json({
+        success: false,
+        message: 'File not found. Please contact support.',
+        code: 'FILE_NOT_FOUND'
+      });
+    }
+
+    logger.info(`Starting download - Order: ${order._id}, Item: ${item._id}, File: ${link.name}, URL: ${downloadUrl.substring(0, 80)}...`);
+
+    // === CLOUDINARY URL HANDLING ===
+    // Cloudinary URLs come in various formats, we need to handle them all
+    if (downloadUrl.includes('cloudinary.com')) {
+      downloadUrl = await generateCloudinaryDownloadUrl(downloadUrl, link.name);
+    }
+
+    // === PROXY THE FILE ===
+    const downloadResult = await proxyFileDownload(res, downloadUrl, link.name);
+
+    if (downloadResult.success) {
+      // Update download count AFTER successful stream start
+      try {
+        await Order.updateOne(
+          { _id: order._id, "items.downloadLinks.token": token },
+          {
+            $inc: { "items.$[i].downloadLinks.$[j].downloadCount": 1 },
+            $set: {
+              "items.$[i].downloadLinks.$[j].lastDownloadAt": new Date(),
+              "items.$[i].downloadLinks.$[j].lastDownloadIP": ipAddress
+            }
+          },
+          {
+            arrayFilters: [
+              { "i._id": item._id },
+              { "j.token": token }
+            ]
+          }
+        );
+      } catch (updateErr) {
+        // Non-critical - log but don't fail the download
+        logger.warn(`Failed to update download count: ${updateErr.message}`);
       }
-    );
 
-    // Log success
-    await downloadService.logDownload({
-      user: userId,
-      order: order._id,
-      product: item.itemId, // The product ID
-      token,
-      fileName: link.name,
-      ipAddress,
-      userAgent,
-      success: true
-    });
-
-    // In a real production environment with protected S3/Cloud storage:
-    // const signedUrl = await downloadService.getSignedUrl(link.fileUrl);
-    // return res.redirect(signedUrl);
-
-    // For this project (assuming publicly accessible or server-proxied files):
-    // If files are on the same server or public URL:
-    return res.redirect(link.fileUrl);
-
-    // Improved security later: Proxy the file stream so the user NEVER sees the source URL
-    // const response = await axios.get(link.fileUrl, { responseType: 'stream' });
-    // res.setHeader('Content-Type', response.headers['content-type']);
-    // response.data.pipe(res);
+      // Log success
+      await downloadService.logDownload({
+        user: userId,
+        order: order._id,
+        product: item.itemId,
+        token,
+        fileName: link.name,
+        ipAddress,
+        userAgent,
+        success: true,
+        duration: Date.now() - startTime
+      });
+    }
+    // If download failed, proxyFileDownload already sent the error response
 
   } catch (error) {
     logger.error("Download item error:", error);
-    res.status(500).json({ message: "Server error during download" });
+
+    // Log failure
+    await downloadService.logDownload({
+      user: userId,
+      order: orderId,
+      token,
+      ipAddress,
+      userAgent,
+      success: false,
+      failureReason: error.message,
+      duration: Date.now() - startTime
+    }).catch(() => {}); // Don't fail on logging error
+
+    // Don't send response if headers already sent (stream started)
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Download failed. Please try again or contact support.",
+        code: 'SERVER_ERROR'
+      });
+    }
   }
 };
+
+/**
+ * Generate a working Cloudinary download URL
+ * Handles all resource types: raw (PDFs, ZIPs), images, videos
+ */
+async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
+  try {
+    // Determine resource type from URL
+    let resourceType = 'image'; // default
+    if (originalUrl.includes('/raw/')) {
+      resourceType = 'raw';
+    } else if (originalUrl.includes('/video/')) {
+      resourceType = 'video';
+    }
+
+    // Extract public_id from various URL formats:
+    // Format 1: https://res.cloudinary.com/{cloud}/raw/upload/v1234567/folder/file.pdf
+    // Format 2: https://res.cloudinary.com/{cloud}/raw/upload/folder/file.pdf
+    // Format 3: https://res.cloudinary.com/{cloud}/raw/authenticated/v1234567/folder/file.pdf
+
+    let publicId = null;
+
+    // Pattern to match after upload/ or authenticated/ with optional version
+    const patterns = [
+      // Match: /raw/upload/v123456/public_id or /raw/upload/public_id
+      /\/(?:raw|image|video)\/(?:upload|authenticated)\/(?:v\d+\/)?(.+)$/,
+      // Match: /upload/v123456/public_id or /upload/public_id
+      /\/(?:upload|authenticated)\/(?:v\d+\/)?(.+)$/
+    ];
+
+    for (const pattern of patterns) {
+      const match = originalUrl.match(pattern);
+      if (match && match[1]) {
+        publicId = match[1];
+        break;
+      }
+    }
+
+    if (!publicId) {
+      logger.warn(`Could not extract public_id from Cloudinary URL: ${originalUrl}`);
+      return originalUrl; // Fallback to original
+    }
+
+    // For raw resources, we need to keep the file extension in public_id
+    // For images/videos, cloudinary.url() handles extensions differently
+
+    logger.info(`Cloudinary - Resource type: ${resourceType}, Public ID: ${publicId}`);
+
+    // Strategy 1: Generate signed URL with attachment flag
+    try {
+      const signedUrl = cloudinary.url(publicId, {
+        resource_type: resourceType,
+        type: 'authenticated', // Try authenticated first
+        sign_url: true,
+        secure: true,
+        flags: 'attachment', // Force download
+        expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour expiry
+      });
+
+      // Verify the URL is accessible
+      const testResponse = await axios.head(signedUrl, { timeout: 5000 });
+      if (testResponse.status === 200) {
+        logger.info(`Using authenticated signed URL for download`);
+        return signedUrl;
+      }
+    } catch (authErr) {
+      logger.debug(`Authenticated URL failed, trying upload type: ${authErr.message}`);
+    }
+
+    // Strategy 2: Try upload type (for public uploads)
+    try {
+      const signedUrl = cloudinary.url(publicId, {
+        resource_type: resourceType,
+        type: 'upload',
+        sign_url: true,
+        secure: true,
+        flags: 'attachment'
+      });
+
+      const testResponse = await axios.head(signedUrl, { timeout: 5000 });
+      if (testResponse.status === 200) {
+        logger.info(`Using upload signed URL for download`);
+        return signedUrl;
+      }
+    } catch (uploadErr) {
+      logger.debug(`Upload signed URL failed: ${uploadErr.message}`);
+    }
+
+    // Strategy 3: Use original URL as fallback (might work for public assets)
+    logger.warn(`All signed URL strategies failed, using original URL`);
+    return originalUrl;
+
+  } catch (error) {
+    logger.error(`Cloudinary URL generation error: ${error.message}`);
+    return originalUrl; // Always fallback to original
+  }
+}
+
+/**
+ * Proxy file download to client with retries
+ */
+async function proxyFileDownload(res, downloadUrl, fileName, retries = 2) {
+  const sanitizedFilename = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      logger.info(`Download attempt ${attempt + 1}/${retries + 1}: ${downloadUrl.substring(0, 100)}...`);
+
+      const response = await axios({
+        method: 'GET',
+        url: downloadUrl,
+        responseType: 'stream',
+        timeout: 120000, // 2 minute timeout for large files
+        maxRedirects: 5,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': '*/*'
+        },
+        validateStatus: (status) => status >= 200 && status < 300
+      });
+
+      // Determine content type
+      let contentType = response.headers['content-type'] || 'application/octet-stream';
+
+      // Force octet-stream for raw files to ensure download
+      if (fileName.match(/\.(pdf|zip|rar|doc|docx|xls|xlsx|ppt|pptx)$/i)) {
+        contentType = 'application/octet-stream';
+      }
+
+      // Set response headers for download
+      res.setHeader('Content-Disposition', `attachment; filename="${sanitizedFilename}"; filename*=UTF-8''${encodeURIComponent(sanitizedFilename)}`);
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+
+      if (response.headers['content-length']) {
+        res.setHeader('Content-Length', response.headers['content-length']);
+      }
+
+      // Pipe the response to client
+      return new Promise((resolve, reject) => {
+        response.data.pipe(res);
+
+        response.data.on('end', () => {
+          logger.info(`Download completed: ${fileName}`);
+          resolve({ success: true });
+        });
+
+        response.data.on('error', (streamErr) => {
+          logger.error(`Stream error during download: ${streamErr.message}`);
+          reject(streamErr);
+        });
+
+        res.on('close', () => {
+          // Client disconnected
+          response.data.destroy();
+        });
+      });
+
+    } catch (downloadError) {
+      logger.error(`Download attempt ${attempt + 1} failed: ${downloadError.message}`);
+
+      if (downloadError.response) {
+        logger.error(`Upstream status: ${downloadError.response.status}`);
+      }
+
+      // If this was the last retry, send error response
+      if (attempt === retries) {
+        if (!res.headersSent) {
+          res.status(502).json({
+            success: false,
+            message: 'Unable to download file from storage. Please try again in a few minutes.',
+            code: 'UPSTREAM_ERROR'
+          });
+        }
+        return { success: false, error: downloadError.message };
+      }
+
+      // Wait before retry (exponential backoff)
+      await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
+
+  return { success: false, error: 'Max retries exceeded' };
+}
 
 // Regenerate download links for an order item
 const regenerateDownloadLinks = async (req, res) => {
@@ -862,11 +1133,10 @@ const regenerateDownloadLinks = async (req, res) => {
     }
 
     // Generate new download links with 48 hour expiry
-    item.downloadLinks = product.files.map((file) => ({
-      name: file.name || "Download",
-      url: file.url,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
-    }));
+    item.downloadLinks = downloadService.generateSecureDownloadLinks(product, {
+      expiryHours: 48,
+      maxDownloads: 5
+    });
 
     await order.save();
 
@@ -1015,8 +1285,54 @@ const getOrderMessages = async (req, res) => {
 // Reviews
 const createReview = async (req, res) => {
   try {
-    const { itemId, itemType, rating, comment } = req.body;
-    res.json({ message: "Review created successfully" });
+    const { rating, comment } = req.body;
+    const productId = req.params.id;
+    const userId = req.user._id;
+
+    // 1. Check if user purchased the product
+    const hasPurchased = await Order.findOne({
+      user: userId,
+      "items.itemId": productId,
+      "payment.status": "completed" // Ensure payment is completed
+    });
+
+    if (!hasPurchased) {
+      return res.status(403).json({ message: "You must purchase this product to review it." });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+       return res.status(404).json({ message: "Product not found" });
+    }
+
+    // 2. Check if already reviewed
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.user.toString() === userId.toString()
+    );
+
+    if (alreadyReviewed) {
+      return res.status(400).json({ message: "Product already reviewed" });
+    }
+
+    // 3. Add Review
+    const review = {
+      user: userId,
+      name: req.user.fullName || `${req.user.firstName} ${req.user.lastName}`,
+      rating: Number(rating),
+      comment,
+    };
+
+    product.reviews.push(review);
+
+    // 4. Update Rating
+    product.rating.count = product.reviews.length;
+    product.rating.average =
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+
+    res.status(201).json({ message: "Review added" });
   } catch (error) {
     logger.error("Create review error:", error);
     res.status(500).json({ message: "Server error" });
@@ -1025,13 +1341,94 @@ const createReview = async (req, res) => {
 
 const getReviews = async (req, res) => {
   try {
-    const { itemId } = req.params;
-    res.json([]);
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+
+    if (!product) {
+       return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(product.reviews);
   } catch (error) {
     logger.error("Get reviews error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+const updateReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const productId = req.params.id;
+    const userId = req.user._id;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+       return res.status(404).json({ message: "Product not found" });
+    }
+
+    const review = product.reviews.find(
+      (r) => r.user.toString() === userId.toString()
+    );
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    review.rating = Number(rating);
+    review.comment = comment;
+    review.name = req.user.fullName || `${req.user.firstName} ${req.user.lastName}`;
+
+    product.rating.count = product.reviews.length;
+    product.rating.average =
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+
+    res.json({ message: "Review updated" });
+  } catch (error) {
+    logger.error("Update review error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const deleteReview = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const userId = req.user._id;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+       return res.status(404).json({ message: "Product not found" });
+    }
+
+    const reviewIndex = product.reviews.findIndex(
+      (r) => r.user.toString() === userId.toString()
+    );
+
+    if (reviewIndex === -1) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    product.reviews.splice(reviewIndex, 1);
+
+    product.rating.count = product.reviews.length;
+    product.rating.average =
+       product.reviews.length === 0
+        ? 0
+        : product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+          product.reviews.length;
+
+    await product.save();
+
+    res.json({ message: "Review deleted" });
+  } catch (error) {
+    logger.error("Delete review error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 const handleRazorpayWebhook = async (req, res) => {
   try {
@@ -1164,6 +1561,8 @@ module.exports = {
   addOrderMessage,
   getOrderMessages,
   createReview,
+  updateReview,
+  deleteReview,
   getReviews,
   handleRazorpayWebhook,
 };

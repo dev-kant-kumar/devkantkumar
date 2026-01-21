@@ -418,6 +418,7 @@ const SignIn = () => {
       </form>
       )}
 
+      {/* Social login - Coming soon
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -453,6 +454,7 @@ const SignIn = () => {
           </div>
         </div>
       </div>
+      */}
     </div>
   );
 };

@@ -174,11 +174,11 @@ const Orders = () => {
                   {/* Order Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 break-words">
                           {order.items?.[0]?.title || 'Order'}
                           {order.items?.length > 1 && (
-                            <span className="text-sm font-normal text-gray-500 ml-2">
+                            <span className="text-sm font-normal text-gray-500 ml-2 whitespace-nowrap">
                               +{order.items.length - 1} more item{order.items.length > 2 ? 's' : ''}
                             </span>
                           )}

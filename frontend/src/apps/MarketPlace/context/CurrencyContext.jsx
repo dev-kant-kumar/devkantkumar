@@ -17,18 +17,23 @@ export const CurrencyProvider = ({ children }) => {
     const [currency, setCurrency] = useState('INR'); // Only for display preference
     const [countryCode, setCountryCode] = useState('IN');
     const [exchangeRates, setExchangeRates] = useState(null);
-    const [surchargeRate, setSurchargeRate] = useState(18); // Default 18%
+    const [surchargeRate, setSurchargeRate] = useState(0); // Default 0%, will be updated from settings
     const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
     // Load Settings (Surcharge Rate)
     useEffect(() => {
-        // API returns: { status: 'success', data: { marketplace: { surchargeRate: X } } }
-        const marketplace = settingsData?.data?.marketplace;
-        if (marketplace) {
-            // "surchargeRate" or "taxRate" - handling both just in case, preferring new schema
-            const rate = marketplace.surchargeRate ?? marketplace.taxRate ?? 18;
-            console.log('[CurrencyContext] Loaded surcharge rate from settings:', rate);
-            setSurchargeRate(rate);
+        // API returns: { success: true, data: { marketplace: { surchargeRate: X } } }
+        if (settingsData) {
+            console.log('[CurrencyContext] Raw settings data:', settingsData);
+            const marketplace = settingsData?.data?.marketplace;
+            if (marketplace) {
+                // "surchargeRate" or "taxRate" - handling both just in case, preferring new schema
+                const rate = marketplace.surchargeRate ?? marketplace.taxRate ?? 0;
+                console.log('[CurrencyContext] Loaded surcharge rate from settings:', rate);
+                setSurchargeRate(rate);
+            } else {
+                console.warn('[CurrencyContext] No marketplace settings found in response');
+            }
         }
     }, [settingsData]);
 

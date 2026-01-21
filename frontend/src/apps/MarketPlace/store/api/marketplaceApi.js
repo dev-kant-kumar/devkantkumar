@@ -62,20 +62,45 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
-    // Categories
-    getCategories: builder.query({
-      query: () => '/marketplace/categories',
-      providesTags: ['Service', 'Product'],
+    // Reviews
+    getProductReviews: builder.query({
+      query: (productId) => `/marketplace/products/${productId}/reviews`,
+      providesTags: (result, error, productId) => [{ type: 'Reviews', id: productId }],
     }),
 
-    // Search
-    searchMarketplace: builder.query({
-      query: ({ q, type }) => {
-        const params = new URLSearchParams();
-        if (q) params.append('q', q);
-        if (type) params.append('type', type);
-        return `/marketplace/search?${params.toString()}`;
-      },
+    createReview: builder.mutation({
+      query: ({ productId, rating, comment, orderId }) => ({
+        url: `/marketplace/products/${productId}/reviews`,
+        method: 'POST',
+        body: { rating, comment, orderId },
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Reviews', id: productId },
+        { type: 'Product', id: productId }
+      ],
+    }),
+
+    updateReview: builder.mutation({
+      query: ({ productId, rating, comment }) => ({
+        url: `/marketplace/products/${productId}/reviews`,
+        method: 'PUT',
+        body: { rating, comment },
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Reviews', id: productId },
+        { type: 'Product', id: productId }
+      ],
+    }),
+
+    deleteReview: builder.mutation({
+      query: ({ productId }) => ({
+        url: `/marketplace/products/${productId}/reviews`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Reviews', id: productId },
+        { type: 'Product', id: productId }
+      ],
     }),
   }),
   overrideExisting: false,
@@ -89,4 +114,8 @@ export const {
   useGetProductByIdQuery,
   useGetCategoriesQuery,
   useSearchMarketplaceQuery,
+  useGetProductReviewsQuery,
+  useCreateReviewMutation,
+  useUpdateReviewMutation,
+  useDeleteReviewMutation,
 } = marketplaceApi;

@@ -336,7 +336,7 @@ const Services = () => {
               <div className="text-center py-12 bg-white rounded-xl">
                 <Search className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-xl font-medium text-gray-900 mb-2">No services found</h3>
-                <p className="text-gray-600">Try adjusting your filters or add services in the admin panel</p>
+                <p className="text-gray-600">Try adjusting your filters or check back later for new services.</p>
               </div>
             )}
           </div>

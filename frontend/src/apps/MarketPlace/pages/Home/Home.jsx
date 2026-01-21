@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import {
-  ArrowRight,
-  CheckCircle,
-  Clock,
-  Layers,
-  Loader2,
-  Star,
-  Users
+    ArrowRight,
+    CheckCircle,
+    Clock,
+    Layers,
+    Loader2,
+    Star,
+    Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
@@ -149,7 +149,7 @@ const Home = () => {
             </div>
           ) : featuredServices.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-2xl">
-              <p className="text-gray-500">No services available yet. Add services in the admin panel!</p>
+              <p className="text-gray-500">No services available at the moment. Check back soon!</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -265,7 +265,7 @@ const Home = () => {
             </div>
           ) : featuredProducts.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-2xl">
-              <p className="text-gray-500">No products available yet. Add products in the admin panel!</p>
+              <p className="text-gray-500">No products available at the moment. Check back soon!</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

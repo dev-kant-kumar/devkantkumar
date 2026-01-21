@@ -119,7 +119,7 @@ supportTicketSchema.pre('save', async function(next) {
 // Indexes for efficient querying
 supportTicketSchema.index({ status: 1, createdAt: -1 });
 supportTicketSchema.index({ email: 1 });
-supportTicketSchema.index({ ticketNumber: 1 });
+
 supportTicketSchema.index({ category: 1 });
 supportTicketSchema.index({ user: 1 });
 

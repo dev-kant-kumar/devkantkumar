@@ -6,6 +6,12 @@ const { protect } = require('../middlewares/auth');
 
 const router = express.Router();
 
+// Review routes (Protected & Specific)
+router.post('/products/:id/reviews', protect, marketplaceController.createReview);
+router.put('/products/:id/reviews', protect, marketplaceController.updateReview);
+router.delete('/products/:id/reviews', protect, marketplaceController.deleteReview);
+router.get('/products/:id/reviews', protect, marketplaceController.getReviews);
+
 // Public routes
 router.get('/services', marketplaceController.getServices);
 router.get('/services/:id', marketplaceController.getServiceById);
@@ -47,11 +53,10 @@ router.post('/payment/create-order', marketplaceController.createRazorpayOrder);
 router.post('/payment/verify', marketplaceController.verifyRazorpayPayment);
 
 // Download routes
-router.get('/orders/:orderId/download/:itemId', marketplaceController.downloadPurchasedItem);
+router.get('/orders/:orderId/items/:itemId/download', marketplaceController.downloadPurchasedItem);
 router.post('/orders/:orderId/regenerate/:itemId', marketplaceController.regenerateDownloadLinks);
 
 // Review routes
-router.post('/reviews', marketplaceController.createReview);
-router.get('/reviews/:itemId', marketplaceController.getReviews);
+
 
 module.exports = router;

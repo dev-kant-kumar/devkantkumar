@@ -1,15 +1,15 @@
 import { motion } from 'framer-motion';
 import {
-  CheckCircle,
-  CreditCard,
-  Download,
-  Filter,
-  Flame,
-  Mail,
-  Rocket,
-  Search,
-  ShoppingCart,
-  Star,
+    CheckCircle,
+    CreditCard,
+    Download,
+    Filter,
+    Flame,
+    Mail,
+    Rocket,
+    Search,
+    ShoppingCart,
+    Star,
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
@@ -471,7 +471,7 @@ const DigitalProducts = ({ category: propCategory }) => {
               <div className="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
                 <div className="text-gray-300 text-6xl mb-4">�</div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">No products found</h3>
-                <p className="text-gray-500">Try adjusting your filters or add products in the admin panel.</p>
+                <p className="text-gray-500">Try adjusting your filters or check back later for new products.</p>
                 <button
                   onClick={resetFilters}
                   className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"

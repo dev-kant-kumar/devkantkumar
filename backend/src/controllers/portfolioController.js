@@ -648,7 +648,8 @@ const getPortfolioStats = async (req, res) => {
 
 const getSystemSettings = async (req, res) => {
   try {
-    const settings = await SystemSetting.findOne();
+    // Use the static method that creates defaults if not found
+    const settings = await SystemSetting.getSettings();
     res.status(200).json({
       success: true,
       data: settings

@@ -1,9 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Menu, Search, Settings, ShoppingCart, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Clock, Loader2, LogOut, Menu, Package, Search, Server, Settings, ShoppingCart, Star, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useGetCartQuery } from '../../../../store/cart/cartApi'; // Points to src/store/cart/cartApi
+import { useGetCartQuery } from '../../../../store/cart/cartApi';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useGetProductsQuery, useGetServicesQuery } from '../../store/api/marketplaceApi';
 import { useLogoutMutation } from '../../store/auth/authApi';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
 import { selectCartItemCount } from '../../store/cart/cartSlice';
@@ -29,28 +31,91 @@ const Header = () => {
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState([]);
   const searchInputRef = useRef(null);
+  const { formatPrice } = useCurrency();
+
+  // Load recent searches from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('recentSearches');
+      if (saved) setRecentSearches(JSON.parse(saved).slice(0, 5));
+    } catch (e) { /* ignore */ }
+  }, []);
+
+  // Debounce search query for API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.trim().length >= 2) {
+        setDebouncedQuery(searchQuery.trim());
+      } else {
+        setDebouncedQuery("");
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch products and services based on debounced query
+  const { data: productsData, isLoading: isLoadingProducts } = useGetProductsQuery(
+    { search: debouncedQuery, limit: 5 },
+    { skip: !debouncedQuery }
+  );
+  const { data: servicesData, isLoading: isLoadingServices } = useGetServicesQuery(
+    { search: debouncedQuery, limit: 5 },
+    { skip: !debouncedQuery }
+  );
+
+  const isSearching = isLoadingProducts || isLoadingServices;
+  const products = productsData?.products || [];
+  const services = servicesData?.services || [];
+  const hasResults = products.length > 0 || services.length > 0;
+
+  // Save search to recent
+  const saveRecentSearch = useCallback((query) => {
+    if (!query.trim()) return;
+    const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5);
+    setRecentSearches(updated);
+    localStorage.setItem('recentSearches', JSON.stringify(updated));
+  }, [recentSearches]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      saveRecentSearch(searchQuery.trim());
       navigate(`/marketplace/products?search=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
       setSearchQuery("");
     }
   };
 
+  const handleResultClick = (type, id) => {
+    saveRecentSearch(searchQuery);
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    navigate(`/marketplace/${type}/${id}`);
+  };
+
+  const handleRecentClick = (query) => {
+    setSearchQuery(query);
+    searchInputRef.current?.focus();
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem('recentSearches');
+  };
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
   const [logoutApi] = useLogoutMutation();
 
   const dropdownRef = useRef(null);
   const panelRef = useRef(null);
-  const searchRef = useRef(null);
-
-  useEffect(() => {
-    if (isSearchOpen && searchInputRef.current) {
-        searchInputRef.current.focus();
-    }
-  }, [isSearchOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,19 +130,31 @@ const Header = () => {
       if (panelRef.current && !panelRef.current.contains(event.target)) {
         setIsPanelOpen(false);
       }
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+    };
+
+    // Keyboard shortcuts for search
+    const handleKeyDown = (event) => {
+      // Cmd+K or Ctrl+K to open search
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        setIsSearchOpen(true);
+      }
+      // Escape to close search
+      if (event.key === 'Escape' && isSearchOpen) {
         setIsSearchOpen(false);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isSearchOpen]);
 
   const handleLogout = async () => {
     try {
@@ -180,38 +257,14 @@ const Header = () => {
 
 
 
-            {/* Search */}
-            <div className="relative" ref={searchRef}>
-                <div className={`flex items-center transition-all duration-300 ${isSearchOpen ? 'w-64 bg-gray-100 dark:bg-gray-800 rounded-lg px-2' : 'w-10'}`}>
-                    <button
-                        onClick={() => setIsSearchOpen(!isSearchOpen)}
-                        className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 flex-shrink-0"
-                    >
-                        <Search size={20} />
-                    </button>
-
-                    <AnimatePresence>
-                        {isSearchOpen && (
-                            <motion.form
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: '100%' }}
-                                exit={{ opacity: 0, width: 0 }}
-                                className="flex-grow overflow-hidden"
-                                onSubmit={handleSearchSubmit}
-                            >
-                                <input
-                                    ref={searchInputRef}
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search..."
-                                    className="w-full bg-transparent border-none focus:ring-0 text-sm py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                                />
-                            </motion.form>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
+            {/* Search Button - Opens modal */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              title="Search (⌘K)"
+            >
+              <Search size={20} />
+            </button>
 
             {/* Cart */}
             <Link
@@ -533,6 +586,241 @@ const Header = () => {
           )}
         </AnimatePresence>
       </nav>
+
+      {/* Search Modal Overlay */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsSearchOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="max-w-2xl mx-auto mt-20 px-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  <div className="flex items-center px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                    <Search className="h-5 w-5 text-gray-400 mr-3" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products, services, templates..."
+                      className="flex-1 bg-transparent border-none text-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-0 py-3"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsSearchOpen(false)}
+                      className="ml-2 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      ESC
+                    </button>
+                  </div>
+                  {/* Search Results / Quick Links */}
+                  <div className="max-h-[60vh] overflow-y-auto">
+
+                    {/* Loading State */}
+                    {isSearching && debouncedQuery && (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+                        <span className="ml-2 text-gray-500">Searching...</span>
+                      </div>
+                    )}
+
+                    {/* Live Results */}
+                    {!isSearching && debouncedQuery && hasResults && (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {/* Products Section */}
+                        {products.length > 0 && (
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <Package className="h-3.5 w-3.5 mr-1.5" />
+                                Products
+                              </div>
+                              <span className="text-xs text-gray-400">{products.length} found</span>
+                            </div>
+                            <div className="space-y-2">
+                              {products.map((product) => (
+                                <button
+                                  key={product._id}
+                                  onClick={() => handleResultClick('products', product._id)}
+                                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left group"
+                                >
+                                  <img
+                                    src={product.images?.[0]?.url || '/placeholder-product.png'}
+                                    alt={product.title}
+                                    className="w-12 h-12 object-cover rounded-lg bg-gray-100"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-green-600">
+                                      {product.title}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <span className="text-sm font-bold text-green-600">
+                                        {formatPrice(product.price)}
+                                      </span>
+                                      {product.rating?.average > 0 && (
+                                        <div className="flex items-center text-xs text-gray-400">
+                                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
+                                          {product.rating.average}
+                                        </div>
+                                      )}
+                                      <span className="text-xs text-gray-400 capitalize">{product.category}</span>
+                                    </div>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-green-600" />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Services Section */}
+                        {services.length > 0 && (
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <Server className="h-3.5 w-3.5 mr-1.5" />
+                                Services
+                              </div>
+                              <span className="text-xs text-gray-400">{services.length} found</span>
+                            </div>
+                            <div className="space-y-2">
+                              {services.map((service) => (
+                                <button
+                                  key={service._id}
+                                  onClick={() => handleResultClick('services', service._id)}
+                                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left group"
+                                >
+                                  <img
+                                    src={service.images?.[0]?.url || '/placeholder-service.png'}
+                                    alt={service.title}
+                                    className="w-12 h-12 object-cover rounded-lg bg-gray-100"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-green-600">
+                                      {service.title}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <span className="text-sm font-bold text-green-600">
+                                        From {formatPrice(service.packages?.[0]?.price || 0)}
+                                      </span>
+                                      {service.rating?.average > 0 && (
+                                        <div className="flex items-center text-xs text-gray-400">
+                                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
+                                          {service.rating.average}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-green-600" />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* View All Results Button */}
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800/50">
+                          <button
+                            type="submit"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                          >
+                            View all results for "{searchQuery}"
+                            <ArrowRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No Results */}
+                    {!isSearching && debouncedQuery && !hasResults && (
+                      <div className="text-center py-8 px-4">
+                        <Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-600 dark:text-gray-400 font-medium">No results for "{debouncedQuery}"</p>
+                        <p className="text-sm text-gray-400 mt-1">Try different keywords or browse categories</p>
+                      </div>
+                    )}
+
+                    {/* Recent Searches & Quick Links (when no query) */}
+                    {!debouncedQuery && (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {/* Recent Searches */}
+                        {recentSearches.length > 0 && (
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <Clock className="h-3.5 w-3.5 mr-1.5" />
+                                Recent Searches
+                              </div>
+                              <button
+                                onClick={clearRecentSearches}
+                                className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                Clear all
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {recentSearches.map((query, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => handleRecentClick(query)}
+                                  className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                  {query}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quick Links */}
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800/50">
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Quick Links</p>
+                          <div className="flex flex-wrap gap-2">
+                            <Link
+                              to="/marketplace/products"
+                              onClick={() => setIsSearchOpen(false)}
+                              className="px-3 py-1.5 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
+                            >
+                              All Products
+                            </Link>
+                            <Link
+                              to="/marketplace/services"
+                              onClick={() => setIsSearchOpen(false)}
+                              className="px-3 py-1.5 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
+                            >
+                              All Services
+                            </Link>
+                            <Link
+                              to="/marketplace/custom-solutions"
+                              onClick={() => setIsSearchOpen(false)}
+                              className="px-3 py-1.5 text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
+                            >
+                              Custom Solutions
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 };
