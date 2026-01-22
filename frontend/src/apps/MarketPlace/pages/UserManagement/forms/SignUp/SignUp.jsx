@@ -190,7 +190,7 @@ const SignUp = () => {
             onChange={handleChange}
             error={errors.firstName}
             icon={User}
-            placeholder="John"
+            placeholder="First Name"
           />
           <InputField
             label="Last Name"
@@ -199,7 +199,7 @@ const SignUp = () => {
             onChange={handleChange}
             error={errors.lastName}
             icon={User}
-            placeholder="Doe"
+            placeholder="Last Name"
           />
         </div>
 
