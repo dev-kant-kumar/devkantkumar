@@ -1,23 +1,23 @@
 import {
-    Briefcase,
-    Check,
-    ChevronDown,
-    Image as ImageIcon,
-    IndianRupee,
-    Layers,
-    Loader,
-    Package,
-    Plus,
-    Sparkles,
-    Star,
-    Trash2,
-    Upload,
-    X,
+  Briefcase,
+  Check,
+  ChevronDown,
+  Image as ImageIcon,
+  IndianRupee,
+  Layers,
+  Loader,
+  Package,
+  Plus,
+  Sparkles,
+  Star,
+  Trash2,
+  Upload,
+  X
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
-    useUploadImageMutation
+  useUploadImageMutation
 } from "../../../store/api/adminApiSlice";
 
 const CATEGORIES = [
@@ -185,10 +185,10 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       revisions: "unlimited",
       features: [""],
       isPopular: type === "standard",
+      isPopular: type === "standard",
       regionalPricing: [],
     })),
   });
-
   const [errors, setErrors] = useState({});
   const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
 
@@ -217,7 +217,11 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
               regionalPricing: [],
             };
       });
-      setFormData({ ...initialData, packages: mergedPackages });
+      setFormData({
+        ...initialData,
+        packages: mergedPackages,
+        requirements: initialData.requirements || []
+      });
     }
   }, [initialData]);
 
@@ -755,7 +759,6 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
             </div>
           ))}
         </div>
-
       </section>
 
       {/* Footer Actions */}

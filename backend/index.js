@@ -203,7 +203,9 @@ app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/subscribers', subscriberRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/youtube', youtubeRoutes);
+app.use('/api/v1/youtube', youtubeRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/reviews', require('./src/routes/reviewRoutes'));
 
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

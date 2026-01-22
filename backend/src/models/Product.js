@@ -152,6 +152,7 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // reviews field removed in favor of virtual populate
     rating: {
       average: {
         type: Number,
@@ -164,33 +165,6 @@ const productSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    reviews: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        name: {
-          type: String,
-          required: true,
-        },
-        rating: {
-          type: Number,
-          required: true,
-          min: 1,
-          max: 5,
-        },
-        comment: {
-          type: String,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
     isFeatured: {
       type: Boolean,
       default: false,
@@ -243,6 +217,13 @@ const productSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// Virtual populate for reviews
+productSchema.virtual('confirmReviews', {
+  ref: 'Review',
+  foreignField: 'product',
+  localField: '_id'
+});
 
 // Virtual for discounted price
 productSchema.virtual("discountedPrice").get(function () {
@@ -308,29 +289,8 @@ productSchema.methods.incrementDownloads = function () {
 };
 
 // Method to update rating
-productSchema.methods.updateRating = async function () {
-  const Review = mongoose.model("Review");
-  const stats = await Review.aggregate([
-    { $match: { product: this._id } },
-    {
-      $group: {
-        _id: null,
-        averageRating: { $avg: "$rating" },
-        totalReviews: { $sum: 1 },
-      },
-    },
-  ]);
-
-  if (stats.length > 0) {
-    this.rating.average = Math.round(stats[0].averageRating * 10) / 10;
-    this.rating.count = stats[0].totalReviews;
-  } else {
-    this.rating.average = 0;
-    this.rating.count = 0;
-  }
-
-  return this.save();
-};
+// Method to update rating - DEPRECATED: Handled by Review model hooks
+// productSchema.methods.updateRating = ...
 
 // Alias for lowercase reference issues
 mongoose.model("product", productSchema);

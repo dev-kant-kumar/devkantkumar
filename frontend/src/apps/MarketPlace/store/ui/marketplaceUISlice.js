@@ -9,88 +9,63 @@ const initialState = {
   isFilterOpen: false, // for mobile
   trustData: {
     stats: [
-      { number: "100+", label: "Projects Delivered", icon: "Handshake" },
-      { number: "50+", label: "Happy Clients", icon: "Users" },
-      { number: "5+", label: "Years Experience", icon: "Settings" },
-      { number: "10+", label: "Countries Served", icon: "Globe" }
+      { number: "Instant", label: "Digital Delivery", icon: "Handshake" },
+      { number: "Secure", label: "Payment Gateway", icon: "Settings" },
+      { number: "24/7", label: "Download Access", icon: "Globe" },
+      { number: "Quality", label: "Code & Design", icon: "Users" }
     ],
     benefits: [
       {
-        title: "Expert Team",
-        desc: "Senior developers with 5+ years of experience"
+        title: "Full Stack Expertise",
+        desc: "Professional web and app development services"
       },
       {
         title: "Transparent Pricing",
-        desc: "No hidden fees or surprise costs"
+        desc: "No hidden fees, clear pricing upfront"
       },
       {
-        title: "Agile Methodology",
-        desc: "Regular updates and flexible iterations"
+        title: "Direct Communication",
+        desc: "Work directly with the developer"
       },
       {
         title: "Full Ownership",
-        desc: "You own 100% of the code and IP"
+        desc: "You own 100% of the deliverables"
       }
     ],
     features: [
       {
         icon: "Shield",
-        title: "Enterprise Security",
-        desc: "Bank-grade security standards implemented in every project we deliver."
+        title: "Secure Transactions",
+        desc: "All payments processed through Razorpay with bank-grade security."
       },
       {
         icon: "Zap",
-        title: "Lightning Fast",
-        desc: "Optimized for performance. We build applications that load in milliseconds."
+        title: "Instant Delivery",
+        desc: "Digital products available for immediate download after purchase."
       },
       {
         icon: "TrendingUp",
-        title: "Scalable Architecture",
-        desc: "Built to grow with you. Our solutions handle millions of users effortlessly."
+        title: "Quality Assured",
+        desc: "Every product and service is carefully crafted to meet high standards."
       }
     ],
-    testimonials: [
-      {
-        id: 1,
-        name: "Sarah Jenkins",
-        role: "Freelance Developer",
-        content: "The React Dashboard template saved me at least 40 hours of work. The code quality is top-notch and the documentation is super clear.",
-        avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-        rating: 5
-      },
-      {
-        id: 2,
-        name: "Mike Ross",
-        role: "Agency Owner",
-        content: "We use the SEO plugin for all our client sites now. It's lightweight, effective, and the support team is incredibly responsive.",
-        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-        rating: 5
-      },
-      {
-        id: 3,
-        name: "Elena Rodriguez",
-        role: "UI/UX Designer",
-        content: "The icon pack is stunning. I love that it comes in so many formats. It's become my go-to resource for every new project.",
-        avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-        rating: 5
-      }
-    ],
+    testimonials: [],
     faqs: [
       {
         question: "Can I use these products for client projects?",
-        answer: "Yes! All our paid products come with a commercial license that allows you to use them in unlimited client projects. Free products may have different terms, please check the specific license."
+        answer: "Yes! All our paid products come with a commercial license that allows you to use them in client projects. Please check the specific license terms for each product."
       },
       {
-        question: "Do I get free updates?",
-        answer: "Absolutely. When you purchase a product, you get lifetime access to all future updates and improvements at no extra cost."
+        question: "Do I get updates?",
+        answer: "Yes, when you purchase a product, you receive updates as they become available. Check individual product pages for specific update policies."
       },
       {
         question: "What is your refund policy?",
-        answer: "We offer a 30-day money-back guarantee if the product doesn't work as described or has technical issues we can't resolve."
+        answer: "We offer a 14-day refund policy for digital products if the product is technically defective, doesn't work as described, or you haven't downloaded it. Refunds are processed on a case-by-case basis."
       },
       {
         question: "Is support included?",
-        answer: "Yes, all premium products include 6 months of premium support. You can extend this support period if needed."
+        answer: "Yes, all premium products include 6 months of email support for technical issues and questions about using the product."
       }
     ]
   }

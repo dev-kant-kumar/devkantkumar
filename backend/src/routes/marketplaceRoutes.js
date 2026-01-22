@@ -4,13 +4,13 @@ const quoteController = require('../controllers/quoteController');
 const supportController = require('../controllers/supportController');
 const { protect } = require('../middlewares/auth');
 
+const reviewRouter = require('./reviewRoutes');
+
 const router = express.Router();
 
-// Review routes (Protected & Specific)
-router.post('/products/:id/reviews', protect, marketplaceController.createReview);
-router.put('/products/:id/reviews', protect, marketplaceController.updateReview);
-router.delete('/products/:id/reviews', protect, marketplaceController.deleteReview);
-router.get('/products/:id/reviews', protect, marketplaceController.getReviews);
+// Mount review routes
+router.use('/products/:productId/reviews', reviewRouter);
+router.use('/services/:serviceId/reviews', reviewRouter);
 
 // Public routes
 router.get('/services', marketplaceController.getServices);

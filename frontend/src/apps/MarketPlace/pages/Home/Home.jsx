@@ -29,10 +29,10 @@ const Home = () => {
   const isLoading = servicesLoading || productsLoading;
 
   const stats = [
-    { number: "500+", label: "Projects Delivered", icon: CheckCircle },
-    { number: "98%", label: "Client Satisfaction", icon: Star },
-    { number: "24/7", label: "Expert Support", icon: Users },
-    { number: "100+", label: "Premium Products", icon: Layers }
+    { number: "Instant", label: "Digital Delivery", icon: CheckCircle },
+    { number: "Secure", label: "Payments", icon: Star },
+    { number: "Quality", label: "Products", icon: Users },
+    { number: "Direct", label: "Developer Support", icon: Layers }
   ];
 
   return (
@@ -350,7 +350,7 @@ const Home = () => {
             Ready to Start Your Project?
           </h2>
           <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Join 500+ satisfied clients who have transformed their business with our solutions.
+            Get premium digital products and professional development services.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

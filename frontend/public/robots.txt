@@ -128,3 +128,4 @@ Disallow: /*?sort=
 # ============================================
 Sitemap: https://devkantkumar.com/sitemap.xml
 Sitemap: https://devkantkumar.com/sitemap-blog.xml
+Sitemap: https://devkantkumar.com/sitemap-marketplace.xml

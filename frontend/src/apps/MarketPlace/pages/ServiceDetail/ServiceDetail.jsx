@@ -16,6 +16,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
 import ShareModal from '../../../../components/common/ShareModal';
+import ReviewForm from '../../../../components/Reviews/ReviewForm';
+import ReviewList from '../../../../components/Reviews/ReviewList';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -152,6 +154,7 @@ const ServiceDetail = () => {
         image={service.images?.[0]?.url}
         type="service"
       />
+      <ServiceSchema service={service} />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
@@ -228,6 +231,12 @@ const ServiceDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* Reviews Section */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mt-8">
+                 <ReviewForm serviceId={service._id} />
+                 <ReviewList serviceId={service._id} />
+            </div>
           </div>
 
           {/* Sidebar */}

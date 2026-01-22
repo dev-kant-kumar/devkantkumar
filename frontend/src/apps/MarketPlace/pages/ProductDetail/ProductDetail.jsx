@@ -15,6 +15,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
 import ShareModal from '../../../../components/common/ShareModal';
+import ReviewForm from '../../../../components/Reviews/ReviewForm';
+import ReviewList from '../../../../components/Reviews/ReviewList';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -93,6 +95,7 @@ const ProductDetail = () => {
     { id: 'features', name: 'Features' },
     { id: 'files', name: 'Files Included' },
     { id: 'requirements', name: 'Requirements' },
+    { id: 'reviews', name: 'Reviews' },
   ];
 
   if (isLoading) {
@@ -145,6 +148,7 @@ const ProductDetail = () => {
         image={product.images?.[0]?.url}
         type="product"
       />
+      <ProductSchema product={product} />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
@@ -271,13 +275,24 @@ const ProductDetail = () => {
                              <div className="space-y-4">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">System Requirements</h3>
                                  <ul className="space-y-2">
-                                     {(product.requirements || ['Standard web server', 'Modern browser']).map((req, idx) => (
-                                         <li key={idx} className="flex items-center gap-2 text-gray-600">
-                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                             {req}
-                                         </li>
-                                     ))}
+                                     {(product.requirements || []).length > 0 ? (
+                                         (product.requirements).map((req, idx) => (
+                                             <li key={idx} className="flex items-center gap-2 text-gray-600">
+                                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                                 {req}
+                                             </li>
+                                         ))
+                                     ) : (
+                                         <p className="text-gray-500 italic">No specific system requirements listed.</p>
+                                     )}
                                  </ul>
+                             </div>
+                        )}
+
+                        {activeTab === 'reviews' && (
+                             <div className="space-y-8">
+                                <ReviewForm productId={product._id} />
+                                <ReviewList productId={product._id} />
                              </div>
                         )}
                     </motion.div>
@@ -323,7 +338,7 @@ const ProductDetail = () => {
                     </div>
                      <div className="flex items-center gap-3 text-sm text-gray-600">
                         <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-                        <span>Lifetime Updates</span>
+                        <span>Regular Updates</span>
                     </div>
                      <div className="flex items-center gap-3 text-sm text-gray-600">
                         <Check className="h-5 w-5 text-green-500 flex-shrink-0" />

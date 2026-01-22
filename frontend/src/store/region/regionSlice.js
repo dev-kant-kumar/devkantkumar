@@ -1,19 +1,25 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 // Async thunk to fetch user location
 export const fetchUserLocation = createAsyncThunk(
   'region/fetchUserLocation',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('https://ipapi.co/json/');
+      // Using ip-api.com - free, no API key, reliable
+      const response = await fetch('http://ip-api.com/json/?fields=countryCode,country,currency');
       if (!response.ok) {
         throw new Error('Failed to fetch location');
       }
       const data = await response.json();
+      // ip-api doesn't return currency, map common countries
+      const currencyMap = {
+        'US': 'USD', 'GB': 'GBP', 'EU': 'EUR', 'IN': 'INR',
+        'AU': 'AUD', 'CA': 'CAD', 'JP': 'JPY', 'CN': 'CNY'
+      };
       return {
-        countryCode: data.country_code, // e.g., 'IN', 'US'
-        currency: data.currency, // e.g., 'INR', 'USD'
-        countryName: data.country_name
+        countryCode: data.countryCode || 'IN',
+        currency: currencyMap[data.countryCode] || 'INR',
+        countryName: data.country || 'India'
       };
     } catch (error) {
       return rejectWithValue(error.message);

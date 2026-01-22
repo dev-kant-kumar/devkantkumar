@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { createSelector } from 'reselect';
 
 const initialState = {
   unreadCount: 0,
@@ -63,9 +64,14 @@ export const {
 export const selectUnreadCount = (state) => state.notifications?.unreadCount || 0;
 export const selectIsSocketConnected = (state) => state.notifications?.isConnected || false;
 export const selectNotifications = (state) => state.notifications?.notifications || [];
-export const selectToastState = (state) => ({
-  show: state.notifications?.showToast || false,
-  notification: state.notifications?.toastNotification,
-});
+
+// Memoized selector to prevent unnecessary rerenders
+const selectShowToast = (state) => state.notifications?.showToast || false;
+const selectToastNotification = (state) => state.notifications?.toastNotification;
+
+export const selectToastState = createSelector(
+  [selectShowToast, selectToastNotification],
+  (show, notification) => ({ show, notification })
+);
 
 export default notificationSlice.reducer;

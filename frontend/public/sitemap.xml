@@ -275,55 +275,8 @@
 
   <!-- ============================================ -->
   <!-- MARKETPLACE SECTION -->
+  <!-- Marketplace pages are in sitemap-marketplace.xml -->
   <!-- ============================================ -->
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace/services</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace/products</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace/custom-solutions</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace/support</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace/cart</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/marketplace/dashboard</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.5</priority>
-  </url>
 
   <!-- ============================================ -->
   <!-- INDIVIDUAL PROJECT PAGES -->

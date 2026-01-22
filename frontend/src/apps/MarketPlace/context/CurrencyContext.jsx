@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { currencyService } from '../../../services/currencyService';
 import { useGetSettingsQuery } from '../../Portfolio/store/api/baseApi'; // Use public settings API
@@ -60,30 +59,34 @@ export const CurrencyProvider = ({ children }) => {
             }
 
             try {
-                // Determine user's country & currency with 1s timeout
-                // If it fails (CORS, block, timeout), we default to INR immediately
+                // Use ip-api.com - free, no API key, no CORS issues for client-side
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 1000);
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-                const res = await axios.get('https://ipapi.co/json/', {
+                // ip-api.com doesn't have CORS issues and is more reliable
+                const res = await fetch('http://ip-api.com/json/?fields=countryCode,currency', {
                     signal: controller.signal
                 });
 
                 clearTimeout(timeoutId);
 
-                const detectedCountry = res.data.country_code || 'IN';
-                const detectedCurrency = res.data.currency || 'INR';
+                if (res.ok) {
+                    const data = await res.json();
+                    const detectedCountry = data.countryCode || 'IN';
+                    // ip-api doesn't return currency, map common countries
+                    const currencyMap = {
+                        'US': 'USD', 'GB': 'GBP', 'EU': 'EUR', 'IN': 'INR',
+                        'AU': 'AUD', 'CA': 'CAD', 'JP': 'JPY', 'CN': 'CNY'
+                    };
+                    const detectedCurrency = currencyMap[detectedCountry] || 'USD';
 
-                setCountryCode(detectedCountry);
-
-                if (!savedCurrency) {
-                    setCurrency(detectedCurrency);
-                     // Don't save auto-detected to localStorage so we can re-detect if they travel/VPN
-                     // unless they manually change it later.
+                    setCountryCode(detectedCountry);
+                    if (!savedCurrency) {
+                        setCurrency(detectedCurrency);
+                    }
                 }
-            } catch (error) {
-                console.warn("Location detection failed/timed out, defaulting to INR/IN");
-                // Default fallback is already set (IN/INR)
+            } catch {
+                // Silent fail - defaults already set to IN/INR
             } finally {
                 setIsLoadingLocation(false);
             }

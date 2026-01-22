@@ -1,7 +1,9 @@
 import { Outlet } from "react-router-dom";
+import Analytics from "../../components/SEO/Analytics";
+import { OrganizationSchema } from "../../components/SEO/SchemaMarkup";
+import CartProvider from "./common/components/CartProvider";
 import Footer from "./common/components/Footer";
 import Header from "./common/components/Header";
-import CartProvider from "./common/components/CartProvider";
 import PerformanceMonitor from "./common/components/ui/PerformanceMonitor";
 import "./common/styles/animations.css";
 
@@ -11,6 +13,10 @@ const MarketPlaceLayout = () => {
 
   return (
     <CartProvider>
+      {/* SEO: Organization Schema for Google rich results */}
+      <OrganizationSchema />
+      {/* Analytics component for page tracking */}
+      <Analytics />
       <div className="relative min-h-screen bg-white dark:bg-gray-900">
         {/* Performance Monitor (Development Only) */}
         {isDevelopment && <PerformanceMonitor showStats={false} />}

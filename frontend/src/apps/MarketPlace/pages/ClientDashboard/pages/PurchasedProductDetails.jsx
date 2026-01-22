@@ -35,7 +35,8 @@ const PurchasedProductDetails = () => {
   const product = item?.itemId && typeof item.itemId === 'object' ? item.itemId : null;
 
   // Review Hooks
-  const { data: reviews = [] } = useGetProductReviewsQuery(product?._id, { skip: !product?._id });
+  const { data: reviewsData } = useGetProductReviewsQuery(product?._id, { skip: !product?._id });
+  const reviews = reviewsData?.data?.reviews || [];
   const [createReview, { isLoading: isReviewSubmitting }] = useCreateReviewMutation();
   const [updateReview, { isLoading: isUpdateSubmitting }] = useUpdateReviewMutation();
   const [deleteReview, { isLoading: isDeleteSubmitting }] = useDeleteReviewMutation();

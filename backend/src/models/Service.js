@@ -166,6 +166,7 @@ const serviceSchema = new mongoose.Schema(
         },
       },
     ],
+    // reviews field removed in favor of virtual populate
     rating: {
       average: {
         type: Number,
@@ -178,12 +179,6 @@ const serviceSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    reviews: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Review",
-      },
-    ],
     totalOrders: {
       type: Number,
       default: 0,
@@ -255,6 +250,13 @@ const serviceSchema = new mongoose.Schema(
   }
 );
 
+// Virtual populate for reviews
+serviceSchema.virtual('confirmReviews', {
+  ref: 'Review',
+  foreignField: 'service',
+  localField: '_id'
+});
+
 // Virtual for starting price
 serviceSchema.virtual("startingPrice").get(function () {
   if (this.packages && this.packages.length > 0) {
@@ -306,29 +308,8 @@ serviceSchema.methods.incrementViews = function () {
 };
 
 // Method to update rating
-serviceSchema.methods.updateRating = async function () {
-  const Review = mongoose.model("Review");
-  const stats = await Review.aggregate([
-    { $match: { service: this._id } },
-    {
-      $group: {
-        _id: null,
-        averageRating: { $avg: "$rating" },
-        totalReviews: { $sum: 1 },
-      },
-    },
-  ]);
-
-  if (stats.length > 0) {
-    this.rating.average = Math.round(stats[0].averageRating * 10) / 10;
-    this.rating.count = stats[0].totalReviews;
-  } else {
-    this.rating.average = 0;
-    this.rating.count = 0;
-  }
-
-  return this.save();
-};
+// Method to update rating - DEPRECATED: Handled by Review model hooks
+// serviceSchema.methods.updateRating = ...
 
 // Method to check availability
 serviceSchema.methods.checkAvailability = function () {

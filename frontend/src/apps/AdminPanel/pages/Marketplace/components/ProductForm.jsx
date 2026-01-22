@@ -9,6 +9,7 @@ import {
     Image as ImageIcon,
     Layers,
     Link as LinkIcon,
+    ListChecks,
     Loader,
     Plus,
     Tag,
@@ -182,10 +183,10 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     tags: [],
     regionalPricing: [],
     features: [],
+    requirements: [],
   });
-
-
   const [featureInput, setFeatureInput] = useState("");
+  const [requirementInput, setRequirementInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState({});
   const [externalFile, setExternalFile] = useState({ name: "", url: "" });
@@ -201,6 +202,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         downloadFiles: initialData.downloadFiles || [],
         regionalPricing: initialData.regionalPricing || [],
         features: initialData.features || [],
+        requirements: initialData.requirements || [],
       });
     }
   }, [initialData]);
@@ -465,6 +467,22 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     }));
   };
 
+  const handleAddRequirement = () => {
+    if (!requirementInput.trim()) return;
+    setFormData((prev) => ({
+      ...prev,
+      requirements: [...(prev.requirements || []), requirementInput.trim()],
+    }));
+    setRequirementInput("");
+  };
+
+  const removeRequirement = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      requirements: (prev.requirements || []).filter((_, i) => i !== index),
+    }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
       {/* 1. Basic Information */}
@@ -637,6 +655,67 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                 type="button"
                 onClick={handleAddFeature}
                 className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5. Requirements */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
+          <div className="p-1.5 rounded-lg bg-teal-100/50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400">
+            <ListChecks size={18} />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            System Requirements
+          </h3>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 ml-1">
+            Requirements List
+          </label>
+
+          <div className="space-y-2">
+            {(formData.requirements || []).map((req, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl group hover:border-teal-500/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {req}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeRequirement(idx)}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-500 rounded-lg transition-all"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={requirementInput}
+                onChange={(e) => setRequirementInput(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), handleAddRequirement())
+                }
+                placeholder="Add a requirement (e.g. 'Node.js v14+')"
+                className="flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none text-gray-900 dark:text-white placeholder-gray-400"
+              />
+              <button
+                type="button"
+                onClick={handleAddRequirement}
+                className="px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition-colors"
               >
                 <Plus size={20} />
               </button>
