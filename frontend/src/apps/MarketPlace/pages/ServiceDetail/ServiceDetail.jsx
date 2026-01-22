@@ -5,6 +5,7 @@ import {
     Check,
     Loader2,
     RefreshCw,
+    Share2,
     ShoppingCart,
     Star,
     User
@@ -14,6 +15,8 @@ import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
+import ShareModal from '../../../../components/common/ShareModal';
+import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetServiceByIdQuery } from '../../store/api/marketplaceApi';
@@ -24,6 +27,7 @@ const ServiceDetail = () => {
   const { serviceId } = useParams();
   const dispatch = useDispatch();
   const [selectedPackage, setSelectedPackage] = useState(0);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Fetch real service data
   const { data: serviceData, isLoading, isError, error, refetch } = useGetServiceByIdQuery(serviceId, {
@@ -70,6 +74,22 @@ const ServiceDetail = () => {
             deliveryTime: pkg.deliveryTime,
         }));
         toast.success('Added to cart!');
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: service.title,
+                text: service.description,
+                url: window.location.href,
+            });
+        } catch (error) {
+            console.log('Error sharing:', error);
+        }
+    } else {
+        setIsShareModalOpen(true);
     }
   };
 
@@ -126,6 +146,12 @@ const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title={service.title}
+        description={service.description}
+        image={service.images?.[0]?.url}
+        type="service"
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
@@ -296,6 +322,13 @@ const ServiceDetail = () => {
                             >
                                 Contact Seller
                             </Link>
+                            <button
+                                onClick={handleShare}
+                                className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Share2 size={18} />
+                                Share Service
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -320,6 +353,13 @@ const ServiceDetail = () => {
           </div>
         </div>
       </div>
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        title={service?.title}
+        text={service?.description}
+      />
     </div>
   );
 };

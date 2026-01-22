@@ -14,6 +14,8 @@ import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
+import ShareModal from '../../../../components/common/ShareModal';
+import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetProductByIdQuery } from '../../store/api/marketplaceApi';
@@ -24,6 +26,7 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Fetch real product data
   const { data: productData, isLoading, isError, error, refetch } = useGetProductByIdQuery(productId, {
@@ -66,6 +69,22 @@ const ProductDetail = () => {
             quantity: 1,
         }));
         toast.success('Added to cart!');
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: product.title,
+                text: product.description,
+                url: window.location.href,
+            });
+        } catch (error) {
+            console.log('Error sharing:', error);
+        }
+    } else {
+        setIsShareModalOpen(true);
     }
   };
 
@@ -120,6 +139,12 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title={product.title}
+        description={product.description}
+        image={product.images?.[0]?.url}
+        type="product"
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
@@ -176,13 +201,13 @@ const ProductDetail = () => {
                 </div>
 
                 {/* Tabs Header */}
-                <div className="border-b border-gray-200 px-8">
-                    <div className="flex gap-8">
+                <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-8 px-8 min-w-max">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`pb-4 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+                                className={`pb-4 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === tab.id
                                         ? 'border-blue-600 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -282,7 +307,10 @@ const ProductDetail = () => {
                         {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart size={20} />}
                         {isAdding ? 'Adding...' : 'Add to Cart'}
                     </button>
-                    <button className="w-full py-4 bg-white border-2 border-gray-200 hover:border-blue-500 text-gray-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                    <button
+                        onClick={handleShare}
+                        className="w-full py-4 bg-white border-2 border-gray-200 hover:border-blue-500 text-gray-700 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
                         <Share2 size={20} />
                         Share Product
                     </button>
@@ -306,6 +334,12 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+    <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        title={product?.title}
+        text={product?.description}
+    />
     </div>
   );
 };
