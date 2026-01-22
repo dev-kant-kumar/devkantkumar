@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Backend for DevKant Kumar Portfolio and Marketplace",
+  "description": "Backend for Dev Kant Kumar Portfolio and Marketplace",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
