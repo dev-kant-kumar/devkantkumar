@@ -102,6 +102,15 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
         { type: 'Product', id: productId }
       ],
     }),
+
+    // Newsletter
+    subscribe: builder.mutation({
+      query: (data) => ({
+        url: '/subscribers',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -118,4 +127,5 @@ export const {
   useCreateReviewMutation,
   useUpdateReviewMutation,
   useDeleteReviewMutation,
+  useSubscribeMutation,
 } = marketplaceApi;

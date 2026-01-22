@@ -5,6 +5,7 @@ import {
     Download,
     Filter,
     Flame,
+    Loader2,
     Mail,
     Rocket,
     Search,
@@ -22,7 +23,7 @@ import Testimonials from '../../common/components/Testimonials';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
 import EmptyState from '../../common/components/ui/EmptyState';
 import { useCurrency } from '../../context/CurrencyContext';
-import { useGetProductsQuery } from '../../store/api/marketplaceApi';
+import { useGetProductsQuery, useSubscribeMutation } from '../../store/api/marketplaceApi';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
 import { addToCart } from '../../store/cart/cartSlice';
 
@@ -30,6 +31,27 @@ const DigitalProducts = ({ category: propCategory }) => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
+  const [subscribe, { isLoading: isSubscribing }] = useSubscribeMutation();
+
+  const handleSubscribe = async () => {
+    if (!email.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+       toast.error('Please enter a valid email');
+       return;
+    }
+
+    try {
+      await subscribe({ email, source: 'digital_products' }).unwrap();
+      toast.success('Successfully subscribed!');
+      setEmail('');
+    } catch (err) {
+      toast.error(err?.data?.message || 'Subscription failed');
+    }
+  };
 
   const [selectedCategory, setSelectedCategory] = useState(propCategory || 'all');
   const [priceRange, setPriceRange] = useState('all');
@@ -504,10 +526,17 @@ const DigitalProducts = ({ category: propCategory }) => {
               placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-grow px-6 py-4 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              disabled={isSubscribing}
+              className="flex-grow px-6 py-4 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-70"
             />
-            <button className="px-8 py-4 bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold rounded-xl transition-colors">
-              Subscribe
+            <button
+              onClick={handleSubscribe}
+              disabled={isSubscribing}
+              className="px-8 py-4 bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
+            >
+              {isSubscribing ? (
+                 <Loader2 className="h-5 w-5 animate-spin" />
+              ) : 'Subscribe'}
             </button>
           </div>
         </div>
