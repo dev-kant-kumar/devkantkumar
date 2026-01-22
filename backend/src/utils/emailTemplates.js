@@ -29,7 +29,7 @@ const getVerificationEmailTemplate = ({ firstName, verificationUrl }) => `
   <body style="background-color: #f4f6f8;">
     <div class="container">
       <div class="header" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-        <h1 style="margin: 0; font-size: 24px;">Welcome to DevKant Kumar!</h1>
+        <h1 style="margin: 0; font-size: 24px;">Welcome to Dev Kant Kumar!</h1>
       </div>
       <div class="content">
         <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
@@ -48,10 +48,10 @@ const getVerificationEmailTemplate = ({ firstName, verificationUrl }) => `
         </div>
 
         <p>If you didn't create an account, you can safely ignore this email.</p>
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0;">Best regards,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
         <p>Questions? Reply to this email or contact support.</p>
       </div>
     </div>
@@ -75,7 +75,7 @@ const getPasswordResetTemplate = ({ firstName, resetUrl }) => `
       </div>
       <div class="content">
         <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
-        <p>We received a request to reset your password for your DevKant Kumar account. Click the button below to create a new password:</p>
+        <p>We received a request to reset your password for your Dev Kant Kumar account. Click the button below to create a new password:</p>
 
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" class="button" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 14px 40px; font-size: 16px;">Reset My Password</a>
@@ -96,10 +96,10 @@ const getPasswordResetTemplate = ({ firstName, resetUrl }) => `
           <p style="word-break: break-all; color: #ef4444; font-size: 12px; background: #fff5f5; padding: 12px; border-radius: 6px; margin: 0; font-family: monospace;">${resetUrl}</p>
         </div>
 
-        <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
         <p style="font-size: 11px; color: #9ca3af;">This is an automated security email. Please do not reply.</p>
       </div>
     </div>
@@ -123,7 +123,7 @@ const getPasswordResetSuccessTemplate = ({ firstName, resetTime, ipAddress, user
       </div>
       <div class="content">
         <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
-        <p>This is a confirmation that the password for your DevKant Kumar account was successfully changed.</p>
+        <p>This is a confirmation that the password for your Dev Kant Kumar account was successfully changed.</p>
 
         <div class="details-box" style="border-left: 4px solid #10b981;">
           <h3 style="margin: 0 0 15px; color: #059669; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Change Details</h3>
@@ -134,20 +134,20 @@ const getPasswordResetSuccessTemplate = ({ firstName, resetTime, ipAddress, user
 
         <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0; color: #dc2626; font-size: 14px;">
-            <strong>🚨 Wasn't you?</strong> If you didn't change your password, your account may be compromised. Please <a href="${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/forgot-password" style="color: #dc2626; font-weight: bold;">reset your password immediately</a> and contact our support team.
+            <strong>🚨 Wasn't you?</strong> If you didn't change your password, your account may be compromised. Please <a href="${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/forgot-password" style="color: #dc2626; font-weight: bold;">reset your password immediately</a> and contact our support team.
           </p>
         </div>
 
         <p>You can now sign in to your account using your new password.</p>
 
         <div style="text-align: center; margin: 25px 0;">
-          <a href="${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/signin" class="button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 35px;">Sign In Now</a>
+          <a href="${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/signin" class="button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 35px;">Sign In Now</a>
         </div>
 
-        <p style="margin-bottom: 0;">Stay secure,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0;">Stay secure,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
         <p style="font-size: 11px; color: #9ca3af;">This is an automated security notification. Please do not reply.</p>
       </div>
     </div>
@@ -155,7 +155,20 @@ const getPasswordResetSuccessTemplate = ({ firstName, resetTime, ipAddress, user
   </html>
 `;
 
-const getOrderConfirmationTemplate = ({ firstName, order }) => `
+const getOrderConfirmationTemplate = ({ firstName, order }) => {
+  // Helper to format currency
+  const formatCurrency = (amount, currency = 'INR') => {
+    const symbols = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
+    const symbol = symbols[currency] || currency + ' ';
+    return `${symbol}${(amount || 0).toFixed(2)}`;
+  };
+
+  const currency = order.payment?.currency || 'INR';
+  const subtotal = order.payment?.amount?.subtotal || 0;
+  const tax = order.payment?.amount?.tax || 0;
+  const total = order.payment?.amount?.total || 0;
+
+  return `
   <!DOCTYPE html>
   <html>
   <head>
@@ -167,7 +180,7 @@ const getOrderConfirmationTemplate = ({ firstName, order }) => `
   <body style="background-color: #f4f6f8;">
     <div class="container">
       <div class="header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-        <h1 style="margin: 0; font-size: 24px;">Order Confirmed!</h1>
+        <h1 style="margin: 0; font-size: 24px;">🎉 Order Confirmed!</h1>
         <p style="margin: 5px 0 0; opacity: 0.9;">Order #${order.orderNumber}</p>
       </div>
       <div class="content">
@@ -176,36 +189,56 @@ const getOrderConfirmationTemplate = ({ firstName, order }) => `
 
         <div class="details-box">
           <h3 style="margin-top: 0; color: #059669; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">Order Summary</h3>
-          <p style="margin: 5px 0; color: #666;"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
-          <p style="margin: 5px 0; color: #666;"><strong>Status:</strong> ${order.status}</p>
+          <p style="margin: 5px 0; color: #666;"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <p style="margin: 5px 0; color: #666;"><strong>Status:</strong> <span style="color: #059669; font-weight: bold;">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></p>
 
           <div style="margin-top: 15px;">
             ${order.items.map(item => `
-              <div class="item">
+              <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee;">
                 <div style="flex: 1;">
-                  <strong>${item.name}</strong>
-                  <div style="font-size: 12px; color: #888;">Qty: ${item.quantity}</div>
+                  <strong style="color: #1f2937;">${item.title || item.name}</strong>
+                  <div style="font-size: 12px; color: #888;">Qty: ${item.quantity} × ${formatCurrency(item.price, currency)}</div>
                 </div>
-                <div>${(item.quantity * item.price).toFixed(2)}</div>
+                <div style="font-weight: 600; color: #1f2937;">${formatCurrency(item.quantity * item.price, currency)}</div>
               </div>
             `).join('')}
           </div>
 
-          <div class="total" style="color: #059669;">
-            Total: ${order.totalAmount}
+          <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="color: #666;">Subtotal:</span>
+              <span>${formatCurrency(subtotal, currency)}</span>
+            </div>
+            ${tax > 0 ? `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="color: #666;">Tax:</span>
+              <span>${formatCurrency(tax, currency)}</span>
+            </div>
+            ` : ''}
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
+              <span style="color: #059669;">Total:</span>
+              <span style="color: #059669;">${formatCurrency(total, currency)}</span>
+            </div>
           </div>
         </div>
 
-        <p>You can access your purchased items and downloads from your account dashboard once payment is fully confirmed.</p>
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+        <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #166534; font-size: 14px;">
+            <strong>✅ What's next?</strong> You can access your purchased items and downloads from your account dashboard.
+          </p>
+        </div>
+
+        <p style="margin-bottom: 0;">Best regards,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
+        <p style="font-size: 11px; color: #9ca3af;">Questions about your order? Reply to this email.</p>
       </div>
     </div>
   </body>
   </html>
 `;
+};
 
 const getAdminContactTemplate = (contactData) => `
   <!DOCTYPE html>
@@ -264,10 +297,10 @@ const getUserContactAutoReplyTemplate = (contactData) => `
         </div>
 
         <p>If your inquiry is urgent, please feel free to follow up.</p>
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0;">Best regards,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
       </div>
     </div>
   </body>
@@ -301,10 +334,10 @@ const getNewsletterWelcomeTemplate = ({ email }) => `
         <p>I promise to keep things interesting and only send you content that matters.</p>
         <p>In the meantime, feel free to explore my latest work on my portfolio or follow me on social media for real-time updates.</p>
 
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar</strong></p>
+        <p style="margin-bottom: 0;">Best regards,<br><strong>Dev Kant Kumar</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
         <p>You received this email because you subscribed at <a href="https://devkantkumar.com" style="color: #3b82f6; text-decoration: none;">devkantkumar.com</a></p>
         <p style="font-size: 11px; color: #aaa;">Want to take a break? You can unsubscribe at any time from your settings.</p>
       </div>
@@ -347,10 +380,10 @@ const getAccountDeactivationTemplate = ({ firstName, scheduledDeletionDate, reac
 
         <p style="font-size: 14px; color: #6b7280; margin-top: 20px;">After ${scheduledDeletionDate}, your account and all data will be permanently removed and cannot be recovered.</p>
 
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0;">Best regards,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
         <p>Questions? Contact our support team.</p>
       </div>
     </div>
@@ -385,10 +418,10 @@ const getAccountReactivationTemplate = ({ firstName }) => `
 
         <p>We're glad to have you back in our community!</p>
 
-        <p style="margin-bottom: 0;">Best regards,<br><strong>DevKant Kumar Team</strong></p>
+        <p style="margin-bottom: 0;">Best regards,<br><strong>Dev Kant Kumar Team</strong></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DevKant Kumar. All rights reserved.</p>
+        <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
       </div>
     </div>
   </body>

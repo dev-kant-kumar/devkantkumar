@@ -34,12 +34,12 @@ class EmailService {
    * @param {string} firstName
    */
   async sendVerificationEmail(email, token, firstName) {
-    const verificationUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/verify-email/${token}`;
+    const verificationUrl = `${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/verify-email/${token}`;
     const html = getVerificationEmailTemplate({ firstName, verificationUrl });
 
     return addEmailToQueue({
       to: email,
-      subject: 'Verify Your Email Address - DevKant Kumar',
+      subject: 'Verify Your Email Address - Dev Kant Kumar',
       html,
       type: 'verification-email'
     });
@@ -52,12 +52,12 @@ class EmailService {
    * @param {string} firstName
    */
   async sendPasswordResetEmail(email, token, firstName) {
-    const resetUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/reset-password/${token}`;
+    const resetUrl = `${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/reset-password/${token}`;
     const html = getPasswordResetTemplate({ firstName, resetUrl });
 
     return addEmailToQueue({
       to: email,
-      subject: 'Reset Your Password - DevKant Kumar',
+      subject: 'Reset Your Password - Dev Kant Kumar',
       html,
       type: 'password-reset-email'
     });
@@ -89,7 +89,7 @@ class EmailService {
 
     return addEmailToQueue({
       to: email,
-      subject: '✅ Password Changed Successfully - DevKant Kumar',
+      subject: '✅ Password Changed Successfully - Dev Kant Kumar',
       html,
       type: 'password-reset-success-email'
     });
@@ -130,7 +130,7 @@ class EmailService {
     const userHtml = getUserContactAutoReplyTemplate(contactData);
     return addEmailToQueue({
       to: contactData.email,
-      subject: 'Thank you for contacting us - DevKant Kumar',
+      subject: 'Thank you for contacting us - Dev Kant Kumar',
       html: userHtml,
       type: 'contact-user-auto-reply'
     });
@@ -163,13 +163,38 @@ class EmailService {
       : 'Verify Your New Email Address';
 
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>${subject}</h2>
-        <p>Use the following OTP to verify your request:</p>
-        <h1 style="background: #f4f4f4; padding: 20px; text-align: center; letter-spacing: 5px;">${otp}</h1>
-        <p>This OTP is valid for 10 minutes.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${subject}</title>
+      </head>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f6f8;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="padding: 30px; text-align: center; border-radius: 10px 10px 0 0; color: white; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+            <h1 style="margin: 0; font-size: 24px;">🔐 ${subject}</h1>
+          </div>
+          <div style="background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <p>Use the following verification code to complete your request:</p>
+            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px dashed #0ea5e9; padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0;">
+              <h1 style="margin: 0; font-size: 36px; letter-spacing: 8px; color: #0284c7; font-family: 'Courier New', monospace;">${otp}</h1>
+            </div>
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">
+                <strong>⏰ This code expires in 10 minutes</strong> for your security.
+              </p>
+            </div>
+            <p style="font-size: 14px; color: #6b7280;">If you didn't request this code, please ignore this email or contact support if you have concerns.</p>
+            <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>Dev Kant Kumar Team</strong></p>
+          </div>
+          <div style="text-align: center; margin-top: 30px; color: #888; font-size: 13px;">
+            <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
+            <p style="font-size: 11px; color: #9ca3af;">This is an automated security email. Please do not reply.</p>
+          </div>
+        </div>
+      </body>
+      </html>
     `;
 
     return addEmailToQueue({
@@ -187,13 +212,42 @@ class EmailService {
    */
   async sendPasswordChangeOTP(email, otp) {
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Verify Request to Change Password</h2>
-        <p>Use the following OTP to verify your request:</p>
-        <h1 style="background: #f4f4f4; padding: 20px; text-align: center; letter-spacing: 5px;">${otp}</h1>
-        <p>This OTP is valid for 10 minutes.</p>
-        <p>If you didn't request this, please contact support immediately.</p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Password Change Request</title>
+      </head>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f6f8;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="padding: 30px; text-align: center; border-radius: 10px 10px 0 0; color: white; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <h1 style="margin: 0; font-size: 24px;">🔒 Password Change Verification</h1>
+          </div>
+          <div style="background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <p>You've requested to change your password. Use the verification code below to confirm:</p>
+            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px dashed #ef4444; padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0;">
+              <h1 style="margin: 0; font-size: 36px; letter-spacing: 8px; color: #dc2626; font-family: 'Courier New', monospace;">${otp}</h1>
+            </div>
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">
+                <strong>⏰ This code expires in 10 minutes</strong> for your security.
+              </p>
+            </div>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #dc2626; font-size: 14px;">
+                <strong>⚠️ Didn't request this?</strong> If you didn't initiate this password change, please contact our support team immediately as your account may be at risk.
+              </p>
+            </div>
+            <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>Dev Kant Kumar Team</strong></p>
+          </div>
+          <div style="text-align: center; margin-top: 30px; color: #888; font-size: 13px;">
+            <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
+            <p style="font-size: 11px; color: #9ca3af;">This is an automated security notification. Please do not reply.</p>
+          </div>
+        </div>
+      </body>
+      </html>
     `;
 
     return addEmailToQueue({
@@ -211,7 +265,7 @@ class EmailService {
    * @param {Date} scheduledDeletionDate
    */
   async sendAccountDeactivationEmail(email, firstName, scheduledDeletionDate) {
-    const reactivationUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5173'}/marketplace/auth/signin`;
+    const reactivationUrl = `${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/signin`;
     const formattedDate = new Date(scheduledDeletionDate).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -222,7 +276,7 @@ class EmailService {
 
     return addEmailToQueue({
       to: email,
-      subject: 'Account Deactivation Confirmation - DevKant Kumar',
+      subject: 'Account Deactivation Confirmation - Dev Kant Kumar',
       html,
       type: 'account-deactivation-email'
     });
@@ -238,7 +292,7 @@ class EmailService {
 
     return addEmailToQueue({
       to: email,
-      subject: 'Welcome Back! Your Account is Reactivated - DevKant Kumar',
+      subject: 'Welcome Back! Your Account is Reactivated - Dev Kant Kumar',
       html,
       type: 'account-reactivation-email'
     });
