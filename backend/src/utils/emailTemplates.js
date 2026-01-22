@@ -200,7 +200,7 @@ const getVerificationEmailTemplate = ({ firstName, verificationUrl }) => {
       <a href="${verificationUrl}" class="button">Verify Email</a>
     </div>
 
-    <div class="info-box">
+    <div class="box box-info">
       <p class="mb-0 text-sm"><strong>Note:</strong> This verification link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.</p>
     </div>
 
@@ -223,7 +223,7 @@ const getPasswordResetTemplate = ({ firstName, resetUrl }) => {
       <a href="${resetUrl}" class="button" style="background-color: #ef4444;">Reset Password</a>
     </div>
 
-    <div class="warning-box">
+    <div class="box box-warning">
       <p class="mb-0 text-sm"><strong>Security Alert:</strong> This link expires in 10 minutes. Do not share this link with anyone.</p>
     </div>
 
@@ -241,7 +241,7 @@ const getPasswordResetSuccessTemplate = ({ firstName, resetTime, ipAddress, user
     <p>Hi ${firstName},</p>
     <p>This email confirms that the password for your ${COMPANY_INFO.name} account was successfully changed.</p>
 
-    <div class="success-box">
+    <div class="box box-info">
       <div class="field-label">Time of Change</div>
       <div class="field-value" style="margin-bottom: 12px;">${resetTime}</div>
 
@@ -347,7 +347,7 @@ const getOrderConfirmationTemplate = ({ firstName, order, orderUrl }) => {
 const getAdminContactTemplate = (contactData) => {
   const content = `
     <h1>New Contact Message</h1>
-    <div class="info-box" style="background-color: #f3f4f6; border-left-color: #4b5563;">
+    <div class="box box-info" style="background-color: #f3f4f6; border-color: #4b5563; color: #374151;">
       <div class="field-label">Subject</div>
       <div class="field-value">${contactData.subject}</div>
     </div>
@@ -387,7 +387,7 @@ const getUserContactAutoReplyTemplate = (contactData) => {
     <p>Thank you for reaching out! This is an automated confirmation that we've received your message regarding "<strong>${contactData.subject}</strong>".</p>
     <p>Our team will review your inquiry and get back to you within 24-48 hours.</p>
 
-    <div class="info-box">
+    <div class="box box-info">
       <p class="mb-0 text-sm"><strong>Your Message:</strong><br>"${contactData.message}"</p>
     </div>
 
@@ -435,7 +435,7 @@ const getEmailChangeOtpTemplate = ({ otp, type }) => {
 
     <div class="code-block">${otp}</div>
 
-    <div class="warning-box">
+    <div class="box box-warning">
       <p class="mb-0 text-sm"><strong>Security Note:</strong> This code expires in 10 minutes. Do not share it with anyone.</p>
     </div>
 
@@ -454,7 +454,7 @@ const getPasswordChangeOtpTemplate = ({ otp }) => {
 
     <div class="code-block">${otp}</div>
 
-    <div class="warning-box">
+    <div class="box box-warning">
       <p class="mb-0 text-sm"><strong>Expires in 10 minutes.</strong> Never share your verification codes.</p>
     </div>
 
@@ -471,7 +471,7 @@ const getAccountDeactivationTemplate = ({ firstName, scheduledDeletionDate, reac
     <p>Hi ${firstName},</p>
     <p>We're sorry to see you go. As requested, your account has been deactivated.</p>
 
-    <div class="warning-box" style="border-color: #d97706; background-color: #fffbeb;">
+    <div class="box box-warning" style="border-color: #d97706; background-color: #fffbeb;">
       <h3 style="color: #92400e; margin-top: 0;">Final Deletion Date</h3>
       <div style="font-size: 18px; font-weight: 700; color: #b45309;">${scheduledDeletionDate}</div>
       <p style="margin-bottom: 0; margin-top: 8px; font-size: 14px;">Your data will be permanently removed on this date.</p>
@@ -492,7 +492,7 @@ const getAccountReactivationTemplate = ({ firstName, dashboardUrl }) => {
     <p>Hi ${firstName},</p>
     <p>Great news! Your account has been successfully reactivated.</p>
 
-    <div class="success-box">
+    <div class="box box-info">
       <p class="mb-0"><strong>Status:</strong> Active</p>
       <p class="mb-0"><strong>Scheduled Deletion:</strong> Cancelled</p>
     </div>
