@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
+import { API_URL } from "../../../../config/api";
 import linkedinPosts from "../../store/data/linkedinPosts";
 import { portfolioData } from "../../store/data/portfolioData";
 import { localPostMetas, localPosts } from "../Blog/postsLocal";
@@ -44,7 +45,9 @@ const Content = () => {
         setIsYouTubeLoading(true);
         setYouTubeError(null);
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/youtube/data`);
+
+
+        const response = await fetch(`${API_URL}/youtube/data`);
         const json = await response.json();
 
         if (json.status === 'success' && json.data) {

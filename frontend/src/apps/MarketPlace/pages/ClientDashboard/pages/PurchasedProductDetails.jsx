@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { API_URL } from '../../../../../config/api';
 import {
-  useCreateReviewMutation,
-  useDeleteReviewMutation,
-  useGetProductReviewsQuery,
-  useUpdateReviewMutation
+    useCreateReviewMutation,
+    useDeleteReviewMutation,
+    useGetProductReviewsQuery,
+    useUpdateReviewMutation
 } from '../../../store/api/marketplaceApi';
 import { selectCurrentUser } from '../../../store/auth/authSlice';
 import { useGetOrderByIdQuery, useRegenerateDownloadLinksMutation } from '../../../store/orders/ordersApi';
@@ -82,9 +83,11 @@ const PurchasedProductDetails = () => {
     // Set loading state for this specific link
     setDownloadingIndex(linkIndex);
 
+
+
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-      const downloadUrl = `${apiBase}/marketplace/orders/${order._id}/items/${product._id}/download?token=${link.token}`;
+      // Use centralized API_URL from config
+      const downloadUrl = `${API_URL}/marketplace/orders/${order._id}/items/${product._id}/download?token=${link.token}`;
 
       // Get auth token from localStorage
       const token = localStorage.getItem('token');
