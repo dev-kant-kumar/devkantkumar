@@ -36,7 +36,7 @@ import {
   updateBillingInfo,
 } from "../../store/checkout/checkoutSlice";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+import { API_URL } from "../../../../config/api";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -246,7 +246,6 @@ const Checkout = () => {
         `${API_URL}/marketplace/payment/create-order`,
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -295,7 +294,6 @@ const Checkout = () => {
               `${API_URL}/marketplace/payment/verify`,
               {
                 method: "POST",
-                credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${token}`,
