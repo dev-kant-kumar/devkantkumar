@@ -13,6 +13,7 @@ import {
     FaCode,
     FaCogs,
     FaDatabase,
+    FaEnvelope,
     FaGlobe,
     FaHandshake,
     FaMobileAlt,
@@ -20,8 +21,7 @@ import {
     FaRocket,
     FaShieldAlt,
     FaStar,
-    FaUsers,
-    FaEnvelope
+    FaUsers
 } from 'react-icons/fa';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -80,32 +80,8 @@ const CustomSolutions = () => {
     'Advanced Security'
   ];
 
-  const testimonials = [
-    {
-      id: 1,
-      name: "David Chen",
-      role: "CTO, TechFlow",
-      content: "The custom CRM they built for us completely transformed our sales process. The attention to detail and code quality is outstanding.",
-      avatar: "https://randomuser.me/api/portraits/men/45.jpg",
-      rating: 5
-    },
-    {
-      id: 2,
-      name: "Sarah Williams",
-      role: "Founder, StartUpX",
-      content: "They delivered our MVP in record time without cutting corners. The team is incredibly responsive and truly understands startup needs.",
-      avatar: "https://randomuser.me/api/portraits/women/33.jpg",
-      rating: 5
-    },
-    {
-      id: 3,
-      name: "James Wilson",
-      role: "Director, Enterprise Corp",
-      content: "A true partner in digital transformation. Their cloud solutions helped us scale our operations globally with 99.99% uptime.",
-      avatar: "https://randomuser.me/api/portraits/men/67.jpg",
-      rating: 5
-    }
-  ];
+  // Testimonials removed - will be populated from real client reviews
+  const testimonials = [];
 
   const faqs = [
     {
@@ -374,23 +350,23 @@ const CustomSolutions = () => {
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
                 <FaHandshake className="text-blue-400 text-4xl mb-4" />
-                <div className="text-3xl font-bold mb-1">100+</div>
-                <div className="text-gray-400">Projects Delivered</div>
+                <div className="text-3xl font-bold mb-1">Direct</div>
+                <div className="text-gray-400">Communication</div>
               </div>
               <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 mt-8">
                 <FaUsers className="text-purple-400 text-4xl mb-4" />
-                <div className="text-3xl font-bold mb-1">50+</div>
-                <div className="text-gray-400">Happy Clients</div>
+                <div className="text-3xl font-bold mb-1">1-on-1</div>
+                <div className="text-gray-400">Developer Access</div>
               </div>
               <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
                 <FaCogs className="text-yellow-400 text-4xl mb-4" />
-                <div className="text-3xl font-bold mb-1">5+</div>
-                <div className="text-gray-400">Years Experience</div>
+                <div className="text-3xl font-bold mb-1">Full</div>
+                <div className="text-gray-400">Stack Expertise</div>
               </div>
               <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700 mt-8">
                 <FaGlobe className="text-green-400 text-4xl mb-4" />
-                <div className="text-3xl font-bold mb-1">10+</div>
-                <div className="text-gray-400">Countries Served</div>
+                <div className="text-3xl font-bold mb-1">Global</div>
+                <div className="text-gray-400">Delivery</div>
               </div>
             </div>
           </div>
@@ -432,43 +408,45 @@ const CustomSolutions = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-gray-900 mb-4">Client Success Stories</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Don't just take our word for it. Here's what our partners have to say.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-gray-50 rounded-2xl p-8 relative">
-                <FaQuoteLeft className="text-blue-200 text-4xl absolute top-6 left-6" />
-                <div className="relative z-10">
-                  <div className="flex items-center mb-6">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <FaStar key={i} className="text-yellow-400 text-sm" />
-                    ))}
-                  </div>
-                  <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.content}"</p>
-                  <div className="flex items-center">
-                    <img
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full mr-4 border-2 border-white shadow-sm"
-                    />
-                    <div>
-                      <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                      <p className="text-sm text-gray-500">{testimonial.role}</p>
+      {/* Testimonials Section - Hidden until we have real reviews */}
+      {testimonials.length > 0 && (
+        <section className="py-20 bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-extrabold text-gray-900 mb-4">Client Success Stories</h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Don't just take our word for it. Here's what our partners have to say.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="bg-gray-50 rounded-2xl p-8 relative">
+                  <FaQuoteLeft className="text-blue-200 text-4xl absolute top-6 left-6" />
+                  <div className="relative z-10">
+                    <div className="flex items-center mb-6">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <FaStar key={i} className="text-yellow-400 text-sm" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.content}"</p>
+                    <div className="flex items-center">
+                      <img
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="w-12 h-12 rounded-full mr-4 border-2 border-white shadow-sm"
+                      />
+                      <div>
+                        <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                        <p className="text-sm text-gray-500">{testimonial.role}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* FAQ Section */}
       <section className="py-20 bg-gray-50">
