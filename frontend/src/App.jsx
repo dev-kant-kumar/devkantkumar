@@ -22,7 +22,9 @@ import Loader from "./shared/components/Loader";
 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import NotificationToast from "./common/components/NotificationToast";
 import Analytics from "./components/SEO/Analytics";
+import { SocketProvider } from "./context/SocketContext";
 import { fetchUserLocation } from "./store/region/regionSlice";
 
 // Add Toaster globally
@@ -34,33 +36,36 @@ function App() {
   }, [dispatch]);
 
   return (
-    <div>
-      <BrowserRouter>
-        <Analytics />
-        <Suspense fallback={<Loader />}>
-          <Routes>
-            {/* routes must be <Route> only */}
-            <Route path="/*" element={<PortfolioRoutes />} />
-            <Route path="/admin/*" element={<AdminPanelRoutes />} />
-            <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
-            <Route path="/ai-lab/*" element={<AILabRoutes />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+    <SocketProvider>
+      <div>
+        <BrowserRouter>
+          <Analytics />
+          <Suspense fallback={<Loader />}>
+            <Routes>
+              {/* routes must be <Route> only */}
+              <Route path="/*" element={<PortfolioRoutes />} />
+              <Route path="/admin/*" element={<AdminPanelRoutes />} />
+              <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
+              <Route path="/ai-lab/*" element={<AILabRoutes />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
 
-          {/* Toaster MUST be outside <Routes> */}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "#0f172a",
-                color: "white",
-                border: "1px solid rgba(255,255,255,0.1)",
-              },
-            }}
-          />
-        </Suspense>
-      </BrowserRouter>
-    </div>
+            {/* Toaster MUST be outside <Routes> */}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "#0f172a",
+                  color: "white",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                },
+              }}
+            />
+          </Suspense>
+        </BrowserRouter>
+        <NotificationToast />
+      </div>
+    </SocketProvider>
   );
 }
 

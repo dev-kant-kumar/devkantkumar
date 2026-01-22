@@ -1,7 +1,295 @@
 const emailService = require('./emailService');
 const logger = require('../utils/logger');
+const Notification = require('../models/Notification');
+const { emitToUser, emitToAdmins, isUserOnline } = require('../config/socket');
+const User = require('../models/User');
 
 class NotificationService {
+  // ==========================================
+  // IN-APP NOTIFICATION METHODS
+  // ==========================================
+
+  /**
+   * Create an in-app notification and emit via Socket.io
+   */
+  async createNotification(data) {
+    try {
+      const notification = await Notification.createAndPopulate({
+        recipient: data.recipientId,
+        sender: data.senderId || null,
+        recipientRole: data.recipientRole || 'user',
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        data: data.data || {},
+        link: data.link || null,
+        priority: data.priority || 'normal'
+      });
+
+      // Emit to user via Socket.io if online
+      emitToUser(data.recipientId.toString(), 'notification:new', notification);
+
+      logger.info(`In-app notification created for user ${data.recipientId}: ${data.type}`);
+      return notification;
+    } catch (error) {
+      logger.error('Error creating notification:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send notification to all admins
+   */
+  async notifyAdmins(data) {
+    try {
+      // Get all admin users
+      const admins = await User.find({ role: 'admin', isActive: true }).select('_id');
+
+      const notifications = await Promise.all(
+        admins.map(admin =>
+          this.createNotification({
+            ...data,
+            recipientId: admin._id,
+            recipientRole: 'admin'
+          })
+        )
+      );
+
+      // Also emit to admin room for real-time
+      emitToAdmins('notification:new', notifications[0]);
+
+      logger.info(`Admin notification sent to ${admins.length} admins: ${data.type}`);
+      return notifications;
+    } catch (error) {
+      logger.error('Error notifying admins:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send notification to a specific user
+   */
+  async notifyUser(userId, data) {
+    return this.createNotification({
+      ...data,
+      recipientId: userId,
+      recipientRole: 'user'
+    });
+  }
+
+  // ==========================================
+  // ORDER NOTIFICATIONS
+  // ==========================================
+
+  /**
+   * Notify about new order (to admin) and confirmation (to user)
+   */
+  async sendOrderNotifications(user, order) {
+    try {
+      // Notify admin about new order
+      await this.notifyAdmins({
+        type: 'order_created',
+        title: `New Order #${order.orderNumber}`,
+        message: `${user.firstName} ${user.lastName} placed an order for ${order.currency} ${order.totals?.finalTotal || order.totalAmount}`,
+        data: { orderId: order._id, orderNumber: order.orderNumber },
+        link: `/admin/marketplace/orders/${order._id}`,
+        priority: 'high'
+      });
+
+      // Notify user with order confirmation
+      await this.notifyUser(user._id, {
+        type: 'order_status',
+        title: `Order Confirmed #${order.orderNumber}`,
+        message: 'Your order has been received and is being processed.',
+        data: { orderId: order._id, orderNumber: order.orderNumber },
+        link: `/marketplace/dashboard/orders/${order._id}`,
+        priority: 'normal'
+      });
+
+      // Send email confirmation as well
+      await this.sendOrderConfirmation(user, order);
+    } catch (error) {
+      logger.error('Error sending order notifications:', error);
+    }
+  }
+
+  /**
+   * Notify user about order status change
+   */
+  async sendOrderStatusNotification(user, order, newStatus) {
+    try {
+      const statusMessages = {
+        processing: 'Your order is being processed.',
+        shipped: 'Your order has been shipped!',
+        delivered: 'Your order has been delivered.',
+        completed: 'Your order is complete! Download links are available.',
+        cancelled: 'Your order has been cancelled.',
+        refunded: 'Your order has been refunded.'
+      };
+
+      await this.notifyUser(user._id, {
+        type: newStatus === 'completed' ? 'order_completed' : 'order_status',
+        title: `Order #${order.orderNumber} - ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+        message: statusMessages[newStatus] || `Order status updated to ${newStatus}`,
+        data: { orderId: order._id, orderNumber: order.orderNumber, status: newStatus },
+        link: `/marketplace/dashboard/orders/${order._id}`,
+        priority: newStatus === 'completed' ? 'high' : 'normal'
+      });
+
+      // Send email as well
+      await this.sendOrderStatusUpdate(user, order, newStatus);
+    } catch (error) {
+      logger.error('Error sending order status notification:', error);
+    }
+  }
+
+  // ==========================================
+  // SUPPORT TICKET NOTIFICATIONS
+  // ==========================================
+
+  /**
+   * Notify admin about new support ticket
+   */
+  async sendNewTicketNotification(user, ticket) {
+    try {
+      await this.notifyAdmins({
+        type: 'support_ticket',
+        title: `New Support Ticket #${ticket.ticketNumber || ticket._id.toString().slice(-6)}`,
+        message: `${user.firstName} ${user.lastName} submitted: ${ticket.subject}`,
+        data: { ticketId: ticket._id },
+        link: `/admin/support/${ticket._id}`,
+        priority: 'high'
+      });
+    } catch (error) {
+      logger.error('Error sending ticket notification:', error);
+    }
+  }
+
+  /**
+   * Notify user about ticket response
+   */
+  async sendTicketResponseNotification(userId, ticket) {
+    try {
+      await this.notifyUser(userId, {
+        type: 'support_response',
+        title: `Response to Your Ticket`,
+        message: `You have a new response on your support ticket: ${ticket.subject}`,
+        data: { ticketId: ticket._id },
+        link: `/marketplace/dashboard/support/${ticket._id}`,
+        priority: 'normal'
+      });
+    } catch (error) {
+      logger.error('Error sending ticket response notification:', error);
+    }
+  }
+
+  // ==========================================
+  // QUOTE NOTIFICATIONS
+  // ==========================================
+
+  /**
+   * Notify admin about new quote request
+   */
+  async sendQuoteRequestNotification(quoteData) {
+    try {
+      await this.notifyAdmins({
+        type: 'quote_request',
+        title: 'New Quote Request',
+        message: `${quoteData.name} requested a quote for: ${quoteData.service || 'Custom Project'}`,
+        data: { quoteId: quoteData._id },
+        link: `/admin/marketplace/quotes/${quoteData._id}`,
+        priority: 'normal'
+      });
+    } catch (error) {
+      logger.error('Error sending quote notification:', error);
+    }
+  }
+
+  /**
+   * Notify user about quote response
+   */
+  async sendQuoteResponseNotification(userId, quote) {
+    try {
+      await this.notifyUser(userId, {
+        type: 'quote_response',
+        title: 'Quote Response Received',
+        message: `Your quote request has been responded to.`,
+        data: { quoteId: quote._id },
+        link: `/marketplace/dashboard/quotes/${quote._id}`,
+        priority: 'normal'
+      });
+    } catch (error) {
+      logger.error('Error sending quote response notification:', error);
+    }
+  }
+
+  // ==========================================
+  // PAYMENT NOTIFICATIONS
+  // ==========================================
+
+  /**
+   * Notify admin about successful payment
+   */
+  async sendPaymentReceivedNotification(user, payment, order) {
+    try {
+      await this.notifyAdmins({
+        type: 'payment_received',
+        title: 'Payment Received',
+        message: `${user.firstName} ${user.lastName} paid ${payment.currency} ${payment.amount} for Order #${order.orderNumber}`,
+        data: { orderId: order._id, paymentId: payment._id },
+        link: `/admin/marketplace/orders/${order._id}`,
+        priority: 'high'
+      });
+    } catch (error) {
+      logger.error('Error sending payment notification:', error);
+    }
+  }
+
+  // ==========================================
+  // SYSTEM NOTIFICATIONS
+  // ==========================================
+
+  /**
+   * Send system notification to user
+   */
+  async sendSystemNotification(userId, title, message, link = null) {
+    try {
+      await this.notifyUser(userId, {
+        type: 'system',
+        title,
+        message,
+        link,
+        priority: 'low'
+      });
+    } catch (error) {
+      logger.error('Error sending system notification:', error);
+    }
+  }
+
+  /**
+   * Send welcome notification to new user
+   */
+  async sendWelcomeNotification(user) {
+    try {
+      await this.notifyUser(user._id, {
+        type: 'welcome',
+        title: 'Welcome to DevKant Kumar!',
+        message: 'Thank you for joining. Explore our marketplace for digital products and services.',
+        link: '/marketplace/products',
+        priority: 'normal'
+      });
+
+      // Also send welcome email
+      await this.sendWelcomeEmail(user);
+    } catch (error) {
+      logger.error('Error sending welcome notification:', error);
+    }
+  }
+
+  // ==========================================
+  // EMAIL NOTIFICATION METHODS (Existing)
+  // ==========================================
+
   // Send welcome email to new users
   async sendWelcomeEmail(user) {
     try {
@@ -41,7 +329,7 @@ class NotificationService {
 
           <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
             <h3>Order #${order.orderNumber}</h3>
-            <p><strong>Total:</strong> $${order.totalAmount}</p>
+            <p><strong>Total:</strong> ${order.currency || '$'} ${order.totals?.finalTotal || order.totalAmount}</p>
             <p><strong>Status:</strong> ${order.status}</p>
             <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
           </div>
@@ -49,7 +337,7 @@ class NotificationService {
           <h4>Items:</h4>
           <ul>
             ${order.items.map(item => `
-              <li>${item.name} - $${item.price}</li>
+              <li>${item.name} - ${order.currency || '$'}${item.price}</li>
             `).join('')}
           </ul>
 
@@ -79,7 +367,7 @@ class NotificationService {
           <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
             <h3>Order #${order.orderNumber}</h3>
             <p><strong>New Status:</strong> ${newStatus}</p>
-            <p><strong>Total:</strong> $${order.totalAmount}</p>
+            <p><strong>Total:</strong> ${order.currency || '$'}${order.totals?.finalTotal || order.totalAmount}</p>
           </div>
 
           ${newStatus === 'completed' ? `
@@ -101,6 +389,16 @@ class NotificationService {
   // Send contact form notification to admin
   async sendContactNotification(contactData) {
     try {
+      // Also create in-app notification for admin
+      await this.notifyAdmins({
+        type: 'message',
+        title: `Contact Form: ${contactData.subject}`,
+        message: `New message from ${contactData.name} (${contactData.email})`,
+        data: { contactData },
+        link: '/admin/messages',
+        priority: 'normal'
+      });
+
       const subject = `New Contact Form Submission - ${contactData.subject}`;
       const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -164,6 +462,14 @@ class NotificationService {
   // Send password reset email
   async sendPasswordResetEmail(user, resetToken) {
     try {
+      // Send system notification
+      await this.sendSystemNotification(
+        user._id,
+        'Password Reset Requested',
+        'A password reset was requested for your account. Check your email for instructions.',
+        null
+      );
+
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
       const subject = 'Password Reset Request';
       const html = `

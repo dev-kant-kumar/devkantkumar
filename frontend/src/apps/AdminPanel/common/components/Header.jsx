@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, LogOut, Menu, Settings, User, X } from "lucide-react";
+import { LogOut, Menu, Settings, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
+import NotificationBell from "../../../../common/components/NotificationBell";
 import { logout } from "../../store/auth/adminAuthSlice";
 
 import { useGetAdminProfileQuery } from "../../store/api/adminApiSlice";
@@ -114,9 +115,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
 
               {/* Notifications */}
-              <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
-                <Bell size={20} />
-              </button>
+              <NotificationBell isAdmin={true} />
 
               {/* Profile Dropdown */}
               <div className="relative">

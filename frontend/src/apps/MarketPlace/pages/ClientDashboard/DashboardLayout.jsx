@@ -1,17 +1,17 @@
 import {
-  Bell,
-  Box,
-  CreditCard,
-  Download,
-  LayoutDashboard,
-  LogOut,
-  MessageSquare,
-  Settings,
-  ShoppingBag
+    Box,
+    CreditCard,
+    Download,
+    LayoutDashboard,
+    LogOut,
+    MessageSquare,
+    Settings,
+    ShoppingBag
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import NotificationBell from '../../../../common/components/NotificationBell';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/auth/authSlice';
 
 import { useGetMeQuery, useLogoutMutation } from '../../store/auth/authApi';
@@ -95,10 +95,7 @@ const DashboardLayout = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/marketplace/dashboard/notifications" className="p-2 text-gray-400 hover:text-gray-500 relative">
-                <Bell className="h-6 w-6" />
-                <span className="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-              </Link>
+              <NotificationBell isAdmin={false} />
               <div className="flex items-center space-x-3 ml-4 border-l border-gray-200 pl-4">
                 <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
                   {initial}

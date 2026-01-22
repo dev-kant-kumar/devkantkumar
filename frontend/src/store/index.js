@@ -12,6 +12,7 @@ import servicesReducer from '../apps/MarketPlace/store/services/servicesSlice';
 import marketplaceUIReducer from '../apps/MarketPlace/store/ui/marketplaceUISlice';
 import { subscriberApiSlice } from "../apps/Portfolio/store/api/subscriberApiSlice";
 import portfolioUIReducer from "../apps/Portfolio/store/ui/portfolioUISlice";
+import notificationReducer from './notification/notificationSlice';
 import regionReducer from './region/regionSlice';
 
 /**
@@ -43,6 +44,7 @@ export const store = configureStore({
     cart: cartReducer,
     checkout: checkoutReducer,
     auth: authReducer,
+    notifications: notificationReducer,
   },
 
   middleware: (getDefaultMiddleware) =>

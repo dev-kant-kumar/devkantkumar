@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -9,6 +10,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const { initializeSocket } = require('./src/config/socket');
 
 // Import configurations
 require('dotenv').config();
@@ -39,6 +41,7 @@ const cartRoutes = require('./src/routes/cartRoutes');
 const subscriberRoutes = require('./src/routes/subscriberRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const youtubeRoutes = require('./src/routes/youtubeRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -58,6 +61,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
     ];
 
 const app = express();
+const httpServer = http.createServer(app);
 
 // Trust proxy
 app.set('trust proxy', 1);
@@ -123,7 +127,7 @@ app.use(cors({
 }));
 
 // Body parsing middleware
-app.use(express.json({ 
+app.use(express.json({
   limit: '100mb',
   verify: (req, res, buf) => {
     req.rawBody = buf;
@@ -199,6 +203,7 @@ app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/subscribers', subscriberRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/youtube', youtubeRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -240,13 +245,18 @@ const startServer = async () => {
       logger.warn(`Email service check failed: ${emailError.message}`);
     }
 
+    // Initialize Socket.io
+    const io = initializeSocket(httpServer);
+    logger.info('Socket.io initialized for real-time notifications');
+
     const startListener = (port) => {
       const portNum = parseInt(port, 10);
-      const server = app.listen(portNum, () => {
+      httpServer.listen(portNum, () => {
         logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on http://localhost:${portNum}`);
+        logger.info(`📡 Socket.io ready for real-time connections`);
       });
 
-      server.on('error', (e) => {
+      httpServer.on('error', (e) => {
         if (e.code === 'EADDRINUSE') {
           logger.warn(`⚠️ Port ${portNum} is in use, trying ${portNum + 1}...`);
           startListener(portNum + 1);
@@ -258,7 +268,7 @@ const startServer = async () => {
       // Graceful shutdown
       const shutdown = () => {
         logger.info('Shutting down gracefully...');
-        server.close(() => {
+        httpServer.close(() => {
           logger.info('Process terminated');
           process.exit(0);
         });

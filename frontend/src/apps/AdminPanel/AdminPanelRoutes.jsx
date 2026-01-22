@@ -33,6 +33,7 @@ const MarketCustomerDetail = React.lazy(() => import("./pages/Marketplace/Custom
 const MarketQuoteRequests = React.lazy(() => import("./pages/Marketplace/QuoteRequests.jsx"));
 const MarketSettings = React.lazy(() => import("./pages/Marketplace/Settings.jsx"));
 const SupportTickets = React.lazy(() => import("./pages/Support/SupportTickets.jsx"));
+const AdminNotifications = React.lazy(() => import("./pages/Notifications/AdminNotifications.jsx"));
 
 const AdminPanelRoutes = () => {
   return (
@@ -70,6 +71,9 @@ const AdminPanelRoutes = () => {
 
           {/* Support */}
           <Route path="support/tickets" element={<SupportTickets />} />
+
+          {/* Notifications */}
+          <Route path="notifications" element={<AdminNotifications />} />
 
           {/* Content Management - General content editing */}
           <Route path="content" element={<ContentManagement />} />
