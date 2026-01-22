@@ -142,22 +142,50 @@ const Cart = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16"
+            className="text-center py-16 bg-white rounded-2xl shadow-sm"
           >
-            <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {/* Animated Shopping Bag */}
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 200 }}
+              className="relative mb-8 inline-block"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-2xl opacity-20 scale-150"></div>
+              <div className="relative w-28 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-auto">
+                <ShoppingBag className="h-14 w-14 text-white" strokeWidth={1.5} />
+              </div>
+              <motion.div
+                animate={{ y: [-5, 5, -5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-gray-900"
+              >
+                0
+              </motion.div>
+            </motion.div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
               Your cart is empty
             </h2>
-            <p className="text-gray-600 mb-8">
-              Start shopping to add items to your cart
+            <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
+              Looks like you haven't added anything to your cart yet. Start exploring our products and services!
             </p>
-            <Link
-              to="/marketplace/products"
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center"
-            >
-              Continue Shopping
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/marketplace/products"
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 inline-flex items-center justify-center"
+              >
+                Browse Products
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+              <Link
+                to="/marketplace/services"
+                className="px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all duration-300"
+              >
+                Explore Services
+              </Link>
+            </div>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

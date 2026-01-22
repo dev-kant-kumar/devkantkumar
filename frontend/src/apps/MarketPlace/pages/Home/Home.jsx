@@ -12,7 +12,9 @@ import { Link } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
+import TrustSignals, { HowItWorks } from '../../common/components/TrustSignals';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
+import EmptyState from '../../common/components/ui/EmptyState';
 import { useGetProductsQuery, useGetServicesQuery } from '../../store/api/marketplaceApi';
 
 const Home = () => {
@@ -148,9 +150,12 @@ const Home = () => {
               <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
             </div>
           ) : featuredServices.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl">
-              <p className="text-gray-500">No services available at the moment. Check back soon!</p>
-            </div>
+            <EmptyState
+              variant="services"
+              actionLabel="Request Custom Service"
+              actionLink="/marketplace/custom-solutions"
+              showNewsletter={true}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {featuredServices.map((service, index) => (
@@ -264,9 +269,12 @@ const Home = () => {
               <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
             </div>
           ) : featuredProducts.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-2xl">
-              <p className="text-gray-500">No products available at the moment. Check back soon!</p>
-            </div>
+            <EmptyState
+              variant="products"
+              actionLabel="Request Custom Solution"
+              actionLink="/marketplace/custom-solutions"
+              showNewsletter={true}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {featuredProducts.map((product, index) => (
@@ -336,6 +344,8 @@ const Home = () => {
         </div>
       </section>
 
+      <TrustSignals />
+      <HowItWorks />
       <WhyChooseUs />
       <Testimonials />
       <FAQ />
