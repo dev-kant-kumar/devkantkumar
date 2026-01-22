@@ -4,6 +4,9 @@ const Order = require("../models/Order");
 const User = require("../models/User");
 const logger = require("../utils/logger");
 const { calculateRegionalPricing } = require("../utils/currencyConverter");
+const Subscriber = require("../models/Subscriber");
+const emailService = require("../services/emailService");
+const Notification = require("../models/Notification");
 
 // Helper to format Mongoose validation errors
 const formatValidationErrors = (error) => {
@@ -110,6 +113,56 @@ exports.createProduct = async (req, res) => {
       data: product,
       message: "Product created successfully",
     });
+
+    // Notify subscribers (Async)
+    (async () => {
+      try {
+        const subscribers = await Subscriber.find({ isActive: true });
+        if (subscribers.length > 0) {
+          logger.info(`Sending product notifications to ${subscribers.length} subscribers`);
+          // Send in batches or individually (queue handles concurrency)
+          for (const sub of subscribers) {
+            emailService.sendProductNotificationEmail(sub.email, {
+              name: product.title,
+              description: product.description,
+              price: product.price,
+              imageUrl: product.images?.[0]?.url,
+              url: `/marketplace/products/${product.slug || product._id}`,
+              isService: false
+            }).catch(err => logger.error(`Failed to notify ${sub.email}`, err));
+
+            // Increment email count
+            sub.emailsSentCount = (sub.emailsSentCount || 0) + 1;
+            sub.lastEmailSentAt = new Date();
+            await sub.save({ validateBeforeSave: false });
+          }
+        }
+      } catch (err) {
+        logger.error("Failed to process subscriber notifications", err);
+      }
+    })();
+
+    // Notify registered users in-app (Async)
+    (async () => {
+      try {
+        const users = await User.find({ isActive: true, role: 'user' }).select('_id');
+        if (users.length > 0) {
+          const notifications = users.map(user => ({
+            recipient: user._id,
+            type: 'product_update',
+            title: `New Arrival: ${product.title}`,
+            message: `Check out our new ${product.title}! ${product.description.substring(0, 60)}...`,
+            link: `/marketplace/products/${product.slug || product._id}`,
+            data: { productId: product._id, type: 'product' },
+            priority: 'normal'
+          }));
+          await Notification.insertMany(notifications);
+          logger.info(`Created ${notifications.length} in-app notifications for new product`);
+        }
+      } catch (err) {
+        logger.error("Failed to create in-app notifications", err);
+      }
+    })();
   } catch (error) {
     logger.error("Create product error:", error);
     if (error.code === 11000) {
@@ -436,6 +489,55 @@ exports.createService = async (req, res) => {
       data: service,
       message: "Service created successfully",
     });
+
+    // Notify subscribers (Async)
+    (async () => {
+      try {
+        const subscribers = await Subscriber.find({ isActive: true });
+        if (subscribers.length > 0) {
+          logger.info(`Sending service notifications to ${subscribers.length} subscribers`);
+          for (const sub of subscribers) {
+            emailService.sendProductNotificationEmail(sub.email, {
+              name: service.title,
+              description: service.description,
+              price: service.packages?.[0]?.price || 0,
+              imageUrl: service.images?.[0]?.url,
+              url: `/marketplace/services/${service.slug || service._id}`,
+              isService: true
+            }).catch(err => logger.error(`Failed to notify ${sub.email}`, err));
+
+            // Increment email count
+            sub.emailsSentCount = (sub.emailsSentCount || 0) + 1;
+            sub.lastEmailSentAt = new Date();
+            await sub.save({ validateBeforeSave: false });
+          }
+        }
+      } catch (err) {
+        logger.error("Failed to process subscriber notifications", err);
+      }
+    })();
+
+    // Notify registered users in-app (Async)
+    (async () => {
+      try {
+        const users = await User.find({ isActive: true, role: 'user' }).select('_id');
+        if (users.length > 0) {
+          const notifications = users.map(user => ({
+            recipient: user._id,
+            type: 'service_update',
+            title: `New Service: ${service.title}`,
+            message: `Check out our new service ${service.title}! ${service.description.substring(0, 60)}...`,
+            link: `/marketplace/services/${service.slug || service._id}`,
+            data: { serviceId: service._id, type: 'service' },
+            priority: 'normal'
+          }));
+          await Notification.insertMany(notifications);
+          logger.info(`Created ${notifications.length} in-app notifications for new service`);
+        }
+      } catch (err) {
+        logger.error("Failed to create in-app notifications", err);
+      }
+    })();
   } catch (error) {
     logger.error("Create service error:", error);
     if (error.code === 11000) {

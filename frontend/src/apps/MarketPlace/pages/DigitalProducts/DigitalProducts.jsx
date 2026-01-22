@@ -20,6 +20,7 @@ import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
+import EmptyState from '../../common/components/ui/EmptyState';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetProductsQuery } from '../../store/api/marketplaceApi';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
@@ -468,17 +469,14 @@ const DigitalProducts = ({ category: propCategory }) => {
             )}
 
             {!isLoading && !error && products.length === 0 && (
-              <div className="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
-                <div className="text-gray-300 text-6xl mb-4">�</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No products found</h3>
-                <p className="text-gray-500">Try adjusting your filters or check back later for new products.</p>
-                <button
-                  onClick={resetFilters}
-                  className="mt-6 px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  Clear All Filters
-                </button>
-              </div>
+              <EmptyState
+                variant="products"
+                title="No products found"
+                description="Try adjusting your filters or check back later for new products."
+                actionLabel="Clear All Filters"
+                onAction={resetFilters}
+                showNewsletter={true}
+              />
             )}
           </div>
         </div>

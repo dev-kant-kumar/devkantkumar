@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { Package, Rocket, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const EmptyState = ({
   icon: Icon = Package,
@@ -12,6 +15,8 @@ const EmptyState = ({
   variant = 'default', // 'default' | 'products' | 'services' | 'cart'
   showNewsletter = false
 }) => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const variants = {
     products: {
       icon: Package,
@@ -112,7 +117,7 @@ const EmptyState = ({
         )}
       </div>
 
-      {/* Newsletter Section */}
+      {/* Newsletter Section - Mobile Responsive */}
       {showNewsletter && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -121,16 +126,66 @@ const EmptyState = ({
           className="mt-12 w-full max-w-md"
         >
           <p className="text-sm text-gray-500 mb-3">Get notified when we launch:</p>
-          <div className="flex gap-2">
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!email.trim()) {
+                toast.error('Please enter your email');
+                return;
+              }
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(email)) {
+                toast.error('Please enter a valid email');
+                return;
+              }
+              setIsSubmitting(true);
+              try {
+                const response = await fetch(`${API_BASE}/api/v1/subscribers`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: email.trim(), source: variant || 'general' }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                  toast.success('🎉 You\'re subscribed! We\'ll notify you when we launch.');
+                  setEmail('');
+                } else {
+                  toast.error(data.message || 'Failed to subscribe. Please try again.');
+                }
+              } catch (error) {
+                console.error('Newsletter subscription error:', error);
+                toast.error('Something went wrong. Please try again.');
+              } finally {
+                setIsSubmitting(false);
+              }
+            }}
+            className="flex flex-col gap-3"
+          >
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:bg-gray-100"
             />
-            <button className={`px-6 py-3 bg-gradient-to-r ${config.gradient} text-white font-bold rounded-xl hover:shadow-lg transition-all duration-300`}>
-              Notify Me
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full px-6 py-3 bg-gradient-to-r ${config.gradient} text-white font-bold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
+            >
+              {isSubmitting ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                />
+              ) : (
+                'Notify Me'
+              )}
             </button>
-          </div>
+          </form>
+          <p className="text-xs text-gray-400 mt-2">We respect your privacy. Unsubscribe anytime.</p>
         </motion.div>
       )}
     </motion.div>

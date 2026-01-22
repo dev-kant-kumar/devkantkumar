@@ -12,15 +12,16 @@ const subscribe = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { email } = req.body;
+  const { email, source } = req.body;
 
   try {
-    let subscriber = await Subscriber.findOne({ email });
+    let subscriber = await Subscriber.findOne({ email: email.toLowerCase() });
 
     if (subscriber) {
       if (!subscriber.isActive) {
           subscriber.isActive = true;
           subscriber.emailsSentCount = (subscriber.emailsSentCount || 0) + 1;
+          if (source) subscriber.source = source;
           await subscriber.save();
 
           // Send welcome email (non-blocking)
@@ -34,7 +35,8 @@ const subscribe = async (req, res) => {
     }
 
     subscriber = await Subscriber.create({
-      email,
+      email: email.toLowerCase(),
+      source: source || 'general',
       emailsSentCount: 1
     });
 

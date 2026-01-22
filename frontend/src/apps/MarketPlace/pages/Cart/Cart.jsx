@@ -142,7 +142,7 @@ const Cart = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16 bg-white rounded-2xl shadow-sm"
+            className="text-center py-16 bg-white rounded-2xl shadow-sm p-10"
           >
             {/* Animated Shopping Bag */}
             <motion.div

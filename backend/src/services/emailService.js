@@ -8,6 +8,7 @@ const {
   getAdminContactTemplate,
   getUserContactAutoReplyTemplate,
   getNewsletterWelcomeTemplate,
+  getProductNotificationTemplate,
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
   getEmailChangeOtpTemplate,
@@ -177,6 +178,42 @@ class EmailService {
       type: 'newsletter-welcome-email'
     });
   }
+
+  /**
+   * Send notification about new product/service to subscriber
+   * @param {string} email
+   * @param {Object} productDetails - { name, description, price, imageUrl, url, isService }
+   */
+  async sendProductNotificationEmail(email, productDetails) {
+    const clientUrl = this._getClientUrl();
+    const productUrl = `${clientUrl}${productDetails.url}`;
+
+    // Fallback images if not provided
+    const productImageUrl = productDetails.imageUrl ||
+      (productDetails.isService
+        ? 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=1000'
+        : 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1000');
+
+    const html = getProductNotificationTemplate({
+      productName: productDetails.name,
+      productDescription: productDetails.description,
+      productPrice: productDetails.price,
+      productUrl,
+      productImageUrl,
+      isService: productDetails.isService
+    });
+
+    const subject = `🚀 New Launch: ${productDetails.name}`;
+
+    return addEmailToQueue({
+      to: email,
+      subject,
+      html,
+      type: 'product-notification-email'
+    });
+  }
+
+
 
   /**
    * Send OTP for email change

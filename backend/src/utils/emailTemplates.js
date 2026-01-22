@@ -398,31 +398,81 @@ const getUserContactAutoReplyTemplate = (contactData) => {
 
 const getNewsletterWelcomeTemplate = ({ email, unsubscribeUrl }) => {
   const content = `
-    <h1>You're In! 🚀</h1>
+    <h1>Welcome to the Inner Circle! 🚀</h1>
     <p>Hi there,</p>
-    <p>Thanks so much for subscribing to my newsletter. I'm thrilled to have you join this community of tech enthusiasts!</p>
+    <p>You've just made a great decision. By joining the <strong>${COMPANY_INFO.name}</strong> newsletter, you're now part of a community dedicated to building better software, faster.</p>
 
-    <div style="background-color: #f0fdf4; border-radius: 8px; padding: 24px; margin: 24px 0;">
-      <h3 style="margin-top: 0; color: #166534;">What to expect:</h3>
-      <ul style="margin-bottom: 0; color: #166534; padding-left: 20px;">
-        <li style="margin-bottom: 8px;">Exclusive insights into my latest projects</li>
-        <li style="margin-bottom: 8px;">Deep dives into web development & tech trends</li>
-        <li>Early access to new tools and resources</li>
+    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 24px; margin: 32px 0;">
+      <h3 style="margin-top: 0; color: #166534; font-size: 18px; margin-bottom: 16px;">Here's what you've unlocked:</h3>
+      <ul style="margin-bottom: 0; color: #15803d; padding-left: 20px;">
+        <li style="margin-bottom: 12px;"><strong>Early Access:</strong> Be the first to know about new products & templates.</li>
+        <li style="margin-bottom: 12px;"><strong>Exclusive Discounts:</strong> Subscriber-only deals on premium assets.</li>
+        <li style="margin-bottom: 0;"><strong>Tech Insights:</strong> Deep dives into scalable architecture and modern stack trends.</li>
       </ul>
     </div>
 
-    <p>I promise to respect your inbox—only high-quality, relevant content, no spam.</p>
+    <p>We believe in quality over quantity. You'll only hear from us when we have something valuable to share—like a game-changing tool or a critical industry update.</p>
 
-    <div class="text-center" style="margin: 32px 0;">
-      <a href="https://devkantkumar.com/blog" class="button" style="background-color: #059669;">Read Latest Articles</a>
+    <div class="text-center" style="margin: 40px 0;">
+      <a href="${COMPANY_INFO.url}/marketplace/products" class="button">Explore Marketplace</a>
+    </div>
+
+    <div class="box box-info" style="text-align: center; background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af;">
+      <p class="mb-0 text-sm">
+        <strong>Tip:</strong> Add <a href="mailto:${COMPANY_INFO.supportEmail}" style="color: #2563eb; text-decoration: underline;">${COMPANY_INFO.supportEmail}</a> to your contacts to ensure you never miss an update.
+      </p>
     </div>
 
     <p class="text-xs text-muted text-center" style="margin-top: 40px;">
       You subscribed with ${email}. <br>
-      <a href="${unsubscribeUrl}" class="text-muted" style="text-decoration: underline;">Unsubscribe</a> if you no longer wish to receive updates.
+      <a href="${unsubscribeUrl}" class="text-muted" style="text-decoration: underline;">Unsubscribe</a> if you need a break.
     </p>
   `;
-  return wrapHtml('Welcome to the Newsletter', content, 'Thanks for subscribing! Here\'s what to expect.');
+  return wrapHtml('Welcome to the Community! 🚀', content, 'You\'re in! Get ready for exclusive updates and resources.');
+};
+
+const getProductNotificationTemplate = ({ productName, productDescription, productUrl, productPrice, productImageUrl, isService = false }) => {
+  const typeLabel = isService ? 'New Service' : 'New Product';
+  const actionLabel = isService ? 'View Service' : 'View Product';
+
+  const content = `
+    <div style="text-align: center; margin-bottom: 32px;">
+      <span style="background-color: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">JUST LAUNCHED</span>
+      <h1 style="margin-top: 16px; margin-bottom: 8px;">${productName}</h1>
+      <p style="font-size: 18px; color: #4b5563;">${typeLabel} Alert 🚨</p>
+    </div>
+
+    ${productImageUrl ? `
+    <div style="margin-bottom: 32px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+      <img src="${productImageUrl}" alt="${productName}" style="width: 100%; height: auto; display: block;">
+    </div>
+    ` : ''}
+
+    <p>We've just released something new that we think you'll love.</p>
+
+    <div style="background-color: #f9fafb; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 32px;">
+      <p style="margin-bottom: 16px; font-size: 16px; color: #374151; line-height: 1.6;">${productDescription}</p>
+
+      ${productPrice ? `
+      <div style="font-size: 24px; font-weight: 800; color: #111827; margin-top: 8px;">
+        ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(productPrice)}
+      </div>
+      ` : ''}
+    </div>
+
+    <p>This ${isService ? 'service' : 'product'} is designed to help you build faster and scale efficiently. Check out the full details on the marketplace.</p>
+
+    <div class="text-center" style="margin: 40px 0;">
+      <a href="${productUrl}" class="button">${actionLabel}</a>
+    </div>
+
+    <div class="divider"></div>
+
+    <p class="text-sm text-center text-muted">
+      You're receiving this because you subscribed to product updates.
+    </p>
+  `;
+  return wrapHtml(`New Launch: ${productName}`, content, `Check out our latest ${isService ? 'service' : 'product'}: ${productName}`);
 };
 
 const getEmailChangeOtpTemplate = ({ otp, type }) => {
@@ -514,6 +564,7 @@ module.exports = {
   getAdminContactTemplate,
   getUserContactAutoReplyTemplate,
   getNewsletterWelcomeTemplate,
+  getProductNotificationTemplate,
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
   getEmailChangeOtpTemplate,
