@@ -170,7 +170,7 @@ const wrapHtml = (title, content, preheader = '') => `
         </div>
 
         <p style="margin-bottom: 12px; color: #6b7280;">
-          &copy; <script>document.write(new Date().getFullYear())</script>${new Date().getFullYear()} ${COMPANY_INFO.name}. All rights reserved.
+          &copy; ${new Date().getFullYear()} ${COMPANY_INFO.name}. All rights reserved.<br>
         </p>
         <p style="margin-bottom: 24px; line-height: 1.5;">
           ${COMPANY_INFO.address}<br>
