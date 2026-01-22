@@ -246,10 +246,11 @@ const Checkout = () => {
         `${API_URL}/marketplace/payment/create-order`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-            "x-country-code": detectedCountryCode || "US",
+            "x-country-code": detectedCountryCode || "INR",
           },
           body: JSON.stringify({
             amount: total,
@@ -285,7 +286,7 @@ const Checkout = () => {
         currency: orderData.currency,
         name: "Dev Kant Kumar Marketplace",
         description: "Digital Purchase",
-        image: "https://your-logo-url", // Optional
+        image: "https://avatars.githubusercontent.com/u/101362859?v=4",
         order_id: orderData.id,
         handler: async function (response) {
           // 3. Verify Payment
@@ -294,6 +295,7 @@ const Checkout = () => {
               `${API_URL}/marketplace/payment/verify`,
               {
                 method: "POST",
+                credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${token}`,
@@ -498,7 +500,7 @@ const Checkout = () => {
                       onChange={handleBillingChange}
                       error={errors.email}
                       icon={Mail}
-                      placeholder="john@example.com"
+                      placeholder="you@example.com"
                     />
                     <InputField
                       label="Phone Number"

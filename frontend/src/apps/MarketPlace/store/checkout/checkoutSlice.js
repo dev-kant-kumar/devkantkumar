@@ -11,7 +11,7 @@ const initialState = {
     city: '',
     state: '',
     zipCode: '',
-    country: 'US',
+    country: '',
   },
   paymentInfo: {
     cardName: '',
