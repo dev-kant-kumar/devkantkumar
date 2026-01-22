@@ -670,6 +670,19 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       query: () => '/admin/support/stats',
       providesTags: ['SupportTicket'],
     }),
+
+    // --- Email Templates ---
+    getEmailTemplates: builder.query({
+      query: () => '/admin/email-templates',
+      keepUnusedDataFor: 300,
+    }),
+    previewEmailTemplate: builder.mutation({
+      query: (data) => ({
+        url: '/admin/email-templates/preview',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -783,4 +796,8 @@ export const {
   useRespondToSupportTicketMutation,
   useDeleteSupportTicketMutation,
   useGetSupportStatsQuery,
+
+  // Email Templates
+  useGetEmailTemplatesQuery,
+  usePreviewEmailTemplateMutation,
 } = adminApiSlice;

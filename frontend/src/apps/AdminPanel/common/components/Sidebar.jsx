@@ -53,6 +53,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
     { name: "Subscribers", path: "/admin/subscribers", icon: Users },
     { name: "Announcements", path: "/admin/announcements", icon: Megaphone },
     { name: "Emails", path: "/admin/emails", icon: MailCheck },
+    { name: "Email Templates", path: "/admin/email-templates", icon: Code },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 

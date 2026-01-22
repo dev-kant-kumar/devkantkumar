@@ -113,4 +113,13 @@ router.get('/emails/:id', emailTrackingController.getEmailById);
 router.post('/emails/:id/retry', emailTrackingController.retryEmail);
 router.delete('/emails/cleanup', emailTrackingController.cleanupOldLogs);
 
+const adminEmailController = require('../controllers/adminEmailController');
+
+// ... existing code ...
+
+// Email Templates
+// Email Templates
+router.get('/email-templates', adminEmailController.getTemplates);
+router.post('/email-templates/preview', adminEmailController.previewTemplate);
+
 module.exports = router;

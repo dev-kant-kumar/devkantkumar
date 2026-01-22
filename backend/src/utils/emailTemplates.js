@@ -3,45 +3,128 @@
  * Stores the HTML structure for various system emails
  */
 
+const COMPANY_INFO = {
+  name: 'Dev Kant Kumar Marketplace',
+  url: 'https://devkantkumar.com',
+  logo: 'https://avatars.githubusercontent.com/u/101362859?v=4',
+  supportEmail: 'hello@devkantkumar.com',
+  address: 'Patna, Bihar, India',
+  social: {
+    twitter: 'https://x.com/dev_kant_kumar',
+    linkedin: 'https://linkedin.com/in/devkantkumar',
+    github: 'https://github.com/dev-kant-kumar',
+    instagram: 'https://instagram.com/devkantkumar.in'
+  }
+};
+
 const getBaseStyles = () => `
   /* Reset */
   body, p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1f2937; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #374151;
+    -webkit-font-smoothing: antialiased;
+    background-color: #fce7f3; /* Fallback/Page bg */
+  }
 
   /* Layout */
-  .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-  .wrapper { background-color: #f3f4f6; padding: 40px 20px; }
-  .header { padding: 40px 40px 30px; text-align: center; border-bottom: 1px solid #f3f4f6; }
-  .content { padding: 40px; }
-  .footer { background-color: #f9fafb; padding: 30px; text-align: center; color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; }
+  .email-wrapper { background-color: #f9fafb; padding: 40px 10px; }
+  .email-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    border: 1px solid #f3f4f6;
+  }
 
-  /* Elements */
-  h1 { font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 16px; letter-spacing: -0.5px; }
-  h2 { font-size: 20px; font-weight: 600; color: #374151; margin-bottom: 16px; }
-  p { margin-bottom: 24px; font-size: 16px; color: #4b5563; }
-  .button { display: inline-block; padding: 14px 32px; background-color: #4f46e5; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; text-align: center; transition: background-color 0.2s; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
-  .button:hover { background-color: #4338ca; }
-  .link { color: #4f46e5; text-decoration: underline; }
+  /* Header */
+  .email-header {
+    background-color: #ffffff;
+    padding: 32px 40px;
+    text-align: center;
+    border-bottom: 1px solid #f3f4f6;
+  }
+
+  /* Content */
+  .email-content { padding: 40px; }
+
+  /* Footer */
+  .email-footer {
+    background-color: #f9fafb;
+    padding: 32px 40px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+  }
+  h2 { font-size: 18px; font-weight: 600; color: #374151; margin-bottom: 16px; margin-top: 32px; }
+  p { margin-bottom: 24px; font-size: 16px; color: #4b5563; line-height: 1.625; }
 
   /* Components */
-  .info-box { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 4px; margin-bottom: 24px; }
-  .warning-box { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 4px; margin-bottom: 24px; }
-  .success-box { background-color: #ecfdf5; border-left: 4px solid #10b981; padding: 20px; border-radius: 4px; margin-bottom: 24px; }
-  .code-block { background-color: #1f2937; color: #e5e7eb; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 24px; letter-spacing: 4px; text-align: center; margin: 24px 0; font-weight: 700; }
-  .divider { border-top: 1px solid #e5e7eb; margin: 32px 0; }
-  .field-label { font-size: 12px; text-transform: uppercase; color: #9ca3af; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.5px; }
-  .field-value { font-size: 16px; color: #111827; font-weight: 500; }
+  .button {
+    display: inline-block;
+    padding: 14px 32px;
+    background-color: #059669; /* Marketplace Emerald */
+    color: #ffffff !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2);
+    border: 1px solid #059669;
+  }
+  .button:hover { background-color: #047857; box-shadow: 0 6px 8px -1px rgba(5, 150, 105, 0.3); }
 
-  /* Grid & Tables for Email */
-  .row { width: 100%; display: flex; flex-wrap: wrap; margin-bottom: 16px; }
-  .col { flex: 1; padding-right: 16px; }
-  .col:last-child { padding-right: 0; }
+  .link { color: #059669; text-decoration: none; font-weight: 500; }
+  .link:hover { text-decoration: underline; color: #047857; }
+
+  /* Info Boxes */
+  .box { padding: 20px; border-radius: 8px; margin-bottom: 24px; font-size: 14px; line-height: 1.5; }
+  .box-info { background-color: #ecfdf5; border: 1px solid #a7f3d0; color: #064e3b; }
+  .box-warning { background-color: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .box-danger { background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+
+  .code-block {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    padding: 24px;
+    border-radius: 12px;
+    font-family: 'SF Mono', 'Roboto Mono', Menlo, monospace;
+    font-size: 28px;
+    letter-spacing: 8px;
+    text-align: center;
+    margin: 32px 0;
+    font-weight: 700;
+    border: 1px solid #e5e7eb;
+  }
+
+  .divider { border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* Grid & Key-Value Pairs */
+  .kv-row { margin-bottom: 12px; display: flex; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding-bottom: 12px; }
+  .kv-label { font-size: 13px; color: #6b7280; font-weight: 500; }
+  .kv-value { font-size: 15px; color: #111827; font-weight: 600; text-align: right; }
 
   /* Utilities */
   .text-center { text-align: center; }
   .text-sm { font-size: 14px; }
   .text-xs { font-size: 12px; }
-  .text-muted { color: #6b7280; }
+  .text-muted { color: #9ca3af; }
   .mb-0 { margin-bottom: 0; }
   .mt-4 { margin-top: 16px; }
 `;
@@ -55,40 +138,49 @@ const wrapHtml = (title, content, preheader = '') => `
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <style>${getBaseStyles()}</style>
-  <!--[if mso]>
-  <style>
-    table {border-collapse: collapse;}
-    .code-block {letter-spacing: 4px;}
-  </style>
-  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; background-color: #f3f4f6;">
-  <!-- Hidden Preheader -->
+<body style="margin: 0; padding: 0; background-color: #f9fafb;">
+  <!-- Preheader -->
   <div style="display: none; max-height: 0; overflow: hidden;">
     ${preheader}
     &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
   </div>
 
-  <div class="wrapper">
-    <div class="container">
-      <div class="header">
-        <img src="https://devkantkumar.com/assets/logo.png" alt="Dev Kant Kumar" style="height: 40px; width: auto;" onerror="this.style.display='none'">
-        <div style="margin-top: 10px; font-weight: 700; font-size: 20px; color: #111827; display: ${'block' /* fallback if image breaks */}">Dev Kant Kumar</div>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <!-- Top Colored Bar -->
+      <div style="height: 4px; background: linear-gradient(to right, #059669, #10b981);"></div>
+
+      <div class="email-header">
+        <a href="${COMPANY_INFO.url}" target="_blank" style="text-decoration: none;">
+          <img src="${COMPANY_INFO.logo}" alt="${COMPANY_INFO.name}" style="height: 48px; width: 48px; border-radius: 8px; display: inline-block; vertical-align: middle;">
+          <span style="display: block; margin-top: 12px; font-weight: 700; font-size: 18px; color: #111827; letter-spacing: -0.5px;">${COMPANY_INFO.name}</span>
+        </a>
       </div>
 
-      <div class="content">
+      <div class="email-content">
         ${content}
       </div>
 
-      <div class="footer">
-        <p class="text-xs mb-0">
-          &copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.<br>
-          Made with ❤️ by Dev Kant Kumar Team.
+      <div class="email-footer">
+        <div style="margin-bottom: 24px;">
+           <a href="${COMPANY_INFO.social.twitter}" style="margin: 0 8px; text-decoration: none;"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" width="20" height="20" alt="Twitter" style="opacity: 0.6;"></a>
+           <a href="${COMPANY_INFO.social.linkedin}" style="margin: 0 8px; text-decoration: none;"><img src="https://cdn-icons-png.flaticon.com/512/3536/3536505.png" width="20" height="20" alt="LinkedIn" style="opacity: 0.6;"></a>
+           <a href="${COMPANY_INFO.social.github}" style="margin: 0 8px; text-decoration: none;"><img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" width="20" height="20" alt="GitHub" style="opacity: 0.6;"></a>
+        </div>
+
+        <p style="margin-bottom: 12px; color: #6b7280;">
+          &copy; <script>document.write(new Date().getFullYear())</script>${new Date().getFullYear()} ${COMPANY_INFO.name}. All rights reserved.
         </p>
-        <p class="text-xs mt-4">
-          <a href="https://devkantkumar.com/privacy" class="text-muted">Privacy Policy</a> &bull;
-          <a href="https://devkantkumar.com/terms" class="text-muted">Terms of Service</a> &bull;
-          <a href="https://devkantkumar.com/support" class="text-muted">Support</a>
+        <p style="margin-bottom: 24px; line-height: 1.5;">
+          ${COMPANY_INFO.address}<br>
+          <span style="font-size: 11px;">You are receiving this email because you created an account or subscribed to updates.</span>
+        </p>
+
+        <p class="text-xs">
+          <a href="${COMPANY_INFO.url}/privacy" class="link" style="color: #6b7280; font-weight: 400;">Privacy</a> &nbsp;&bull;&nbsp;
+          <a href="${COMPANY_INFO.url}/terms" class="link" style="color: #6b7280; font-weight: 400;">Terms</a> &nbsp;&bull;&nbsp;
+          <a href="${COMPANY_INFO.url}/support" class="link" style="color: #6b7280; font-weight: 400;">Support</a>
         </p>
       </div>
     </div>
@@ -101,7 +193,7 @@ const getVerificationEmailTemplate = ({ firstName, verificationUrl }) => {
   const content = `
     <h1>Verify Your Email Address</h1>
     <p>Hi ${firstName},</p>
-    <p>Welcome to Dev Kant Kumar! We're thrilled to have you join our community of developers and creators.</p>
+    <p>Welcome to ${COMPANY_INFO.name}! We're thrilled to have you join our community.</p>
     <p>To ensure the security of your account and get full access to all features, please verify your email address by clicking the button below.</p>
 
     <div class="text-center" style="margin: 32px 0;">
@@ -117,14 +209,14 @@ const getVerificationEmailTemplate = ({ firstName, verificationUrl }) => {
       <a href="${verificationUrl}" class="link" style="word-break: break-all;">${verificationUrl}</a>
     </p>
   `;
-  return wrapHtml('Verify Email - Dev Kant Kumar', content, 'Please verify your email address to complete your registration.');
+  return wrapHtml(`Verify Email - ${COMPANY_INFO.name}`, content, 'Please verify your email address to complete your registration.');
 };
 
 const getPasswordResetTemplate = ({ firstName, resetUrl }) => {
   const content = `
     <h1>Reset Your Password</h1>
     <p>Hi ${firstName},</p>
-    <p>We received a request to reset the password for your Dev Kant Kumar account.</p>
+    <p>We received a request to reset the password for your ${COMPANY_INFO.name} account.</p>
     <p>If you made this request, please click the button below to create a new password. If you didn't make this request, you can safely ignore this email—your account remains secure.</p>
 
     <div class="text-center" style="margin: 32px 0;">
@@ -147,7 +239,7 @@ const getPasswordResetSuccessTemplate = ({ firstName, resetTime, ipAddress, user
   const content = `
     <h1 style="color: #10b981;">Password Changed</h1>
     <p>Hi ${firstName},</p>
-    <p>This email confirms that the password for your Dev Kant Kumar account was successfully changed.</p>
+    <p>This email confirms that the password for your ${COMPANY_INFO.name} account was successfully changed.</p>
 
     <div class="success-box">
       <div class="field-label">Time of Change</div>
@@ -301,7 +393,7 @@ const getUserContactAutoReplyTemplate = (contactData) => {
 
     <p class="text-sm text-muted">If your matter is urgent, please feel free to send a follow-up email.</p>
   `;
-  return wrapHtml('Message Received - Dev Kant Kumar', content, 'Thanks for contacting us.');
+  return wrapHtml(`Message Received - ${COMPANY_INFO.name}`, content, 'Thanks for contacting us.');
 };
 
 const getNewsletterWelcomeTemplate = ({ email, unsubscribeUrl }) => {
@@ -408,7 +500,7 @@ const getAccountReactivationTemplate = ({ firstName, dashboardUrl }) => {
     <p>All your data, settings, and purchase history have been restored. You can pick up right where you left off.</p>
 
     <div class="text-center" style="margin: 32px 0;">
-      <a href="${dashboardUrl || 'https://devkantkumar.com'}" class="button">Go to Dashboard</a>
+      <a href="${dashboardUrl || COMPANY_INFO.url}" class="button">Go to Dashboard</a>
     </div>
   `;
   return wrapHtml('Account Reactivated', content, 'Welcome back! Your account has been restored.');
@@ -425,5 +517,6 @@ module.exports = {
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
   getEmailChangeOtpTemplate,
-  getPasswordChangeOtpTemplate
+  getPasswordChangeOtpTemplate,
+  COMPANY_INFO
 };
