@@ -9,10 +9,22 @@ const {
   getUserContactAutoReplyTemplate,
   getNewsletterWelcomeTemplate,
   getAccountDeactivationTemplate,
-  getAccountReactivationTemplate
+  getAccountReactivationTemplate,
+  getEmailChangeOtpTemplate,
+  getPasswordChangeOtpTemplate
 } = require('../utils/emailTemplates');
 
 class EmailService {
+  /**
+   * Get the client URL based on environment
+   * @private
+   */
+  _getClientUrl() {
+    if (process.env.CLIENT_URL) return process.env.CLIENT_URL;
+    if (process.env.NODE_ENV === 'production') return 'https://devkantkumar.com';
+    return process.env.CORS_ORIGIN || 'http://localhost:5173';
+  }
+
   /**
    * Send a generic email via queue
    * @param {Object} options - { to, subject, html, text }
@@ -34,7 +46,8 @@ class EmailService {
    * @param {string} firstName
    */
   async sendVerificationEmail(email, token, firstName) {
-    const verificationUrl = `${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/verify-email/${token}`;
+    const clientUrl = this._getClientUrl();
+    const verificationUrl = `${clientUrl}/marketplace/auth/verify-email/${token}`;
     const html = getVerificationEmailTemplate({ firstName, verificationUrl });
 
     return addEmailToQueue({
@@ -52,7 +65,8 @@ class EmailService {
    * @param {string} firstName
    */
   async sendPasswordResetEmail(email, token, firstName) {
-    const resetUrl = `${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/reset-password/${token}`;
+    const clientUrl = this._getClientUrl();
+    const resetUrl = `${clientUrl}/marketplace/auth/reset-password/${token}`;
     const html = getPasswordResetTemplate({ firstName, resetUrl });
 
     return addEmailToQueue({
@@ -70,6 +84,10 @@ class EmailService {
    * @param {Object} details - { ipAddress, userAgent }
    */
   async sendPasswordResetSuccessEmail(email, firstName, details = {}) {
+    const clientUrl = this._getClientUrl();
+    const loginUrl = `${clientUrl}/marketplace/auth/signin`;
+    const forgotPasswordUrl = `${clientUrl}/marketplace/auth/forgot-password`;
+
     const resetTime = new Date().toLocaleString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -84,7 +102,9 @@ class EmailService {
       firstName,
       resetTime,
       ipAddress: details.ipAddress,
-      userAgent: details.userAgent
+      userAgent: details.userAgent,
+      loginUrl,
+      forgotPasswordUrl
     });
 
     return addEmailToQueue({
@@ -102,7 +122,10 @@ class EmailService {
    * @param {string} firstName
    */
   async sendOrderConfirmationEmail(email, order, firstName) {
-    const html = getOrderConfirmationTemplate({ firstName, order });
+    const clientUrl = this._getClientUrl();
+    const orderUrl = `${clientUrl}/marketplace/account/orders/${order._id}`;
+
+    const html = getOrderConfirmationTemplate({ firstName, order, orderUrl });
 
     return addEmailToQueue({
       to: email,
@@ -141,7 +164,11 @@ class EmailService {
    * @param {string} email
    */
   async sendNewsletterWelcomeEmail(email) {
-    const html = getNewsletterWelcomeTemplate({ email });
+    const clientUrl = this._getClientUrl();
+    const unsubscribeUrl = `${clientUrl}/marketplace/account/settings`; // Assuming this exists or generic link
+    // TODO: Implement actual unsubscribe link if needed
+
+    const html = getNewsletterWelcomeTemplate({ email, unsubscribeUrl });
 
     return addEmailToQueue({
       to: email,
@@ -162,40 +189,7 @@ class EmailService {
       ? 'Verify Request to Change Email'
       : 'Verify Your New Email Address';
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${subject}</title>
-      </head>
-      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f6f8;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="padding: 30px; text-align: center; border-radius: 10px 10px 0 0; color: white; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
-            <h1 style="margin: 0; font-size: 24px;">🔐 ${subject}</h1>
-          </div>
-          <div style="background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <p>Use the following verification code to complete your request:</p>
-            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px dashed #0ea5e9; padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0;">
-              <h1 style="margin: 0; font-size: 36px; letter-spacing: 8px; color: #0284c7; font-family: 'Courier New', monospace;">${otp}</h1>
-            </div>
-            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 0; color: #92400e; font-size: 14px;">
-                <strong>⏰ This code expires in 10 minutes</strong> for your security.
-              </p>
-            </div>
-            <p style="font-size: 14px; color: #6b7280;">If you didn't request this code, please ignore this email or contact support if you have concerns.</p>
-            <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>Dev Kant Kumar Team</strong></p>
-          </div>
-          <div style="text-align: center; margin-top: 30px; color: #888; font-size: 13px;">
-            <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
-            <p style="font-size: 11px; color: #9ca3af;">This is an automated security email. Please do not reply.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    const html = getEmailChangeOtpTemplate({ otp, type });
 
     return addEmailToQueue({
       to: email,
@@ -211,44 +205,7 @@ class EmailService {
    * @param {string} otp
    */
   async sendPasswordChangeOTP(email, otp) {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Verify Password Change Request</title>
-      </head>
-      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f6f8;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="padding: 30px; text-align: center; border-radius: 10px 10px 0 0; color: white; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-            <h1 style="margin: 0; font-size: 24px;">🔒 Password Change Verification</h1>
-          </div>
-          <div style="background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <p>You've requested to change your password. Use the verification code below to confirm:</p>
-            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px dashed #ef4444; padding: 25px; text-align: center; border-radius: 12px; margin: 25px 0;">
-              <h1 style="margin: 0; font-size: 36px; letter-spacing: 8px; color: #dc2626; font-family: 'Courier New', monospace;">${otp}</h1>
-            </div>
-            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 0; color: #92400e; font-size: 14px;">
-                <strong>⏰ This code expires in 10 minutes</strong> for your security.
-              </p>
-            </div>
-            <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 0; color: #dc2626; font-size: 14px;">
-                <strong>⚠️ Didn't request this?</strong> If you didn't initiate this password change, please contact our support team immediately as your account may be at risk.
-              </p>
-            </div>
-            <p style="margin-bottom: 0; margin-top: 25px;">Stay secure,<br><strong>Dev Kant Kumar Team</strong></p>
-          </div>
-          <div style="text-align: center; margin-top: 30px; color: #888; font-size: 13px;">
-            <p>&copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved.</p>
-            <p style="font-size: 11px; color: #9ca3af;">This is an automated security notification. Please do not reply.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    const html = getPasswordChangeOtpTemplate({ otp });
 
     return addEmailToQueue({
       to: email,
@@ -265,13 +222,15 @@ class EmailService {
    * @param {Date} scheduledDeletionDate
    */
   async sendAccountDeactivationEmail(email, firstName, scheduledDeletionDate) {
-    const reactivationUrl = `${process.env.CORS_ORIGIN || 'https://devkantkumar.com'}/marketplace/auth/signin`;
+    const clientUrl = this._getClientUrl();
+    const reactivationUrl = `${clientUrl}/marketplace/auth/signin`;
     const formattedDate = new Date(scheduledDeletionDate).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
+
     const html = getAccountDeactivationTemplate({ firstName, scheduledDeletionDate: formattedDate, reactivationUrl });
 
     return addEmailToQueue({
@@ -288,7 +247,10 @@ class EmailService {
    * @param {string} firstName
    */
   async sendAccountReactivationEmail(email, firstName) {
-    const html = getAccountReactivationTemplate({ firstName });
+    const clientUrl = this._getClientUrl();
+    const dashboardUrl = `${clientUrl}/marketplace/dashboard`;
+
+    const html = getAccountReactivationTemplate({ firstName, dashboardUrl });
 
     return addEmailToQueue({
       to: email,

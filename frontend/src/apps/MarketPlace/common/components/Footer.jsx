@@ -57,8 +57,8 @@ const Footer = () => {
 
   const socialLinks = [
     { icon: Github, href: "https://github.com/dev-kant-kumar", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com/in/dev-kant-kumar", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com/devkantkumar", label: "Twitter" },
+    { icon: Linkedin, href: "https://linkedin.com/in/devkantkumar", label: "LinkedIn" },
+    { icon: Twitter, href: "https://twitter.com/dev_kant_kumar", label: "Twitter" },
   ];
 
   const trustBadges = [
