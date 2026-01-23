@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import {
     ArrowRight,
-    CheckCircle,
     Clock,
-    Layers,
     Loader2,
     Star,
-    Users
+    Download,
+    ShieldCheck,
+    Headset,
+    Calendar
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
@@ -31,10 +32,10 @@ const Home = () => {
   const isLoading = servicesLoading || productsLoading;
 
   const stats = [
-    { number: "Instant", label: "Digital Delivery", icon: CheckCircle },
-    { number: "Secure", label: "Payments", icon: Star },
-    { number: "Quality", label: "Products", icon: Users },
-    { number: "Direct", label: "Developer Support", icon: Layers }
+    { number: "Instant", label: "Digital Delivery", icon: Download },
+    { number: "Secure", label: "Payments", icon: ShieldCheck },
+    { number: "Quality", label: "Products", icon: Star },
+    { number: "Direct", label: "Developer Support", icon: Headset }
   ];
 
   return (

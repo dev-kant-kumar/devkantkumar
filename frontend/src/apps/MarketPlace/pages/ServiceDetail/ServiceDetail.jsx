@@ -160,15 +160,15 @@ const ServiceDetail = () => {
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
           <Link to="/marketplace/services" className="flex items-center text-gray-500 hover:text-blue-600 transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Services
+            <ArrowLeft className="h-4 w-4 lg:mr-2" />
+            <span className="hidden lg:inline">Back to Services</span>
           </Link>
           <div className="h-4 w-px bg-gray-300 mx-4"></div>
           <span className="text-gray-900 font-medium truncate max-w-[200px]">{service.title}</span>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
@@ -185,8 +185,8 @@ const ServiceDetail = () => {
             </div>
 
             {/* Service Info */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-8">
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:p-8 mb-8">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
                     <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold uppercase tracking-wider">
                         {service.category || 'Service'}
                     </span>
@@ -197,7 +197,62 @@ const ServiceDetail = () => {
                     </div>
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-6">{service.title}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">{service.title}</h1>
+
+                {/* Mobile Package & Pricing Box */}
+                <div className="lg:hidden mb-8 border border-gray-200 rounded-xl overflow-hidden">
+                    {/* Package Tabs */}
+                    {packages.length > 1 && (
+                        <div className="flex border-b border-gray-200 overflow-x-auto scrollbar-hide">
+                            {packages.map((pkg, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setSelectedPackage(idx)}
+                                    className={`flex-1 py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors ${
+                                        selectedPackage === idx
+                                            ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                                            : 'text-gray-500 hover:text-gray-700 bg-gray-50'
+                                    }`}
+                                >
+                                    {pkg.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="p-5 bg-gray-50/50">
+                        <div className="flex items-center justify-between mb-4">
+                             <span className="font-semibold text-gray-900">{packages[selectedPackage]?.name}</span>
+                             <PriceDisplay
+                                price={packages[selectedPackage]?.price}
+                                originalPrice={packages[selectedPackage]?.originalPrice}
+                                showOriginal={true}
+                                className="text-2xl"
+                                textClass="text-gray-900"
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                            <div className="flex items-center">
+                                <Calendar className="mr-1.5 h-4 w-4" />
+                                <span>{packages[selectedPackage]?.deliveryTime} Days</span>
+                            </div>
+                             <div className="flex items-center">
+                                <RefreshCw className="mr-1.5 h-4 w-4" />
+                                <span>{packages[selectedPackage]?.revisions === -1 || !packages[selectedPackage]?.revisions ? 'Unlimited' : packages[selectedPackage]?.revisions} Rev</span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={isAdding}
+                            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-75"
+                        >
+                             {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart size={18} />}
+                             {isAdding ? 'Adding...' : 'Continue'}
+                        </button>
+                    </div>
+                </div>
 
                 <div className="prose max-w-none text-gray-600">
                     <p className="whitespace-pre-wrap">{service.longDescription || service.description}</p>
@@ -241,7 +296,7 @@ const ServiceDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-24 space-y-6">
 
                 {/* Package Card */}
@@ -370,6 +425,21 @@ const ServiceDetail = () => {
         title={service?.title}
         text={service?.description}
       />
+
+      {/* Mobile Sticky Action Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:hidden z-50 flex items-center justify-between gap-4 safe-area-bottom">
+            <div className="flex flex-col">
+                <span className="text-xs text-gray-500 font-medium">Starting at</span>
+                <span className="text-xl font-bold text-gray-900">{formatPrice(packages[selectedPackage]?.price)}</span>
+            </div>
+            <button
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold text-base shadow-blue-500/20 active:bg-blue-700 flex items-center justify-center gap-2 disabled:opacity-75"
+            >
+                Continue ({packages[selectedPackage]?.name})
+            </button>
+        </div>
     </div>
   );
 };

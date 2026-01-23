@@ -154,15 +154,15 @@ const ProductDetail = () => {
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
           <Link to="/marketplace/products" className="flex items-center text-gray-500 hover:text-blue-600 transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Products
+            <ArrowLeft className="h-4 w-4 lg:mr-2" />
+            <span className="hidden lg:inline">Back to Products</span>
           </Link>
           <div className="h-4 w-px bg-gray-300 mx-4"></div>
           <span className="text-gray-900 font-medium truncate max-w-[200px]">{product.title}</span>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-32 lg:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content - Left Column */}
           <div className="lg:col-span-2 space-y-8">
@@ -189,15 +189,42 @@ const ProductDetail = () => {
 
             {/* Product Info & Tabs */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-8 pb-0">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                <div className="p-6 lg:p-8 pb-0">
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-6">
                         <span className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-0.5 rounded-full font-medium">
                             {product.category}
                         </span>
                         <span>v{product.version || '1.0.0'}</span>
                         <span>•</span>
                         <span>Updated {new Date(product.lastUpdated || product.updatedAt).toLocaleDateString()}</span>
+                    </div>
+
+                    <div className="lg:hidden mb-8 space-y-6 pb-6 border-b border-gray-100">
+                        <PriceDisplay
+                            price={product.price}
+                            originalPrice={product.originalPrice}
+                            showOriginal={true}
+                            className="text-3xl"
+                            textClass="text-gray-900"
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={handleAddToCart}
+                                disabled={isAdding}
+                                className="col-span-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed"
+                            >
+                                {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart size={18} />}
+                                {isAdding ? 'Adding...' : 'Add to Cart'}
+                            </button>
+                            <button
+                                onClick={handleShare}
+                                className="col-span-1 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+                            >
+                                <Share2 size={18} />
+                                Share
+                            </button>
+                        </div>
                     </div>
 
                     <p className="text-gray-600 text-lg leading-relaxed mb-8">
@@ -225,7 +252,7 @@ const ProductDetail = () => {
                 </div>
 
                 {/* Tabs Content */}
-                <div className="p-8 min-h-[300px]">
+                <div className="p-6 lg:p-8 min-h-[300px]">
                     <motion.div
                         key={activeTab}
                         initial={{ opacity: 0, y: 10 }}
@@ -302,7 +329,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Sidebar - Right Column */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="hidden lg:block lg:col-span-1 space-y-6">
 
             {/* Purchase Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 sticky top-24">
@@ -356,6 +383,28 @@ const ProductDetail = () => {
         title={product?.title}
         text={product?.description}
     />
+
+    {/* Mobile Sticky Action Bar */}
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:hidden z-50 flex items-center justify-between gap-4 safe-area-bottom">
+        <div className="flex flex-col">
+            <span className="text-xs text-gray-500 font-medium">Total Price</span>
+            <PriceDisplay
+                price={product.price}
+                originalPrice={product.originalPrice}
+                showOriginal={false}
+                className="text-xl"
+                textClass="text-gray-900 font-bold"
+            />
+        </div>
+        <button
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold text-base shadow-blue-500/20 active:bg-blue-700 flex items-center justify-center gap-2 disabled:opacity-75"
+        >
+            {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart size={18} />}
+            Add to Cart
+        </button>
+    </div>
     </div>
   );
 };

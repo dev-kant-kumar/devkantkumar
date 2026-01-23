@@ -9,10 +9,10 @@ const initialState = {
   isFilterOpen: false, // for mobile
   trustData: {
     stats: [
-      { number: "Instant", label: "Digital Delivery", icon: "Handshake" },
-      { number: "Secure", label: "Payment Gateway", icon: "Settings" },
-      { number: "24/7", label: "Download Access", icon: "Globe" },
-      { number: "Quality", label: "Code & Design", icon: "Users" }
+      { number: "Instant", label: "Digital Delivery", icon: "Download" },
+      { number: "Secure", label: "Payment Gateway", icon: "ShieldCheck" },
+      { number: "Quality", label: "Products", icon: "Star" },
+      { number: "Direct", label: "Developer Support", icon: "Headset" }
     ],
     benefits: [
       {

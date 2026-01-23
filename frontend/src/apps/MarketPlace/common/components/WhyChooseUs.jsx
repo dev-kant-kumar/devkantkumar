@@ -4,7 +4,12 @@ import {
     Globe,
     Handshake,
     Settings,
-    Users
+    Users,
+    Download,
+    ShieldCheck,
+    Star,
+    Headset,
+    Calendar
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
@@ -13,7 +18,11 @@ const iconMap = {
   Users,
   Settings,
   Globe,
-  CheckCircle
+  CheckCircle,
+  Download,
+  ShieldCheck,
+  Star,
+  Headset
 };
 
 const WhyChooseUs = () => {
