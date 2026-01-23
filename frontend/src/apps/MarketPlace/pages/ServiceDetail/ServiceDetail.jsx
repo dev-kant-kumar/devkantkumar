@@ -18,6 +18,7 @@ import PriceDisplay from '../../../../components/common/PriceDisplay';
 import ShareModal from '../../../../components/common/ShareModal';
 import ReviewForm from '../../../../components/Reviews/ReviewForm';
 import ReviewList from '../../../../components/Reviews/ReviewList';
+import { ServiceSchema } from '../../../../components/SEO/SchemaMarkup';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
