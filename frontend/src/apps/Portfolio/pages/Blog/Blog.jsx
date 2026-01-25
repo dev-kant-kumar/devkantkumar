@@ -1,19 +1,19 @@
 // Blog.jsx - Modern Premium Blog Page
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    ArrowRight,
-    BookOpen,
-    Calendar,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    Filter,
-    Flame,
-    Rss,
-    Search,
-    Sparkles,
-    TrendingUp,
-    X,
+  ArrowRight,
+  BookOpen,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Filter,
+  Flame,
+  Rss,
+  Search,
+  Sparkles,
+  TrendingUp,
+  X,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
