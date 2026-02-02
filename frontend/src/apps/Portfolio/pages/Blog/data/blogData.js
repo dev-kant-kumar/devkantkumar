@@ -128,5 +128,18 @@ export const blogData = [
     image: "/images/blog/ai-tools.png",
     featured: true,
     tags: ["AI Tools", "Productivity", "Directory", "ChatGPT", "Midjourney"]
+  },
+  {
+    id: "javascript-interview-questions-2026",
+    slug: "javascript-interview-questions-2026",
+    title: "100+ JavaScript Interview Questions & Answers for 2026",
+    excerpt: "The ultimate guide to acing your JavaScript interviews. Covers closures, promises, event loop, hoisting, and modern ES6+ features with real-world examples.",
+    category: "JavaScript",
+    author: "Dev Kant Kumar",
+    readTime: "30 min read",
+    publishDate: "2026-02-03",
+    image: "/images/blog/js-interview-2026.png",
+    featured: true,
+    tags: ["JavaScript", "Interview", "Web Development", "2026", "Front-end", "ES6"]
   }
 ];
