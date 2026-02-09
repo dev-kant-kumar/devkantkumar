@@ -103,7 +103,7 @@ const Conclusion = () => {
                         { title: 'Advanced Sorting', desc: 'Heap Sort, Counting Sort, Radix Sort', level: 'Intermediate' },
                     ].map((topic, idx) => (
                         <div key={idx} className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-cyan-500/30 transition-all group cursor-pointer">
-                            <div className="flex justify-between items-start mb-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                                 <h4 className="text-white font-bold group-hover:text-cyan-400 transition-colors">{topic.title}</h4>
                                 <span className="text-xs px-2 py-1 rounded bg-slate-800 text-slate-400">{topic.level}</span>
                             </div>

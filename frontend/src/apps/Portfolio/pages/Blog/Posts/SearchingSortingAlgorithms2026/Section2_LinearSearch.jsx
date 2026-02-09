@@ -184,11 +184,11 @@ int main() {
                             { step: 4, compare: 12, result: "12 ≠ 22, move to next" },
                             { step: 5, compare: 22, result: "22 = 22, FOUND at index 4! ✅" },
                         ].map((item, idx) => (
-                            <div key={idx} className={`flex items-center gap-4 p-3 rounded-lg ${idx === 4 ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-800/30'}`}>
-                                <span className={`px-3 py-1 rounded font-mono text-sm ${idx === 4 ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                            <div key={idx} className={`flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 p-3 rounded-lg ${idx === 4 ? 'bg-green-500/10 border border-green-500/30' : 'bg-slate-800/30'}`}>
+                                <span className={`px-3 py-1 rounded font-mono text-sm w-full sm:w-auto text-center ${idx === 4 ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
                                     Step {item.step}
                                 </span>
-                                <span className="text-slate-300">Compare {item.compare} → {item.result}</span>
+                                <span className="text-slate-300 text-center sm:text-left text-sm sm:text-base w-full sm:w-auto">Compare {item.compare} → {item.result}</span>
                             </div>
                         ))}
                     </div>
@@ -265,8 +265,8 @@ END FUNCTION`}
                 {/* Advantages & Disadvantages */}
                 <SubSectionHeader title="Advantages & Disadvantages" />
 
-                <div className="my-8 overflow-x-auto">
-                    <table className="w-full text-left border-collapse rounded-xl overflow-hidden">
+                <div className="my-8 overflow-x-auto pb-2">
+                    <table className="w-full min-w-[500px] text-left border-collapse rounded-xl overflow-hidden">
                         <thead>
                             <tr className="bg-slate-800/50">
                                 <th className="px-4 py-3 text-green-400 font-bold text-sm border-b border-slate-700">Advantages</th>

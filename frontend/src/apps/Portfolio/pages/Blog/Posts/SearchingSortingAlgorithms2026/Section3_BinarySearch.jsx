@@ -1,4 +1,4 @@
-import { AlertTriangle, BookOpen, Database, Gamepad2, GitBranch, Search, Smartphone, XCircle } from 'lucide-react';
+import { AlertTriangle, BookOpen, Database, Gamepad2, GitBranch, Search, Smartphone } from 'lucide-react';
 import { Binary, ComplexityTable, InfoBox, KeyTakeaway, MultiLanguageCode, Pseudocode, SectionHeader, SubSectionHeader } from './SharedComponents';
 
 const Section3_BinarySearch = () => {
@@ -354,13 +354,13 @@ int main() {
                     <div className="space-y-6">
                         {/* Step 1 */}
                         <div className="p-4 rounded-lg bg-slate-800/50">
-                            <div className="flex items-center gap-2 mb-3">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-3">
                                 <span className="px-2 py-1 bg-cyan-500 text-white text-xs font-bold rounded">Step 1</span>
                                 <span className="text-slate-400 text-sm">left=0, right=6, mid=3</span>
                             </div>
-                            <div className="flex gap-2 mb-2">
+                            <div className="flex gap-2 mb-2 overflow-x-auto pb-2">
                                 {[11, 12, 22, 25, 34, 64, 90].map((num, idx) => (
-                                    <div key={idx} className={`w-10 h-10 flex items-center justify-center rounded font-mono text-sm
+                                    <div key={idx} className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded font-mono text-sm
                                         ${idx === 3 ? 'bg-cyan-500 text-white ring-2 ring-cyan-400' :
                                           idx >= 0 && idx <= 6 ? 'bg-slate-700 text-white' : 'bg-slate-800 text-slate-500'}`}>
                                         {num}
@@ -374,11 +374,11 @@ int main() {
                     <div className="mt-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
                         <h5 className="text-amber-400 font-bold mb-2">Another Example: Finding 12</h5>
                         <div className="space-y-3 text-sm">
-                            <div className="flex items-start gap-2">
+                            <div className="flex flex-col sm:flex-row items-start gap-2">
                                 <span className="px-2 py-0.5 bg-slate-700 text-slate-300 rounded text-xs">Step 1</span>
                                 <span className="text-slate-300">mid=3 → arr[3]=25 {'>'} 12 → Search LEFT half [0..2]</span>
                             </div>
-                            <div className="flex items-start gap-2">
+                            <div className="flex flex-col sm:flex-row items-start gap-2">
                                 <span className="px-2 py-0.5 bg-slate-700 text-slate-300 rounded text-xs">Step 2</span>
                                 <span className="text-slate-300">mid=1 → arr[1]=12 = target → <span className="text-green-400 font-bold">FOUND!</span></span>
                             </div>
@@ -453,7 +453,7 @@ END FUNCTION`}
                         <p>n → n/2 → n/4 → n/8 → ... → 1</p>
                         <p className="text-purple-400">After k steps: n/2^k = 1 → k = log₂(n)</p>
                     </div>
-                    <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                         <div className="p-3 rounded-lg bg-slate-800/50">
                             <div className="text-2xl font-bold text-cyan-400">100</div>
                             <div className="text-slate-400 text-xs">elements</div>
@@ -477,47 +477,38 @@ END FUNCTION`}
 
                 <div className="space-y-4 my-8">
                     <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <div className="flex items-start gap-3">
-                            <XCircle className="text-red-400 flex-shrink-0 mt-1" size={20} />
-                            <div>
-                                <h5 className="text-red-400 font-bold">❌ Integer Overflow Bug</h5>
-                                <p className="text-slate-300 text-sm mt-1">
-                                    <code className="text-red-300 bg-slate-800 px-1 rounded">mid = (left + right) / 2</code> can overflow!
-                                </p>
-                                <p className="text-slate-400 text-sm mt-1">
-                                    ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">mid = left + (right - left) / 2</code>
-                                </p>
-                            </div>
+                        <div>
+                            <h5 className="text-red-400 font-bold mb-1">Integer Overflow Bug</h5>
+                            <p className="text-slate-300 text-sm mt-1">
+                                <code className="text-red-300 bg-slate-800 px-1 rounded">mid = (left + right) / 2</code> can overflow!
+                            </p>
+                            <p className="text-slate-400 text-sm mt-1">
+                                ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">mid = left + (right - left) / 2</code>
+                            </p>
                         </div>
                     </div>
 
                     <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <div className="flex items-start gap-3">
-                            <XCircle className="text-red-400 flex-shrink-0 mt-1" size={20} />
-                            <div>
-                                <h5 className="text-red-400 font-bold">❌ Infinite Loop</h5>
-                                <p className="text-slate-300 text-sm mt-1">
-                                    Wrong: <code className="text-red-300 bg-slate-800 px-1 rounded">while (left {'<'} right)</code> — misses edge case
-                                </p>
-                                <p className="text-slate-400 text-sm mt-1">
-                                    ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">while (left {'<'}= right)</code>
-                                </p>
-                            </div>
+                        <div>
+                            <h5 className="text-red-400 font-bold mb-1">Infinite Loop</h5>
+                            <p className="text-slate-300 text-sm mt-1">
+                                Wrong: <code className="text-red-300 bg-slate-800 px-1 rounded">while (left {'<'} right)</code> — misses edge case
+                            </p>
+                            <p className="text-slate-400 text-sm mt-1">
+                                ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">while (left {'<'}= right)</code>
+                            </p>
                         </div>
                     </div>
 
                     <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <div className="flex items-start gap-3">
-                            <XCircle className="text-red-400 flex-shrink-0 mt-1" size={20} />
-                            <div>
-                                <h5 className="text-red-400 font-bold">❌ Off-by-One Error</h5>
-                                <p className="text-slate-300 text-sm mt-1">
-                                    Wrong: <code className="text-red-300 bg-slate-800 px-1 rounded">left = mid</code> or <code className="text-red-300 bg-slate-800 px-1 rounded">right = mid</code>
-                                </p>
-                                <p className="text-slate-400 text-sm mt-1">
-                                    ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">left = mid + 1</code> and <code className="text-green-300 bg-slate-800 px-1 rounded">right = mid - 1</code>
-                                </p>
-                            </div>
+                        <div>
+                            <h5 className="text-red-400 font-bold mb-1">Off-by-One Error</h5>
+                            <p className="text-slate-300 text-sm mt-1">
+                                Wrong: <code className="text-red-300 bg-slate-800 px-1 rounded">left = mid</code> or <code className="text-red-300 bg-slate-800 px-1 rounded">right = mid</code>
+                            </p>
+                            <p className="text-slate-400 text-sm mt-1">
+                                ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">left = mid + 1</code> and <code className="text-green-300 bg-slate-800 px-1 rounded">right = mid - 1</code>
+                            </p>
                         </div>
                     </div>
                 </div>

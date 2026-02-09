@@ -878,7 +878,7 @@ const BlogPost = () => {
                       </div>
 
                       {/* Quick Actions - Enhanced Share Bar */}
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
                          <button
                             onClick={() => copyToClipboard(window.location.href)}
                             className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
@@ -906,7 +906,7 @@ const BlogPost = () => {
                           </button>
 
                          {/* Social Share Buttons */}
-                         <div className="flex items-center gap-1.5">
+                         <div className="flex flex-wrap items-center gap-1.5">
                             {/* Twitter/X */}
                             <button
                               onClick={() => shareArticle("twitter")}

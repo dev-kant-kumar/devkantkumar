@@ -15,7 +15,7 @@ import Section9Comparisons from "./SearchingSortingAlgorithms2026/Section9_Compa
 
 export default function SearchingSortingAlgorithms2026() {
     return (
-        <article className="max-w-4xl mx-auto px-4 md:px-0 py-8">
+        <article className="max-w-4xl mx-auto px-2 sm:px-4 md:px-0 py-8">
             <Introduction />
             <Section1Complexity />
             <Section2LinearSearch />

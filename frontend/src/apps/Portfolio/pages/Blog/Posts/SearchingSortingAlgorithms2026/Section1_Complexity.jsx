@@ -34,8 +34,8 @@ const Section1_Complexity = () => {
                 </InfoBox>
 
                 {/* Complexity Classes Table */}
-                <div className="my-10 overflow-x-auto">
-                    <table className="w-full text-left border-collapse rounded-xl overflow-hidden">
+                <div className="my-10 overflow-x-auto pb-2">
+                    <table className="w-full min-w-[700px] text-left border-collapse rounded-xl overflow-hidden">
                         <thead>
                             <tr className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20">
                                 <th className="px-4 py-3 text-white font-bold text-sm border-b border-slate-700">Notation</th>
@@ -93,23 +93,24 @@ const Section1_Complexity = () => {
                 </div>
 
                 {/* Visual Chart Alternative */}
-                <div className="my-10 p-6 rounded-xl bg-slate-900/50 border border-slate-800">
-                    <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-3">
-                        <TrendingUp className="text-cyan-400" />
+                {/* Visual Chart Alternative */}
+                <div className="my-8 sm:my-10 p-4 sm:p-6 rounded-lg sm:rounded-xl bg-slate-900/50 border border-slate-800">
+                    <h4 className="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2 sm:gap-3">
+                        <TrendingUp className="text-cyan-400 sm:w-6 sm:h-6" size={20} />
                         Growth Rate Comparison
                     </h4>
-                    <div className="grid grid-cols-6 gap-2 text-center text-xs">
-                        <div className="p-3 rounded-lg bg-green-500/20 text-green-400 font-bold">O(1)</div>
-                        <div className="p-3 rounded-lg bg-green-500/20 text-green-400 font-bold">O(log n)</div>
-                        <div className="p-3 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold">O(n)</div>
-                        <div className="p-3 rounded-lg bg-yellow-500/20 text-yellow-400 font-bold">O(n log n)</div>
-                        <div className="p-3 rounded-lg bg-orange-500/20 text-orange-400 font-bold">O(n²)</div>
-                        <div className="p-3 rounded-lg bg-red-500/20 text-red-400 font-bold">O(2ⁿ)</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3 text-center text-[10px] sm:text-xs font-bold">
+                        <div className="p-2 sm:p-3 rounded-lg bg-green-500/20 text-green-400">O(1)</div>
+                        <div className="p-2 sm:p-3 rounded-lg bg-green-500/20 text-green-400">O(log n)</div>
+                        <div className="p-2 sm:p-3 rounded-lg bg-cyan-500/20 text-cyan-400">O(n)</div>
+                        <div className="p-2 sm:p-3 rounded-lg bg-yellow-500/20 text-yellow-400">O(n log n)</div>
+                        <div className="p-2 sm:p-3 rounded-lg bg-orange-500/20 text-orange-400">O(n²)</div>
+                        <div className="p-2 sm:p-3 rounded-lg bg-red-500/20 text-red-400">O(2ⁿ)</div>
                     </div>
-                    <div className="flex items-center justify-center mt-4">
-                        <span className="text-green-400 text-sm">🚀 Fast</span>
-                        <div className="flex-1 h-1 mx-4 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 rounded"></div>
-                        <span className="text-red-400 text-sm">🐌 Slow</span>
+                    <div className="flex items-center justify-center mt-4 sm:mt-6">
+                        <span className="text-green-400 text-xs sm:text-sm font-bold">🚀 Fast</span>
+                        <div className="flex-1 h-1.5 sm:h-2 mx-3 sm:mx-4 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 rounded-full opacity-80"></div>
+                        <span className="text-red-400 text-xs sm:text-sm font-bold">🐌 Slow</span>
                     </div>
                 </div>
 
@@ -162,8 +163,8 @@ const Section1_Complexity = () => {
                     Algorithms can perform differently depending on the input:
                 </p>
 
-                <div className="my-8 overflow-x-auto">
-                    <table className="w-full text-left border-collapse rounded-xl overflow-hidden">
+                <div className="my-8 overflow-x-auto pb-2">
+                    <table className="w-full min-w-[600px] text-left border-collapse rounded-xl overflow-hidden">
                         <thead>
                             <tr className="bg-slate-800/50">
                                 <th className="px-4 py-3 text-white font-bold text-sm border-b border-slate-700">Case</th>

@@ -268,8 +268,8 @@ END FUNCTION`}
 
                 <SubSectionHeader title="Comparison: Simple Sorting Algorithms" />
 
-                <div className="my-8 overflow-x-auto">
-                    <table className="w-full text-left border-collapse rounded-xl overflow-hidden">
+                <div className="my-8 overflow-x-auto pb-2">
+                    <table className="w-full min-w-[600px] text-left border-collapse rounded-xl overflow-hidden">
                         <thead>
                             <tr className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20">
                                 <th className="px-4 py-3 text-white font-bold text-sm border-b border-slate-700">Algorithm</th>

@@ -231,8 +231,8 @@ END FUNCTION`}
 
                 <SubSectionHeader title="Selection Sort vs Bubble Sort" />
 
-                <div className="my-8 overflow-x-auto">
-                    <table className="w-full text-left border-collapse rounded-xl overflow-hidden">
+                <div className="my-8 overflow-x-auto pb-2">
+                    <table className="w-full min-w-[600px] text-left border-collapse rounded-xl overflow-hidden">
                         <thead>
                             <tr className="bg-slate-800/50">
                                 <th className="px-4 py-3 text-white font-bold text-sm border-b border-slate-700">Aspect</th>
