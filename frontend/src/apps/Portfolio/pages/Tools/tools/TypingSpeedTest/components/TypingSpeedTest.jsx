@@ -1,3 +1,4 @@
+import { Helmet } from '@dr.pogodin/react-helmet';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     BarChart2,
