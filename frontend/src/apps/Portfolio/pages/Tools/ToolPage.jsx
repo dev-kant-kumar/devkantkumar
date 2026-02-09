@@ -13,6 +13,7 @@ const CssGradientGenerator = React.lazy(() => import('./tools/CssGradientGenerat
 const MetaTagGenerator = React.lazy(() => import('./tools/MetaTagGenerator'));
 const MarkdownPreviewer = React.lazy(() => import('./tools/MarkdownPreviewer'));
 const OgPreviewTool = React.lazy(() => import('./tools/OgPreviewTool'));
+const TypingSpeedTest = React.lazy(() => import('./tools/TypingSpeedTest/components/TypingSpeedTest'));
 
 // Tool mapping
 const toolComponents = {
@@ -26,7 +27,8 @@ const toolComponents = {
   'css-gradient-generator': CssGradientGenerator,
   'meta-tag-generator': MetaTagGenerator,
   'markdown-previewer': MarkdownPreviewer,
-  'og-preview': OgPreviewTool
+  'og-preview': OgPreviewTool,
+  'typing-speed-test': TypingSpeedTest
 };
 
 const ToolPage = () => {

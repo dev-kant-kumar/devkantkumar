@@ -186,6 +186,21 @@ const tools = [
     category: 'Developer',
     popular: true,
     keywords: ['og preview', 'open graph', 'social share preview', 'twitter card', 'meta tags validator']
+  },
+  {
+    id: 'typing-speed-test',
+    slug: 'typing-speed-test',
+    name: 'Typing Speed Test',
+    shortName: 'Typing Test',
+    description: 'Test your typing speed with code snippets and standard text. Real-time WPM, accuracy tracking, and developer modes.',
+    icon: Type,
+    color: 'from-cyan-500 to-blue-600',
+    bgColor: 'bg-cyan-500/10',
+    borderColor: 'border-cyan-500/30',
+    textColor: 'text-cyan-400',
+    category: 'Developer',
+    popular: true,
+    keywords: ['typing test', 'wpm test', 'typing speed', 'developer typing', 'code typing']
   }
 ];
 
