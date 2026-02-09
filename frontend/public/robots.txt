@@ -1,5 +1,5 @@
 # robots.txt for devkantkumar.com
-# Updated: 2025-11-18
+# Updated: 2026-02-09
 
 # ============================================
 # Default rules for all bots
@@ -9,7 +9,7 @@ Allow: /
 Crawl-delay: 1
 
 # ============================================
-# Specific rules for major search engines
+# SEARCH ENGINES (Full Access)
 # ============================================
 
 # Google (fastest crawling, no delay)
@@ -47,46 +47,140 @@ Allow: /
 Crawl-delay: 2
 
 # ============================================
-# AI/ML Crawlers (Control AI training bots)
+# AI SEARCH ENGINES (ALLOWED - for discoverability)
 # ============================================
 
-# OpenAI GPT crawlers
+# OpenAI ChatGPT / GPTBot
 User-agent: GPTBot
-Disallow: /
+Allow: /
+Crawl-delay: 2
+
+# OpenAI ChatGPT search
+User-agent: ChatGPT-User
+Allow: /
+Crawl-delay: 2
+
+# Anthropic Claude
+User-agent: anthropic-ai
+Allow: /
+Crawl-delay: 2
+
+User-agent: Claude-Web
+Allow: /
+Crawl-delay: 2
+
+User-agent: ClaudeBot
+Allow: /
+Crawl-delay: 2
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 2
 
 # Google Bard/Gemini
 User-agent: Google-Extended
-Disallow: /
+Allow: /
+Crawl-delay: 2
 
-# Common Crawl (used by AI models)
-User-agent: CCBot
-Disallow: /
+# Microsoft Copilot
+User-agent: Copilot
+Allow: /
+Crawl-delay: 2
 
-# Anthropic Claude crawler
-User-agent: anthropic-ai
-Disallow: /
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+Crawl-delay: 2
 
-# Facebook/Meta AI
-User-agent: FacebookBot
-Disallow: /
-
-# ByteDance (TikTok) AI
-User-agent: Bytespider
-Disallow: /
+# You.com AI
+User-agent: YouBot
+Allow: /
+Crawl-delay: 2
 
 # ============================================
-# Block problematic/aggressive bots
+# SOCIAL MEDIA BOTS (ALLOWED - for link previews)
+# ============================================
+
+# Twitter/X
+User-agent: Twitterbot
+Allow: /
+Crawl-delay: 0
+
+# Facebook / Meta
+User-agent: facebookexternalhit
+Allow: /
+Crawl-delay: 0
+
+User-agent: FacebookBot
+Allow: /
+Crawl-delay: 1
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+Crawl-delay: 0
+
+# Pinterest
+User-agent: Pinterestbot
+Allow: /
+Crawl-delay: 0
+
+# Slack
+User-agent: Slackbot
+Allow: /
+Crawl-delay: 0
+
+# WhatsApp
+User-agent: WhatsApp
+Allow: /
+Crawl-delay: 0
+
+# Discord
+User-agent: Discordbot
+Allow: /
+Crawl-delay: 0
+
+# Telegram
+User-agent: TelegramBot
+Allow: /
+Crawl-delay: 0
+
+# ============================================
+# BLOCK AGGRESSIVE SEO SCRAPERS
 # ============================================
 User-agent: AhrefsBot
-Crawl-delay: 10
+Disallow: /
 
 User-agent: SemrushBot
-Crawl-delay: 10
+Disallow: /
 
 User-agent: MJ12bot
 Disallow: /
 
 User-agent: dotbot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: serpstatbot
+Disallow: /
+
+User-agent: MegaIndex
+Disallow: /
+
+User-agent: Screaming Frog SEO Spider
+Disallow: /
+
+# Block AI training scrapers (not search)
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
 Disallow: /
 
 # ============================================
