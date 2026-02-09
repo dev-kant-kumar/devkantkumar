@@ -30,7 +30,7 @@ import { useEffect, useState } from "react";
 //
 // The buttons will automatically use whatever link you set here.
 // =====================================================
-const HOSTINGER_AFFILIATE_LINK = "https://www.hostinger.com/web-hosting";
+const HOSTINGER_AFFILIATE_LINK = "https://hostinger.in?REFERRALCODE=1DEVKANT45";
 
 // =====================================================
 // BLOG POST METADATA - SEO OPTIMIZED
@@ -39,7 +39,7 @@ export const info = {
     slug: "how-to-start-a-blog-2026",
     title: "How to Start a Blog in 2026: Complete Guide to Make $5K+/Month",
     description: "Learn how to start a profitable blog in 2026. Step-by-step WordPress tutorial with Hostinger hosting (80% OFF), monetization strategies, and real income potential.",
-    excerpt: "The ultimate guide to starting a blog that makes money. From zero to profitable with step-by-step tutorials, hosting setup, and proven monetization strategies for beginners.",
+    excerpt: "Start a blog and earn $5K+/month. Step-by-step WordPress setup, hosting deals, and proven monetization strategies.",
     publishDate: "2026-01-07",
     modifiedDate: "2026-01-07",
     category: "Tutorials",

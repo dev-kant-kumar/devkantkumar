@@ -1625,7 +1625,7 @@ RSCGuide2025.info = {
   slug: "react-server-components-2025",
   title: "React Server Components (RSC) Complete Guide 2026: Architecture & Best Practices",
   excerpt:
-    "Master React Server Components with this comprehensive 2026 guide. Learn RSC architecture, Suspense streaming, client vs server components, and Next.js App Router patterns for lightning-fast apps.",
+    "Master React Server Components in 2026. Learn RSC architecture, streaming, and Next.js patterns for faster apps.",
   category: "React",
   author: "Dev Kant Kumar",
   readTime: "15 min read",

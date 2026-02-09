@@ -1790,9 +1790,9 @@ AssembliesPost.CardImage = AssembliesCardImage;
 AssembliesPost.info = {
   id: "dotnet-assemblies-complete-guide",
   slug: "dotnet-assemblies-complete-guide",
-  title: "Mastering .NET Assemblies: Complete Guide to Private & Shared Assemblies (2026)",
+  title: ".NET Assemblies Explained: Private vs Shared + GAC Tutorial (2026)",
   excerpt:
-    "A comprehensive guide to understanding .NET assemblies. Learn about private vs shared assemblies, side-by-side execution, GAC management, strong naming, and step-by-step tutorials for Visual Studio 2026.",
+    "Master .NET assemblies: private vs shared, GAC management, side-by-side execution. Step-by-step Visual Studio 2026 tutorials.",
   category: ".NET & C#",
   author: "Dev Kant Kumar",
   readTime: "35 min read",

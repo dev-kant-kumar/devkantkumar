@@ -1,10 +1,10 @@
 import {
-  Activity,
-  BarChart3,
-  Clock,
-  Database,
-  Layers,
-  User
+    Activity,
+    BarChart3,
+    Clock,
+    Database,
+    Layers,
+    User
 } from "lucide-react";
 import React from "react";
 const Introduction = React.lazy(()=>import("./ReactStateManagement2026Comps/Introduction"));
@@ -155,7 +155,7 @@ ReactStateManagement2026.info = {
   slug: "react-state-management-2026",
   title: "React State Management in 2026: The Complete Practical Guide",
   excerpt:
-    "Master React state in 2026. Learn when to use Zustand, Redux Toolkit, or React Query. Complete guide with decision trees, working examples, and performance tips.",
+    "Zustand vs Redux vs React Query? Master React state management in 2026 with decision trees and real examples.",
   category: "React",
   author: "Dev Kant Kumar",
   readTime: "20 min read",

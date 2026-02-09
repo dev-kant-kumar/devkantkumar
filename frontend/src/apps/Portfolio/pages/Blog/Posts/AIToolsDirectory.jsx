@@ -58,9 +58,9 @@ import aiToolsData, { categories, pricingTypes } from "./data/aiToolsData";
 // =====================================================
 export const info = {
     slug: "ultimate-ai-tools-directory-2026",
-    title: "100+ Best AI Tools 2026: Free & Paid [Updated Weekly] | Complete Directory",
+    title: "100+ AI Tools That Replace $10K/Month in Software (2026 Directory)",
     description: "The most comprehensive AI tools directory with 100+ hand-picked tools across 11 categories. Compare ChatGPT, Claude, Midjourney, and more. Updated January 2026.",
-    excerpt: "Discover 100+ best AI tools in 2026—from ChatGPT to Midjourney. Free and paid options with ratings, comparisons, and expert recommendations for every use case.",
+    excerpt: "100 AI tools for 2026: free ChatGPT alternatives, AI image generators, coding assistants. Categories, pricing & real recommendations.",
     publishDate: "2024-12-26",
     modifiedDate: "2026-01-07",
     category: "AI Resources",
