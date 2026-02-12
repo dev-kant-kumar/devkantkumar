@@ -46,6 +46,7 @@ const notificationRoutes = require('./src/routes/notificationRoutes');
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
 const notFound = require('./src/middlewares/notFound');
+const extractLocation = require('./src/middlewares/locationMiddleware');
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
@@ -156,6 +157,9 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 }
+
+// Location Middleware
+app.use(extractLocation);
 
 // Root endpoint
 app.get('/', (req, res) => {

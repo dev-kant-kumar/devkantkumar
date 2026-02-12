@@ -115,7 +115,10 @@ const register = async (req, res, next) => {
       lastName,
       email: email.toLowerCase(),
       password,
-      isEmailVerified: false // Enforce email verification
+      isEmailVerified: false, // Enforce email verification
+      profile: {
+        location: req.location || undefined // Store detected location if available
+      }
     });
 
     // Generate email verification token
@@ -248,6 +251,13 @@ const login = async (req, res, next) => {
 
     // Update last login
     user.lastLogin = new Date();
+
+    // Update location if not set
+    if (!user.profile) user.profile = {};
+    if (!user.profile.location && req.location) {
+      user.profile.location = req.location;
+    }
+
     await user.save();
 
     // Log successful login with role information
