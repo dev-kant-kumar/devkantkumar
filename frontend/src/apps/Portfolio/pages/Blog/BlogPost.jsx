@@ -8,7 +8,7 @@ import StructuredData from "../../../../components/SEO/StructuredData";
 import { sendNewsletterNotificationToDiscord } from "../../common/utils/Discords/sendEmail";
 import { useSubscribeMutation } from "../../store/api/subscriberApiSlice";
 import { portfolioData } from "../../store/data/portfolioData";
-import AdPlaceholder from "./components/AdPlaceholder";
+import AffiliatePromo from "./components/AffiliatePromo";
 import GiscusComments from "./components/GiscusComments";
 import ReadingToolbar from "./components/ReadingToolbar";
 import RelatedPosts from "./components/RelatedPosts";
@@ -766,8 +766,8 @@ const BlogPost = () => {
                     </div>
                   )}
 
-                  {/* Sidebar Ad Placeholder */}
-                  <AdPlaceholder label="Advertisement" />
+                  {/* Sidebar Promo */}
+                  <AffiliatePromo productId="all" />
 
                   {/* Stay Updated Section */}
                   {/* Stay Updated Section */}
@@ -997,9 +997,9 @@ const BlogPost = () => {
                       {PostComponent && <PostComponent />}
                     </div>
 
-                    {/* In-Content Ad Placeholder (Bottom) */}
+                    {/* In-Content Promo (Bottom) */}
                     <div className="my-12">
-                      <AdPlaceholder label="Advertisement" />
+                      <AffiliatePromo variant="horizontal" productId="all" />
                     </div>
 
                     {/* Tags Section */}
@@ -1105,9 +1105,9 @@ const BlogPost = () => {
             />
         )}
 
-        {/* Footer Ad Placeholder */}
+        {/* Footer Promo */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <AdPlaceholder label="Advertisement" className="h-32" />
+          <AffiliatePromo variant="horizontal" productId="all" />
         </div>
       </div>
       <ReadingToolbar

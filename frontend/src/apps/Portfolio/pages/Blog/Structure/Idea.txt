@@ -1,543 +1,1288 @@
-I'll search for what people are actually searching for around searching and sorting algorithms to create the perfect blog outline.Now let me create a comprehensive blog outline with SEO data for you:
-
-# 📋 **COMPLETE BLOG OUTLINE: SEARCHING & SORTING ALGORITHMS**
-
----
-
-## **🎯 TITLE OPTIONS (SEO-Optimized)**
-
-**Primary Title (Recommended):**
-"**Complete Guide to Searching and Sorting Algorithms: From Beginner to Expert [2026]**"
-
-**Alternative Titles:**
-1. "Searching and Sorting Algorithms Explained: Master DSA with Examples in 5 Languages"
-2. "Ultimate Guide to Search & Sort: Binary Search, QuickSort, MergeSort & More"
-3. "Data Structures & Algorithms: Complete Searching and Sorting Tutorial with Code"
+# 🧠 JavaScript Internals — Complete Mastery Notes
+> Everything about how JavaScript works under the hood. From engine to event loop.
 
 ---
 
-## **📝 META DESCRIPTION (155-160 characters)**
+## 📌 Table of Contents
 
-"Master searching and sorting algorithms with visual examples, complexity analysis, and code in Python, Java, C++, JavaScript & C. Complete DSA guide for interviews."
-
----
-
-## **🔍 SEO DATA & KEYWORDS**
-
-### **Primary Keywords:**
-- Searching and sorting algorithms
-- Binary search algorithm
-- Sorting algorithms tutorial
-- QuickSort vs MergeSort
-- DSA algorithms
-- Search algorithms explained
-
-### **Secondary Keywords:**
-- Linear search vs binary search
-- Time complexity sorting
-- Divide and conquer algorithms
-- In-place sorting
-- Stable sorting algorithms
-- Algorithm visualization
-
-### **Long-tail Keywords:**
-- "How does binary search work"
-- "Best sorting algorithm for interviews"
-- "QuickSort time complexity explained"
-- "When to use merge sort vs quick sort"
-- "Searching algorithms with examples"
-
-### **Search Intent:**
-- Educational/Tutorial (80%)
-- Interview Preparation (15%)
-- Reference/Documentation (5%)
-
-### **Estimated Monthly Searches:**
-- "Sorting algorithms" - 40,500
-- "Binary search" - 33,100
-- "Quick sort" - 22,200
-- "Merge sort" - 18,100
-- "Linear search" - 14,800
+1. [The Big Picture](#1-the-big-picture)
+2. [JavaScript Engine](#2-javascript-engine)
+3. [How JS Code is Compiled](#3-how-js-code-is-compiled)
+4. [Execution Context](#4-execution-context)
+5. [Memory Phase & Code Phase](#5-memory-phase--code-phase)
+6. [Hoisting](#6-hoisting)
+7. [The Call Stack](#7-the-call-stack)
+8. [Scope & Scope Chain](#8-scope--scope-chain)
+9. [Closures](#9-closures)
+10. [The `this` Keyword](#10-the-this-keyword)
+11. [Prototype & Prototype Chain](#11-prototype--prototype-chain)
+12. [Asynchronous JavaScript](#12-asynchronous-javascript)
+13. [Web APIs & libuv](#13-web-apis--libuv)
+14. [Task Queue & Microtask Queue](#14-task-queue--microtask-queue)
+15. [The Event Loop](#15-the-event-loop)
+16. [Promises Internals](#16-promises-internals)
+17. [async/await Internals](#17-asyncawait-internals)
+18. [Memory Management & Garbage Collection](#18-memory-management--garbage-collection)
+19. [Complete Flow Diagram](#19-complete-flow-diagram)
+20. [Quick Reference Cheatsheet](#20-quick-reference-cheatsheet)
 
 ---
 
-## **📚 COMPLETE BLOG STRUCTURE**
+## 1. The Big Picture
 
----
-
-### **SECTION 1: INTRODUCTION**
-
-#### **Topics to Cover:**
-- What are searching and sorting algorithms?
-- Why are they important in DSA?
-- Real-world applications
-- How this guide is structured
-
-#### **Depth:**
-- 3-4 paragraphs
-- Include relatable analogy (e.g., finding a book in a library)
-- Mention interview importance
-
-#### **Key Points:**
-- Data organization importance
-- Algorithm efficiency matters
-- Foundation for complex problems
-
----
-
-### **SECTION 2: UNDERSTANDING ALGORITHM COMPLEXITY**
-
-#### **Topics:**
-- Time Complexity (Big O Notation)
-- Space Complexity
-- Best, Average, Worst Cases
-- How to analyze algorithms
-
-#### **Depth:**
-- Detailed explanation with examples
-- Visual comparison table
-- Common complexity classes (O(1), O(log n), O(n), O(n log n), O(n²))
-
-#### **Include:**
-- Comparison graph/chart
-- Quick reference table
-- Real number examples (n = 100, 1000, 10000)
-
----
-
-### **SECTION 3: SEARCHING ALGORITHMS**
-
----
-
-#### **3.1 Linear Search**
-
-**Sub-topics:**
-- How it works (step-by-step)
-- Algorithm visualization
-- Time & Space Complexity
-- When to use it
-- Advantages & Disadvantages
-
-**Depth:** Deep dive with visuals
-
-**Code Implementation in 5 Languages:**
-1. **Python**
-2. **Java**
-3. **C++**
-4. **JavaScript**
-5. **C**
-
-**Each code example should include:**
-- Iterative approach
-- Comments explaining each step
-- Sample input/output
-- Complexity analysis comment
-
-**Example Structure:**
-```
-Algorithm Explanation → Visual Diagram → Pseudocode →
-Code in 5 Languages → Complexity Analysis → Use Cases
-```
-
----
-
-#### **3.2 Binary Search**
-
-**Sub-topics:**
-- Prerequisites (sorted array requirement)
-- How it works (divide and conquer)
-- Step-by-step walkthrough with example
-- Visualization of the process
-- Time & Space Complexity
-- When to use it
-
-**Depth:** Very deep - this is the most important searching algorithm
-
-**Code Implementations:**
-- **Iterative approach** (all 5 languages)
-- **Recursive approach** (all 5 languages)
-
-**Additional Topics:**
-- Common mistakes (infinite loops, off-by-one errors)
-- Edge cases
-- Binary search variations
-- Real-world applications
-
----
-
-#### **3.3 Jump Search (Bonus)**
-
-**Brief coverage:**
-- Concept explanation
-- When it's better than binary search
-- Code in Python only
-
----
-
-#### **3.4 Interpolation Search (Bonus)**
-
-**Brief coverage:**
-- When to use
-- Best case scenarios
-- Code in Python only
-
----
-
-### **SECTION 4: SORTING ALGORITHMS**
-
----
-
-#### **4.1 Bubble Sort**
-
-**Sub-topics:**
-- How it works
-- Visual animation description
-- Optimization (early termination)
-- Time & Space Complexity
-- When to use (almost sorted data)
-
-**Code in 5 Languages:**
-- Basic version
-- Optimized version
-- Complexity analysis
-
----
-
-#### **4.2 Selection Sort**
-
-**Sub-topics:**
-- Algorithm explanation
-- Step-by-step process
-- Comparison with Bubble Sort
-- Time & Space Complexity
-
-**Code in 5 Languages**
-
----
-
-#### **4.3 Insertion Sort**
-
-**Sub-topics:**
-- How it works (like sorting playing cards)
-- Visual explanation
-- Best use cases
-- Adaptive nature
-- Time & Space Complexity
-
-**Code in 5 Languages:**
-- Standard implementation
-- Optimized with binary search
-
----
-
-#### **4.4 Merge Sort** ⭐ (VERY IMPORTANT)
-
-**Sub-topics:**
-- Divide and Conquer explained
-- The Merge process (most critical)
-- Complete algorithm walkthrough
-- Recursion tree visualization
-- Time & Space Complexity
-- Stable sorting property
-- When to use
-
-**Depth:** VERY DEEP - One of the most important algorithms
-
-**Code in 5 Languages:**
-- Recursive implementation
-- Helper merge function
-- Detailed comments
-- Memory analysis
-
-**Additional:**
-- Merge sort for linked lists
-- Bottom-up (iterative) approach
-- Real-world applications
-
----
-
-#### **4.5 Quick Sort** ⭐ (VERY IMPORTANT)
-
-**Sub-topics:**
-- Pivot selection strategies
-- Partitioning process (Hoare vs Lomuto)
-- Complete algorithm walkthrough
-- Recursion visualization
-- Time & Space Complexity
-- In-place sorting
-- When to use
-
-**Depth:** VERY DEEP - Most popular sorting algorithm
-
-**Code in 5 Languages:**
-- With different pivot strategies:
-  - Last element as pivot
-  - First element as pivot
-  - Random pivot
-  - Median-of-three
-
-**Additional:**
-- Worst case scenario (already sorted)
-- Optimization techniques
-- Why it's preferred in practice
-- Comparison with Merge Sort
-
----
-
-#### **4.6 Heap Sort**
-
-**Sub-topics:**
-- Binary heap structure
-- Heapify process
-- Algorithm steps
-- Time & Space Complexity
-
-**Code in 5 Languages**
-
----
-
-#### **4.7 Counting Sort**
-
-**Sub-topics:**
-- Non-comparison sort
-- When to use (small range of integers)
-- Time & Space Complexity
-- Limitations
-
-**Code in 5 Languages**
-
----
-
-#### **4.8 Radix Sort**
-
-**Sub-topics:**
-- Digit-by-digit sorting
-- LSD vs MSD
-- Time complexity
-- When to use
-
-**Code in 5 Languages**
-
----
-
-### **SECTION 5: ALGORITHM COMPARISONS**
-
-#### **5.1 Searching Algorithms Comparison**
-
-**Include:**
-- Comprehensive comparison table
-- Time complexity comparison
-- Space complexity comparison
-- When to use each
-- Flowchart for selection
-
----
-
-#### **5.2 Sorting Algorithms Comparison**
-
-**Include:**
-- Mega comparison table with ALL algorithms
-- Columns: Algorithm, Best/Avg/Worst Time, Space, Stable?, In-place?, When to use
-- Visual performance chart
-- Sorting algorithm decision tree
-- Stability importance
-- In-place vs out-of-place
-
----
-
-### **SECTION 6: ADVANCED TOPICS**
-
-#### **Topics:**
-- Hybrid sorting algorithms (TimSort, IntroSort)
-- Sorting algorithm stability
-- In-place vs out-of-place
-- Adaptive algorithms
-- External sorting
-- Parallel sorting
-
-**Depth:** Medium - overview with examples
-
----
-
-### **SECTION 7: INTERVIEW PATTERNS & PRACTICE**
-
-#### **Topics:**
-- Top 20 most asked search/sort problems
-- How to recognize which algorithm to use
-- Common interview tricks
-- Optimization techniques
-- Practice problem links
-
----
-
-### **SECTION 8: REAL-WORLD APPLICATIONS**
-
-#### **Topics:**
-- Database indexing (B-trees use binary search)
-- Operating systems (process scheduling)
-- Graphics (collision detection)
-- E-commerce (product sorting)
-- Social media (timeline sorting)
-
----
-
-### **SECTION 9: CONCLUSION & NEXT STEPS**
-
-#### **Topics:**
-- Summary of key takeaways
-- Which algorithms to master first
-- Practice resources
-- Next topics to learn
-
----
-
-## **🎨 VISUAL ELEMENTS TO INCLUDE**
-
-1. **Algorithm Visualization Diagrams** (for each algorithm)
-2. **Complexity Comparison Charts**
-3. **Decision Trees** (when to use which algorithm)
-4. **Performance Graphs** (time vs input size)
-5. **Step-by-step Animation Descriptions**
-6. **Comparison Tables** (multiple throughout)
-7. **Flowcharts** (algorithm selection)
-8. **Code Snippets** (syntax-highlighted)
-
----
-
-## **💻 CODE IMPLEMENTATION STANDARDS**
-
-### **5 Languages Required:**
-1. **Python** (most readable, preferred for learning)
-2. **Java** (enterprise, interviews)
-3. **C++** (performance, competitive programming)
-4. **JavaScript** (web development)
-5. **C** (low-level understanding)
-
-### **Code Structure for Each Algorithm:**
-```
-// Algorithm Name: Binary Search
-// Time Complexity: O(log n)
-// Space Complexity: O(1) iterative, O(log n) recursive
-
-[Code with detailed comments]
-
-// Example Usage:
-[Test cases with output]
-```
-
-### **Code Quality Requirements:**
-- Clean, readable code
-- Descriptive variable names
-- Step-by-step comments
-- Example usage
-- Edge case handling
-- Complexity mentioned in comments
-
----
-
-## **📊 ESTIMATED CONTENT LENGTH**
-
-- **Total Word Count:** 12,000 - 15,000 words
-- **Code Lines:** 2,000+ lines across all languages
-- **Images/Diagrams:** 30-40
-- **Tables:** 10-15
-- **Reading Time:** 45-60 minutes
-
----
-
-## **🔗 INTERNAL LINKING STRATEGY**
-
-Link to:
-- Arrays fundamentals
-- Recursion tutorial
-- Big O notation guide
-- Tree data structures
-- Graph algorithms
-- Interview preparation guide
-
----
-
-## **🎯 TARGET AUDIENCE**
-
-1. **Beginners** (40%) - Learning DSA fundamentals
-2. **Interview Prep** (35%) - FAANG preparation
-3. **Students** (15%) - Academic learning
-4. **Reference** (10%) - Quick lookup
-
----
-
-## **📈 ENGAGEMENT ELEMENTS**
-
-1. **Interactive Code Examples** (if possible)
-2. **Quiz at the end** of each section
-3. **Practice Problems** with solutions
-4. **Download PDF** option
-5. **Video explanations** (optional)
-6. **Comparison Tool** (interactive)
-
----
-
-## **🏆 UNIQUE VALUE PROPOSITIONS**
-
-1. **All major algorithms in one place**
-2. **Code in 5 popular languages**
-3. **Visual explanations for every algorithm**
-4. **Real-world applications**
-5. **Interview-focused insights**
-6. **Comprehensive comparison tables**
-7. **Beginner-friendly yet comprehensive**
-
----
-
-## **📱 CONTENT STRUCTURE SUMMARY**
+Before diving deep, understand the full journey of your JS code:
 
 ```
-Introduction (500 words)
-├── Complexity Analysis (800 words)
-├── Searching Algorithms (3,500 words)
-│   ├── Linear Search (700 words + code)
-│   ├── Binary Search (1,800 words + code)
-│   └── Other searches (1,000 words + code)
-├── Sorting Algorithms (6,000 words)
-│   ├── Simple Sorts (1,500 words + code)
-│   │   ├── Bubble Sort
-│   │   ├── Selection Sort
-│   │   └── Insertion Sort
-│   ├── Advanced Sorts (3,500 words + code)
-│   │   ├── Merge Sort (1,200 words)
-│   │   ├── Quick Sort (1,200 words)
-│   │   └── Heap Sort (1,100 words)
-│   └── Non-comparison Sorts (1,000 words + code)
-│       ├── Counting Sort
-│       └── Radix Sort
-├── Comparisons (1,200 words)
-├── Advanced Topics (800 words)
-├── Interview Patterns (1,000 words)
-├── Real-world Applications (600 words)
-└── Conclusion (300 words)
+You write JS code
+       ↓
+JS Engine receives it (V8 in Chrome/Node, SpiderMonkey in Firefox)
+       ↓
+Parser → tokenizes → builds AST (Abstract Syntax Tree)
+       ↓
+Interpreter → converts to Bytecode (runs immediately)
+       ↓
+Profiler watches → hot code → JIT Compiler → optimized Machine Code
+       ↓
+Global Execution Context created
+       ↓
+Memory Phase → Code Phase
+       ↓
+Call Stack manages execution
+       ↓
+Async work → Web APIs / libuv → Queues → Event Loop → Call Stack
+```
+
+JavaScript is:
+- **Single-threaded** — one call stack, one thing at a time
+- **Non-blocking** — async operations don't freeze the thread
+- **Dynamically typed** — types checked at runtime, not compile time
+- **Interpreted + JIT compiled** — not purely one or the other
+
+---
+
+## 2. JavaScript Engine
+
+The engine is the program that reads and executes your JavaScript.
+
+| Environment | Engine |
+|---|---|
+| Chrome / Node.js | **V8** (written in C++) |
+| Firefox | SpiderMonkey |
+| Safari | JavaScriptCore (Nitro) |
+| Edge (old) | Chakra |
+
+### Inside V8 — Two Main Components
+
+```
+┌─────────────────────────────────────────┐
+│               V8 ENGINE                 │
+│                                         │
+│  ┌──────────────┐   ┌────────────────┐  │
+│  │   Memory     │   │   Call Stack   │  │
+│  │    Heap      │   │                │  │
+│  │              │   │  (where code   │  │
+│  │ (where objs  │   │   executes)    │  │
+│  │  are stored) │   │                │  │
+│  └──────────────┘   └────────────────┘  │
+└─────────────────────────────────────────┘
+```
+
+- **Memory Heap** — unstructured memory pool where objects, arrays, functions are stored
+- **Call Stack** — tracks what function is currently being executed
+
+---
+
+## 3. How JS Code is Compiled
+
+JS uses **JIT (Just-In-Time) Compilation** — a mix of interpretation and compilation.
+
+```
+Source Code
+     ↓
+┌─────────────┐
+│   PARSER    │  → checks syntax, tokenizes code
+└─────────────┘
+     ↓
+┌─────────────┐
+│     AST     │  → Abstract Syntax Tree (tree structure of your code)
+└─────────────┘
+     ↓
+┌─────────────┐
+│ INTERPRETER │  → converts to Bytecode, starts executing immediately
+│  (Ignition) │    (fast startup, slower execution)
+└─────────────┘
+     ↓ (profiler detects "hot" functions — called repeatedly)
+┌─────────────┐
+│JIT COMPILER │  → recompiles hot code into optimized Machine Code
+│ (TurboFan)  │    (slower to compile, much faster to run)
+└─────────────┘
+     ↓
+ Machine Code runs on CPU
+```
+
+> **Why does this matter?**
+> Writing predictable, consistent code (same types, same shapes of objects) helps V8 optimize better. Changing types randomly makes V8 de-optimize.
+
+### What is the AST?
+
+```javascript
+// Your code:
+const x = 5 + 3
+
+// AST representation (simplified):
+{
+  type: "VariableDeclaration",
+  kind: "const",
+  declarations: [{
+    type: "VariableDeclarator",
+    id: { type: "Identifier", name: "x" },
+    init: {
+      type: "BinaryExpression",
+      operator: "+",
+      left: { type: "Literal", value: 5 },
+      right: { type: "Literal", value: 3 }
+    }
+  }]
+}
+```
+
+You can visualize any code's AST at **astexplorer.net**
+
+---
+
+## 4. Execution Context
+
+An Execution Context (EC) is the environment in which JavaScript code is evaluated and executed.
+
+**Three types:**
+
+```
+┌─────────────────────────────────────────────┐
+│           GLOBAL EXECUTION CONTEXT          │
+│  Created once when script starts            │
+│  'this' = window (browser) / module (Node)  │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│          FUNCTION EXECUTION CONTEXT         │
+│  Created every time a function is called    │
+│  Each call = new EC (even recursive calls)  │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
+│              EVAL EXECUTION CONTEXT         │
+│  Created inside eval() — avoid using eval   │
+└─────────────────────────────────────────────┘
+```
+
+### What's Inside an Execution Context?
+
+```
+┌──────────────────────────────────────────┐
+│           EXECUTION CONTEXT              │
+│                                          │
+│  ┌─────────────────────────────────┐     │
+│  │      Variable Environment       │     │
+│  │  (var declarations, functions)  │     │
+│  └─────────────────────────────────┘     │
+│                                          │
+│  ┌─────────────────────────────────┐     │
+│  │        Lexical Environment      │     │
+│  │  (let, const, outer reference)  │     │
+│  └─────────────────────────────────┘     │
+│                                          │
+│  ┌─────────────────────────────────┐     │
+│  │          'this' binding         │     │
+│  └─────────────────────────────────┘     │
+└──────────────────────────────────────────┘
 ```
 
 ---
 
-## **✅ PRE-PUBLISH CHECKLIST**
+## 5. Memory Phase & Code Phase
 
-- [ ] All algorithms explained clearly
-- [ ] Code in all 5 languages tested
-- [ ] All complexity analyses included
-- [ ] Visual diagrams for each algorithm
-- [ ] Comparison tables complete
-- [ ] SEO keywords naturally integrated
-- [ ] Internal links added
-- [ ] External authority links (GeeksforGeeks, etc.)
-- [ ] Code syntax highlighted
-- [ ] Mobile-friendly formatting
-- [ ] Table of contents with anchors
-- [ ] Meta description optimized
-- [ ] Image alt texts added
-- [ ] Practice problems linked
+Every Execution Context is created in **two phases**:
+
+### Phase 1 — Memory Creation (Hoisting Phase)
+
+JS engine scans the entire code BEFORE executing a single line.
+
+```
+For var declarations  → stored with value: undefined
+For let/const         → stored but in Temporal Dead Zone (TDZ)
+For function declarations → stored with FULL function definition
+For function expressions → treated like var (undefined)
+```
+
+```javascript
+// What you write:
+console.log(a)      // undefined (not error — var hoisted)
+console.log(b)      // ReferenceError — TDZ
+console.log(greet)  // [Function: greet] — fully hoisted
+
+var a = 10
+let b = 20
+function greet() { return "hello" }
+```
+
+**Memory Phase Visual:**
+
+```
+MEMORY PHASE — Before any code runs:
+┌────────────────────────────────────────┐
+│  Variable Environment                  │
+│                                        │
+│  a        →  undefined                 │
+│  b        →  <TDZ — uninitialized>     │
+│  greet    →  function greet() {...}    │
+└────────────────────────────────────────┘
+```
+
+### Phase 2 — Code Execution Phase
+
+Code runs **line by line**, top to bottom. Values get assigned.
+
+```
+CODE EXECUTION PHASE — Line by line:
+┌────────────────────────────────────────┐
+│  a = 10   →  a updated from undefined  │
+│  b = 20   →  b initialized, TDZ ends   │
+└────────────────────────────────────────┘
+```
 
 ---
 
-This structure will create a **comprehensive, evergreen, SEO-optimized** blog post that will rank well globally and serve as both a learning resource and reference guide for searching and sorting algorithms!
+## 6. Hoisting
 
-Would you like me to start writing the actual blog content following this outline?
+Hoisting is the behavior where declarations are processed before execution.
+
+### var Hoisting
+
+```javascript
+console.log(x)  // undefined (hoisted, not initialized)
+var x = 5
+console.log(x)  // 5
+
+// JS sees it as:
+var x           // declaration hoisted to top
+console.log(x)  // undefined
+x = 5           // assignment stays here
+console.log(x)  // 5
+```
+
+### let & const — Temporal Dead Zone (TDZ)
+
+```javascript
+console.log(y)  // ❌ ReferenceError: Cannot access 'y' before initialization
+let y = 10
+
+// let and const ARE hoisted (JS knows they exist)
+// but they're in TDZ from start of scope until declaration line
+// accessing them in TDZ = ReferenceError
+
+// TDZ visualized:
+// ┌── start of scope ────────────────────────┐
+// │  ← TDZ for y (exists but not accessible) │
+// │  ← TDZ for y                             │
+// │  let y = 10  ← TDZ ENDS here             │
+// │  console.log(y)  ← safe to access now    │
+// └──────────────────────────────────────────┘
+```
+
+### Function Hoisting
+
+```javascript
+// Function DECLARATION — fully hoisted
+greet()  // ✅ "Hello" — works before declaration
+function greet() { console.log("Hello") }
+
+// Function EXPRESSION — NOT fully hoisted (treated like var)
+sayHi()  // ❌ TypeError: sayHi is not a function
+var sayHi = function() { console.log("Hi") }
+
+// Arrow function — same as function expression
+sayBye() // ❌ TypeError
+var sayBye = () => console.log("Bye")
+```
+
+### Hoisting Summary Table
+
+| Declaration | Hoisted? | Initial Value | Accessible Before Init? |
+|---|---|---|---|
+| `var` | ✅ Yes | `undefined` | ✅ Yes (gets undefined) |
+| `let` | ✅ Yes | TDZ | ❌ No (ReferenceError) |
+| `const` | ✅ Yes | TDZ | ❌ No (ReferenceError) |
+| `function` declaration | ✅ Yes | Full definition | ✅ Yes |
+| `function` expression | ✅ Yes (as var) | `undefined` | ❌ No (TypeError) |
+| `class` | ✅ Yes | TDZ | ❌ No (ReferenceError) |
+
+---
+
+## 7. The Call Stack
+
+The Call Stack is a **LIFO (Last In, First Out)** data structure that tracks execution contexts.
+
+### Rules:
+- Every function call → new EC pushed onto stack
+- Function returns → EC popped off stack
+- JS can only execute what's on TOP of the stack
+- Call stack has a size limit → too many calls = **Stack Overflow**
+
+### Visual Example:
+
+```javascript
+function multiply(a, b) {
+    return a * b
+}
+
+function square(n) {
+    return multiply(n, n)
+}
+
+function printSquare(n) {
+    const result = square(n)
+    console.log(result)
+}
+
+printSquare(4)
+```
+
+```
+CALL STACK VISUALIZATION:
+
+Step 1: Script starts
+┌──────────────────────┐
+│  Global EC           │  ← pushed first
+└──────────────────────┘
+
+Step 2: printSquare(4) called
+┌──────────────────────┐
+│  printSquare EC      │  ← pushed
+├──────────────────────┤
+│  Global EC           │
+└──────────────────────┘
+
+Step 3: square(4) called inside printSquare
+┌──────────────────────┐
+│  square EC           │  ← pushed
+├──────────────────────┤
+│  printSquare EC      │
+├──────────────────────┤
+│  Global EC           │
+└──────────────────────┘
+
+Step 4: multiply(4,4) called inside square
+┌──────────────────────┐
+│  multiply EC         │  ← pushed
+├──────────────────────┤
+│  square EC           │
+├──────────────────────┤
+│  printSquare EC      │
+├──────────────────────┤
+│  Global EC           │
+└──────────────────────┘
+
+Step 5: multiply returns 16 → popped
+┌──────────────────────┐
+│  square EC           │  ← now on top
+├──────────────────────┤
+│  printSquare EC      │
+├──────────────────────┤
+│  Global EC           │
+└──────────────────────┘
+
+Step 6: square returns 16 → popped
+Step 7: console.log runs → popped
+Step 8: printSquare returns → popped
+Step 9: Global EC → popped (program ends)
+```
+
+### Stack Overflow
+
+```javascript
+function infinite() {
+    return infinite()  // calls itself forever
+}
+infinite()
+// ❌ RangeError: Maximum call stack size exceeded
+// Stack grows until memory runs out
+```
+
+---
+
+## 8. Scope & Scope Chain
+
+**Scope** = where a variable is accessible.
+
+### Three Types of Scope
+
+```javascript
+// 1. GLOBAL SCOPE
+var globalVar = "I'm everywhere"
+
+function example() {
+    // 2. FUNCTION SCOPE
+    var funcVar = "only inside this function"
+
+    if (true) {
+        // 3. BLOCK SCOPE (let/const only)
+        let blockVar = "only inside this block"
+        var notBlockScoped = "I leak out to function scope"
+    }
+
+    console.log(notBlockScoped)  // ✅ accessible (var ignores blocks)
+    console.log(blockVar)        // ❌ ReferenceError (let is block scoped)
+}
+```
+
+### Scope Chain
+
+When JS looks for a variable, it searches:
+1. Current scope
+2. Outer scope
+3. Outer outer scope
+4. ... all the way to Global scope
+5. Not found → ReferenceError
+
+```javascript
+const a = 'global'
+
+function outer() {
+    const b = 'outer'
+
+    function middle() {
+        const c = 'middle'
+
+        function inner() {
+            const d = 'inner'
+            console.log(d)  // found in own scope
+            console.log(c)  // found in middle scope (1 level up)
+            console.log(b)  // found in outer scope (2 levels up)
+            console.log(a)  // found in global scope (3 levels up)
+            console.log(e)  // ❌ ReferenceError — not found anywhere
+        }
+        inner()
+    }
+    middle()
+}
+outer()
+```
+
+```
+SCOPE CHAIN DIAGRAM:
+
+inner() scope  →  middle() scope  →  outer() scope  →  Global scope  →  ❌ ReferenceError
+    d                  c                   b                  a
+```
+
+> **Key insight:** Scope chain is determined by where functions are **written** (lexical scope), NOT where they are called.
+
+---
+
+## 9. Closures
+
+A closure is a function that **remembers the variables from its outer scope** even after the outer function has finished executing.
+
+```javascript
+function makeCounter() {
+    let count = 0        // this variable "closes over" into inner function
+
+    return function() {
+        count++
+        return count
+    }
+}
+
+const counter = makeCounter()
+// makeCounter() has finished — its EC is gone from call stack
+// BUT count still lives because the inner function holds a reference to it
+
+console.log(counter())  // 1
+console.log(counter())  // 2
+console.log(counter())  // 3
+```
+
+### How Closures Work Internally
+
+```
+makeCounter() finishes and pops off call stack
+BUT the returned function holds a reference to:
+┌────────────────────────────────────┐
+│  Closure (makeCounter scope)       │
+│  count: 0 → 1 → 2 → 3             │
+│  (stays in memory heap)            │
+└────────────────────────────────────┘
+Garbage collector won't clean this
+because the inner function still references it
+```
+
+### Real World Uses of Closures
+
+```javascript
+// 1. DATA PRIVACY (encapsulation)
+function createBankAccount(initialBalance) {
+    let balance = initialBalance  // private — can't access directly
+
+    return {
+        deposit: (amount) => { balance += amount },
+        withdraw: (amount) => { balance -= amount },
+        getBalance: () => balance
+    }
+}
+
+const account = createBankAccount(1000)
+account.deposit(500)
+console.log(account.getBalance())  // 1500
+console.log(account.balance)       // undefined — no direct access!
+
+// 2. FUNCTION FACTORIES
+function multiply(x) {
+    return (y) => x * y     // closes over x
+}
+
+const double = multiply(2)
+const triple = multiply(3)
+double(5)   // 10
+triple(5)   // 15
+
+// 3. MEMOIZATION
+function memoize(fn) {
+    const cache = {}         // closes over cache
+    return function(n) {
+        if (cache[n]) return cache[n]
+        cache[n] = fn(n)
+        return cache[n]
+    }
+}
+```
+
+### Classic Closure Gotcha
+
+```javascript
+// ❌ BUG — var doesn't create new scope per iteration
+for (var i = 0; i < 3; i++) {
+    setTimeout(() => console.log(i), 1000)
+}
+// Output: 3, 3, 3  (NOT 0, 1, 2)
+// All closures share the SAME i (var is function scoped)
+
+// ✅ FIX 1 — use let (block scoped, new binding per iteration)
+for (let i = 0; i < 3; i++) {
+    setTimeout(() => console.log(i), 1000)
+}
+// Output: 0, 1, 2
+
+// ✅ FIX 2 — use IIFE to create new scope
+for (var i = 0; i < 3; i++) {
+    ((j) => {
+        setTimeout(() => console.log(j), 1000)
+    })(i)
+}
+```
+
+---
+
+## 10. The `this` Keyword
+
+`this` refers to the **object that is currently executing the function**. It's determined at **call time**, not definition time (except arrow functions).
+
+### 5 Rules of `this`
+
+```javascript
+// RULE 1: Global context
+console.log(this)  // window (browser) / {} (Node module)
+
+// RULE 2: Object method — this = the object
+const user = {
+    name: "Dev Kant",
+    greet() {
+        console.log(this.name)  // "Dev Kant"
+    }
+}
+user.greet()
+
+// RULE 3: Regular function — this = undefined (strict) or window (non-strict)
+function standalone() {
+    console.log(this)  // undefined in strict mode
+}
+standalone()
+
+// RULE 4: Arrow function — this = inherited from surrounding scope (lexical)
+const obj = {
+    name: "Dev Kant",
+    greet: () => {
+        console.log(this.name)  // undefined! arrow has no own 'this'
+    },
+    greetCorrect() {
+        const arrow = () => console.log(this.name)  // ✅ inherits from greetCorrect
+        arrow()
+    }
+}
+
+// RULE 5: Constructor / new keyword — this = newly created object
+function Person(name) {
+    this.name = name    // this = new empty object
+}
+const dev = new Person("Dev Kant")
+console.log(dev.name)  // "Dev Kant"
+```
+
+### Explicitly Setting `this`
+
+```javascript
+function introduce(greeting) {
+    console.log(`${greeting}, I'm ${this.name}`)
+}
+
+const person = { name: "Dev Kant" }
+
+// call — invoke immediately, pass args individually
+introduce.call(person, "Hello")
+
+// apply — invoke immediately, pass args as array
+introduce.apply(person, ["Hi"])
+
+// bind — returns NEW function with this permanently bound
+const boundIntroduce = introduce.bind(person)
+boundIntroduce("Hey")
+```
+
+### `this` Summary Table
+
+| Context | `this` value |
+|---|---|
+| Global (browser) | `window` |
+| Global (Node strict) | `{}` |
+| Object method | The object |
+| Regular function | `undefined` (strict) / `window` |
+| Arrow function | Lexical (from surrounding scope) |
+| `new` keyword | Newly created object |
+| `call` / `apply` / `bind` | Whatever you pass |
+
+---
+
+## 11. Prototype & Prototype Chain
+
+Every object in JS has a hidden `[[Prototype]]` property pointing to another object. This forms the **prototype chain** — JS's inheritance system.
+
+```javascript
+const arr = [1, 2, 3]
+// arr has access to .map(), .filter(), .push() etc.
+// but YOU didn't define them — where do they come from?
+
+// arr → Array.prototype → Object.prototype → null
+```
+
+### How It Works
+
+```javascript
+function Dog(name) {
+    this.name = name
+}
+
+Dog.prototype.bark = function() {
+    console.log(`${this.name} says Woof!`)
+}
+
+const dog1 = new Dog("Bruno")
+dog1.bark()  // "Bruno says Woof!"
+
+// When JS looks up dog1.bark:
+// 1. Check dog1 own properties → not found
+// 2. Check Dog.prototype → found! ✅ execute it
+```
+
+```
+PROTOTYPE CHAIN:
+
+dog1 object
+  name: "Bruno"
+  [[Prototype]] → Dog.prototype
+                    bark: function
+                    [[Prototype]] → Object.prototype
+                                      toString: function
+                                      hasOwnProperty: function
+                                      [[Prototype]] → null (end of chain)
+```
+
+### ES6 Classes are Just Prototype Syntax Sugar
+
+```javascript
+// Class syntax (modern)
+class Animal {
+    constructor(name) {
+        this.name = name
+    }
+    speak() {
+        console.log(`${this.name} makes a sound`)
+    }
+}
+
+class Dog extends Animal {
+    speak() {
+        console.log(`${this.name} barks`)
+    }
+}
+
+// Under the hood, JS is still using prototypes
+// extends sets up the prototype chain
+// super() calls the parent constructor
+```
+
+---
+
+## 12. Asynchronous JavaScript
+
+JS is single-threaded — it can only do one thing at a time. But the real world needs async operations: network requests, timers, file reads. How does JS handle this without blocking?
+
+### The Problem
+
+```javascript
+// If JS were purely synchronous:
+const data = fetch('https://api.example.com/data')  // takes 2 seconds
+console.log(data)   // everything FREEZES for 2 seconds
+// User can't click, scroll, type — completely blocked
+```
+
+### The Solution — Offloading to the Environment
+
+JS doesn't handle async work itself. It hands it off to:
+- **Browser** → Web APIs (fetch, setTimeout, DOM events)
+- **Node.js** → libuv (file system, network, timers)
+
+These environments are multi-threaded even though JS isn't.
+
+```
+JS (single thread)                  Environment (multi-threaded)
+       │                                      │
+       │── setTimeout(fn, 2000) ─────────────▶│ Timer starts here
+       │                                      │ JS moves on immediately
+       │── fetch(url) ──────────────────────▶ │ HTTP request here
+       │                                      │
+       │ (continues executing other code)     │ (handling async in background)
+       │                                      │
+       │                          ◀─────────  │ Timer done, HTTP response received
+       │                          (callback/promise pushed to queue)
+       │
+    Event Loop picks up from queue
+    when call stack is empty
+```
+
+---
+
+## 13. Web APIs & libuv
+
+### In the Browser — Web APIs
+
+```
+setTimeout / setInterval   → Timer API
+fetch / XMLHttpRequest     → Network API
+addEventListener           → DOM Events API
+localStorage               → Storage API
+Geolocation                → Device API
+```
+
+### In Node.js — libuv
+
+libuv is a C++ library that gives Node.js async I/O capabilities.
+
+```
+File System (fs)    → handled by libuv thread pool
+Network (http)      → handled by OS kernel (epoll/kqueue)
+DNS lookups         → libuv thread pool
+Crypto (heavy)      → libuv thread pool
+Timers              → libuv timer mechanism
+```
+
+```
+NODE.JS ARCHITECTURE:
+
+┌─────────────────────────────────────────────────────┐
+│                    Your JS Code                     │
+├─────────────────────────────────────────────────────┤
+│                    Node.js APIs                     │
+├─────────────────────────────────────────────────────┤
+│              V8 Engine    │    libuv                │
+│           (executes JS)   │  (async I/O)            │
+│                           │  - Thread Pool (4)      │
+│                           │  - Event Loop           │
+│                           │  - OS Async             │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## 14. Task Queue & Microtask Queue
+
+When async operations complete, their callbacks don't go directly to the call stack. They wait in queues.
+
+### Two Queues, Different Priorities
+
+```
+┌─────────────────────────────────────────────────────┐
+│              MICROTASK QUEUE (HIGH PRIORITY)        │
+│  • Promise .then() / .catch() / .finally()          │
+│  • async/await continuations                        │
+│  • queueMicrotask()                                 │
+│  • MutationObserver callbacks                       │
+└─────────────────────────────────────────────────────┘
+              ↑ processed COMPLETELY before macrotasks
+
+┌─────────────────────────────────────────────────────┐
+│              MACROTASK QUEUE (LOWER PRIORITY)       │
+│  • setTimeout callbacks                             │
+│  • setInterval callbacks                            │
+│  • setImmediate (Node.js)                           │
+│  • I/O callbacks                                    │
+│  • UI rendering (browser)                           │
+└─────────────────────────────────────────────────────┘
+```
+
+### Proof — Queue Priority
+
+```javascript
+console.log('1 — synchronous')
+
+setTimeout(() => console.log('2 — macrotask'), 0)
+
+Promise.resolve().then(() => console.log('3 — microtask'))
+
+console.log('4 — synchronous')
+
+// OUTPUT:
+// 1 — synchronous
+// 4 — synchronous
+// 3 — microtask      ← microtask before macrotask even with 0ms timeout
+// 2 — macrotask
+```
+
+---
+
+## 15. The Event Loop
+
+The Event Loop is the mechanism that coordinates the call stack and the queues.
+
+### The Algorithm (Exact Order)
+
+```
+EVENT LOOP TICK:
+
+1. Execute ALL synchronous code (drain the call stack)
+2. Process ALL microtasks (drain microtask queue completely)
+   → if microtasks add more microtasks, process those too
+   → keep going until microtask queue is EMPTY
+3. Pick ONE macrotask from macrotask queue
+4. Execute it (may add to call stack)
+5. Process ALL microtasks again (step 2)
+6. Render (browser only — if needed)
+7. Pick next macrotask (step 3)
+8. Repeat forever
+```
+
+### Full Event Loop Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         YOUR CODE                           │
+└─────────────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        CALL STACK                           │
+│  ┌──────────────┐                                           │
+│  │  current fn  │  ← executes one thing at a time          │
+│  └──────────────┘                                           │
+└─────────────────────────────────┬───────────────────────────┘
+          │ empty?                │ async call?
+          │                       ▼
+          │         ┌─────────────────────────────┐
+          │         │  WEB APIs / libuv            │
+          │         │  (handles async work)        │
+          │         │  setTimeout → timer          │
+          │         │  fetch → HTTP request        │
+          │         └──────────┬──────────────────┘
+          │                    │ work done
+          │         ┌──────────▼──────────────────┐
+          │         │                             │
+          │    ┌────▼──────────┐   ┌─────────────▼───┐
+          │    │ MICROTASK     │   │   MACROTASK      │
+          │    │ QUEUE         │   │   QUEUE          │
+          │    │ (promises)    │   │ (setTimeout etc) │
+          │    └────┬──────────┘   └──────────────────┘
+          │         │ priority ↑           │ lower priority
+          │         │                      │
+          └─────────▼──────────────────────┘
+                         ↑
+                    EVENT LOOP
+              (bridges queues → stack)
+              checks: is call stack empty?
+              → yes: push next task
+              → no: wait
+```
+
+### Microtask Starvation (Edge Case)
+
+```javascript
+// ⚠️ This will NEVER execute the setTimeout!
+function keepAddingMicrotasks() {
+    Promise.resolve().then(keepAddingMicrotasks)
+    // keeps adding to microtask queue infinitely
+    // event loop never gets to macrotask queue
+}
+keepAddingMicrotasks()
+setTimeout(() => console.log('never runs'), 0)
+```
+
+---
+
+## 16. Promises Internals
+
+A Promise is an object representing the eventual completion or failure of an async operation.
+
+### Three States
+
+```
+PENDING ──── resolve() ────▶ FULFILLED
+     │
+     └─────── reject() ─────▶ REJECTED
+
+Once settled (fulfilled or rejected), state NEVER changes
+```
+
+### How Promises Work Internally
+
+```javascript
+// When you create a Promise:
+const p = new Promise((resolve, reject) => {
+    // executor runs SYNCHRONOUSLY immediately
+    setTimeout(() => resolve(42), 1000)
+})
+
+// p is in PENDING state right now
+
+p.then(value => console.log(value))
+// .then() registers a callback — doesn't run yet
+// when resolve(42) is called after 1 second:
+// → callback (value => console.log(value)) goes to MICROTASK QUEUE
+// → event loop picks it up → runs it → prints 42
+```
+
+### Promise Chaining
+
+```javascript
+fetch('/api/user')
+    .then(response => response.json())      // returns new Promise
+    .then(data => data.name)               // returns new Promise
+    .then(name => console.log(name))       // chain continues
+    .catch(err => console.error(err))      // catches any error above
+    .finally(() => console.log('done'))    // always runs
+
+// Each .then() returns a NEW Promise
+// This is what enables chaining
+```
+
+### Promise Static Methods
+
+```javascript
+// Run multiple promises in parallel
+Promise.all([p1, p2, p3])
+// ✅ resolves when ALL resolve (with array of results)
+// ❌ rejects immediately if ANY rejects
+
+Promise.allSettled([p1, p2, p3])
+// ✅ always resolves, with array of {status, value/reason}
+// Never rejects — useful when you want all results regardless
+
+Promise.race([p1, p2, p3])
+// Settles (resolve OR reject) with whichever promise settles FIRST
+
+Promise.any([p1, p2, p3])
+// ✅ resolves with first SUCCESSFUL resolution
+// ❌ rejects only if ALL reject
+```
+
+---
+
+## 17. async/await Internals
+
+`async/await` is syntactic sugar over Promises. It makes async code look synchronous.
+
+```javascript
+// Promise version
+function getUser() {
+    return fetch('/api/user')
+        .then(res => res.json())
+        .then(data => data.name)
+}
+
+// async/await version — same thing, cleaner syntax
+async function getUser() {
+    const res = await fetch('/api/user')   // pauses HERE
+    const data = await res.json()         // pauses HERE
+    return data.name
+}
+```
+
+### What Actually Happens with await
+
+```javascript
+async function example() {
+    console.log('A')
+    const result = await Promise.resolve(42)
+    // Everything AFTER await goes into microtask queue
+    console.log('B', result)  // this runs later
+}
+
+console.log('1')
+example()
+console.log('2')
+
+// Output:
+// 1
+// A        ← async function starts synchronously
+// 2        ← continues synchronous code after example() call
+// B 42     ← microtask runs after call stack clears
+```
+
+```
+async/await execution flow:
+
+async function hits await
+        ↓
+pauses function execution
+registers continuation as microtask
+        ↓
+returns control to caller
+        ↓
+caller continues synchronously
+        ↓
+call stack empties
+        ↓
+event loop picks up continuation from microtask queue
+        ↓
+async function resumes after await line
+```
+
+### Error Handling
+
+```javascript
+// try/catch with async/await
+async function getData() {
+    try {
+        const res = await fetch('/api/data')
+        if (!res.ok) throw new Error('HTTP error!')
+        const data = await res.json()
+        return data
+    } catch (err) {
+        console.error('Failed:', err.message)
+    } finally {
+        console.log('always runs')
+    }
+}
+```
+
+---
+
+## 18. Memory Management & Garbage Collection
+
+JS automatically manages memory — you don't free it manually like C/C++.
+
+### Memory Lifecycle
+
+```
+1. ALLOCATE   → JS allocates memory when you declare variables, objects
+2. USE        → read/write the value
+3. RELEASE    → garbage collector frees memory when no longer needed
+```
+
+### Garbage Collection — Mark & Sweep
+
+```
+V8's garbage collector works like this:
+
+1. Start from "roots" (global variables, call stack variables)
+2. Mark everything reachable from roots
+3. Sweep (delete) everything NOT marked
+4. Compact memory (optional)
+
+"Reachable" = can be accessed from root via references
+"Unreachable" = garbage, will be collected
+```
+
+### Memory Leaks (What to Avoid)
+
+```javascript
+// ❌ LEAK 1: Accidental globals
+function leak() {
+    forgotVar = "I'm global now"  // no let/const/var → goes to window
+}
+
+// ❌ LEAK 2: Forgotten timers
+const data = hugeDataSet
+setInterval(() => {
+    processData(data)  // data is never freed, timer keeps reference
+}, 1000)
+// Always clearInterval() when done
+
+// ❌ LEAK 3: Detached DOM nodes
+let element = document.getElementById('btn')
+document.body.removeChild(element)  // removed from DOM
+// BUT element variable still holds reference — not garbage collected
+element = null  // ✅ fix: explicitly null the reference
+
+// ❌ LEAK 4: Closures holding large data
+function process() {
+    const bigData = new Array(1000000).fill('data')
+    return function() {
+        // closes over bigData even if not using it
+        return 'done'
+    }
+}
+```
+
+---
+
+## 19. Complete Flow Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    JAVASCRIPT COMPLETE FLOW                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+SOURCE CODE
+    │
+    ▼
+┌─────────────────────┐
+│   JS ENGINE (V8)    │
+│                     │
+│  Parser             │ → tokenize → AST
+│  Ignition           │ → bytecode (fast start)
+│  TurboFan           │ → machine code (hot paths)
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────────────────────────────────┐
+│              GLOBAL EXECUTION CONTEXT            │
+│                                                  │
+│  ┌──────────────────────────────────────────┐   │
+│  │           MEMORY PHASE                   │   │
+│  │  var → undefined                         │   │
+│  │  let/const → TDZ                         │   │
+│  │  function → full definition              │   │
+│  └──────────────────────────────────────────┘   │
+│                                                  │
+│  ┌──────────────────────────────────────────┐   │
+│  │           CODE PHASE                     │   │
+│  │  line by line execution                  │   │
+│  │  values assigned                         │   │
+│  │  functions called → new EC created       │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
+           │
+           ▼
+┌─────────────────────┐     ┌──────────────────────────────┐
+│     CALL STACK      │     │    WEB APIs / libuv           │
+│                     │────▶│                              │
+│  [multiply EC]      │     │  setTimeout ──▶ timer        │
+│  [square EC]        │     │  fetch ──────▶ HTTP          │
+│  [main EC]          │     │  fs.read ────▶ disk I/O      │
+│  [Global EC]        │◀────│                              │
+└─────────────────────┘     └──────────────┬───────────────┘
+           ▲                               │ done
+           │                    ┌──────────▼──────────────────────┐
+           │                    │                                  │
+           │             ┌──────▼───────┐     ┌────────────────┐  │
+           │             │  MICROTASK   │     │   MACROTASK    │  │
+           │             │    QUEUE     │     │    QUEUE       │  │
+           │             │              │     │                │  │
+           │             │ Promise.then │     │ setTimeout cb  │  │
+           │             │ await cont.  │     │ setInterval cb │  │
+           │             │ queueMicro   │     │ I/O callbacks  │  │
+           │             └──────┬───────┘     └───────┬────────┘  │
+           │                    │ priority 1          │ priority 2 │
+           │                    └──────────┬──────────┘           │
+           │                               │                       │
+           │                    ┌──────────▼────────┐             │
+           └────────────────────│    EVENT LOOP     │             │
+                                │                   │             │
+                                │ 1. stack empty?   │             │
+                                │ 2. drain microtasks│            │
+                                │ 3. one macrotask  │             │
+                                │ 4. repeat         │             │
+                                └───────────────────┘             │
+                                                                   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 20. Quick Reference Cheatsheet
+
+### Execution Context
+```
+Global EC     → created once, has window/global as 'this'
+Function EC   → created on every function call
+Both have     → Memory Phase + Code Phase
+```
+
+### Hoisting
+```
+var           → hoisted, initialized to undefined
+let/const     → hoisted, in TDZ (ReferenceError if accessed early)
+function dec  → fully hoisted with body
+function exp  → hoisted as var (undefined)
+```
+
+### Scope
+```
+var           → function scoped (ignores blocks)
+let/const     → block scoped
+Scope chain   → inner → outer → global → ReferenceError
+```
+
+### Closures
+```
+Function + its outer scope references = closure
+Outer function can finish, inner still has access
+Used for: data privacy, factories, memoization
+```
+
+### `this`
+```
+Global        → window / undefined (strict)
+Method        → the object
+Arrow fn      → lexical (from surrounding scope)
+new           → new object
+call/apply    → explicitly set
+```
+
+### Async Priority Order
+```
+1. Synchronous code (call stack)
+2. Microtask queue (ALL of it) — Promises, await
+3. ONE Macrotask — setTimeout, setInterval, I/O
+4. Microtask queue again (ALL)
+5. Next Macrotask
+```
+
+### Memory
+```
+Heap          → objects, arrays, functions stored here
+Stack         → primitives + references stored here
+GC            → mark & sweep, removes unreachable objects
+Leaks         → globals, forgotten timers, detached DOM, closures
+```
+
+---
+
+## 📚 Recommended Next Steps
+
+1. **Read:** You Don't Know JS (free on GitHub) — `github.com/getify/You-Dont-Know-JS`
+2. **Watch:** "What the heck is the event loop?" — Philip Roberts (JSConf EU, YouTube)
+3. **Practice:** javascript.info — best interactive JS reference
+4. **Visualize:** latentflip.com/loupe — visualize call stack + event loop live
+5. **AST Explorer:** astexplorer.net — see how V8 parses your code
+
+---
+
+*Notes by Dev Kant Kumar | JavaScript Mastery Journey 2026*

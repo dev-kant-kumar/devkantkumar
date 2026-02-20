@@ -141,5 +141,18 @@ export const blogData = [
     image: "/images/blog/js-interview-2026.png",
     featured: true,
     tags: ["JavaScript", "Interview", "Web Development", "2026", "Front-end", "ES6"]
+  },
+  {
+    id: "javascript-internals-2026",
+    slug: "javascript-internals-2026",
+    title: "JavaScript Internals 2026: How JS Works Under the Hood — Engine, Event Loop, Closures & More",
+    excerpt: "The most comprehensive guide to JavaScript internals. Master V8 engine, execution context, hoisting, closures, prototypes, event loop, promises, async/await, and garbage collection with visual diagrams.",
+    category: "JavaScript",
+    author: "Dev Kant Kumar",
+    readTime: "55 min read",
+    publishDate: "2026-02-20",
+    image: "/images/blog/js-internals-2026.png",
+    featured: true,
+    tags: ["JavaScript", "V8 Engine", "Event Loop", "Closures", "Hoisting", "Execution Context", "Async/Await", "Interview Preparation"]
   }
 ];
