@@ -468,13 +468,19 @@ const BlogPost = () => {
         canonicalUrl={`/blog/${blogPost.slug}`}
         image={blogPost.image}
         type="article"
-        publishedTime={blogPost.publishDate}
-        modifiedTime={blogPost.modifiedDate || blogPost.publishDate}
-        author={portfolioData.personalInfo.name}
+        article={{
+          publishedTime: blogPost.publishDate,
+          modifiedTime: blogPost.modifiedDate || blogPost.publishDate,
+          section: blogPost.category,
+          tags: blogPost.tags,
+        }}
       />
       <StructuredData type="blog" pageData={blogPost} />
       {blogPost.faqs && blogPost.faqs.length > 0 && (
         <StructuredData type="faq" pageData={blogPost} />
+      )}
+      {blogPost.howTo && blogPost.howTo.steps && blogPost.howTo.steps.length > 0 && (
+        <StructuredData type="howto" pageData={blogPost} />
       )}
 
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">

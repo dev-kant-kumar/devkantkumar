@@ -44,7 +44,7 @@ function FeaturedImage({ className = "" }) {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0c1a0c_1px,transparent_1px),linear-gradient(to_bottom,#0c1a0c_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-500/20 rounded-full blur-[100px]" />
       <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-green-500/20 rounded-full blur-[100px]" />
-      <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-8 text-center">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center py-8 md:py-12 px-4 md:px-8 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-green-500/30 backdrop-blur-md mb-8">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -63,11 +63,11 @@ function FeaturedImage({ className = "" }) {
             <Download size={28} className="text-green-400" />
           </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-center leading-tight mb-4">
           <span className="text-white">Complete yt-dlp Guide </span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-green-400">2026</span>
         </h1>
-        <p className="text-slate-400 text-lg max-w-2xl">
+        <p className="text-slate-400 text-base md:text-lg max-w-2xl px-2">
           Master video downloads from 1800+ platforms. The most comprehensive guide with 100+ commands, troubleshooting, and advanced techniques.
         </p>
       </div>
@@ -104,6 +104,7 @@ function CardImage({ className = "h-48" }) {
 
 function CodeBlock({ language = "bash", filename, code }) {
   const [copied, setCopied] = React.useState(false);
+  const [hoveredLine, setHoveredLine] = React.useState(-1);
 
   const copyToClipboard = async () => {
     try {
@@ -113,27 +114,183 @@ function CodeBlock({ language = "bash", filename, code }) {
     } catch {}
   };
 
+  // Bash syntax highlighting
+  const highlightLine = (line) => {
+    if (!line) return <span>{"\n"}</span>;
+
+    // Full-line comment
+    if (line.trimStart().startsWith("#")) {
+      return <span style={{ color: "#6A9955", fontStyle: "italic" }}>{line}</span>;
+    }
+
+    // Tokenize and highlight
+    const tokens = [];
+    let remaining = line;
+    let key = 0;
+
+    while (remaining.length > 0) {
+      let matched = false;
+
+      // Strings (double-quoted)
+      const dqMatch = remaining.match(/^"([^"]*?)"/);
+      if (dqMatch) {
+        tokens.push(<span key={key++} style={{ color: "#CE9178" }}>{dqMatch[0]}</span>);
+        remaining = remaining.slice(dqMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // Strings (single-quoted)
+      const sqMatch = remaining.match(/^'([^']*?)'/);
+      if (sqMatch) {
+        tokens.push(<span key={key++} style={{ color: "#CE9178" }}>{sqMatch[0]}</span>);
+        remaining = remaining.slice(sqMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // URLs
+      const urlMatch = remaining.match(/^https?:\/\/[^\s)]+/);
+      if (urlMatch) {
+        tokens.push(<span key={key++} style={{ color: "#4FC1FF", textDecoration: "underline", textDecorationColor: "#4FC1FF40" }}>{urlMatch[0]}</span>);
+        remaining = remaining.slice(urlMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // Variables ($VAR, ${VAR})
+      const varMatch = remaining.match(/^\$\{?[A-Za-z_][A-Za-z0-9_]*\}?/);
+      if (varMatch) {
+        tokens.push(<span key={key++} style={{ color: "#C586C0" }}>{varMatch[0]}</span>);
+        remaining = remaining.slice(varMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // Flags (--flag, -f)
+      const flagMatch = remaining.match(/^--?[a-zA-Z][\w-]*/);
+      if (flagMatch) {
+        tokens.push(<span key={key++} style={{ color: "#9CDCFE" }}>{flagMatch[0]}</span>);
+        remaining = remaining.slice(flagMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // Known commands (first word of line or after pipe/semicolon)
+      const cmdMatch = remaining.match(/^(yt-dlp|sudo|pip|pip3|brew|apt|dnf|pacman|winget|choco|scoop|curl|wget|chmod|ffmpeg|ffprobe|aria2c|python|python3|npm|npx|mkdir|cd|echo|cat|grep|xargs|crontab|tar|install)\b/);
+      if (cmdMatch && (tokens.length === 0 || tokens[tokens.length - 1]?.props?.children === " ")) {
+        tokens.push(<span key={key++} style={{ color: "#DCDCAA" }}>{cmdMatch[0]}</span>);
+        remaining = remaining.slice(cmdMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // Pipes, redirects, semicolons
+      const opMatch = remaining.match(/^(\||&&|;|>|>>|<|2>&1)/);
+      if (opMatch) {
+        tokens.push(<span key={key++} style={{ color: "#D4D4D4", fontWeight: "bold" }}>{opMatch[0]}</span>);
+        remaining = remaining.slice(opMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      // Numbers
+      const numMatch = remaining.match(/^\b\d+(\.\d+)?\b/);
+      if (numMatch) {
+        tokens.push(<span key={key++} style={{ color: "#B5CEA8" }}>{numMatch[0]}</span>);
+        remaining = remaining.slice(numMatch[0].length);
+        matched = true;
+        continue;
+      }
+
+      if (!matched) {
+        // Plain text — grab until next special char
+        const plainMatch = remaining.match(/^[^\s"'$\-|&;><]+/);
+        if (plainMatch) {
+          tokens.push(<span key={key++} style={{ color: "#D4D4D4" }}>{plainMatch[0]}</span>);
+          remaining = remaining.slice(plainMatch[0].length);
+        } else {
+          tokens.push(<span key={key++} style={{ color: "#D4D4D4" }}>{remaining[0]}</span>);
+          remaining = remaining.slice(1);
+        }
+      }
+    }
+
+    return <>{tokens}</>;
+  };
+
+  const lines = code.split("\n");
+  const lineCount = lines.length;
+  const gutterWidth = lineCount >= 100 ? "w-12" : lineCount >= 10 ? "w-10" : "w-8";
+
   return (
-    <div className="relative my-6 rounded-xl border border-gray-700 bg-[#1e1e1e] overflow-hidden shadow-xl">
-      <div className="flex items-center justify-between px-4 py-2 bg-[#252526] border-b border-gray-700">
-        <div className="flex items-center gap-3 text-gray-400 text-sm">
-          <Terminal size={14} className="text-green-400" />
-          <span className="px-2 py-0.5 rounded bg-gray-800 text-gray-300 border border-gray-600 font-mono text-xs">
-            {language.toUpperCase()}
-          </span>
-          {filename && <span className="font-mono text-gray-500 text-xs">{filename}</span>}
+    <div className="relative my-6 rounded-xl border border-[#3c3c3c] bg-[#1e1e1e] overflow-hidden shadow-2xl max-w-full" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
+      {/* Title bar — VS Code style */}
+      <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#2d2d2d] border-b border-[#3c3c3c]">
+        <div className="flex items-center gap-3">
+          {/* Traffic light dots */}
+          <div className="hidden sm:flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <Terminal size={13} className="text-green-400" />
+            <span className="px-2 py-0.5 rounded bg-[#1e1e1e] text-gray-400 border border-[#3c3c3c] font-mono text-[10px] uppercase tracking-wider">
+              {language}
+            </span>
+            {filename && <span className="font-mono text-gray-500 text-[11px] hidden sm:inline">{filename}</span>}
+          </div>
         </div>
         <button
           onClick={copyToClipboard}
-          className="inline-flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-700 text-gray-400 hover:text-white transition-colors text-xs"
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs transition-all ${
+            copied
+              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+              : "hover:bg-[#3c3c3c] text-gray-500 hover:text-gray-300 border border-transparent"
+          }`}
         >
-          {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-          {copied ? "Copied!" : "Copy"}
+          {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+          <span className="hidden sm:inline">{copied ? "Copied!" : "Copy"}</span>
         </button>
       </div>
-      <pre className="m-0 p-4 overflow-x-auto text-sm leading-relaxed bg-[#1e1e1e] text-gray-300 font-mono">
-        <code>{code}</code>
-      </pre>
+
+      {/* Code area with line numbers */}
+      <div className="overflow-x-auto max-w-full">
+        <div className="flex min-w-fit">
+          {/* Line number gutter */}
+          <div className={`${gutterWidth} flex-shrink-0 bg-[#1e1e1e] border-r border-[#2d2d2d] select-none py-3`}>
+            {lines.map((_, i) => (
+              <div
+                key={i}
+                className={`px-2 text-right font-mono text-[11px] leading-[1.6rem] transition-colors ${
+                  hoveredLine === i ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                {i + 1}
+              </div>
+            ))}
+          </div>
+
+          {/* Code content */}
+          <pre className="m-0 py-3 pl-4 pr-4 flex-1 text-[13px] leading-[1.6rem] bg-[#1e1e1e] font-mono min-w-0">
+            <code>
+              {lines.map((line, i) => (
+                <div
+                  key={i}
+                  className={`transition-colors rounded-sm ${
+                    hoveredLine === i ? "bg-[#2a2d2e]" : ""
+                  }`}
+                  onMouseEnter={() => setHoveredLine(i)}
+                  onMouseLeave={() => setHoveredLine(-1)}
+                >
+                  {highlightLine(line)}
+                </div>
+              ))}
+            </code>
+          </pre>
+        </div>
+      </div>
     </div>
   );
 }
@@ -149,7 +306,7 @@ function InfoBox({ type = "info", title, children, icon: Icon }) {
   const style = styles[type] || styles.info;
 
   return (
-    <div className={`my-6 p-5 rounded-xl border ${style.border} ${style.bg} backdrop-blur-sm`}>
+    <div className={`my-6 p-4 md:p-5 rounded-xl border ${style.border} ${style.bg} backdrop-blur-sm max-w-full overflow-hidden`}>
       <div className="flex gap-4">
         {Icon && <Icon size={24} className={`${style.icon} flex-shrink-0 mt-1`} />}
         <div className="flex-1">
@@ -161,6 +318,82 @@ function InfoBox({ type = "info", title, children, icon: Icon }) {
   );
 }
 
+// Section heading with anchor link support
+function SectionHeading({ id, icon: Icon, iconColor = "text-blue-400", iconBg = "bg-blue-500/10 border-blue-500/20", children }) {
+  const [linkCopied, setLinkCopied] = React.useState(false);
+
+  const copyLink = () => {
+    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-3 mb-6 group">
+      {Icon && (
+        <div className={`p-2 rounded-lg ${iconBg} border`}>
+          <Icon size={24} className={iconColor} />
+        </div>
+      )}
+      <h2 id={id} className="text-2xl md:text-3xl font-bold text-white scroll-mt-24 flex-1">{children}</h2>
+      <button
+        onClick={copyLink}
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-green-400"
+        title="Copy link to this section"
+      >
+        {linkCopied ? <Check size={16} className="text-green-400" /> : <ExternalLink size={16} />}
+      </button>
+    </div>
+  );
+}
+
+// Sticky quick-nav for mobile
+function StickyQuickNav() {
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setVisible(window.scrollY > 600);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" });
+    }
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
+      <div className="bg-[#1a1a2e]/95 backdrop-blur-xl border-t border-gray-700/50 px-2 py-2 safe-area-bottom">
+        <div className="flex items-center justify-around gap-1 max-w-lg mx-auto">
+          {[
+            { id: "installation", label: "Install", icon: Download },
+            { id: "troubleshooting", label: "Fix Errors", icon: AlertTriangle },
+            { id: "faq", label: "FAQ", icon: MessageSquare },
+            { id: null, label: "Top ↑", icon: null },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={() => item.id ? scrollTo(item.id) : window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-gray-400 hover:text-green-400 hover:bg-green-500/10 transition-all active:scale-95 flex-1"
+            >
+              {item.icon && <item.icon size={16} />}
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 function TableOfContents() {
   const sections = [
     { id: "what-is", title: "What is yt-dlp?", icon: HelpCircle },
@@ -178,8 +411,8 @@ function TableOfContents() {
   ];
 
   return (
-    <nav className="my-12 p-8 bg-gradient-to-br from-slate-900/50 to-slate-800/50 rounded-2xl border border-slate-700/50">
-      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+    <nav className="my-8 md:my-12 p-4 md:p-8 bg-gradient-to-br from-slate-900/50 to-slate-800/50 rounded-2xl border border-slate-700/50">
+      <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6 flex items-center gap-3">
         <BookOpen size={28} className="text-green-400" />
         Table of Contents
       </h2>
@@ -200,16 +433,203 @@ function TableOfContents() {
 }
 
 function YtDlpUltimateGuide() {
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isSearchFocused, setIsSearchFocused] = React.useState(false);
+  const searchInputRef = React.useRef(null);
+
+  // Searchable items: FAQ questions + section headings
+  const searchableItems = React.useMemo(() => [
+    // Sections
+    { type: "section", label: "What is yt-dlp?", id: "what-is" },
+    { type: "section", label: "Installation Guide", id: "installation" },
+    { type: "section", label: "1800+ Supported Sites", id: "supported-sites" },
+    { type: "section", label: "Basic Commands", id: "basic-commands" },
+    { type: "section", label: "Quality & Format Selection", id: "quality-selection" },
+    { type: "section", label: "Advanced Features", id: "advanced-features" },
+    { type: "section", label: "Authentication & Cookies", id: "authentication" },
+    { type: "section", label: "SponsorBlock Integration", id: "sponsorblock" },
+    { type: "section", label: "Playlists & Channels", id: "playlists" },
+    { type: "section", label: "Troubleshooting", id: "troubleshooting" },
+    { type: "section", label: "Performance Optimization", id: "performance" },
+    { type: "section", label: "FAQ", id: "faq" },
+    // Key FAQ questions (mapped to FAQ section)
+    { type: "faq", label: "Is yt-dlp still working in 2026?", id: "is-yt-dlp-working" },
+    { type: "faq", label: "Does yt-dlp support Netflix?", id: "faq" },
+    { type: "faq", label: "yt-dlp Netflix Widevine L3 DRM", id: "faq" },
+    { type: "faq", label: "Netflix downloader working 2026", id: "faq" },
+    { type: "faq", label: "DRM protected video download", id: "faq" },
+    { type: "faq", label: "Sign in to confirm you're not a bot", id: "troubleshooting" },
+    { type: "faq", label: "yt-dlp not working fix", id: "troubleshooting" },
+    { type: "faq", label: "yt-dlp stopped working", id: "troubleshooting" },
+    { type: "faq", label: "Slow download speed fix aria2c", id: "performance" },
+    { type: "faq", label: "Cookies from browser Chrome Firefox", id: "authentication" },
+    { type: "faq", label: "Age restricted video download", id: "authentication" },
+    { type: "faq", label: "How to install yt-dlp Windows", id: "installation" },
+    { type: "faq", label: "How to install yt-dlp Mac macOS", id: "installation" },
+    { type: "faq", label: "How to install yt-dlp Linux", id: "installation" },
+    { type: "faq", label: "Download MP3 audio extraction", id: "basic-commands" },
+    { type: "faq", label: "4K 8K video download quality", id: "quality-selection" },
+    { type: "faq", label: "Playlist channel download", id: "playlists" },
+    { type: "faq", label: "TikTok download support 2026", id: "faq" },
+    { type: "faq", label: "Instagram Reels stories download", id: "faq" },
+    { type: "faq", label: "Rumble Patreon Twitch download", id: "faq" },
+    { type: "faq", label: "Pornhub not working 2026", id: "faq" },
+    { type: "faq", label: "SponsorBlock remove sponsors", id: "sponsorblock" },
+    { type: "faq", label: "FFmpeg not found error", id: "troubleshooting" },
+    { type: "faq", label: "Database locked cookie error", id: "troubleshooting" },
+    { type: "faq", label: "Requested format not available", id: "troubleshooting" },
+    { type: "faq", label: "N challenge solving failed", id: "faq" },
+    { type: "faq", label: "Is yt-dlp safe secure malware", id: "faq" },
+    { type: "faq", label: "youtube-dl vs yt-dlp comparison", id: "what-is" },
+    { type: "faq", label: "Configuration config file setup", id: "faq" },
+    { type: "faq", label: "Automation cron task scheduler", id: "faq" },
+    { type: "faq", label: "yt-dlp update latest version", id: "installation" },
+    { type: "faq", label: "Subtitle download embed", id: "advanced-features" },
+  ], []);
+
+  const searchResults = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const words = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    return searchableItems
+      .filter(item => {
+        const label = item.label.toLowerCase();
+        return words.every(w => label.includes(w));
+      })
+      .slice(0, 8);
+  }, [searchQuery, searchableItems]);
+
+  const handleSearchSelect = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const offset = 100;
+      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+    }
+    setSearchQuery("");
+    setIsSearchFocused(false);
+    searchInputRef.current?.blur();
+  };
+
+  // Keyboard shortcut: Ctrl+K to focus search
+  React.useEffect(() => {
+    const handleKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === "Escape") {
+        setIsSearchFocused(false);
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-gray-300 font-sans selection:bg-green-500/30">
+    <div className="min-h-screen bg-[#0f0f0f] text-gray-300 font-sans selection:bg-green-500/30 overflow-x-hidden">
       <FeaturedImage />
 
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-12 overflow-hidden">
+
+        {/* Trust Signal Banner */}
+        <div className="mb-6 md:mb-8 p-4 md:p-5 bg-gradient-to-r from-slate-900/80 via-green-950/30 to-slate-900/80 border border-green-500/20 rounded-2xl backdrop-blur-sm">
+          <div className="grid grid-cols-2 md:flex md:flex-wrap items-center justify-center gap-4 md:gap-10">
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-black text-white">134K+</div>
+              <div className="text-[10px] md:text-xs text-gray-400 mt-1">Google Searches<br/>Found This Guide</div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-gray-700" />
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-black text-white">1800+</div>
+              <div className="text-[10px] md:text-xs text-gray-400 mt-1">Supported<br/>Platforms</div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-gray-700" />
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-black text-white">100+</div>
+              <div className="text-[10px] md:text-xs text-gray-400 mt-1">Commands<br/>Covered</div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-gray-700" />
+            <div className="text-center">
+              <div className="text-2xl md:text-3xl font-black text-white">50+</div>
+              <div className="text-[10px] md:text-xs text-gray-400 mt-1">FAQs<br/>Answered</div>
+            </div>
+          </div>
+          <p className="text-center text-gray-500 text-xs mt-4">Ranked on Google for 1,000+ yt-dlp related search queries • Updated March 2026</p>
+        </div>
+
+        {/* Prominent Search Bar */}
+        <div className="mb-8 md:mb-10 relative z-30">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 md:pl-5 flex items-center pointer-events-none">
+              <Search size={18} className={`transition-colors ${isSearchFocused ? "text-green-400" : "text-gray-500"}`} />
+            </div>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              placeholder='Search... e.g. "Netflix", "not working", "cookies"'
+              className="w-full pl-11 md:pl-14 pr-4 md:pr-24 py-3 md:py-4 bg-[#1a1a2e] border-2 border-gray-700 rounded-xl md:rounded-2xl text-white text-base md:text-lg placeholder-gray-500 focus:outline-none focus:border-green-500/60 focus:ring-2 focus:ring-green-500/20 focus:bg-[#1a1a35] transition-all shadow-lg shadow-black/20"
+            />
+            <div className="absolute inset-y-0 right-0 pr-4 md:pr-5 hidden md:flex items-center pointer-events-none gap-2">
+              <span className="text-gray-600 text-xs border border-gray-700 rounded-md px-2 py-1 font-mono">Ctrl+K</span>
+            </div>
+          </div>
+
+          {/* Search Results Dropdown */}
+          {isSearchFocused && searchQuery.trim() && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a2e]/98 backdrop-blur-2xl border border-gray-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50">
+              {searchResults.length > 0 ? (
+                <div className="py-2">
+                  {searchResults.map((item, idx) => (
+                    <button
+                      key={idx}
+                      className="w-full text-left px-3 md:px-5 py-3 hover:bg-green-500/10 transition-colors flex items-center gap-2 md:gap-3 group"
+                      onMouseDown={(e) => { e.preventDefault(); handleSearchSelect(item.id); }}
+                    >
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        item.type === "section"
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                          : "bg-green-500/20 text-green-400 border border-green-500/30"
+                      }`}>
+                        {item.type === "section" ? "Section" : "FAQ"}
+                      </span>
+                      <span className="text-gray-200 group-hover:text-white text-sm">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="px-5 py-6 text-center text-gray-500 text-sm">
+                  No results for "{searchQuery}" — try "Netflix", "install", "cookies", or "not working"
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Quick search suggestions when not focused */}
+          {!isSearchFocused && (
+            <div className="flex flex-wrap items-center gap-2 mt-3 justify-center">
+              <span className="text-gray-600 text-xs">Popular:</span>
+              {["Netflix support", "Not working", "Install Windows", "Cookies fix", "Slow download", "TikTok", "Age restricted"].map((term) => (
+                <button
+                  key={term}
+                  onClick={() => { setSearchQuery(term); searchInputRef.current?.focus(); }}
+                  className="text-xs px-3 py-1.5 rounded-full bg-gray-800/60 border border-gray-700/50 text-gray-400 hover:text-green-400 hover:border-green-500/40 hover:bg-green-500/10 transition-all cursor-pointer"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Metadata */}
-        <div className="flex flex-wrap items-center gap-6 text-gray-400 text-sm mb-8 pb-8 border-b border-gray-800">
+        <div className="flex flex-wrap items-center gap-3 md:gap-6 text-gray-400 text-xs md:text-sm mb-6 md:mb-8 pb-6 md:pb-8 border-b border-gray-800">
           <div className="flex items-center gap-2">
             <Calendar size={16} className="text-green-400" />
-            <span>Updated: January 2026</span>
+            <span>Updated: March 2026</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-green-400" />
@@ -222,13 +642,13 @@ function YtDlpUltimateGuide() {
         </div>
 
         {/* Quick Answer - For Featured Snippets & High CTR */}
-        <section id="is-yt-dlp-working" className="mb-8 p-6 bg-gradient-to-r from-green-900/30 to-emerald-900/20 border border-green-500/30 rounded-xl scroll-mt-24">
-          <h2 className="text-2xl font-bold text-white mb-3 flex items-center gap-2">
+        <section id="is-yt-dlp-working" className="mb-6 md:mb-8 p-4 md:p-6 bg-gradient-to-r from-green-900/30 to-emerald-900/20 border border-green-500/30 rounded-xl scroll-mt-24">
+          <h2 className="text-xl md:text-2xl font-bold text-white mb-3 flex items-center gap-2">
             <Check size={24} className="text-green-400" />
             Is yt-dlp Still Working in 2026?
           </h2>
-          <p className="text-lg text-gray-300 leading-relaxed mb-4">
-            <strong className="text-green-400">Yes!</strong> yt-dlp is actively maintained with daily updates as of January 2026.
+          <p className="text-base md:text-lg text-gray-300 leading-relaxed mb-4">
+            <strong className="text-green-400">Yes!</strong> yt-dlp is actively maintained with daily updates as of March 2026.
             It's the best tool to download videos from YouTube and 1800+ other sites on Windows, Linux, and macOS.
           </p>
           <div className="bg-black/30 p-4 rounded-lg border border-green-900/50">
@@ -241,24 +661,24 @@ function YtDlpUltimateGuide() {
 
         {/* Introduction */}
         <section className="mb-16">
-          <h2 className="text-4xl font-black text-white mb-6">
+          <h2 className="text-2xl md:text-4xl font-black text-white mb-4 md:mb-6">
             yt-dlp Not Working? The Complete Fix & Download Guide (2026)
           </h2>
-          <p className="text-xl text-gray-300 leading-relaxed mb-6">
+          <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-4 md:mb-6">
             Welcome to the most comprehensive yt-dlp guide on the internet. Whether you're getting errors, slow downloads, or just starting out — this guide covers installation, troubleshooting, and 100+ commands that professionals use daily.
           </p>
           <div className="grid md:grid-cols-3 gap-4 my-8">
-            <div className="p-6 bg-gradient-to-br from-green-900/20 to-emerald-900/20 border border-green-500/30 rounded-xl">
+            <div className="p-4 md:p-6 bg-gradient-to-br from-green-900/20 to-emerald-900/20 border border-green-500/30 rounded-xl">
               <Globe size={32} className="text-green-400 mb-3" />
               <h3 className="text-white font-bold text-lg mb-2">1800+ Sites</h3>
               <p className="text-gray-400 text-sm">Download from YouTube, TikTok, Instagram, Vimeo, and 1800+ more platforms</p>
             </div>
-            <div className="p-6 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border border-blue-500/30 rounded-xl">
+            <div className="p-4 md:p-6 bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border border-blue-500/30 rounded-xl">
               <Zap size={32} className="text-blue-400 mb-3" />
               <h3 className="text-white font-bold text-lg mb-2">Active Development</h3>
               <p className="text-gray-400 text-sm">Daily updates, bug fixes, and new features added constantly</p>
             </div>
-            <div className="p-6 bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl">
+            <div className="p-4 md:p-6 bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl">
               <Shield size={32} className="text-purple-400 mb-3" />
               <h3 className="text-white font-bold text-lg mb-2">100% Free & Open</h3>
               <p className="text-gray-400 text-sm">No ads, no malware, no subscription fees. Pure open-source power</p>
@@ -268,12 +688,7 @@ function YtDlpUltimateGuide() {
 
         {/* What is yt-dlp */}
         <section id="what-is" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <Command size={24} className="text-blue-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">What is yt-dlp?</h2>
-          </div>
+          <SectionHeading id="what-is" icon={Command} iconColor="text-blue-400" iconBg="bg-blue-500/10 border-blue-500/20">What is yt-dlp?</SectionHeading>
           <p className="text-gray-300 leading-relaxed mb-6">
             yt-dlp is a feature-rich command-line tool for downloading videos and audio from over 1800 websites. It's a community-maintained fork of youtube-dl, created in early 2021 when the original project became less actively maintained. Since then, it has become the gold standard for video downloading, surpassing its predecessor in every way.
           </p>
@@ -301,12 +716,7 @@ function YtDlpUltimateGuide() {
 
         {/* Installation */}
         <section id="installation" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
-              <Download size={24} className="text-green-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Installation Guide</h2>
-          </div>
+          <SectionHeading id="installation" icon={Download} iconColor="text-green-400" iconBg="bg-green-500/10 border-green-500/20">Installation Guide</SectionHeading>
 
           <div className="space-y-8">
             <div>
@@ -423,12 +833,7 @@ pip install -U yt-dlp" />
 
         {/* Supported Sites */}
         <section id="supported-sites" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-              <Globe size={24} className="text-purple-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">1800+ Supported Sites</h2>
-          </div>
+          <SectionHeading id="supported-sites" icon={Globe} iconColor="text-purple-400" iconBg="bg-purple-500/10 border-purple-500/20">1800+ Supported Sites</SectionHeading>
 
           <p className="text-gray-300 mb-6">
             yt-dlp supports over 1800 websites across virtually every category. Here's a comprehensive breakdown:
@@ -555,12 +960,7 @@ pip install -U yt-dlp" />
 
         {/* Basic Commands */}
         <section id="basic-commands" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-              <Terminal size={24} className="text-orange-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Essential Basic Commands</h2>
-          </div>
+          <SectionHeading id="basic-commands" icon={Terminal} iconColor="text-orange-400" iconBg="bg-orange-500/10 border-orange-500/20">Essential Basic Commands</SectionHeading>
 
           <div className="space-y-8">
             <div>
@@ -648,12 +1048,7 @@ yt-dlp -o "%(uploader)s/%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s" URL
 
         {/* Quality & Format Selection */}
         <section id="quality-selection" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-              <Settings size={24} className="text-red-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Advanced Quality & Format Selection</h2>
-          </div>
+          <SectionHeading id="quality-selection" icon={Settings} iconColor="text-red-400" iconBg="bg-red-500/10 border-red-500/20">Advanced Quality & Format Selection</SectionHeading>
 
           <p className="text-gray-300 mb-6">Master the art of format selection to get exactly what you want. Understanding format codes is key to unlocking yt-dlp's full power.</p>
 
@@ -727,12 +1122,7 @@ yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" URL' />
 
         {/* Advanced Features */}
         <section id="advanced-features" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-              <Zap size={24} className="text-purple-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Advanced Features & Options</h2>
-          </div>
+          <SectionHeading id="advanced-features" icon={Zap} iconColor="text-purple-400" iconBg="bg-purple-500/10 border-purple-500/20">Advanced Features & Options</SectionHeading>
 
           <div className="space-y-8">
             <div>
@@ -838,12 +1228,7 @@ yt-dlp -i URL' />
 
         {/* Authentication & Cookies */}
         <section id="authentication" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-              <Lock size={24} className="text-yellow-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Authentication & Cookie Management</h2>
-          </div>
+          <SectionHeading id="authentication" icon={Lock} iconColor="text-yellow-400" iconBg="bg-yellow-500/10 border-yellow-500/20">Authentication & Cookie Management</SectionHeading>
 
           <p className="text-gray-300 mb-6">
             For age-restricted, member-only, or private videos, you need to authenticate. Here are all the methods:
@@ -925,12 +1310,7 @@ yt-dlp --cookies-from-browser chrome URL' />
 
         {/* SponsorBlock */}
         <section id="sponsorblock" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
-              <Shield size={24} className="text-green-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">SponsorBlock Integration</h2>
-          </div>
+          <SectionHeading id="sponsorblock" icon={Shield} iconColor="text-green-400" iconBg="bg-green-500/10 border-green-500/20">SponsorBlock Integration</SectionHeading>
 
           <p className="text-gray-300 mb-6">
             SponsorBlock is a crowdsourced database of sponsor segments in YouTube videos. yt-dlp can automatically skip or remove these segments!
@@ -982,12 +1362,7 @@ yt-dlp --print-json --sponsorblock-mark all URL' />
 
         {/* Playlists & Channels */}
         <section id="playlists" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-              <List size={24} className="text-cyan-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Mastering Playlists & Channels</h2>
-          </div>
+          <SectionHeading id="playlists" icon={List} iconColor="text-cyan-400" iconBg="bg-cyan-500/10 border-cyan-500/20">Mastering Playlists & Channels</SectionHeading>
 
           <div className="space-y-8">
             <div>
@@ -1070,12 +1445,7 @@ yt-dlp --download-archive archive.txt "https://www.youtube.com/@channel/videos"'
 
         {/* Troubleshooting */}
         <section id="troubleshooting" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-              <AlertTriangle size={24} className="text-red-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Common Issues & Solutions</h2>
-          </div>
+          <SectionHeading id="troubleshooting" icon={AlertTriangle} iconColor="text-red-400" iconBg="bg-red-500/10 border-red-500/20">Common Issues & Solutions</SectionHeading>
 
           <div className="space-y-6">
             <div className="bg-[#1e1e1e] p-6 rounded-xl border border-gray-800">
@@ -1162,12 +1532,7 @@ yt-dlp --cookies cookies.txt URL' />
 
         {/* Performance Optimization */}
         <section id="performance" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <TrendingUp size={24} className="text-blue-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Performance Optimization Tips</h2>
-          </div>
+          <SectionHeading id="performance" icon={TrendingUp} iconColor="text-blue-400" iconBg="bg-blue-500/10 border-blue-500/20">Performance Optimization Tips</SectionHeading>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 p-6 rounded-xl border border-green-500/30">
@@ -1223,12 +1588,7 @@ yt-dlp --user-agent "Mozilla/5.0..." URL' />
 
         {/* FAQ Section - 50+ Questions */}
         <section id="faq" className="mb-16 scroll-mt-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-              <MessageSquare size={24} className="text-yellow-400" />
-            </div>
-            <h2 className="text-3xl font-bold text-white">Frequently Asked Questions (50+)</h2>
-          </div>
+          <SectionHeading id="faq" icon={MessageSquare} iconColor="text-yellow-400" iconBg="bg-yellow-500/10 border-yellow-500/20">Frequently Asked Questions (50+)</SectionHeading>
 
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-green-400 mb-4 flex items-center gap-2">
@@ -1468,17 +1828,157 @@ yt-dlp --user-agent "Mozilla/5.0..." URL' />
             ))}
 
             <h3 className="text-2xl font-bold text-green-400 mb-4 mt-12 flex items-center gap-2">
-              <Code size={20} /> Platform-Specific
+              <Globe size={20} /> Netflix, DRM & Widevine (2026)
             </h3>
 
             {[
               {
-                q: "Can yt-dlp download Instagram stories?",
-                a: "Yes, but you need to be logged in: yt-dlp --cookies-from-browser chrome INSTAGRAM_URL"
+                q: "Can yt-dlp download from Netflix in 2026?",
+                a: "No. yt-dlp does NOT support Netflix. Netflix uses Widevine DRM (Digital Rights Management) encryption that yt-dlp cannot and does not attempt to bypass. This applies to all Netflix content worldwide."
               },
               {
-                q: "Does yt-dlp work with TikTok?",
-                a: "Yes! Just paste the TikTok URL. No watermarks are removed automatically."
+                q: "Does yt-dlp support Netflix Widevine L3 decryption?",
+                a: "No. yt-dlp has no Widevine L3 or any DRM decryption capability. It is designed for sites that serve unprotected video streams. Netflix, Disney+, Amazon Prime, HBO Max, and similar services use Widevine DRM which is illegal to circumvent in most jurisdictions."
+              },
+              {
+                q: "Is there a yt-dlp Netflix downloader working in 2026?",
+                a: "No. There is no legitimate yt-dlp Netflix downloader. Any tool claiming to download Netflix via yt-dlp is either a scam, malware, or illegal. Netflix content is protected by Widevine DRM which yt-dlp does not bypass."
+              },
+              {
+                q: "Can yt-dlp download DRM-protected videos?",
+                a: "No. yt-dlp only works with sites that serve unprotected video streams. Sites using DRM (Widevine, FairPlay, PlayReady) like Netflix, Disney+, Amazon Prime Video, HBO Max, Hulu, and Apple TV+ are NOT supported."
+              },
+              {
+                q: "What streaming services does yt-dlp NOT support?",
+                a: "yt-dlp does NOT support: Netflix, Disney+, Amazon Prime Video, HBO Max, Hulu, Peacock, Paramount+, Apple TV+, Crunchyroll Premium, or any service using DRM encryption. It works with YouTube, Vimeo, TikTok, Instagram, and 1800+ other non-DRM platforms."
+              },
+              {
+                q: "Does yt-dlp have a Netflix extractor?",
+                a: "No. yt-dlp does not have and has never had a Netflix extractor. The yt-dlp project explicitly does not support DRM-protected services. Check supported sites with: yt-dlp --list-extractors"
+              }
+            ].map((faq, i) => (
+              <details key={i} className="bg-[#1e1e1e] rounded-lg border border-gray-800 p-4 cursor-pointer hover:border-green-500/50 transition-colors">
+                <summary className="font-bold text-white">{faq.q}</summary>
+                <p className="text-gray-400 mt-3 text-sm pl-4">{faq.a}</p>
+              </details>
+            ))}
+
+            <h3 className="text-2xl font-bold text-green-400 mb-4 mt-12 flex items-center gap-2">
+              <TrendingUp size={20} /> yt-dlp Status & Updates (March 2026)
+            </h3>
+
+            {[
+              {
+                q: "Is yt-dlp still working in March 2026?",
+                a: "Yes! yt-dlp is fully working and actively maintained as of March 2026. The project receives daily updates with bug fixes and new features. If you're experiencing issues, update to the latest version with: yt-dlp -U"
+              },
+              {
+                q: "Is yt-dlp actively maintained in 2026?",
+                a: "Yes, very actively. yt-dlp has multiple maintainers and receives daily commits on GitHub. It's the most actively maintained video downloader available, far surpassing the original youtube-dl in update frequency."
+              },
+              {
+                q: "What is the current status of yt-dlp in 2026?",
+                a: "yt-dlp is fully operational as of March 2026. It supports 1800+ sites, receives regular updates, and has a large active community. Latest releases are available at: github.com/yt-dlp/yt-dlp/releases"
+              },
+              {
+                q: "Has yt-dlp stopped working?",
+                a: "No. If yt-dlp stopped working for you, it's likely an outdated version. Run yt-dlp -U to update. YouTube frequently changes their systems, requiring yt-dlp updates. For the latest fixes, try: yt-dlp --update-to nightly"
+              },
+              {
+                q: "What is the latest version of yt-dlp in 2026?",
+                a: "yt-dlp releases updates frequently. Check the latest version with: yt-dlp --version. To update: yt-dlp -U. For bleeding-edge fixes: yt-dlp --update-to nightly. Visit github.com/yt-dlp/yt-dlp/releases for release notes."
+              },
+              {
+                q: "Is youtube-dl or yt-dlp better in 2026?",
+                a: "yt-dlp is significantly better. youtube-dl has very infrequent updates, while yt-dlp receives daily updates, has faster downloads, SponsorBlock integration, better format selection, and supports more sites. yt-dlp is the recommended choice in 2026."
+              },
+              {
+                q: "Is yt-dlp safe to use in 2026?",
+                a: "Yes, yt-dlp is safe when downloaded from the official GitHub repository (github.com/yt-dlp/yt-dlp). It's open-source, has no ads or malware, and is audited by the community. Never download from unofficial third-party websites."
+              }
+            ].map((faq, i) => (
+              <details key={i} className="bg-[#1e1e1e] rounded-lg border border-gray-800 p-4 cursor-pointer hover:border-green-500/50 transition-colors">
+                <summary className="font-bold text-white">{faq.q}</summary>
+                <p className="text-gray-400 mt-3 text-sm pl-4">{faq.a}</p>
+              </details>
+            ))}
+
+            <h3 className="text-2xl font-bold text-green-400 mb-4 mt-12 flex items-center gap-2">
+              <Lock size={20} /> Cookies, Bot Detection & Age Restriction
+            </h3>
+
+            {[
+              {
+                q: "How do I fix 'Sign in to confirm you're not a bot' in 2026?",
+                a: "Use browser cookies: yt-dlp --cookies-from-browser chrome URL. This sends your logged-in session with the request, bypassing YouTube's bot detection. If Chrome doesn't work, try Firefox: yt-dlp --cookies-from-browser firefox URL"
+              },
+              {
+                q: "Which browser works best for yt-dlp cookies — Firefox or Chrome?",
+                a: "Both work well. Chrome is most commonly used, but Firefox cookies can be more reliable on some systems since Firefox doesn't encrypt cookies as aggressively. Try: yt-dlp --cookies-from-browser firefox URL if Chrome fails."
+              },
+              {
+                q: "Do YouTube cookies expire for yt-dlp?",
+                a: "Yes, YouTube cookies typically expire after a few weeks to months. If yt-dlp stops working with cookies, export fresh cookies. For --cookies-from-browser, cookies are extracted fresh each time, so they don't expire as long as you're logged in."
+              },
+              {
+                q: "How do I fix yt-dlp 'Sign in to confirm your age' error?",
+                a: "Use cookies from your browser (must be logged into an 18+ YouTube account): yt-dlp --cookies-from-browser chrome URL. This authenticates you and bypasses the age gate."
+              },
+              {
+                q: "How do I fix 'yt-dlp can't download age restricted videos'?",
+                a: "Age-restricted videos require authentication. Use: yt-dlp --cookies-from-browser chrome URL. Make sure you're logged into YouTube on that browser with an account that has age verification completed."
+              },
+              {
+                q: "How do I fix 'Requested format is not available' in yt-dlp?",
+                a: "List available formats first with: yt-dlp -F URL. Then pick a valid format ID. Or use flexible selection: yt-dlp -f 'bestvideo[height<=1080]+bestaudio/best' URL — the /best fallback handles cases where separate streams aren't available."
+              },
+              {
+                q: "How do I fix yt-dlp N challenge solving failed?",
+                a: "This usually means yt-dlp is outdated. YouTube's N challenge changes frequently. Update immediately: yt-dlp -U. If still failing, try the nightly build: yt-dlp --update-to nightly. Using cookies also helps: yt-dlp --cookies-from-browser chrome URL"
+              },
+              {
+                q: "How to use yt-dlp with Firefox cookies for TikTok?",
+                a: "Use: yt-dlp --cookies-from-browser firefox TIKTOK_URL. Close Firefox first to avoid database lock errors. For persistent issues, export cookies to a file using 'Get cookies.txt LOCALLY' extension and use: yt-dlp --cookies cookies.txt URL"
+              }
+            ].map((faq, i) => (
+              <details key={i} className="bg-[#1e1e1e] rounded-lg border border-gray-800 p-4 cursor-pointer hover:border-green-500/50 transition-colors">
+                <summary className="font-bold text-white">{faq.q}</summary>
+                <p className="text-gray-400 mt-3 text-sm pl-4">{faq.a}</p>
+              </details>
+            ))}
+
+            <h3 className="text-2xl font-bold text-green-400 mb-4 mt-12 flex items-center gap-2">
+              <Code size={20} /> Platform-Specific (2026)
+            </h3>
+
+            {[
+              {
+                q: "Does yt-dlp support Instagram in 2026?",
+                a: "Yes! yt-dlp supports Instagram posts, Reels, stories, and IGTV. For private content, use cookies: yt-dlp --cookies-from-browser chrome INSTAGRAM_URL"
+              },
+              {
+                q: "Does yt-dlp support TikTok in 2026?",
+                a: "Yes! yt-dlp natively supports TikTok videos. Just paste the URL: yt-dlp TIKTOK_URL. No cookies needed for public videos."
+              },
+              {
+                q: "Does yt-dlp support Rumble in 2026?",
+                a: "Yes! yt-dlp has a Rumble extractor that works in 2026. Just paste the Rumble video URL: yt-dlp RUMBLE_URL"
+              },
+              {
+                q: "Does yt-dlp support Patreon in 2026?",
+                a: "Yes, yt-dlp can download public Patreon video content. For supporter-only content, you need cookies from a logged-in session: yt-dlp --cookies-from-browser chrome PATREON_URL"
+              },
+              {
+                q: "Does yt-dlp support Pornhub in 2026?",
+                a: "yt-dlp includes extractors for many adult sites. If a specific site isn't working, update yt-dlp with yt-dlp -U. For premium content, use cookies: yt-dlp --cookies-from-browser chrome URL"
+              },
+              {
+                q: "Why is yt-dlp Pornhub not working in 2026?",
+                a: "Adult sites frequently change their page structure. First update yt-dlp: yt-dlp -U. If still failing, try the nightly build: yt-dlp --update-to nightly. Some content requires cookies: yt-dlp --cookies-from-browser chrome URL"
+              },
+              {
+                q: "Can yt-dlp download Instagram stories?",
+                a: "Yes, but you need to be logged in: yt-dlp --cookies-from-browser chrome INSTAGRAM_URL"
               },
               {
                 q: "Can I download Twitter/X videos?",
@@ -1495,10 +1995,6 @@ yt-dlp --user-agent "Mozilla/5.0..." URL' />
               {
                 q: "Does yt-dlp work with Reddit videos?",
                 a: "Yes, v.redd.it links are supported."
-              },
-              {
-                q: "Can I download from Netflix/Disney+?",
-                a: "No. These are DRM-protected paid services and downloading violates their terms."
               }
             ].map((faq, i) => (
               <details key={i} className="bg-[#1e1e1e] rounded-lg border border-gray-800 p-4 cursor-pointer hover:border-green-500/50 transition-colors">
@@ -1778,11 +2274,9 @@ yt-dlp -f "best" \\
           </div>
         </section>
 
-        {/* SEO Keywords (Hidden) */}
-        <div className="hidden" aria-hidden="true">
-          yt-dlp tutorial, yt-dlp commands, download youtube videos command line, yt-dlp guide 2026, youtube downloader cli, best video downloader, yt-dlp vs youtube-dl, yt-dlp installation windows, yt-dlp 4k download, download instagram videos, download tiktok videos, yt-dlp sponsorblock, yt-dlp cookies authentication, yt-dlp playlist download, yt-dlp format selection, yt-dlp ffmpeg, yt-dlp audio extraction, yt-dlp mp3 download, yt-dlp subtitle download, yt-dlp channel download, yt-dlp download archive, yt-dlp automation, yt-dlp config file, yt-dlp aria2c, yt-dlp external downloader, yt-dlp twitch download, yt-dlp reddit download, yt-dlp facebook download, yt-dlp proxy, yt-dlp age restricted, yt-dlp member only, yt-dlp private video, yt-dlp troubleshooting, yt-dlp not recognized error, yt-dlp database locked, yt-dlp bot error, yt-dlp slow download fix, yt-dlp best quality, yt-dlp 8k download, yt-dlp hdr download, yt-dlp av1 codec, yt-dlp vp9 codec, yt-dlp metadata embed, yt-dlp thumbnail download, yt-dlp chapter split, yt-dlp date filter, yt-dlp batch download, youtube video downloader 2026, free youtube downloader command line, yt-dlp linux installation, yt-dlp mac installation, yt-dlp update command, yt-dlp nightly build, how to use yt-dlp, yt-dlp beginner guide, yt-dlp advanced tutorial, yt-dlp pro tips, yt-dlp output template, yt-dlp best settings, is yt-dlp still working 2026, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp instagram extractor, yt-dlp tiktok support, yt-dlp supported sites list, yt-dlp netflix support, yt-dlp not working, yt-dlp installation guide 2026, yt-dlp latest version january 2026, yt-dlp login youtube, yt-dlp concurrent downloads
-        </div>
+
       </div>
+      <StickyQuickNav />
     </div>
   );
 }
@@ -1797,19 +2291,33 @@ YtDlpUltimateGuide.Image = CardImage;
 YtDlpUltimateGuide.info = {
   id: "yt-dlp-ultimate-guide-2026",
   slug: "yt-dlp-ultimate-guide-2026",
-  // Click-worthy title matching problem-search intent
-  title: "yt-dlp Not Working? Fix Errors & Download Guide (2026)",
-  // Optimized meta description for CTR
-  excerpt: "Fix yt-dlp errors in 2026: 'Sign in to confirm you're not a bot', slow downloads, cookies setup. Step-by-step installation for Windows, Linux & macOS with 100+ commands.",
-  // SEO keywords based on actual search queries
-  keywords: "yt-dlp 2026, yt-dlp not working, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp slow download fix, yt-dlp installation guide 2026, is yt-dlp still working, yt-dlp supported sites, yt-dlp netflix, yt-dlp instagram, yt-dlp tiktok, yt-dlp naver tv support, yt-dlp kakao tv support, yt-dlp 8k support, yt-dlp embed chapters, yt-dlp twitter spaces, yt-dlp concurrent downloads, yt-dlp recode-video, yt-dlp vk, yt-dlp facebook, yt-dlp latest version january 2026",
+  // Balanced title for both informational ("yt-dlp 2026") and troubleshooting ("yt-dlp not working") intent
+  title: "yt-dlp Ultimate Guide 2026: Download, Fix Errors & 100+ Commands",
+  // Optimized meta description for CTR — hits top GSC queries and includes freshness signal
+  excerpt: "The complete yt-dlp guide — updated March 2026. Download videos from YouTube & 1800+ sites. Fix 'not a bot' errors, speed up downloads with aria2c, install on Windows/Linux/Mac. 100+ commands included.",
+  // SEO keywords based on actual GSC search queries
+  keywords: "yt-dlp 2026, yt-dlp not working, yt-dlp not working 2026, does yt-dlp still work, yt-dlp still working 2026, yt-dlp stopped working, yt-dlp netflix, yt-dlp netflix support 2026, yt-dlp widevine l3, yt-dlp drm, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp age restricted, yt-dlp n challenge solving failed, yt-dlp requested format not available, yt-dlp installation guide 2026, yt-dlp supported sites, yt-dlp tutorial 2026, yt-dlp instagram 2026, yt-dlp tiktok 2026, yt-dlp rumble 2026, yt-dlp patreon 2026, yt-dlp pornhub not working 2026, yt-dlp safe 2026, yt-dlp status 2026, yt-dlp aria2c, yt-dlp ffmpeg",
   category: "Tutorials",
   author: "Dev Kant Kumar",
   readTime: "45 min read",
   image: "/images/blog/yt-dlp-guide.png",
   featured: true,
   publishDate: "2026-01-06",
-  modifiedDate: "2026-01-07",
+  modifiedDate: "2026-03-03",
+  howTo: {
+    name: "How to Use yt-dlp to Download Videos in 2026",
+    description: "Complete step-by-step guide to install and use yt-dlp for downloading videos from YouTube and 1800+ websites.",
+    totalTime: "PT15M",
+    steps: [
+      { name: "Install yt-dlp", text: "Install yt-dlp using your preferred method. Windows: winget install yt-dlp. macOS: brew install yt-dlp. Linux: sudo apt install yt-dlp. Or use pip: pip install -U yt-dlp" },
+      { name: "Install FFmpeg", text: "Install FFmpeg for merging video and audio streams. Windows: winget install Gyan.FFmpeg. macOS: brew install ffmpeg. Linux: sudo apt install ffmpeg" },
+      { name: "Download a video", text: "Run: yt-dlp \"https://www.youtube.com/watch?v=VIDEO_ID\" to download the best available quality." },
+      { name: "Select quality", text: "Use format selection for specific quality: yt-dlp -f \"bestvideo[height<=1080]+bestaudio\" URL for 1080p, or change 1080 to 2160 for 4K." },
+      { name: "Extract audio", text: "Extract audio as MP3: yt-dlp -x --audio-format mp3 URL. Use m4a or flac for higher quality formats." },
+      { name: "Fix authentication errors", text: "If you get 'Sign in to confirm you're not a bot', use cookies: yt-dlp --cookies-from-browser chrome URL" },
+      { name: "Speed up downloads", text: "Use aria2c for faster downloads: yt-dlp --external-downloader aria2c --external-downloader-args \"-x 16 -k 1M\" URL" }
+    ]
+  },
   tags: [
     "yt-dlp",
     "YouTube",
@@ -1824,7 +2332,7 @@ YtDlpUltimateGuide.info = {
   faqs: [
     {
       question: "Is yt-dlp still working in 2026?",
-      answer: "Yes! yt-dlp is actively maintained with daily updates as of January 2026. It's the best tool to download videos from YouTube and 1800+ other sites. If you're having issues, update to the latest version with: yt-dlp -U"
+      answer: "Yes! yt-dlp is actively maintained with daily updates as of March 2026. It's the best tool to download videos from YouTube and 1800+ other sites. If you're having issues, update to the latest version with: yt-dlp -U"
     },
     {
       question: "How do I fix 'Sign in to confirm you're not a bot' error?",
@@ -1869,6 +2377,118 @@ YtDlpUltimateGuide.info = {
     {
       question: "How do I use concurrent downloads with yt-dlp?",
       answer: "Use --concurrent-fragments N for parallel fragment downloads: yt-dlp --concurrent-fragments 4 URL. For downloading multiple videos at once, use a batch file or xargs."
+    },
+    {
+      question: "Why is yt-dlp not working in 2026?",
+      answer: "yt-dlp IS working in 2026. If you're getting errors, first update to the latest version with yt-dlp -U. Common fixes: use --cookies-from-browser chrome for bot detection errors, install FFmpeg for merge errors, and use aria2c for slow downloads."
+    },
+    {
+      question: "How do I install yt-dlp on Windows?",
+      answer: "The easiest way is via winget: winget install yt-dlp. You can also use pip install yt-dlp, choco install yt-dlp, or download the binary from GitHub releases."
+    },
+    {
+      question: "How do I download only audio as MP3 with yt-dlp?",
+      answer: "Use: yt-dlp -x --audio-format mp3 URL. This extracts the audio and converts it to MP3. Requires FFmpeg to be installed."
+    },
+    {
+      question: "Can yt-dlp download entire YouTube playlists?",
+      answer: "Yes! Use: yt-dlp -i PLAYLIST_URL. The -i flag skips errors for unavailable videos. Add --download-archive archive.txt to avoid re-downloading."
+    },
+    {
+      question: "How do I download Instagram Reels with yt-dlp?",
+      answer: "Just paste the Reel URL: yt-dlp URL. For private accounts, use cookies: yt-dlp --cookies-from-browser chrome URL"
+    },
+    {
+      question: "Does yt-dlp work with adult sites?",
+      answer: "yt-dlp supports many video sites including some adult platforms. If a site is not working, try updating yt-dlp with yt-dlp -U or use cookies with --cookies-from-browser chrome."
+    },
+    {
+      question: "How do I download TikTok videos with yt-dlp?",
+      answer: "Simply paste the TikTok video URL: yt-dlp URL. yt-dlp natively supports TikTok without any special configuration."
+    },
+    {
+      question: "Can I remove sponsor segments from downloaded videos?",
+      answer: "Yes! Use SponsorBlock integration: yt-dlp --sponsorblock-remove all URL. This automatically removes sponsored segments from YouTube videos."
+    },
+    {
+      question: "Can yt-dlp download from Netflix in 2026?",
+      answer: "No. yt-dlp does NOT support Netflix. Netflix uses Widevine DRM encryption that yt-dlp cannot and does not attempt to bypass. This applies to all Netflix content worldwide."
+    },
+    {
+      question: "Does yt-dlp support Netflix Widevine L3 decryption?",
+      answer: "No. yt-dlp has no Widevine L3 or any DRM decryption capability. Netflix, Disney+, Amazon Prime, HBO Max use Widevine DRM which is illegal to circumvent in most jurisdictions."
+    },
+    {
+      question: "Is there a yt-dlp Netflix downloader working in 2026?",
+      answer: "No. There is no legitimate yt-dlp Netflix downloader. Any tool claiming to download Netflix via yt-dlp is either a scam, malware, or illegal."
+    },
+    {
+      question: "Can yt-dlp download DRM-protected videos?",
+      answer: "No. yt-dlp only works with sites that serve unprotected video streams. Sites using DRM like Netflix, Disney+, Amazon Prime Video, HBO Max, Hulu, and Apple TV+ are NOT supported."
+    },
+    {
+      question: "Is yt-dlp still working in March 2026?",
+      answer: "Yes! yt-dlp is fully working and actively maintained as of March 2026. The project receives daily updates. If you're experiencing issues, update with: yt-dlp -U"
+    },
+    {
+      question: "Is yt-dlp actively maintained in 2026?",
+      answer: "Yes, very actively. yt-dlp has multiple maintainers and receives daily commits on GitHub. It's the most actively maintained video downloader available."
+    },
+    {
+      question: "Has yt-dlp stopped working?",
+      answer: "No. If yt-dlp stopped working for you, it's likely an outdated version. Run yt-dlp -U to update. For latest fixes, try: yt-dlp --update-to nightly"
+    },
+    {
+      question: "Is yt-dlp safe to use in 2026?",
+      answer: "Yes, yt-dlp is safe when downloaded from the official GitHub repository. It's open-source, has no ads or malware, and is audited by the community. Never download from unofficial websites."
+    },
+    {
+      question: "Is youtube-dl or yt-dlp better in 2026?",
+      answer: "yt-dlp is significantly better. youtube-dl has infrequent updates, while yt-dlp receives daily updates, faster downloads, SponsorBlock integration, and supports more sites."
+    },
+    {
+      question: "How do I fix 'Sign in to confirm you're not a bot' in yt-dlp 2026?",
+      answer: "Use browser cookies: yt-dlp --cookies-from-browser chrome URL. If Chrome fails, try Firefox: yt-dlp --cookies-from-browser firefox URL"
+    },
+    {
+      question: "Which browser works best for yt-dlp cookies — Firefox or Chrome?",
+      answer: "Both work well. Firefox cookies can be more reliable on some systems since Firefox doesn't encrypt cookies as aggressively. Try yt-dlp --cookies-from-browser firefox URL if Chrome fails."
+    },
+    {
+      question: "How do I fix yt-dlp N challenge solving failed?",
+      answer: "Update yt-dlp immediately: yt-dlp -U. If still failing, try nightly: yt-dlp --update-to nightly. Using cookies also helps: yt-dlp --cookies-from-browser chrome URL"
+    },
+    {
+      question: "How do I fix 'Requested format is not available' in yt-dlp?",
+      answer: "List available formats with: yt-dlp -F URL. Then use flexible selection: yt-dlp -f 'bestvideo[height<=1080]+bestaudio/best' URL"
+    },
+    {
+      question: "Does yt-dlp support Instagram in 2026?",
+      answer: "Yes! yt-dlp supports Instagram posts, Reels, stories, and IGTV. For private content, use cookies: yt-dlp --cookies-from-browser chrome URL"
+    },
+    {
+      question: "Does yt-dlp support TikTok in 2026?",
+      answer: "Yes! yt-dlp natively supports TikTok videos. Just paste the URL: yt-dlp TIKTOK_URL"
+    },
+    {
+      question: "Does yt-dlp support Rumble in 2026?",
+      answer: "Yes! yt-dlp has a Rumble extractor that works in 2026. Just paste the Rumble video URL."
+    },
+    {
+      question: "Does yt-dlp support Patreon in 2026?",
+      answer: "Yes, yt-dlp can download public Patreon video content. For supporter-only content, use cookies: yt-dlp --cookies-from-browser chrome URL"
+    },
+    {
+      question: "Why is yt-dlp Pornhub not working in 2026?",
+      answer: "Update yt-dlp: yt-dlp -U. If still failing, try nightly: yt-dlp --update-to nightly. Some content requires cookies: yt-dlp --cookies-from-browser chrome URL"
+    },
+    {
+      question: "Does yt-dlp have a Netflix extractor?",
+      answer: "No. yt-dlp does not have and has never had a Netflix extractor. The project does not support DRM-protected services. Check supported sites with: yt-dlp --list-extractors"
+    },
+    {
+      question: "Do YouTube cookies expire for yt-dlp?",
+      answer: "Yes, YouTube cookies typically expire after a few weeks to months. With --cookies-from-browser, cookies are extracted fresh each time, so they don't expire as long as you're logged in."
     }
   ]
 };

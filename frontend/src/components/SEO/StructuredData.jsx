@@ -247,6 +247,20 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
       "description": tool.description
     };
   };
+  const getHowToSchema = () => ({
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": pageData.howTo?.name || pageData.title,
+    "description": pageData.howTo?.description || pageData.excerpt,
+    "totalTime": pageData.howTo?.totalTime,
+    "step": (pageData.howTo?.steps || []).map((step, i) => ({
+      "@type": "HowToStep",
+      "position": i + 1,
+      "name": step.name,
+      "text": step.text,
+      ...(step.url ? { "url": step.url } : {})
+    }))
+  });
 
   const getSchemaData = () => {
     switch (type) {
@@ -268,6 +282,8 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
         return getFAQSchema();
       case 'software':
         return getSoftwareApplicationSchema(pageData);
+      case 'howto':
+        return getHowToSchema();
       default:
         return getPersonSchema();
     }

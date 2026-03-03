@@ -13,7 +13,7 @@ const ReadingToolbar = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full px-6 py-3 shadow-2xl flex items-center gap-6"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-full px-6 py-3 shadow-2xl hidden md:flex items-center gap-6"
     >
       {/* Font Size Controls */}
 
