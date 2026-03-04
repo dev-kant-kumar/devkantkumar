@@ -9,8 +9,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate , Link} from 'react-router-dom';
 import DeleteConfirmationModal from '../../common/components/DeleteConfirmationModal';
+import PremiumButton from '../../common/components/PremiumButton';
 import {
     useDeleteProductMutation,
     useGetAdminProductsQuery
@@ -63,13 +64,13 @@ const Products = () => {
             Manage your digital assets catalog.
           </p>
         </div>
-        <Link
-          to="new"
-          className="group flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
-        >
-          <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-          <span className="font-semibold">Add Product</span>
-        </Link>
+        <PremiumButton
+          onClick={() => navigate('new')}
+          label="Add Product"
+          icon={Plus}
+          statsCount={products.length}
+          statsIcon={Package}
+        />
       </div>
 
       {/* Filters Bar */}

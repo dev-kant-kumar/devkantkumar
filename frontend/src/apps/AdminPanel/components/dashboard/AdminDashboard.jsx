@@ -1,37 +1,36 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import {
-  BarChart3,
-  Users,
-  MessageSquare,
-  FolderOpen,
-  TrendingUp,
-  AlertCircle,
-  RefreshCw,
-  Eye,
-  Calendar,
+    AlertCircle,
+    BarChart3,
+    Calendar,
+    Eye,
+    FolderOpen,
+    MessageSquare,
+    RefreshCw,
+    TrendingUp
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 // RTK Query hooks
 import {
-  useGetDashboardOverviewQuery,
-  useGetDashboardStatsQuery,
-  useGetDashboardAnalyticsQuery,
-  useGetProjectsQuery,
-  useGetContactMessagesQuery,
+    useGetContactMessagesQuery,
+    useGetDashboardAnalyticsQuery,
+    useGetDashboardOverviewQuery,
+    useGetDashboardStatsQuery,
+    useGetProjectsQuery,
 } from '../../store/api/adminApiSlice';
 
 // UI slice selectors and actions
 import {
-  selectDashboardOverview,
-  selectDashboardStats,
-  selectDashboardAnalytics,
-  selectProjectsList,
-  selectMessagesUnreadCount,
-  selectIsDataRefreshNeeded,
-  markDataForRefresh,
-  setActiveSection,
+    markDataForRefresh,
+    selectDashboardAnalytics,
+    selectDashboardOverview,
+    selectDashboardStats,
+    selectIsDataRefreshNeeded,
+    selectMessagesUnreadCount,
+    selectProjectsList,
+    setActiveSection,
 } from '../../store/ui/adminUISlice';
 
 const AdminDashboard = () => {
@@ -136,16 +135,13 @@ const AdminDashboard = () => {
             </p>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <PremiumButton
             onClick={handleRefreshAll}
             disabled={isLoading}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
-          </motion.button>
+            label="Refresh"
+            icon={RefreshCw}
+            className={isLoading ? 'animate-spin' : ''}
+          />
         </div>
 
         {/* Error Banner */}

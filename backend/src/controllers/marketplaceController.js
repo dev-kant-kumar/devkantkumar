@@ -1,16 +1,16 @@
+const axios = require("axios");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
+const Coupon = require("../models/Coupon");
+const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Service = require("../models/Service");
-const Order = require("../models/Order");
+// Assuming SystemSetting is already required later in the file, or we adjust the path if setting.js was meant to be used
+// I'll use the require that matched previous usages.
 const User = require("../models/User");
-const DownloadLog = require("../models/DownloadLog");
-const logger = require("../utils/logger");
-const Razorpay = require("razorpay");
-const crypto = require("crypto");
-const path = require("path");
-const fs = require("fs");
-const axios = require("axios");
-const downloadService = require("../services/downloadService");
 const cloudinary = require("../services/cloudinaryService");
+const downloadService = require("../services/downloadService");
+const logger = require("../utils/logger");
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -189,7 +189,7 @@ const search = async (req, res) => {
 const getCart = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate(
-      "cart.product cart.service"
+      "cart.product cart.service",
     );
     res.json(user.cart || []);
   } catch (error) {
@@ -206,7 +206,7 @@ const addToCart = async (req, res) => {
     if (!user.cart) user.cart = [];
 
     const existingItem = user.cart.find(
-      (item) => item[itemType].toString() === itemId && item.type === itemType
+      (item) => item[itemType].toString() === itemId && item.type === itemType,
     );
 
     if (existingItem) {
@@ -277,7 +277,7 @@ const emailService = require("../services/emailService");
 // Order management
 const createOrder = async (req, res) => {
   try {
-    let { billing, paymentMethod, currency = "INR" } = req.body;
+    let { billing, paymentMethod, currency = "INR", couponCode } = req.body;
     const countryCode = req.headers["x-country-code"];
 
     // Fetch system settings for tax rate
@@ -298,7 +298,6 @@ const createOrder = async (req, res) => {
 
     // Process cart items
     for (const item of user.cart.items) {
-      // ... existing loop code ...
       // item.product or item.service is now populated object
       const productOrService =
         item.type === "service" ? item.service : item.product;
@@ -316,7 +315,7 @@ const createOrder = async (req, res) => {
         productOrService.packages
       ) {
         const pkg = productOrService.packages.find(
-          (p) => p.name === item.packageName
+          (p) => p.name === item.packageName,
         );
         if (pkg) {
           price = pkg.price;
@@ -326,7 +325,7 @@ const createOrder = async (req, res) => {
             countryCode
           ) {
             const regional = pkg.regionalPricing.find(
-              (r) => r.region === countryCode
+              (r) => r.region === countryCode,
             );
             if (regional) {
               price = regional.price;
@@ -339,7 +338,7 @@ const createOrder = async (req, res) => {
         countryCode
       ) {
         const regional = productOrService.regionalPricing.find(
-          (r) => r.region === countryCode
+          (r) => r.region === countryCode,
         );
         if (regional) {
           price = regional.price;
@@ -353,19 +352,68 @@ const createOrder = async (req, res) => {
         itemType: item.type,
         itemId: productOrService._id,
         title: productOrService.title,
-        description: productOrService.description, // Optional but good to have
+        description: productOrService.description,
         price: price,
         quantity: item.quantity,
-        // Add specific fields if needed
         licenseType: item.type === "product" ? "standard" : undefined,
       });
     }
 
-    const tax = subtotal * (taxRate / 100);
-    const total = subtotal + tax;
+    // Calculate base tax
+    let tax = subtotal * (taxRate / 100);
+    let discountAmount = 0;
+    let couponApplied = null;
+
+    // Handle coupon if provided
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+
+      if (!coupon) {
+        return res.status(400).json({
+          message: "Coupon code not found",
+          field: "couponCode",
+        });
+      }
+
+      // Validate coupon
+      const validation = coupon.isValid(req.user.id, subtotal);
+      if (!validation.valid) {
+        return res.status(400).json({
+          message: validation.reason,
+          field: "couponCode",
+        });
+      }
+
+      // Check if applicable to items
+      if (!coupon.applicableToAll && coupon.applicableProductIds.length > 0) {
+        const applicableIds = coupon.applicableProductIds.map((id) =>
+          id.toString(),
+        );
+        const hasApplicable = orderItems.some((item) =>
+          applicableIds.includes(item.itemId.toString()),
+        );
+
+        if (!hasApplicable) {
+          return res.status(400).json({
+            message: "This coupon is not applicable to your items",
+            field: "couponCode",
+          });
+        }
+      }
+
+      // Calculate discount
+      discountAmount = coupon.calculateDiscount(subtotal);
+      couponApplied = coupon._id;
+
+      logger.info(
+        `Coupon "${coupon.code}" applied to order by user ${req.user.id}`,
+      );
+    }
+
+    // Calculate final total
+    const total = Math.max(0, subtotal + tax - discountAmount);
 
     const order = new Order({
-      // ... existing order creation code ...
       orderNumber: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       user: req.user.id,
       items: orderItems,
@@ -386,16 +434,32 @@ const createOrder = async (req, res) => {
         method: paymentMethod || "razorpay",
         status: "pending",
         amount: {
-          total,
-          subtotal,
-          tax,
+          subtotal: Math.round(subtotal * 100) / 100,
+          tax: Math.round(tax * 100) / 100,
+          discount: Math.round(discountAmount * 100) / 100,
+          total: Math.round(total * 100) / 100,
         },
         currency: currency,
       },
+      couponApplied,
       status: "pending",
     });
 
     await order.save();
+
+    // Mark coupon as used if applied
+    if (couponApplied) {
+      await Coupon.findByIdAndUpdate(couponApplied, {
+        $push: {
+          usedByUsers: {
+            userId: req.user.id,
+            orderId: order._id,
+            discountApplied: discountAmount,
+          },
+        },
+        $inc: { usedCount: 1 },
+      });
+    }
 
     // Clear cart
     user.cart.items = [];
@@ -418,7 +482,8 @@ const getUserOrders = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate({
         path: "items.itemId",
-        select: "title slug description version demoUrl documentationUrl sourceCodeUrl downloadFiles images packages features technologies"
+        select:
+          "title slug description version demoUrl documentationUrl sourceCodeUrl downloadFiles images packages features technologies",
       });
 
     res.json(orders);
@@ -436,7 +501,8 @@ const getOrderById = async (req, res) => {
     })
       .populate({
         path: "items.itemId",
-        select: "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages", // Select necessary fields for Products/Services
+        select:
+          "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages", // Select necessary fields for Products/Services
       })
       .sort("-createdAt");
 
@@ -446,9 +512,11 @@ const getOrderById = async (req, res) => {
 
     // Sanitize download links in the response (hide real URLs)
     const orderObj = order.toObject();
-    orderObj.items = orderObj.items.map(item => {
-      if (item.itemType === 'product' && item.downloadLinks) {
-        item.downloadLinks = downloadService.sanitizeDownloadLinks(item.downloadLinks);
+    orderObj.items = orderObj.items.map((item) => {
+      if (item.itemType === "product" && item.downloadLinks) {
+        item.downloadLinks = downloadService.sanitizeDownloadLinks(
+          item.downloadLinks,
+        );
       }
       return item;
     });
@@ -498,7 +566,7 @@ const createRazorpayOrder = async (req, res) => {
         productOrService.packages
       ) {
         const pkg = productOrService.packages.find(
-          (p) => p.name === item.packageName
+          (p) => p.name === item.packageName,
         );
         if (pkg) {
           price = pkg.price;
@@ -508,7 +576,7 @@ const createRazorpayOrder = async (req, res) => {
             countryCode
           ) {
             const regional = pkg.regionalPricing.find(
-              (r) => r.region === countryCode
+              (r) => r.region === countryCode,
             );
             if (regional) {
               price = regional.price;
@@ -521,7 +589,7 @@ const createRazorpayOrder = async (req, res) => {
         countryCode
       ) {
         const regional = productOrService.regionalPricing.find(
-          (r) => r.region === countryCode
+          (r) => r.region === countryCode,
         );
         if (regional) {
           price = regional.price;
@@ -639,13 +707,19 @@ const verifyRazorpayPayment = async (req, res) => {
       for (const item of order.items) {
         if (item.itemType === "product") {
           const product = await Product.findById(item.itemId);
-          if (product && product.downloadFiles && product.downloadFiles.length > 0) {
+          if (
+            product &&
+            product.downloadFiles &&
+            product.downloadFiles.length > 0
+          ) {
             // Use secure download service to generate token-based links
             item.downloadLinks = downloadService.generateSecureDownloadLinks(
               product,
-              { expiryHours: 48, maxDownloads: 5 }
+              { expiryHours: 48, maxDownloads: 5 },
             );
-            logger.info(`Generated ${item.downloadLinks.length} secure download links for product ${product._id}`);
+            logger.info(
+              `Generated ${item.downloadLinks.length} secure download links for product ${product._id}`,
+            );
           }
         }
       }
@@ -668,7 +742,7 @@ const verifyRazorpayPayment = async (req, res) => {
 
       // For digital products, mark fulfillment as delivered immediately
       const hasOnlyProducts = order.items.every(
-        (item) => item.itemType === "product"
+        (item) => item.itemType === "product",
       );
       if (hasOnlyProducts) {
         order.fulfillment.status = "delivered";
@@ -695,12 +769,13 @@ const verifyRazorpayPayment = async (req, res) => {
         if (user && order.billing?.address) {
           const billingAddr = order.billing.address;
           // Check if this address already exists
-          const addressExists = user.addresses?.some(addr =>
-            addr.street === billingAddr.street &&
-            addr.city === billingAddr.city &&
-            addr.state === billingAddr.state &&
-            addr.zipCode === billingAddr.zipCode &&
-            addr.country === billingAddr.country
+          const addressExists = user.addresses?.some(
+            (addr) =>
+              addr.street === billingAddr.street &&
+              addr.city === billingAddr.city &&
+              addr.state === billingAddr.state &&
+              addr.zipCode === billingAddr.zipCode &&
+              addr.country === billingAddr.country,
           );
 
           if (!addressExists && billingAddr.street && billingAddr.city) {
@@ -712,15 +787,15 @@ const verifyRazorpayPayment = async (req, res) => {
               state: billingAddr.state,
               zipCode: billingAddr.zipCode,
               country: billingAddr.country,
-              addressType: 'billing',
-              isDefault: user.addresses.length === 0 // Set as default if first address
+              addressType: "billing",
+              isDefault: user.addresses.length === 0, // Set as default if first address
             });
             await user.save();
             logger.info(`Saved billing address for user ${req.user.id}`);
           }
         }
       } catch (addressError) {
-        logger.error('Failed to save billing address:', addressError);
+        logger.error("Failed to save billing address:", addressError);
         // Don't fail the payment verification if address save fails
       }
 
@@ -729,10 +804,10 @@ const verifyRazorpayPayment = async (req, res) => {
         await emailService.sendOrderConfirmationEmail(
           order.billing.email,
           order,
-          order.billing.firstName
+          order.billing.firstName,
         );
       } catch (emailError) {
-        logger.error('Failed to send order confirmation email:', emailError);
+        logger.error("Failed to send order confirmation email:", emailError);
       }
 
       logger.info(`Payment verified for order ${orderId}`);
@@ -769,7 +844,7 @@ const downloadPurchasedItem = async (req, res) => {
 
   // Get client info for logging
   const ipAddress = downloadService.getClientIP(req);
-  const userAgent = req.headers['user-agent'] || 'Unknown';
+  const userAgent = req.headers["user-agent"] || "Unknown";
   const userId = req.user?._id;
 
   try {
@@ -779,7 +854,7 @@ const downloadPurchasedItem = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Download token is required",
-        code: 'MISSING_TOKEN'
+        code: "MISSING_TOKEN",
       });
     }
 
@@ -787,7 +862,7 @@ const downloadPurchasedItem = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Authentication required",
-        code: 'AUTH_REQUIRED'
+        code: "AUTH_REQUIRED",
       });
     }
 
@@ -796,26 +871,37 @@ const downloadPurchasedItem = async (req, res) => {
       token,
       userId,
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     if (!validation.isValid) {
-      logger.warn(`Invalid download token: ${validation.error} - User: ${userId}, IP: ${ipAddress}`);
+      logger.warn(
+        `Invalid download token: ${validation.error} - User: ${userId}, IP: ${ipAddress}`,
+      );
 
       // Map internal errors to user-friendly messages
       const errorMessages = {
-        'Invalid download link': 'This download link is not valid. Please refresh the page.',
-        'Unauthorized access': 'You do not have permission to download this file.',
-        'Order payment not completed': 'Payment for this order has not been completed.',
-        'Link not found': 'Download link not found. Try regenerating your links.',
-        'Download link has expired': 'This download link has expired. Please regenerate your links.',
-        'Download limit exceeded': 'You have reached the maximum download limit for this file. Please regenerate your links.'
+        "Invalid download link":
+          "This download link is not valid. Please refresh the page.",
+        "Unauthorized access":
+          "You do not have permission to download this file.",
+        "Order payment not completed":
+          "Payment for this order has not been completed.",
+        "Link not found":
+          "Download link not found. Try regenerating your links.",
+        "Download link has expired":
+          "This download link has expired. Please regenerate your links.",
+        "Download limit exceeded":
+          "You have reached the maximum download limit for this file. Please regenerate your links.",
       };
 
       return res.status(403).json({
         success: false,
-        message: errorMessages[validation.error] || validation.error || "Invalid or expired download link",
-        code: 'INVALID_TOKEN'
+        message:
+          errorMessages[validation.error] ||
+          validation.error ||
+          "Invalid or expired download link",
+        code: "INVALID_TOKEN",
       });
     }
 
@@ -828,16 +914,18 @@ const downloadPurchasedItem = async (req, res) => {
       logger.error(`No file URL found for download link: ${link.token}`);
       return res.status(404).json({
         success: false,
-        message: 'File not found. Please contact support.',
-        code: 'FILE_NOT_FOUND'
+        message: "File not found. Please contact support.",
+        code: "FILE_NOT_FOUND",
       });
     }
 
-    logger.info(`Starting download - Order: ${order._id}, Item: ${item._id}, File: ${link.name}, URL: ${downloadUrl.substring(0, 80)}...`);
+    logger.info(
+      `Starting download - Order: ${order._id}, Item: ${item._id}, File: ${link.name}, URL: ${downloadUrl.substring(0, 80)}...`,
+    );
 
     // === CLOUDINARY URL HANDLING ===
     // Cloudinary URLs come in various formats, we need to handle them all
-    if (downloadUrl.includes('cloudinary.com')) {
+    if (downloadUrl.includes("cloudinary.com")) {
       downloadUrl = await generateCloudinaryDownloadUrl(downloadUrl, link.name);
     }
 
@@ -853,15 +941,12 @@ const downloadPurchasedItem = async (req, res) => {
             $inc: { "items.$[i].downloadLinks.$[j].downloadCount": 1 },
             $set: {
               "items.$[i].downloadLinks.$[j].lastDownloadAt": new Date(),
-              "items.$[i].downloadLinks.$[j].lastDownloadIP": ipAddress
-            }
+              "items.$[i].downloadLinks.$[j].lastDownloadIP": ipAddress,
+            },
           },
           {
-            arrayFilters: [
-              { "i._id": item._id },
-              { "j.token": token }
-            ]
-          }
+            arrayFilters: [{ "i._id": item._id }, { "j.token": token }],
+          },
         );
       } catch (updateErr) {
         // Non-critical - log but don't fail the download
@@ -878,32 +963,33 @@ const downloadPurchasedItem = async (req, res) => {
         ipAddress,
         userAgent,
         success: true,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       });
     }
     // If download failed, proxyFileDownload already sent the error response
-
   } catch (error) {
     logger.error("Download item error:", error);
 
     // Log failure
-    await downloadService.logDownload({
-      user: userId,
-      order: orderId,
-      token,
-      ipAddress,
-      userAgent,
-      success: false,
-      failureReason: error.message,
-      duration: Date.now() - startTime
-    }).catch(() => {}); // Don't fail on logging error
+    await downloadService
+      .logDownload({
+        user: userId,
+        order: orderId,
+        token,
+        ipAddress,
+        userAgent,
+        success: false,
+        failureReason: error.message,
+        duration: Date.now() - startTime,
+      })
+      .catch(() => {}); // Don't fail on logging error
 
     // Don't send response if headers already sent (stream started)
     if (!res.headersSent) {
       res.status(500).json({
         success: false,
         message: "Download failed. Please try again or contact support.",
-        code: 'SERVER_ERROR'
+        code: "SERVER_ERROR",
       });
     }
   }
@@ -916,11 +1002,11 @@ const downloadPurchasedItem = async (req, res) => {
 async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
   try {
     // Determine resource type from URL
-    let resourceType = 'image'; // default
-    if (originalUrl.includes('/raw/')) {
-      resourceType = 'raw';
-    } else if (originalUrl.includes('/video/')) {
-      resourceType = 'video';
+    let resourceType = "image"; // default
+    if (originalUrl.includes("/raw/")) {
+      resourceType = "raw";
+    } else if (originalUrl.includes("/video/")) {
+      resourceType = "video";
     }
 
     // Extract public_id from various URL formats:
@@ -935,7 +1021,7 @@ async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
       // Match: /raw/upload/v123456/public_id or /raw/upload/public_id
       /\/(?:raw|image|video)\/(?:upload|authenticated)\/(?:v\d+\/)?(.+)$/,
       // Match: /upload/v123456/public_id or /upload/public_id
-      /\/(?:upload|authenticated)\/(?:v\d+\/)?(.+)$/
+      /\/(?:upload|authenticated)\/(?:v\d+\/)?(.+)$/,
     ];
 
     for (const pattern of patterns) {
@@ -947,24 +1033,28 @@ async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
     }
 
     if (!publicId) {
-      logger.warn(`Could not extract public_id from Cloudinary URL: ${originalUrl}`);
+      logger.warn(
+        `Could not extract public_id from Cloudinary URL: ${originalUrl}`,
+      );
       return originalUrl; // Fallback to original
     }
 
     // For raw resources, we need to keep the file extension in public_id
     // For images/videos, cloudinary.url() handles extensions differently
 
-    logger.info(`Cloudinary - Resource type: ${resourceType}, Public ID: ${publicId}`);
+    logger.info(
+      `Cloudinary - Resource type: ${resourceType}, Public ID: ${publicId}`,
+    );
 
     // Strategy 1: Generate signed URL with attachment flag
     try {
       const signedUrl = cloudinary.url(publicId, {
         resource_type: resourceType,
-        type: 'authenticated', // Try authenticated first
+        type: "authenticated", // Try authenticated first
         sign_url: true,
         secure: true,
-        flags: 'attachment', // Force download
-        expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour expiry
+        flags: "attachment", // Force download
+        expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour expiry
       });
 
       // Verify the URL is accessible
@@ -974,17 +1064,19 @@ async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
         return signedUrl;
       }
     } catch (authErr) {
-      logger.debug(`Authenticated URL failed, trying upload type: ${authErr.message}`);
+      logger.debug(
+        `Authenticated URL failed, trying upload type: ${authErr.message}`,
+      );
     }
 
     // Strategy 2: Try upload type (for public uploads)
     try {
       const signedUrl = cloudinary.url(publicId, {
         resource_type: resourceType,
-        type: 'upload',
+        type: "upload",
         sign_url: true,
         secure: true,
-        flags: 'attachment'
+        flags: "attachment",
       });
 
       const testResponse = await axios.head(signedUrl, { timeout: 5000 });
@@ -999,7 +1091,6 @@ async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
     // Strategy 3: Use original URL as fallback (might work for public assets)
     logger.warn(`All signed URL strategies failed, using original URL`);
     return originalUrl;
-
   } catch (error) {
     logger.error(`Cloudinary URL generation error: ${error.message}`);
     return originalUrl; // Always fallback to original
@@ -1010,65 +1101,73 @@ async function generateCloudinaryDownloadUrl(originalUrl, fileName) {
  * Proxy file download to client with retries
  */
 async function proxyFileDownload(res, downloadUrl, fileName, retries = 2) {
-  const sanitizedFilename = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const sanitizedFilename = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      logger.info(`Download attempt ${attempt + 1}/${retries + 1}: ${downloadUrl.substring(0, 100)}...`);
+      logger.info(
+        `Download attempt ${attempt + 1}/${retries + 1}: ${downloadUrl.substring(0, 100)}...`,
+      );
 
       const response = await axios({
-        method: 'GET',
+        method: "GET",
         url: downloadUrl,
-        responseType: 'stream',
+        responseType: "stream",
         timeout: 120000, // 2 minute timeout for large files
         maxRedirects: 5,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept': '*/*'
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          Accept: "*/*",
         },
-        validateStatus: (status) => status >= 200 && status < 300
+        validateStatus: (status) => status >= 200 && status < 300,
       });
 
       // Determine content type
-      let contentType = response.headers['content-type'] || 'application/octet-stream';
+      let contentType =
+        response.headers["content-type"] || "application/octet-stream";
 
       // Force octet-stream for raw files to ensure download
       if (fileName.match(/\.(pdf|zip|rar|doc|docx|xls|xlsx|ppt|pptx)$/i)) {
-        contentType = 'application/octet-stream';
+        contentType = "application/octet-stream";
       }
 
       // Set response headers for download
-      res.setHeader('Content-Disposition', `attachment; filename="${sanitizedFilename}"; filename*=UTF-8''${encodeURIComponent(sanitizedFilename)}`);
-      res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${sanitizedFilename}"; filename*=UTF-8''${encodeURIComponent(sanitizedFilename)}`,
+      );
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("X-Content-Type-Options", "nosniff");
 
-      if (response.headers['content-length']) {
-        res.setHeader('Content-Length', response.headers['content-length']);
+      if (response.headers["content-length"]) {
+        res.setHeader("Content-Length", response.headers["content-length"]);
       }
 
       // Pipe the response to client
       return new Promise((resolve, reject) => {
         response.data.pipe(res);
 
-        response.data.on('end', () => {
+        response.data.on("end", () => {
           logger.info(`Download completed: ${fileName}`);
           resolve({ success: true });
         });
 
-        response.data.on('error', (streamErr) => {
+        response.data.on("error", (streamErr) => {
           logger.error(`Stream error during download: ${streamErr.message}`);
           reject(streamErr);
         });
 
-        res.on('close', () => {
+        res.on("close", () => {
           // Client disconnected
           response.data.destroy();
         });
       });
-
     } catch (downloadError) {
-      logger.error(`Download attempt ${attempt + 1} failed: ${downloadError.message}`);
+      logger.error(
+        `Download attempt ${attempt + 1} failed: ${downloadError.message}`,
+      );
 
       if (downloadError.response) {
         logger.error(`Upstream status: ${downloadError.response.status}`);
@@ -1079,19 +1178,20 @@ async function proxyFileDownload(res, downloadUrl, fileName, retries = 2) {
         if (!res.headersSent) {
           res.status(502).json({
             success: false,
-            message: 'Unable to download file from storage. Please try again in a few minutes.',
-            code: 'UPSTREAM_ERROR'
+            message:
+              "Unable to download file from storage. Please try again in a few minutes.",
+            code: "UPSTREAM_ERROR",
           });
         }
         return { success: false, error: downloadError.message };
       }
 
       // Wait before retry (exponential backoff)
-      await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
     }
   }
 
-  return { success: false, error: 'Max retries exceeded' };
+  return { success: false, error: "Max retries exceeded" };
 }
 
 // Regenerate download links for an order item
@@ -1112,7 +1212,7 @@ const regenerateDownloadLinks = async (req, res) => {
     }
 
     const item = order.items.find(
-      (i) => i.itemId && i.itemId.toString() === itemId
+      (i) => i.itemId && i.itemId.toString() === itemId,
     );
 
     if (!item || item.itemType !== "product") {
@@ -1123,25 +1223,27 @@ const regenerateDownloadLinks = async (req, res) => {
 
     // Fetch product for fresh download links
     const product = await Product.findById(itemId);
-    if (!product || !product.downloadFiles || product.downloadFiles.length === 0) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "No files available for this product",
-        });
+    if (
+      !product ||
+      !product.downloadFiles ||
+      product.downloadFiles.length === 0
+    ) {
+      return res.status(404).json({
+        success: false,
+        message: "No files available for this product",
+      });
     }
 
     // Generate new download links with 48 hour expiry
     item.downloadLinks = downloadService.generateSecureDownloadLinks(product, {
       expiryHours: 48,
-      maxDownloads: 5
+      maxDownloads: 5,
     });
 
     await order.save();
 
     logger.info(
-      `Download links regenerated for order ${orderId}, item ${itemId}`
+      `Download links regenerated for order ${orderId}, item ${itemId}`,
     );
 
     res.json({
@@ -1242,7 +1344,7 @@ const getOrderMessages = async (req, res) => {
     const order = await Order.findById(orderId)
       .populate(
         "communication.messages.sender",
-        "firstName lastName email avatar role"
+        "firstName lastName email avatar role",
       )
       .select("communication orderNumber user");
 
@@ -1293,21 +1395,23 @@ const createReview = async (req, res) => {
     const hasPurchased = await Order.findOne({
       user: userId,
       "items.itemId": productId,
-      "payment.status": "completed" // Ensure payment is completed
+      "payment.status": "completed", // Ensure payment is completed
     });
 
     if (!hasPurchased) {
-      return res.status(403).json({ message: "You must purchase this product to review it." });
+      return res
+        .status(403)
+        .json({ message: "You must purchase this product to review it." });
     }
 
     const product = await Product.findById(productId);
     if (!product) {
-       return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     // 2. Check if already reviewed
     const alreadyReviewed = product.reviews.find(
-      (r) => r.user.toString() === userId.toString()
+      (r) => r.user.toString() === userId.toString(),
     );
 
     if (alreadyReviewed) {
@@ -1345,7 +1449,7 @@ const getReviews = async (req, res) => {
     const product = await Product.findById(productId);
 
     if (!product) {
-       return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     res.json(product.reviews);
@@ -1355,7 +1459,6 @@ const getReviews = async (req, res) => {
   }
 };
 
-
 const updateReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
@@ -1364,11 +1467,11 @@ const updateReview = async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-       return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     const review = product.reviews.find(
-      (r) => r.user.toString() === userId.toString()
+      (r) => r.user.toString() === userId.toString(),
     );
 
     if (!review) {
@@ -1377,7 +1480,8 @@ const updateReview = async (req, res) => {
 
     review.rating = Number(rating);
     review.comment = comment;
-    review.name = req.user.fullName || `${req.user.firstName} ${req.user.lastName}`;
+    review.name =
+      req.user.fullName || `${req.user.firstName} ${req.user.lastName}`;
 
     product.rating.count = product.reviews.length;
     product.rating.average =
@@ -1400,11 +1504,11 @@ const deleteReview = async (req, res) => {
 
     const product = await Product.findById(productId);
     if (!product) {
-       return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
     const reviewIndex = product.reviews.findIndex(
-      (r) => r.user.toString() === userId.toString()
+      (r) => r.user.toString() === userId.toString(),
     );
 
     if (reviewIndex === -1) {
@@ -1415,7 +1519,7 @@ const deleteReview = async (req, res) => {
 
     product.rating.count = product.reviews.length;
     product.rating.average =
-       product.reviews.length === 0
+      product.reviews.length === 0
         ? 0
         : product.reviews.reduce((acc, item) => item.rating + acc, 0) /
           product.reviews.length;
@@ -1428,7 +1532,6 @@ const deleteReview = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 const handleRazorpayWebhook = async (req, res) => {
   try {
@@ -1466,7 +1569,7 @@ const handleRazorpayWebhook = async (req, res) => {
 
       if (!order) {
         logger.error(
-          `Order not found for Razorpay Order ID: ${razorpayOrderId}`
+          `Order not found for Razorpay Order ID: ${razorpayOrderId}`,
         );
         return res.status(404).json({ message: "Order not found" });
       }
@@ -1484,12 +1587,19 @@ const handleRazorpayWebhook = async (req, res) => {
       for (const item of order.items) {
         if (item.itemType === "product") {
           const product = await Product.findById(item.itemId);
-          if (product && product.downloadFiles && product.downloadFiles.length > 0) {
-             // Generate Secure Links
-             item.downloadLinks = downloadService.generateSecureDownloadLinks(product, {
-              expiryHours: 48,
-              maxDownloads: 5
-            });
+          if (
+            product &&
+            product.downloadFiles &&
+            product.downloadFiles.length > 0
+          ) {
+            // Generate Secure Links
+            item.downloadLinks = downloadService.generateSecureDownloadLinks(
+              product,
+              {
+                expiryHours: 48,
+                maxDownloads: 5,
+              },
+            );
           }
         }
       }
@@ -1508,7 +1618,7 @@ const handleRazorpayWebhook = async (req, res) => {
 
       // Digital delivery logic
       const hasOnlyProducts = order.items.every(
-        (item) => item.itemType === "product"
+        (item) => item.itemType === "product",
       );
       if (hasOnlyProducts) {
         order.fulfillment.status = "delivered";

@@ -1,18 +1,17 @@
 import {
-  Check,
-  ChevronDown,
-  Eye,
-  Filter,
-  Package,
-  Search,
-  ShoppingBag
+    Eye,
+    Filter,
+    Package,
+    Search,
+    ShoppingBag
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import PremiumDropdown from '../../common/components/PremiumDropdown';
 import {
-  useGetAdminOrdersQuery,
-  useUpdateAdminOrderStatusMutation
+    useGetAdminOrdersQuery,
+    useUpdateAdminOrderStatusMutation
 } from '../../store/api/adminApiSlice';
 
 const STATUS_OPTIONS = [
@@ -33,66 +32,6 @@ const STATUS_COLORS = {
   refunded: 'bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300 ring-gray-600/20 dark:ring-gray-400/20',
 };
 
-// Custom Status Dropdown Component
-const StatusDropdown = ({ value, onChange }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    const selectedOption = STATUS_OPTIONS.find(opt => opt.value === value) || STATUS_OPTIONS[0];
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const handleSelect = (optionValue) => {
-        onChange(optionValue);
-        setIsOpen(false);
-    };
-
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-transparent text-left transition-all duration-200 outline-none hover:bg-white/50 dark:hover:bg-gray-800/50
-                    ${isOpen ? 'bg-white/50 dark:bg-gray-800/50' : ''}`}
-            >
-                <span className="text-lg">{selectedOption.icon}</span>
-                <span className="text-gray-900 dark:text-white font-medium">{selectedOption.label}</span>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isOpen && (
-                <div className="absolute z-50 right-0 w-48 mt-2 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-black/30 animate-in fade-in slide-in-from-top-2 duration-200">
-                    {STATUS_OPTIONS.map((option) => (
-                        <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => handleSelect(option.value)}
-                            className={`w-full px-4 py-2.5 flex items-center gap-3 text-left transition-colors
-                                ${value === option.value
-                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                                }`}
-                        >
-                            <span className="text-lg">{option.icon}</span>
-                            <span className="flex-1 font-medium">{option.label}</span>
-                            {value === option.value && (
-                                <Check size={16} className="text-blue-600 dark:text-blue-400" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
 
 const Orders = () => {
   const [page, setPage] = useState(1);
@@ -164,8 +103,15 @@ const Orders = () => {
 
         <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden md:block" />
 
-        {/* Custom Status Dropdown */}
-        <StatusDropdown value={statusFilter} onChange={setStatusFilter} />
+        <PremiumDropdown
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={STATUS_OPTIONS.map(option => ({
+            value: option.value,
+            label: `${option.icon} ${option.label}`
+          }))}
+          buttonClassName="px-4 py-2.5 bg-transparent text-left hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-xl text-gray-900 dark:text-white font-medium min-w-[160px]"
+        />
 
         <button className="p-3 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-xl transition-colors">
           <Filter size={20} />
@@ -195,8 +141,8 @@ const Orders = () => {
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Customer</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Items</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Amount</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Date</th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">Status</th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">Date</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
                 </tr>
               </thead>
@@ -237,20 +183,21 @@ const Orders = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <select
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                        disabled={isUpdating}
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full ring-1 ring-inset cursor-pointer capitalize appearance-none outline-none bg-transparent focus:ring-2 ${STATUS_COLORS[order.status] || 'bg-gray-100'}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
+                      <div className="flex justify-center">
+                        <PremiumDropdown
+                          value={order.status}
+                          onChange={(newStatus) => handleStatusChange(order._id, newStatus)}
+                          disabled={isUpdating}
+                          options={STATUS_OPTIONS.filter(s => s.value).map(option => ({
+                            value: option.value,
+                            label: option.label
+                          }))}
+                          buttonClassName={`text-xs font-bold py-1 px-3 rounded-full ring-1 ring-inset capitalize transition-all ${STATUS_COLORS[order.status] || 'bg-gray-100'}`}
+                          className="w-32"
+                        />
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-500 text-center">
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">

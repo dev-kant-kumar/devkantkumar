@@ -19,6 +19,7 @@ import {
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
+import PremiumButton from '../../common/components/PremiumButton';
 import {
     useAddAdminMessageMutation,
     useAddMilestoneMutation,
@@ -152,9 +153,11 @@ const OrderDetail = () => {
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <h3 className="text-lg font-semibold mb-2">Failed to load order</h3>
         <p className="text-gray-500 mb-4">{error?.data?.message || 'Something went wrong'}</p>
-        <button onClick={refetch} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
-          <RefreshCw className="h-4 w-4" /> Try Again
-        </button>
+        <PremiumButton
+          onClick={refetch}
+          label="Refresh Order"
+          icon={RefreshCw}
+        />
       </div>
     );
   }

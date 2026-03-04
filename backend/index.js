@@ -42,6 +42,7 @@ const subscriberRoutes = require('./src/routes/subscriberRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const youtubeRoutes = require('./src/routes/youtubeRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
+const couponRoutes = require('./src/routes/couponRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -200,6 +201,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/portfolio', portfolioRoutes);
 app.use('/api/v1/marketplace', marketplaceRoutes);
+app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/pdf', pdfRoutes);

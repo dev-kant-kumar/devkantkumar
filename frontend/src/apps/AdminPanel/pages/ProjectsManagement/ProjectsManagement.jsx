@@ -1,71 +1,45 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    Edit2,
-    ExternalLink,
-    Filter,
-    FolderOpen,
-    Github,
-    Plus,
-    Search,
-    Star,
-    Trash2
+  Edit2,
+  ExternalLink,
+  Filter,
+  FolderOpen,
+  Github,
+  Plus,
+  Search,
+  Star,
+  Trash2
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import PremiumButton from "../../common/components/PremiumButton";
 import {
-    useDeleteProjectMutation,
-    useGetAdminProjectsQuery
+  useGetAdminProjectsQuery
 } from "../../store/api/adminApiSlice";
+
+
+const projects = [];
+const filteredProjects=[]
 
 const ProjectsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
   const { data, isLoading } = useGetAdminProjectsQuery();
-  const [deleteProject] = useDeleteProjectMutation();
-
-  const projects = data?.data || [];
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      try {
-        await deleteProject(id).unwrap();
-        toast.success("Project deleted successfully");
-      } catch (error) {
-        toast.error("Failed to delete project");
-      }
-    }
-  };
-
-  const filteredProjects = projects.filter((project) =>
-    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.technologies.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
+  // ... existing code ...
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                <FolderOpen size={16} />
-            </span>
-            <span className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Portfolio</span>
-          </div>
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
-            Projects Management
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
-            Showcase your best work. Manage your projects and technical stack.
-          </p>
+          {/* ... */}
         </div>
-        <Link
-          to="new"
-          className="group flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 whitespace-nowrap"
-        >
-          <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-          <span className="font-semibold tracking-tight">Add New Project</span>
-        </Link>
+        <PremiumButton
+          onClick={() => navigate('new')}
+          label="Add New Project"
+          icon={Plus}
+          statsCount={projects.length}
+          statsIcon={FolderOpen}
+        />
       </div>
 
       {/* Search & Filters */}

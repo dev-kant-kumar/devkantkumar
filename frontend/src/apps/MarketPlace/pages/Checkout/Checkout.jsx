@@ -1,40 +1,41 @@
 import { motion } from "framer-motion";
 import {
-  Check,
-  ChevronRight,
-  Mail,
-  MapPin,
-  Package,
-  Phone,
-  Shield,
-  User
+    Check,
+    ChevronRight,
+    Mail,
+    MapPin,
+    Package,
+    Phone,
+    Shield,
+    User
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import {
-  runValidation,
-  sanitize,
-  validate,
+    runValidation,
+    sanitize,
+    validate,
 } from "../../../../utils/formValidation";
 import { useCurrency } from "../../context/CurrencyContext";
 import {
-  logout,
-  selectCurrentToken,
-  selectCurrentUser,
-  selectIsAuthenticated,
+    logout,
+    selectCurrentToken,
+    selectCurrentUser,
+    selectIsAuthenticated,
 } from "../../store/auth/authSlice";
 import { clearCart, selectCartItems } from "../../store/cart/cartSlice";
 import {
-  resetCheckout,
-  selectCheckoutState,
-  setErrors,
-  setIsSubmitting,
-  setStep,
-  updateBillingInfo,
+    resetCheckout,
+    selectCheckoutState,
+    setErrors,
+    setIsSubmitting,
+    setStep,
+    updateBillingInfo,
 } from "../../store/checkout/checkoutSlice";
+import CouponInput from "./CouponInput";
 
 import { API_URL } from "../../../../config/api";
 
@@ -55,6 +56,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const localCartItems = useSelector(selectCartItems);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   // Fetch backend cart if authenticated
   const { data: cartData, isLoading: isLoadingCart, error: cartError } = useGetCartQuery(undefined, {
@@ -99,15 +101,24 @@ const Checkout = () => {
     });
 
     // Apply surcharge using the helper from context which handles the math
-    const total = getFinalPrice(subtotal);
+    const totalWithSurcharge = getFinalPrice(subtotal);
 
     // Surcharge Amount for display
-    const surchargeAmount = total - subtotal;
+    const surchargeAmount = totalWithSurcharge - subtotal;
 
-    return { subtotal, surchargeAmount, total };
+    // Apply coupon discount if exist
+    let discountAmount = 0;
+    if (appliedCoupon?.discountAmount) {
+      discountAmount = appliedCoupon.discountAmount;
+    }
+
+    // Final total after discount
+    const total = totalWithSurcharge - discountAmount;
+
+    return { subtotal, surchargeAmount, discountAmount, total };
   };
 
-  const { subtotal, surchargeAmount, total } = calculateTotals();
+  const { subtotal, surchargeAmount, discountAmount, total } = calculateTotals();
   // Legacy mappings for existing code
   const summaryCurrency = 'INR';
   const user = useSelector(selectCurrentUser);
@@ -140,11 +151,12 @@ const Checkout = () => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        phone: user.profile?.phone || "",
+        phone: user.phone || user.profile?.phone || "",
         address: defaultAddress?.street || "",
         city: defaultAddress?.city || "",
         state: defaultAddress?.state || "",
         zipCode: defaultAddress?.zipCode || "",
+        country: defaultAddress?.country || "",
       };
 
       const dataToUpdate = {};
@@ -165,6 +177,8 @@ const Checkout = () => {
         dataToUpdate.state = prefillData.state;
       if (!billingInfo.zipCode && prefillData.zipCode)
         dataToUpdate.zipCode = prefillData.zipCode;
+      if (!billingInfo.country && prefillData.country)
+        dataToUpdate.country = prefillData.country;
 
       if (Object.keys(dataToUpdate).length > 0) {
         dispatch(updateBillingInfo(dataToUpdate));
@@ -209,6 +223,7 @@ const Checkout = () => {
       (v) => validate.required(v, "ZIP Code"),
       validate.zipCode,
     ]);
+    newErrors.country = validate.required(billingInfo.country, "Country");
 
     const activeErrors = Object.fromEntries(
       Object.entries(newErrors).filter(([_, v]) => v != null)
@@ -264,6 +279,7 @@ const Checkout = () => {
               quantity: item.quantity,
             })),
             shippingAddress: billingInfo,
+            couponCode: appliedCoupon?.code || undefined,
           }),
         }
       );
@@ -622,108 +638,143 @@ const Checkout = () => {
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-blue-900/5 border border-white/50 p-8 sticky top-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                <Package className="text-blue-600" size={24} />
                 Order Summary
               </h3>
-              <div className="space-y-4 mb-6 max-h-60 overflow-y-auto">
+
+              <div className="space-y-6 mb-8 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                 {cartItems.map((item) => (
-                  <div key={item._id || item.id} className="flex space-x-4">
-                    {(() => {
-                      const imageUrl = item.product?.images?.[0]?.url || item.service?.image || item.image;
-
-                      if (imageUrl) {
+                  <div key={item._id || item.id} className="flex gap-4 group">
+                    <div className="relative shrink-0">
+                      {(() => {
+                        const imageUrl = item.product?.images?.[0]?.url || item.service?.image || item.image;
+                        if (imageUrl) {
+                          return (
+                            <img
+                              src={imageUrl}
+                              alt={item.title}
+                              className="w-20 h-20 object-cover rounded-2xl shadow-sm border border-gray-100"
+                            />
+                          );
+                        }
                         return (
-                          <img
-                            src={imageUrl}
-                            alt={item.title}
-                            className="w-16 h-16 object-cover rounded-md"
-                          />
+                          <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100">
+                            <Package className="w-10 h-10 text-gray-300" />
+                          </div>
                         );
-                      }
+                      })()}
+                    </div>
 
-                      return (
-                        <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center shrink-0">
-                          <Package className="w-8 h-8 text-gray-400" />
-                        </div>
-                      );
-                    })()}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-gray-900 line-clamp-2">
-                          {item.title}
-                        </h4>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                    <div className="flex-1 min-w-0 py-1">
+                      <div className="flex flex-col gap-1">
+                        <span className={`w-fit px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           item.itemType === 'service'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-blue-100 text-blue-700'
+                            ? 'bg-purple-50 text-purple-600 border border-purple-100'
+                            : 'bg-blue-50 text-blue-600 border border-blue-100'
                         }`}>
                           {item.itemType === 'service' ? 'Service' : 'Product'}
                         </span>
-                      </div>
-                      {item.packageName && (
-                        <p className="text-xs text-blue-600 font-medium">
-                          Package: {item.packageName}
-                        </p>
-                      )}
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-sm text-gray-500">
-                          Qty: {item.quantity}
-                        </span>
-                        <span className="font-bold text-gray-900">
-                          {(() => {
-                            const priceData = getCartItemPrice(item);
-                            return (
+                        <h4 className="font-semibold text-gray-800 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                          {item.title}
+                        </h4>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-sm text-gray-500 font-medium">
+                            Qty: <span className="text-gray-900">{item.quantity}</span>
+                          </span>
+                          <div className="font-bold text-gray-900">
+                            {(() => {
+                              const priceData = getCartItemPrice(item);
+                              return (
                                 <PriceDisplay price={priceData * item.quantity} className="text-right" textClass="text-gray-900" />
-                            );
-                          })()}
-                        </span>
+                              );
+                            })()}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-gray-100 pt-4 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Subtotal
-                    </span>
-                    <span className="font-medium text-gray-900">
+              {/* Separator */}
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent my-8 opacity-50" />
+
+              {/* Coupon Input Section */}
+              <div className="mb-8">
+                <CouponInput
+                  subtotal={subtotal + surchargeAmount}
+                  onCouponApplied={(couponData) => {
+                    setAppliedCoupon(couponData);
+                    toast.success(`Coupon ${couponData.code} applied! You saved ₹${couponData.discountAmount.toFixed(2)}`);
+                  }}
+                  onCouponRemoved={() => {
+                    setAppliedCoupon(null);
+                    toast.success("Coupon removed");
+                  }}
+                />
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="space-y-4 pt-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-medium">Subtotal</span>
+                    <span className="font-semibold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">
                       {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
-                      Surcharge ({surchargeRate}%)
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500 font-medium flex items-center gap-1.5">
+                      Surcharge
+                      <span className="px-1.5 py-0.5 bg-gray-100 text-[10px] rounded leading-none text-gray-600 font-bold">{surchargeRate}%</span>
                     </span>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-semibold text-gray-900 bg-gray-50 px-3 py-1 rounded-lg">
                       {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(surchargeAmount)}
                     </span>
                   </div>
-                  <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-800">
-                    <div className="flex justify-between items-baseline mb-1">
-                      <span className="text-base font-semibold text-gray-900 dark:text-white">
-                        Total
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between items-center text-sm animate-in fade-in slide-in-from-top-2">
+                      <span className="text-emerald-600 font-bold flex items-center gap-1.5">
+                        <Check size={14} />
+                        Discount
+                        <span className="px-1.5 py-0.5 bg-emerald-50 text-[10px] rounded leading-none text-emerald-600 font-extrabold">{appliedCoupon?.code}</span>
                       </span>
-                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">
-                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total)}
+                      <span className="font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
+                        -{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(discountAmount)}
                       </span>
                     </div>
-                    {currentCurrency !== 'INR' && (
-                        <p className="text-xs text-right text-gray-500 mb-2">
-                             (~{new Intl.NumberFormat('en-US', { style: 'currency', currency: currentCurrency }).format(total * 0.012 /* Rough estimate or need converter exposed */)})
-                        </p>
-                    )}
-                    {
-                      currentCurrency !== "INR" && (
-                        <p className="text-xs text-gray-400 text-center bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                        <strong>Note:</strong> You will be charged in <strong>INR</strong>. Your bank handles the currency conversion.
-                    </p>
-                      )
-                    }
+                  )}
 
+                  {/* Total Separator - Refined Hairline instead of border-t */}
+                  <div className="pt-6 mt-8 relative">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1.5px] bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-extrabold text-gray-900">
+                        Total
+                      </span>
+                      <div className="text-right">
+                        <span className="text-3xl font-black text-blue-600 tracking-tight">
+                          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total)}
+                        </span>
+                        {currentCurrency !== 'INR' && (
+                          <p className="text-[10px] font-bold text-gray-400 mt-0.5 uppercase tracking-wider">
+                            (~{new Intl.NumberFormat('en-US', { style: 'currency', currency: currentCurrency }).format(total * 0.012)})
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  {currentCurrency !== "INR" && (
+                    <div className="mt-6 p-4 bg-gray-50/80 rounded-2xl border border-gray-100/50 flex flex-col gap-2">
+                       <p className="text-[10px] text-gray-500 font-medium leading-relaxed">
+                          <strong className="text-gray-700 uppercase tracking-tighter mr-1">Note:</strong>
+                          Transactions are processed in <span className="text-blue-600 font-bold">INR</span>. Your financial institution will determine the final conversion rate.
+                       </p>
+                    </div>
+                  )}
               </div>
             </div>
           </div>

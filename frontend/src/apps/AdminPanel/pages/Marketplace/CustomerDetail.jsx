@@ -11,6 +11,7 @@ import {
     User
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import PremiumButton from '../../common/components/PremiumButton';
 import { useGetCustomerByIdQuery } from '../../store/api/adminApiSlice';
 
 const CustomerDetail = () => {
@@ -88,9 +89,10 @@ const CustomerDetail = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors font-medium">
-              Edit Profile
-            </button>
+            <PremiumButton
+              label="Edit Profile"
+              onClick={() => {}}
+            />
           </div>
         </div>
       </div>

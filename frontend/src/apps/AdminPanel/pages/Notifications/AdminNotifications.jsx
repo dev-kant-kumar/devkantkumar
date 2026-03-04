@@ -15,6 +15,7 @@ import {
     useMarkAllAsReadMutation,
     useMarkAsReadMutation,
 } from '../../../../store/notification/notificationApi';
+import PremiumButton from '../../common/components/PremiumButton';
 
 const AdminNotifications = () => {
   const [page, setPage] = useState(1);
@@ -155,14 +156,13 @@ const AdminNotifications = () => {
         </motion.div>
 
         <div className="flex items-center gap-2">
-            <button
+            <PremiumButton
                 onClick={() => refetch()}
                 disabled={isFetching}
-                className="p-2.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-xl bg-white/60 dark:bg-gray-800/40 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-700/50 transition-all shadow-sm"
-                title="Refresh"
-            >
-                <RefreshCw className={`h-5 w-5 ${isFetching ? 'animate-spin' : ''}`} />
-            </button>
+                label="Refresh"
+                icon={RefreshCw}
+                className={isFetching ? 'animate-spin' : ''}
+            />
 
             {unreadCount > 0 && (
             <button

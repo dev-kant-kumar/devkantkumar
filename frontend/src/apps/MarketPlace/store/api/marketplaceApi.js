@@ -111,6 +111,15 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    // Coupons
+    validateCoupon: builder.mutation({
+      query: (data) => ({
+        url: '/coupons/validate',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -128,4 +137,5 @@ export const {
   useUpdateReviewMutation,
   useDeleteReviewMutation,
   useSubscribeMutation,
+  useValidateCouponMutation,
 } = marketplaceApi;

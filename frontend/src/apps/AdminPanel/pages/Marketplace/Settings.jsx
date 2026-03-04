@@ -1,16 +1,14 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import {
     Briefcase,
-    Check,
-    ChevronDown,
     Globe,
     Percent,
     Save,
     Settings as SettingsIcon,
     ShoppingCart
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import PremiumButton from '../../common/components/PremiumButton';
 import {
     useGetGeneralSettingsQuery,
     useUpdateGeneralSettingsMutation
@@ -27,84 +25,6 @@ const CURRENCY_OPTIONS = [
     { value: 'SGD', label: 'SGD ($) - Singapore Dollar' }
 ];
 
-const PremiumDropdown = ({ value, onChange, options, name, className }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    const selectedOption = options.find(opt => opt.value === value) || { label: 'Select Currency' };
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const handleSelect = (optionValue) => {
-        onChange({ target: { name, value: optionValue } });
-        setIsOpen(false);
-    };
-
-    return (
-        <div className={`relative ${className}`} ref={dropdownRef}>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border bg-white/50 dark:bg-gray-800/50 text-left transition-all duration-200 outline-none
-                    ${isOpen ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}`}
-            >
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <span className="text-gray-900 dark:text-white truncate text-sm font-medium">{selectedOption.label}</span>
-                </div>
-                <ChevronDown size={16} className={`text-gray-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        transition={{ duration: 0.1 }}
-                        className="absolute z-50 left-0 right-0 mt-2 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-black/30 max-h-60 overflow-y-auto"
-                    >
-                        {options.map((option) => (
-                            <button
-                                key={option.value}
-                                type="button"
-                                onClick={() => handleSelect(option.value)}
-                                className={`w-full px-4 py-2.5 flex items-center justify-between text-left transition-colors
-                                    ${value === option.value
-                                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                                    }`}
-                            >
-                                <span className={`text-sm ${value === option.value ? 'font-medium' : ''}`}>{option.label}</span>
-                                {value === option.value && (
-                                    <Check size={16} className="text-blue-600 dark:text-blue-400" />
-                                )}
-                            </button>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
-// ... (MarketplaceSettings component starts here, assuming no changes to lines 92-227 other than context. But I need to update the loop specifically)
-
-// Skip to inside the render method where the loop is.
-// To handle this replacement cleanly without context loss, I'll target the "Exchange Rates Table" block specifically.
-// Wait, the previous tool output showed CURRENCY_OPTIONS starting at line 20.
-// I can replace the CURRENCY_OPTIONS and PremiumDropdown first if I want, or just replace the whole file section.
-// The complexity of replacing lines 20-91 and then 227-273 suggests I should probably do two edits or one large one locally.
-// Let's do the render loop first, effectively.
-
-// Wait, I can't redefine PremiumDropdown twice. I should just update PremiumDropdown to accept className and update CURRENCY_OPTIONS.
-// And then update the loop.
 
 
 const MarketplaceSettings = () => {
@@ -182,18 +102,12 @@ const MarketplaceSettings = () => {
             Configure global preferences, taxes, and feature availability.
           </p>
         </div>
-        <button
+        <PremiumButton
             onClick={handleSubmit}
             disabled={isUpdating}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed font-medium"
-        >
-            {isUpdating ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-                <Save size={20} />
-            )}
-            <span>Save Changes</span>
-        </button>
+            label="Save Changes"
+            icon={isUpdating ? Loader2 : Save}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

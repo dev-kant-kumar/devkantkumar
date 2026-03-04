@@ -16,10 +16,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import PremiumButton from '../../common/components/PremiumButton';
 import {
     useGetGeneralSettingsQuery,
     useUpdateGeneralSettingsMutation
 } from '../../store/api/adminApiSlice';
+
+
 
 const Announcements = () => {
     const { data: settings, isLoading, refetch } = useGetGeneralSettingsQuery();
@@ -418,14 +421,13 @@ const Announcements = () => {
                                         </div>
                                     </div>
 
-                                    <button
+                                    <PremiumButton
                                         type="submit"
                                         disabled={isUpdating}
-                                        className="w-full py-6 rounded-[1.5rem] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xl font-black uppercase tracking-widest transition-all shadow-[0_20px_50px_rgba(37,99,235,0.4)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center gap-4"
-                                    >
-                                        {isUpdating ? <Loader2 size={24} className="animate-spin" /> : <Save size={24} className="group-hover:rotate-12 transition-transform" />}
-                                        Launch
-                                    </button>
+                                        label="Launch"
+                                        icon={isUpdating ? Loader2 : Save}
+                                        className="w-full"
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import PremiumButton from "../../common/components/PremiumButton";
 import {
     useChangeAdminPasswordMutation,
     useDisable2FAMutation,
@@ -642,10 +643,13 @@ const Settings = () => {
                                 </div>
                             </div>
                             <div className="flex justify-end">
-                                <button type="submit" disabled={isUpdating} className="flex items-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20">
-                                    {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                                    Save Profile
-                                </button>
+                                <PremiumButton
+                                    type="submit"
+                                    disabled={isUpdating}
+                                    onClick={onSubmitProfile}
+                                    label="Save Profile"
+                                    icon={isUpdating ? Loader2 : Save}
+                                />
                             </div>
                         </form>
                     </motion.div>
@@ -705,10 +709,12 @@ const Settings = () => {
                            </div>
 
                            <div className="flex justify-end">
-                                <button type="submit" className="flex items-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20">
-                                    <Save size={18} />
-                                    Update Site Config
-                                </button>
+                                <PremiumButton
+                                    type="submit"
+                                    onClick={onSubmitSite}
+                                    label="Update Site Config"
+                                    icon={Save}
+                                />
                             </div>
                         </form>
                     </motion.div>
@@ -948,7 +954,7 @@ const Settings = () => {
                             )}
 
                             <div className="pt-6">
-                                <button
+                                <PremiumButton
                                     type="button"
                                     onClick={handleInitiatePasswordChange}
                                     disabled={
@@ -957,11 +963,9 @@ const Settings = () => {
                                         !passwordData.newPassword ||
                                         !passwordData.confirmPassword
                                     }
-                                    className="flex items-center gap-2 px-8 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                                >
-                                    {isInitiatingPasswordChange ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                                    Update Security
-                                </button>
+                                    label="Update Security"
+                                    icon={isInitiatingPasswordChange ? Loader2 : Save}
+                                />
                             </div>
                         </form>
                     </motion.div>

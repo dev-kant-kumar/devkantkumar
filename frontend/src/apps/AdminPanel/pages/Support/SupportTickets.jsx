@@ -5,7 +5,6 @@ import {
     ChevronRight,
     Clock,
     Eye,
-    Loader2,
     MessageSquare,
     RefreshCw,
     Search,
@@ -17,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import PremiumButton from '../../common/components/PremiumButton';
+import PremiumDropdown from '../../common/components/PremiumDropdown';
 import {
     useDeleteSupportTicketMutation,
     useGetSupportStatsQuery,
@@ -62,6 +63,8 @@ const formatDate = (dateString) => {
 };
 
 // --- Components ---
+
+
 
 // Ticket Detail Modal
 const TicketDetailModal = ({ ticket, isOpen, onClose }) => {
@@ -155,28 +158,31 @@ const TicketDetailModal = ({ ticket, isOpen, onClose }) => {
 
             {/* Quick Actions Bar */}
             <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center gap-4">
-              <select
+              <PremiumDropdown
                 value={status}
-                onChange={(e) => handleUpdateStatus(e.target.value)}
-                className="text-sm border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1.5 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="open">Open</option>
-                <option value="in-progress">In Progress</option>
-                <option value="awaiting-response">Awaiting Response</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-              </select>
-
-              <select
+                onChange={handleUpdateStatus}
+                buttonClassName="px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                options={[
+                  { value: 'open', label: 'Open' },
+                  { value: 'in-progress', label: 'In Progress' },
+                  { value: 'awaiting-response', label: 'Awaiting Response' },
+                  { value: 'resolved', label: 'Resolved' },
+                  { value: 'closed', label: 'Closed' }
+                ]}
+                className="w-48"
+              />
+              <PremiumDropdown
                 value={priority}
-                onChange={(e) => handleUpdatePriority(e.target.value)}
-                className="text-sm border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1.5 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="low">Low Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="high">High Priority</option>
-                <option value="urgent">Urgent</option>
-              </select>
+                onChange={handleUpdatePriority}
+                buttonClassName="px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                options={[
+                  { value: 'low', label: 'Low Priority' },
+                  { value: 'medium', label: 'Medium Priority' },
+                  { value: 'high', label: 'High Priority' },
+                  { value: 'urgent', label: 'Urgent' }
+                ]}
+                className="w-48"
+              />
             </div>
 
             {/* Scrollable Content */}
@@ -278,13 +284,13 @@ const TicketDetailModal = ({ ticket, isOpen, onClose }) => {
                     className="w-full p-4 pr-12 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 dark:text-white placeholder-gray-500"
                   />
                   <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                    <button
+                    <PremiumButton
                       type="submit"
                       disabled={isResponding || !replyMessage.trim()}
-                      className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-blue-600/20"
-                    >
-                      {isResponding ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                    </button>
+                      label={isResponding ? "Sending..." : "Send"}
+                      icon={Send}
+                      className="h-10"
+                    />
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
@@ -352,24 +358,23 @@ const SupportTickets = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header & Stats */}
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
               Support Center
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage support tickets and inquiries</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">Manage support tickets and inquiries</p>
           </div>
-          <button
+          <PremiumButton
             onClick={refetch}
-            className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <RefreshCw size={20} />
-          </button>
+            label="Refresh"
+            icon={RefreshCw}
+          />
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
                 <TicketIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -380,7 +385,7 @@ const SupportTickets = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400">All Tickets</p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
@@ -391,7 +396,7 @@ const SupportTickets = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400">Open Tickets</p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
                 <MessageSquare className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -402,7 +407,7 @@ const SupportTickets = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
             <div className="flex justify-between items-start mb-4">
               <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-xl">
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -416,39 +421,41 @@ const SupportTickets = () => {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row gap-4 justify-between">
+      <div className="relative z-20 flex flex-col md:flex-row gap-4 justify-between bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-3 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm transition-all duration-300">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"
             placeholder="Search tickets by ID, subject, email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-900 dark:text-white"
+            className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-gray-800/50 border-none rounded-xl focus:ring-0 outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
         </div>
 
         <div className="flex gap-3">
-          <select
+          <PremiumDropdown
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="">All Statuses</option>
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
-            <option value="awaiting-response">Awaiting Response</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
+            onChange={setStatusFilter}
+            placeholder="All Statuses"
+            options={[
+              { value: '', label: 'All Statuses' },
+              { value: 'open', label: 'Open' },
+              { value: 'in-progress', label: 'In Progress' },
+              { value: 'awaiting-response', label: 'Awaiting Response' },
+              { value: 'resolved', label: 'Resolved' },
+              { value: 'closed', label: 'Closed' }
+            ]}
+            className="w-56"
+          />
         </div>
       </div>
 
       {/* Tickets Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+            <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200/50 dark:border-gray-700/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket Details</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Requested By</th>
@@ -485,7 +492,7 @@ const SupportTickets = () => {
                 tickets.map((ticket) => (
                   <tr
                     key={ticket._id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group cursor-pointer"
+                    className="hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors duration-200 group cursor-pointer"
                     onClick={() => handleOpenTicket(ticket)}
                   >
                     <td className="px-6 py-4">
@@ -559,7 +566,7 @@ const SupportTickets = () => {
 
         {/* Pagination */
           pagination.pages > 1 && (
-          <div className="bg-gray-50 dark:bg-gray-900/50 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="bg-gray-50/50 dark:bg-gray-800/50 px-6 py-4 border-t border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
             <span className="text-sm text-gray-700 dark:text-gray-300">
               Showing <span className="font-medium">{(page - 1) * 10 + 1}</span> to <span className="font-medium">{Math.min(page * 10, pagination.total)}</span> of <span className="font-medium">{pagination.total}</span> results
             </span>

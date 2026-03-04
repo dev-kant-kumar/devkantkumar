@@ -1,29 +1,30 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    AlertCircle,
-    ArrowLeft,
-    Eye,
-    FileText,
-    Image as ImageIcon,
-    Layout,
-    Loader,
-    Plus,
-    Save,
-    Settings,
-    Tag as TagIcon,
-    Trash2,
-    X
+  AlertCircle,
+  ArrowLeft,
+  Eye,
+  FileText,
+  Image as ImageIcon,
+  Layout,
+  Loader,
+  Plus,
+  Save,
+  Settings,
+  Tag as TagIcon,
+  Trash2,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from "react-router-dom";
 import remarkGfm from 'remark-gfm';
+import PremiumButton from "../../common/components/PremiumButton";
 import {
-    useCreateBlogPostMutation,
-    useGetAdminBlogPostBySlugQuery,
-    useUpdateBlogPostMutation,
-    useUploadImageMutation
+  useCreateBlogPostMutation,
+  useGetAdminBlogPostBySlugQuery,
+  useUpdateBlogPostMutation,
+  useUploadImageMutation
 } from "../../store/api/adminApiSlice";
 
 const BlogPost = () => {
@@ -178,14 +179,12 @@ const BlogPost = () => {
              <span>Preview</span>
            </button>
            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
-           <button
+           <PremiumButton
              onClick={handleSubmit}
              disabled={isCreating || isUpdating}
-             className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50"
-           >
-             {isCreating || isUpdating ? <Loader className="animate-spin" size={16} /> : <Save size={16} />}
-             <span>{isEditing ? "Save Changes" : "Publish"}</span>
-           </button>
+             label={isEditing ? "Save Changes" : "Publish"}
+             icon={isCreating || isUpdating ? Loader : Save}
+           />
         </div>
       </div>
 

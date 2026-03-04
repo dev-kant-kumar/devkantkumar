@@ -671,6 +671,48 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: ['SupportTicket'],
     }),
 
+    // ===================
+    // COUPON ENDPOINTS
+    // ===================
+    getCoupons: builder.query({
+      query: (params) => ({
+        url: '/coupons',
+        params,
+      }),
+      providesTags: ['Coupon'],
+    }),
+
+    getCouponStats: builder.query({
+      query: () => '/coupons/stats/overview',
+      providesTags: ['Coupon'],
+    }),
+
+    createCoupon: builder.mutation({
+      query: (couponData) => ({
+        url: '/coupons',
+        method: 'POST',
+        body: couponData,
+      }),
+      invalidatesTags: ['Coupon'],
+    }),
+
+    updateCoupon: builder.mutation({
+      query: ({ id, ...couponData }) => ({
+        url: `/coupons/${id}`,
+        method: 'PUT',
+        body: couponData,
+      }),
+      invalidatesTags: ['Coupon'],
+    }),
+
+    deleteCoupon: builder.mutation({
+      query: (id) => ({
+        url: `/coupons/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Coupon'],
+    }),
+
     // --- Email Templates ---
     getEmailTemplates: builder.query({
       query: () => '/admin/email-templates',
@@ -796,6 +838,13 @@ export const {
   useRespondToSupportTicketMutation,
   useDeleteSupportTicketMutation,
   useGetSupportStatsQuery,
+
+  // Coupons
+  useGetCouponsQuery,
+  useGetCouponStatsQuery,
+  useCreateCouponMutation,
+  useUpdateCouponMutation,
+  useDeleteCouponMutation,
 
   // Email Templates
   useGetEmailTemplatesQuery,

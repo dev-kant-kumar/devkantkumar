@@ -33,6 +33,9 @@ const MarketCustomers = React.lazy(() => import("./pages/Marketplace/Customers.j
 const MarketCustomerDetail = React.lazy(() => import("./pages/Marketplace/CustomerDetail.jsx"));
 const MarketQuoteRequests = React.lazy(() => import("./pages/Marketplace/QuoteRequests.jsx"));
 const MarketSettings = React.lazy(() => import("./pages/Marketplace/Settings.jsx"));
+const CouponManagement = React.lazy(() => import("./pages/Coupons/CouponManagement.jsx"));
+const AdminProjects = React.lazy(() => import("./pages/Marketplace/Projects/AdminProjects.jsx"));
+const AdminProjectWorkspace = React.lazy(() => import("./pages/Marketplace/Projects/AdminProjectWorkspace.jsx"));
 const SupportTickets = React.lazy(() => import("./pages/Support/SupportTickets.jsx"));
 const AdminNotifications = React.lazy(() => import("./pages/Notifications/AdminNotifications.jsx"));
 
@@ -64,10 +67,13 @@ const AdminPanelRoutes = () => {
             <Route path="services/edit/:id" element={<ServiceEditor />} />
             <Route path="orders" element={<MarketOrders />} />
             <Route path="orders/:id" element={<MarketOrderDetail />} />
+            <Route path="projects" element={<AdminProjects />} />
+            <Route path="projects/:id" element={<AdminProjectWorkspace />} />
             <Route path="customers" element={<MarketCustomers />} />
             <Route path="customers/:id" element={<MarketCustomerDetail />} />
             <Route path="quotes" element={<MarketQuoteRequests />} />
             <Route path="settings" element={<MarketSettings />} />
+            <Route path="coupons" element={<CouponManagement />} />
           </Route>
 
           {/* Support */}

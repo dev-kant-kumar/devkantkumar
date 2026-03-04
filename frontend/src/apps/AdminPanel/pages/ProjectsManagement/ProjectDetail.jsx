@@ -1,24 +1,25 @@
 import {
-  ArrowLeft,
-  CheckCircle2,
-  Github,
-  Image as ImageIcon,
-  Link,
-  Loader,
-  Plus,
-  Save,
-  Star,
-  Trash2,
-  X
+    ArrowLeft,
+    CheckCircle2,
+    Github,
+    Image as ImageIcon,
+    Link,
+    Loader,
+    Plus,
+    Save,
+    Star,
+    Trash2,
+    X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import PremiumButton from "../../common/components/PremiumButton";
 import {
-  useCreateProjectMutation,
-  useGetProjectByIdQuery,
-  useUpdateProjectMutation,
-  useUploadImageMutation
+    useCreateProjectMutation,
+    useGetProjectByIdQuery,
+    useUpdateProjectMutation,
+    useUploadImageMutation
 } from "../../store/api/adminApiSlice";
 
 const ProjectDetail = () => {
@@ -155,14 +156,12 @@ const ProjectDetail = () => {
            >
              Cancel
            </button>
-           <button
-             onClick={handleSubmit}
-             disabled={isCreating || isUpdating}
-             className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
-           >
-             {isCreating || isUpdating ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
-             <span>{isEditing ? "Update Project" : "Publish Project"}</span>
-           </button>
+            <PremiumButton
+              onClick={handleSubmit}
+              disabled={isCreating || isUpdating}
+              label={isEditing ? "Update Project" : "Publish Project"}
+              icon={isCreating || isUpdating ? Loader : Save}
+            />
         </div>
       </div>
 

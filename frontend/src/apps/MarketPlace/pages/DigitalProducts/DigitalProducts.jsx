@@ -190,7 +190,7 @@ const DigitalProducts = ({ category: propCategory }) => {
       {/* Featured Product Hero Section */}
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white overflow-hidden relative">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative z-10">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -282,8 +282,8 @@ const DigitalProducts = ({ category: propCategory }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
             <motion.div
@@ -351,7 +351,7 @@ const DigitalProducts = ({ category: propCategory }) => {
           </div>
 
           {/* Products Grid */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-4">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">All Products</h2>
               <p className="text-gray-600 font-medium">
@@ -381,7 +381,7 @@ const DigitalProducts = ({ category: propCategory }) => {
             )}
 
             {!isLoading && !error && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
                 {products.map((product, index) => {
                   return (
                   <motion.div

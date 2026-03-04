@@ -1,24 +1,25 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    Code2,
-    Cpu,
-    Database,
-    Globe,
-    Layout,
-    Loader,
-    Plus,
-    Save,
-    Settings2,
-    Terminal,
-    Trash2
+  Code2,
+  Cpu,
+  Database,
+  Globe,
+  Layout,
+  Loader,
+  Plus,
+  Save,
+  Settings2,
+  Terminal,
+  Trash2
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import PremiumButton from "../../common/components/PremiumButton";
 import {
-    useCreateSkillMutation,
-    useDeleteSkillMutation,
-    useGetAdminSkillsQuery,
-    useUpdateSkillMutation
+  useCreateSkillMutation,
+  useDeleteSkillMutation,
+  useGetAdminSkillsQuery,
+  useUpdateSkillMutation
 } from "../../store/api/adminApiSlice";
 
 const categoryIcons = {
@@ -102,13 +103,13 @@ const SkillsManagement = () => {
           </p>
         </div>
         {!isAdding && (
-          <button
+          <PremiumButton
             onClick={() => setIsAdding(true)}
-            className="group flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 whitespace-nowrap"
-          >
-            <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-            <span className="font-semibold tracking-tight">Add New Skill</span>
-          </button>
+            label="Add New Skill"
+            icon={Plus}
+            statsCount={categories.reduce((acc, cat) => acc + cat.details.length, 0)}
+            statsIcon={Cpu}
+          />
         )}
       </div>
 
@@ -179,14 +180,12 @@ const SkillsManagement = () => {
                  >
                    Cancel
                  </button>
-                 <button
-                   type="submit"
-                   disabled={isCreating}
-                   className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50"
-                 >
-                   {isCreating ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
-                   <span>Save Skill</span>
-                 </button>
+                  <PremiumButton
+                    type="submit"
+                    disabled={isCreating}
+                    label={isCreating ? "Saving..." : "Save Skill"}
+                    icon={isCreating ? Loader : Save}
+                  />
               </div>
             </form>
           </motion.div>

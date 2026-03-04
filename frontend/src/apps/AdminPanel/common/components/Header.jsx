@@ -73,7 +73,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg"
-          : "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
+          : "bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-b border-gray-200/30 dark:border-gray-700/30"
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

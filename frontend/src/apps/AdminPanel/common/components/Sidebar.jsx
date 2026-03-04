@@ -1,23 +1,25 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    ChevronLeft,
-    ChevronRight,
-    Code,
-    FileText,
-    FolderOpen,
-    LayoutDashboard,
-    LifeBuoy,
-    Mail,
-    MailCheck,
-    Megaphone,
-    MessageSquare,
-    Package,
-    PenTool,
-    PieChart,
-    Settings,
-    ShoppingBag,
-    Users,
-    X
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  FileText,
+  FolderOpen,
+  LayoutDashboard,
+  LifeBuoy,
+  Mail,
+  MailCheck,
+  Megaphone,
+  MessageSquare,
+  Package,
+  PenTool,
+  PieChart,
+  Settings,
+  ShoppingBag,
+  Ticket,
+  Users,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -35,7 +37,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
 
   // Auto-switch mode based on path
   useEffect(() => {
-    if (location.pathname.includes('/marketplace')) {
+    // If we're on a global page like notifications, preserve the current mode
+    if (location.pathname.includes('/notifications')) {
+      return;
+    }
+
+    if (location.pathname.includes('/marketplace') || location.pathname.includes('/support')) {
       setActiveMode('marketplace');
     } else {
       setActiveMode('portfolio');
@@ -62,7 +69,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
     { name: "Products", path: "/admin/marketplace/products", icon: Package },
     { name: "Services", path: "/admin/marketplace/services", icon: Code },
     { name: "Orders", path: "/admin/marketplace/orders", icon: ShoppingBag },
+    { name: "Projects", path: "/admin/marketplace/projects", icon: Briefcase },
     { name: "Customers", path: "/admin/marketplace/customers", icon: Users },
+    { name: "Coupons", path: "/admin/marketplace/coupons", icon: Ticket },
     { name: "Quotes", path: "/admin/marketplace/quotes", icon: MessageSquare },
     { name: "Support", path: "/admin/support/tickets", icon: LifeBuoy },
     { name: "Settings", path: "/admin/marketplace/settings", icon: Settings },

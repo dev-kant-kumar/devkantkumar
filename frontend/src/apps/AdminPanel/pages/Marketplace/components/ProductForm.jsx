@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
+import PremiumButton from "../../../common/components/PremiumButton";
 import {
     useUploadFilesMutation,
     useUploadImageMutation
@@ -1034,22 +1035,12 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         >
           Cancel
         </button>
-        <button
+        <PremiumButton
           type="submit"
           disabled={isLoading || isUploading || isUploadingFiles}
-          className="px-8 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5"
-        >
-          {isLoading ? (
-            <span className="flex items-center gap-2">
-              <Loader className="w-4 h-4 animate-spin" />
-              Saving...
-            </span>
-          ) : initialData ? (
-            "Save Changes"
-          ) : (
-            "Create Product"
-          )}
-        </button>
+          label={isLoading ? "Saving..." : initialData ? "Save Changes" : "Create Product"}
+          icon={isLoading ? Loader : Save}
+        />
       </div>
     </form>
   );
