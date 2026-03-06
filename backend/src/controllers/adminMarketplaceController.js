@@ -679,17 +679,40 @@ exports.updateAdminOrderStatus = async (req, res) => {
   try {
     const { status, paymentStatus } = req.body;
 
-    const updateData = {};
-    if (status) updateData.status = status;
-    if (paymentStatus) updateData["payment.status"] = paymentStatus;
-
-    const order = await Order.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-    });
+    const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+
+    if (status) order.status = status;
+    if (paymentStatus) order.payment.status = paymentStatus;
+
+    // Handle estimatedDelivery if moving to in_progress
+    if (status === "in_progress" && !order.estimatedDelivery) {
+      let maxDeliveryDays = 0;
+      order.items.forEach((item) => {
+        if (item.itemType === "service" && item.selectedPackage?.deliveryTime) {
+          maxDeliveryDays = Math.max(
+            maxDeliveryDays,
+            item.selectedPackage.deliveryTime
+          );
+        }
+      });
+
+      if (maxDeliveryDays > 0) {
+        const estimatedDate = new Date();
+        estimatedDate.setDate(estimatedDate.getDate() + maxDeliveryDays);
+        order.estimatedDelivery = estimatedDate;
+      }
+    }
+
+    // Handle delivery
+    if (status === "delivered") {
+      order.fulfillment.deliveredAt = new Date();
+    }
+
+    await order.save();
 
     res.json({
       success: true,
@@ -928,7 +951,11 @@ exports.markDelivered = async (req, res) => {
       updatedBy: req.user._id,
     });
 
+    // Recalculate revision deadline based on actual delivery date
+    order.calculateDynamicDeadlines(order.fulfillment.deliveredAt);
+
     await order.save();
+
 
     logger.info(`Order ${req.params.id} marked as delivered`);
 

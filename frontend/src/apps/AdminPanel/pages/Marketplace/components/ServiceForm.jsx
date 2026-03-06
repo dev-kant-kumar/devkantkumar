@@ -8,6 +8,7 @@ import {
     Loader,
     Package,
     Plus,
+    Save,
     Sparkles,
     Star,
     Trash2,
@@ -20,6 +21,7 @@ import PremiumButton from "../../../common/components/PremiumButton";
 import {
     useUploadImageMutation
 } from "../../../store/api/adminApiSlice";
+import { calculateRegionalPricing } from "../../../utils/currencyConverter";
 
 const CATEGORIES = [
   { value: "web-development", label: "Web Development", icon: "💻" },
@@ -86,7 +88,7 @@ const InputField = ({
 );
 
 // Premium Custom Dropdown Component
-const CustomDropdown = ({ value, onChange, options, icon: Icon, label }) => {
+const CustomDropdown = ({ value, onChange, options, icon: Icon, label, name = "category" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -104,7 +106,7 @@ const CustomDropdown = ({ value, onChange, options, icon: Icon, label }) => {
   }, []);
 
   const handleSelect = (optionValue) => {
-    onChange({ target: { name: "category", value: optionValue } });
+    onChange({ target: { name, value: optionValue } });
     setIsOpen(false);
   };
 
@@ -184,6 +186,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       discount: 0,
       deliveryTime: "",
       revisions: "unlimited",
+      revisionWindow: { duration: 1, unit: 'years' },
       features: [""],
       isPopular: type === "standard",
       isPopular: type === "standard",
@@ -202,6 +205,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         return existing
           ? {
               ...existing,
+              revisionWindow: existing.revisionWindow || { duration: 1, unit: 'years' },
               features: existing.features?.length ? existing.features : [""],
             }
           : {
@@ -213,6 +217,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
               discount: 0,
               deliveryTime: "",
               revisions: "unlimited",
+              revisionWindow: { duration: 1, unit: 'years' },
               features: [""],
               isPopular: type === "standard",
               regionalPricing: [],
@@ -378,6 +383,10 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         originalPrice: Number(pkg.originalPrice),
         discount: Number(pkg.discount),
         deliveryTime: Number(pkg.deliveryTime),
+        revisionWindow: {
+          duration: Number(pkg.revisionWindow?.duration || 1),
+          unit: pkg.revisionWindow?.unit || "years",
+        },
         features: pkg.features.filter((f) => f.trim()),
         regionalPricing: [], // Clear/Ignore legacy field
       };
@@ -691,6 +700,47 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                       placeholder="Optional"
                     />
                     <p className="text-[10px] text-gray-400 mt-1">Empty = Unlimited</p>
+                  </div>
+                </div>
+
+                {/* Revision Window */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold tracking-wider">
+                      Support Window
+                    </label>
+                    <input
+                      type="number"
+                      value={pkg.revisionWindow?.duration ?? ""}
+                      onChange={(e) =>
+                        handlePackageChange(index, "revisionWindow", {
+                          ...pkg.revisionWindow,
+                          duration: e.target.value,
+                        })
+                      }
+                      className="w-full mt-1.5 px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-900 dark:text-white"
+                      min="1"
+                    />
+                  </div>
+                  <div>
+                    <CustomDropdown
+                      label="Unit"
+                      name="revisionWindowUnit"
+                      value={pkg.revisionWindow?.unit || "years"}
+                      onChange={(e) =>
+                        handlePackageChange(index, "revisionWindow", {
+                          ...pkg.revisionWindow,
+                          unit: e.target.value,
+                        })
+                      }
+                      options={[
+                        { value: "days", label: "Days", icon: "📅" },
+                        { value: "weeks", label: "Weeks", icon: "🗓️" },
+                        { value: "months", label: "Months", icon: "📆" },
+                        { value: "years", label: "Years", icon: "⏳" },
+                      ]}
+                      icon={Plus}
+                    />
                   </div>
                 </div>
                 <div className="space-y-4">

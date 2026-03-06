@@ -43,7 +43,11 @@ const orderSchema = new mongoose.Schema({
       name: String,
       features: [String],
       deliveryTime: Number,
-      revisions: String
+      revisions: String,
+      revisionWindow: {
+        duration: { type: Number, default: 3 },
+        unit: { type: String, enum: ['days', 'weeks', 'months', 'years'], default: 'days' }
+      }
     },
     // For products - Secure download links
     downloadLinks: [{
@@ -159,7 +163,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'refunded'],
+    enum: ['pending', 'confirmed', 'in_progress', 'revising', 'delivered', 'completed', 'cancelled', 'refunded'],
     default: 'pending'
   },
   fulfillment: {
@@ -225,7 +229,12 @@ const orderSchema = new mongoose.Schema({
   rushOrderFee: {
     type: Number,
     default: 0
-  }
+  },
+  revisionsUsed: {
+    type: Number,
+    default: 0
+  },
+  revisionDeadline: Date
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -299,5 +308,53 @@ orderSchema.methods.addMessage = function(sender, message, attachments = []) {
   this.communication.lastMessageAt = new Date();
   return this.save();
 };
+
+// Method to calculate dynamic deadlines based on selected packages
+orderSchema.methods.calculateDynamicDeadlines = function(baseDate = null) {
+  const calculationDate = baseDate || this.payment?.paidAt;
+  if (!calculationDate) return;
+
+  // 1. Calculate Estimated Delivery (Only if baseDate is NOT provided, i.e., at purchase)
+  if (!baseDate) {
+    let maxDeliveryDays = 0;
+    this.items.forEach((item) => {
+      if (item.itemType === "service" && item.selectedPackage?.deliveryTime) {
+        maxDeliveryDays = Math.max(maxDeliveryDays, item.selectedPackage.deliveryTime);
+      }
+    });
+
+    if (maxDeliveryDays > 0) {
+      const estimatedDate = new Date(calculationDate);
+      estimatedDate.setDate(estimatedDate.getDate() + maxDeliveryDays);
+      this.estimatedDelivery = estimatedDate;
+    }
+  }
+
+  // 2. Calculate Revision Deadline
+  let maxRevisionDays = 0;
+  this.items.forEach((item) => {
+    if (item.itemType === "service" && item.selectedPackage?.revisionWindow) {
+      const { duration, unit } = item.selectedPackage.revisionWindow;
+      let days = 0;
+      const numDuration = Number(duration);
+
+      switch (unit) {
+        case "days": days = numDuration; break;
+        case "weeks": days = numDuration * 7; break;
+        case "months": days = numDuration * 30; break;
+        case "years": days = numDuration * 365; break;
+        default: days = numDuration;
+      }
+      maxRevisionDays = Math.max(maxRevisionDays, days);
+    }
+  });
+
+  if (maxRevisionDays > 0) {
+    const deadline = new Date(calculationDate);
+    deadline.setDate(deadline.getDate() + maxRevisionDays);
+    this.revisionDeadline = deadline;
+  }
+};
+
 
 module.exports = mongoose.model('Order', orderSchema);

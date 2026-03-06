@@ -356,6 +356,24 @@ const createOrder = async (req, res) => {
         price: price,
         quantity: item.quantity,
         licenseType: item.type === "product" ? "standard" : undefined,
+        selectedPackage:
+          item.type === "service" && item.packageName && productOrService.packages
+            ? {
+                name: item.packageName,
+                deliveryTime: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.deliveryTime,
+                features: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.features,
+                revisions: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.revisions,
+                revisionWindow: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.revisionWindow,
+              }
+            : undefined,
       });
     }
 
@@ -607,6 +625,24 @@ const createRazorpayOrder = async (req, res) => {
         price: price,
         quantity: item.quantity,
         licenseType: item.type === "product" ? "standard" : undefined,
+        selectedPackage:
+          item.type === "service" && item.packageName && productOrService.packages
+            ? {
+                name: item.packageName,
+                deliveryTime: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.deliveryTime,
+                features: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.features,
+                revisions: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.revisions,
+                revisionWindow: productOrService.packages.find(
+                  (p) => p.name === item.packageName
+                )?.revisionWindow,
+              }
+            : undefined,
       });
     }
 
@@ -732,6 +768,9 @@ const verifyRazorpayPayment = async (req, res) => {
       order.payment.razorpayOrderId = razorpay_order_id;
       order.payment.razorpaySignature = razorpay_signature;
       order.payment.paidAt = new Date();
+
+      // Calculate estimated delivery and revision deadline
+      order.calculateDynamicDeadlines();
 
       // Add timeline entry
       order.timeline.push({
@@ -1384,6 +1423,96 @@ const getOrderMessages = async (req, res) => {
   }
 };
 
+// Request revision for a delivered service
+const requestRevision = async (req, res) => {
+  try {
+    const { message } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Check if user is the owner
+    const userId = req.user._id || req.user.id;
+    if (order.user.toString() !== userId.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized" });
+    }
+
+    if (order.status !== "delivered") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Order must be in delivered status to request a revision" });
+    }
+
+    // Check if revision deadline has passed
+    if (order.revisionDeadline && new Date() > order.revisionDeadline) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Revision request window has expired" });
+    }
+
+    const serviceItem = order.items.find((i) => i.itemType === "service");
+    if (!serviceItem) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No service item found in this order" });
+    }
+
+    const totalRevisions = parseInt(serviceItem.selectedPackage?.revisions) || 0;
+    const revisionsUsed = order.revisionsUsed || 0;
+
+    // Check for unlimited revisions (-1 or 'unlimited')
+    const isUnlimited =
+      serviceItem.selectedPackage?.revisions === -1 ||
+      serviceItem.selectedPackage?.revisions?.toString().toLowerCase() === "unlimited";
+
+    if (!isUnlimited && revisionsUsed >= totalRevisions) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No revisions remaining in your package" });
+    }
+
+    // Increment revisions
+    order.revisionsUsed = revisionsUsed + 1;
+    order.status = "revising";
+
+    // Add timeline entry
+    order.timeline.push({
+      status: "revising",
+      message: message || `Revision #${order.revisionsUsed} requested`,
+      timestamp: new Date(),
+      updatedBy: userId,
+    });
+
+    await order.save();
+
+    // Send notification
+    try {
+      const { createNotification } = require("../services/notificationService");
+      await createNotification({
+        user: null, // Admin or appropriate logic
+        title: `Revision Requested: ${order.orderNumber}`,
+        message: `User requested revision #${order.revisionsUsed} for ${serviceItem.title}`,
+        type: "order",
+        relatedId: order._id,
+        priority: "high",
+      });
+    } catch (notifError) {
+      logger.warn("Failed to send revision notification:", notifError);
+    }
+
+    res.json({
+      success: true,
+      data: order,
+      message: `Revision #${order.revisionsUsed} requested successfully`,
+    });
+  } catch (error) {
+    logger.error("Request revision error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
 // Reviews
 const createReview = async (req, res) => {
   try {
@@ -1610,6 +1739,9 @@ const handleRazorpayWebhook = async (req, res) => {
       order.payment.transactionId = payment.id;
       order.payment.paidAt = new Date();
 
+      // Calculate dynamic deadlines (delivery & revisions)
+      order.calculateDynamicDeadlines();
+
       order.timeline.push({
         status: "payment_completed",
         message: `Payment verified via Webhook (${event.event})`,
@@ -1670,6 +1802,7 @@ module.exports = {
   regenerateDownloadLinks,
   addOrderMessage,
   getOrderMessages,
+  requestRevision,
   createReview,
   updateReview,
   deleteReview,

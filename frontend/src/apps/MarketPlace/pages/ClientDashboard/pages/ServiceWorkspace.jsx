@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, FileText, MessageSquare, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { useGetOrderByIdQuery } from '../../../store/orders/ordersApi';
+import { useGetServiceByIdQuery } from '../../../store/api/marketplaceApi';
+import { useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
 import ServiceChat from '../components/ServiceChat';
 import ServiceFiles from '../components/ServiceFiles';
 
@@ -11,6 +12,8 @@ const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   confirmed: 'bg-blue-100 text-blue-800 border-blue-200',
   in_progress: 'bg-purple-100 text-purple-800 border-purple-200',
+  revising: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+  delivered: 'bg-cyan-100 text-cyan-800 border-cyan-200',
   completed: 'bg-green-100 text-green-800 border-green-200',
   cancelled: 'bg-red-100 text-red-800 border-red-200',
 };
@@ -24,6 +27,7 @@ const TIMELINE_STATUS_COLORS = {
   created: 'bg-gray-400',
   payment_completed: 'bg-green-500',
   delivered: 'bg-green-500',
+  revising: 'bg-indigo-500',
   message: 'bg-indigo-500',
 };
 
@@ -68,12 +72,91 @@ const ServiceWorkspace = () => {
   const { serviceId } = useParams(); // This is actually the orderId
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.tab || 'overview');
+  const [showRevisionPrompt, setShowRevisionPrompt] = useState(false);
+  const [revisionMessage, setRevisionMessage] = useState('');
+  const [isSubmittingRevision, setIsSubmittingRevision] = useState(false);
+
+  const [requestRevision] = useRequestRevisionMutation();
+  const [timeLeft, setTimeLeft] = useState('');
+
 
   // Fetch real order data
   const { data: order, isLoading, isError, error, refetch } = useGetOrderByIdQuery(serviceId, {
     skip: !serviceId,
     pollingInterval: 60000, // Refresh every minute
   });
+
+  const serviceItem = order?.items?.find((item) => item.itemType === "service");
+
+  // Fetch LIVE service data to ensure it reflects recent admin updates (features, support window, etc)
+  const { data: liveService } = useGetServiceByIdQuery(serviceItem?.itemId, {
+    skip: !serviceItem?.itemId,
+  });
+
+  // Find the specific package from live data (case-insensitive)
+  const livePackage = liveService?.packages?.find(p =>
+    p.name?.toLowerCase() === serviceItem?.selectedPackage?.name?.toLowerCase()
+  );
+
+  // Helper to calculate dynamic deadline based on live package window
+  const calculateDynamicDeadline = () => {
+    // Priority 1: Backend source of truth
+    if (order?.revisionDeadline) return order.revisionDeadline;
+
+    // Priority 2: Live calculation if backend hasn't set it yet
+    const pkg = livePackage || serviceItem?.selectedPackage;
+    if (!pkg?.revisionWindow || !order?.payment?.paidAt) return null;
+
+    const { duration, unit } = pkg.revisionWindow;
+    const startDate = new Date(order.payment.paidAt);
+    const deadline = new Date(startDate);
+
+    const numDuration = Number(duration);
+    if (isNaN(numDuration)) return null;
+
+    switch (unit) {
+      case "days": deadline.setDate(deadline.getDate() + numDuration); break;
+      case "weeks": deadline.setDate(deadline.getDate() + numDuration * 7); break;
+      case "months": deadline.setMonth(deadline.getMonth() + numDuration); break;
+      case "years": deadline.setFullYear(deadline.getFullYear() + numDuration); break;
+      default: deadline.setDate(deadline.getDate() + numDuration);
+    }
+    return deadline.toISOString();
+  };
+
+  const dynamicDeadline = calculateDynamicDeadline();
+
+  // Update countdown every minute
+  useEffect(() => {
+    const updateCountdown = () => {
+      if (!dynamicDeadline) return;
+
+      const now = new Date();
+      const end = new Date(dynamicDeadline);
+      const diff = end - now;
+
+      if (diff <= 0) {
+        setTimeLeft('Expired');
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      let countdownStr = '';
+      if (days > 0) countdownStr += `${days}d `;
+      if (hours > 0 || days > 0) countdownStr += `${hours}h `;
+      countdownStr += `${minutes}m`;
+
+      setTimeLeft(countdownStr);
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000);
+    return () => clearInterval(interval);
+  }, [dynamicDeadline]);
+
 
   // Calculate progress from timeline
   const calculateProgress = (order) => {
@@ -111,6 +194,39 @@ const ServiceWorkspace = () => {
     }).format(amount || 0);
   };
 
+  // Calculate delay
+  const calculateDelay = (estimatedDelivery, status) => {
+    if (!estimatedDelivery || status === 'completed' || status === 'cancelled') return 0;
+    const estDate = new Date(estimatedDelivery);
+    const now = new Date();
+    if (now > estDate) {
+      const diffTime = Math.abs(now - estDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+    return 0;
+  };
+
+  // Handle request revision
+  const handleRequestRevision = async () => {
+    if (!revisionMessage.trim()) return;
+
+    setIsSubmittingRevision(true);
+    try {
+      await requestRevision({
+        orderId: serviceId,
+        message: revisionMessage
+      }).unwrap();
+      setShowRevisionPrompt(false);
+      setRevisionMessage('');
+    } catch (err) {
+      console.error('Failed to request revision:', err);
+      alert(err?.data?.message || 'Failed to request revision');
+    } finally {
+      setIsSubmittingRevision(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -144,7 +260,9 @@ const ServiceWorkspace = () => {
   }
 
   const progress = calculateProgress(order);
-  const serviceItem = order.items?.find(item => item.itemType === 'service');
+
+  // Helper to determine display data (Live vs Snapshot)
+  const displayPackage = livePackage || serviceItem?.selectedPackage;
   const serviceName = serviceItem?.title || order.items?.[0]?.title || 'Service Project';
 
   return (
@@ -180,6 +298,24 @@ const ServiceWorkspace = () => {
             {order.status === 'in_progress' && (
               <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
                 View Progress
+              </button>
+            )}
+            {order.status === 'delivered' && (
+              <button
+                onClick={() => setShowRevisionPrompt(true)}
+                disabled={dynamicDeadline && new Date() > new Date(dynamicDeadline)}
+                className={`px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors shadow-sm ${
+                  dynamicDeadline && new Date() > new Date(dynamicDeadline)
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700'
+                }`}
+              >
+                {dynamicDeadline && new Date() > new Date(dynamicDeadline) ? 'Revision Window Closed' : 'Request Revision'}
+              </button>
+            )}
+            {order.status === 'delivered' && (
+              <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                Approve & Complete
               </button>
             )}
           </div>
@@ -310,9 +446,16 @@ const ServiceWorkspace = () => {
                   </div>
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
                     <span className="text-sm text-gray-500">Est. Delivery</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {formatDate(order.estimatedDelivery) || 'TBD'}
-                    </span>
+                    <div className="text-right">
+                      <span className={`text-sm font-medium ${calculateDelay(order.estimatedDelivery, order.status) > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                        {formatDate(order.estimatedDelivery)}
+                      </span>
+                      {calculateDelay(order.estimatedDelivery, order.status) > 0 && (
+                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">
+                          Delayed by {calculateDelay(order.estimatedDelivery, order.status)} days
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
                     <span className="text-sm text-gray-500">Total Amount</span>
@@ -326,6 +469,39 @@ const ServiceWorkspace = () => {
                       {order.payment?.status?.replace('_', ' ') || 'Pending'}
                     </span>
                   </div>
+                  {/* Revision Stats */}
+                  {serviceItem?.selectedPackage && (
+                    <div className="flex justify-between items-center py-3 border-t border-gray-100">
+                      <span className="text-sm text-gray-500">Revisions Used</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {order.revisionsUsed || 0} / {
+                          displayPackage?.revisions === -1 || displayPackage?.revisions === 'Unlimited'
+                          ? '∞'
+                          : displayPackage?.revisions
+                        }
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Revision Deadline */}
+                  {dynamicDeadline && (
+                    <div className="flex justify-between items-center py-3 border-t border-gray-100">
+                      <span className="text-sm text-gray-500">Revision Deadline</span>
+                      <div className="text-right">
+                        <span className={`text-sm font-medium ${new Date() > new Date(dynamicDeadline) ? 'text-red-600' : 'text-indigo-600'}`}>
+                          {formatDate(dynamicDeadline)}
+                        </span>
+                        {new Date() <= new Date(dynamicDeadline) && (
+                          <p className={`text-[10px] mt-0.5 font-bold uppercase tracking-tight ${order.status === 'delivered' ? 'text-indigo-500 animate-pulse' : 'text-gray-400'}`}>
+                            {order.status === 'delivered' ? `Ends in ${timeLeft}` : `Revisions end in ${Math.ceil((new Date(dynamicDeadline) - new Date()) / (1000 * 60 * 60 * 24))} days`}
+                          </p>
+                        )}
+                        {new Date() > new Date(dynamicDeadline) && (
+                          <p className="text-[10px] text-red-400 mt-0.5 font-bold uppercase">Window Expired</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -350,7 +526,7 @@ const ServiceWorkspace = () => {
               )}
 
               {/* Package Details */}
-              {serviceItem?.selectedPackage && (
+              {displayPackage && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-4">Package Details</h3>
                   <div className="space-y-3">
@@ -358,35 +534,44 @@ const ServiceWorkspace = () => {
                     <div className="flex justify-between items-center py-2 border-b border-gray-100">
                       <span className="text-sm text-gray-500">Package</span>
                       <span className="text-sm font-medium text-gray-900 capitalize px-2 py-0.5 bg-purple-50 rounded border border-purple-100">
-                        {serviceItem.selectedPackage.name || 'Standard'}
+                        {displayPackage.name}
                       </span>
                     </div>
+                    {/* Support Window */}
+                    {displayPackage.revisionWindow && (
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-sm text-gray-500">Support Window</span>
+                        <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                          {displayPackage.revisionWindow.duration} {displayPackage.revisionWindow.unit}
+                        </span>
+                      </div>
+                    )}
                     {/* Delivery Time */}
-                    {serviceItem.selectedPackage.deliveryTime && (
+                    {displayPackage.deliveryTime && (
                       <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="text-sm text-gray-500">Delivery Time</span>
                         <span className="text-sm font-medium text-gray-900">
-                          {serviceItem.selectedPackage.deliveryTime} days
+                          {displayPackage.deliveryTime} days
                         </span>
                       </div>
                     )}
                     {/* Revisions */}
-                    {serviceItem.selectedPackage.revisions !== undefined && (
+                    {displayPackage.revisions !== undefined && (
                       <div className="flex justify-between items-center py-2 border-b border-gray-100">
                         <span className="text-sm text-gray-500">Revisions</span>
                         <span className="text-sm font-medium text-gray-900">
-                          {serviceItem.selectedPackage.revisions === -1 || serviceItem.selectedPackage.revisions === 'Unlimited'
+                          {displayPackage.revisions === -1 || displayPackage.revisions === 'Unlimited'
                             ? 'Unlimited'
-                            : serviceItem.selectedPackage.revisions}
+                            : displayPackage.revisions}
                         </span>
                       </div>
                     )}
                     {/* Features */}
-                    {serviceItem.selectedPackage.features && serviceItem.selectedPackage.features.length > 0 && (
+                    {displayPackage.features && displayPackage.features.length > 0 && (
                       <div className="pt-2">
                         <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Includes</span>
                         <ul className="mt-2 space-y-1.5">
-                          {serviceItem.selectedPackage.features.map((feature, idx) => (
+                          {displayPackage.features.map((feature, idx) => (
                             <li key={idx} className="flex items-center text-sm text-gray-700">
                               <CheckCircle className="h-3.5 w-3.5 text-green-500 mr-2 flex-shrink-0" />
                               {feature}
@@ -405,6 +590,44 @@ const ServiceWorkspace = () => {
         {activeTab === 'messages' && <ServiceChat orderId={serviceId} />}
         {activeTab === 'files' && <ServiceFiles orderId={serviceId} order={order} />}
       </div>
+
+      {/* Revision Prompt Modal */}
+      {showRevisionPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-full max-w-md"
+          >
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Request Revision</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Please describe what you'd like to change. This will reset the project status to "Revising".
+            </p>
+            <textarea
+              value={revisionMessage}
+              onChange={(e) => setRevisionMessage(e.target.value)}
+              placeholder="E.g. Change the color of the header to blue..."
+              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none mb-4"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                disabled={isSubmittingRevision}
+                onClick={() => setShowRevisionPrompt(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isSubmittingRevision || !revisionMessage.trim()}
+                onClick={handleRequestRevision}
+                className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                {isSubmittingRevision ? 'Submitting...' : 'Send Request'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };

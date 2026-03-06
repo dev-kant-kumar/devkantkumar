@@ -79,6 +79,16 @@ export const ordersApi = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Orders', 'Cart'],
     }),
+
+    // Request revision
+    requestRevision: builder.mutation({
+      query: ({ orderId, message }) => ({
+        url: `${API_ENDPOINTS.MARKETPLACE.ORDERS}/${orderId}/revision`,
+        method: 'POST',
+        body: { message },
+      }),
+      invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }, 'Orders'],
+    }),
   }),
 });
 
@@ -91,4 +101,5 @@ export const {
   useRegenerateDownloadLinksMutation,
   useCreatePaymentOrderMutation,
   useVerifyPaymentMutation,
+  useRequestRevisionMutation,
 } = ordersApi;

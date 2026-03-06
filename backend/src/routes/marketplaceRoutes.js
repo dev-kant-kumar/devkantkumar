@@ -43,6 +43,7 @@ router.use(protect);
 router.post('/orders', marketplaceController.createOrder);
 router.get('/orders', marketplaceController.getUserOrders);
 router.get('/orders/:id', marketplaceController.getOrderById);
+router.post('/orders/:id/revision', marketplaceController.requestRevision);
 
 // Order Communication routes
 router.get('/orders/:orderId/messages', marketplaceController.getOrderMessages);

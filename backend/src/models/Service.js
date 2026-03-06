@@ -95,6 +95,10 @@ const serviceSchema = new mongoose.Schema(
           type: Number,
           default: -1, // -1 for unlimited
         },
+        revisionWindow: {
+          duration: { type: Number, default: 3 },
+          unit: { type: String, enum: ['days', 'weeks', 'months', 'years'], default: 'days' }
+        },
         features: [
           {
             type: String,
