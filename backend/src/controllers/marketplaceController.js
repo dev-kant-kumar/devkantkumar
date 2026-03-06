@@ -522,6 +522,10 @@ const getOrderById = async (req, res) => {
         select:
           "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages", // Select necessary fields for Products/Services
       })
+      .populate({
+        path: "communication.messages.sender",
+        select: "firstName lastName email avatar role",
+      })
       .sort("-createdAt");
 
     if (!order) {

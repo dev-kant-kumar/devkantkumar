@@ -132,7 +132,18 @@ const AdminProjectFiles = ({ orderId, order }) => {
       toast.error('Download link not available');
       return;
     }
-    window.open(file.url, '_blank');
+    // Force download by adding fl_attachment for Cloudinary URLs
+    let downloadUrl = file.url;
+    if (downloadUrl.includes('cloudinary.com') && downloadUrl.includes('/upload/')) {
+      downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
+    }
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = file.name || 'download';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const handleFileUpload = async (event) => {
