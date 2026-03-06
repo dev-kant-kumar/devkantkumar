@@ -845,10 +845,10 @@ exports.addAdminMessage = async (req, res) => {
   try {
     const { message, attachments = [] } = req.body;
 
-    if (!message || !message.trim()) {
+    if ((!message || !message.trim()) && attachments.length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "Message is required" });
+        .json({ success: false, message: "Message or attachment is required" });
     }
 
     const order = await Order.findById(req.params.id);
@@ -872,6 +872,7 @@ exports.addAdminMessage = async (req, res) => {
         name: att.name,
         url: att.url,
         size: att.size || 0,
+        mimetype: att.mimetype || '',
       })),
     };
 
@@ -1091,5 +1092,65 @@ exports.getStats = async (req, res) => {
   } catch (error) {
     logger.error("Get marketplace stats error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+// @desc    Approve requirements
+// @route   POST /api/v1/admin/marketplace/orders/:id/requirements/approve
+// @access  Private/Admin
+exports.approveRequirements = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (!order.requirementsData || order.requirementsData.status !== 'submitted') {
+      return res.status(400).json({
+        success: false,
+        message: "Requirements are not in submitted state",
+      });
+    }
+
+    order.requirementsData.status = 'approved';
+    order.requirementsData.approvedAt = new Date();
+
+    // If order was waiting on requirements, move it to in_progress
+    if (order.status === 'confirmed') {
+      order.status = 'in_progress';
+
+      // Update pipeline entry
+      order.timeline.push({
+        status: "in_progress",
+        message: "Requirements approved. Project is now in progress.",
+        timestamp: new Date(),
+        updatedBy: req.user._id,
+      });
+    } else {
+      order.timeline.push({
+        status: "message",
+        message: "Requirements approved by admin.",
+        timestamp: new Date(),
+        updatedBy: req.user._id,
+      });
+    }
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      data: order,
+      message: "Requirements approved successfully",
+    });
+  } catch (error) {
+    logger.error(`Approve requirements error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Error approving requirements",
+      error: error.message,
+    });
   }
 };

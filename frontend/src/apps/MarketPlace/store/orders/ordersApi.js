@@ -89,6 +89,16 @@ export const ordersApi = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }, 'Orders'],
     }),
+
+    // Submit requirements
+    submitRequirements: builder.mutation({
+      query: ({ orderId, responses }) => ({
+        url: `${API_ENDPOINTS.MARKETPLACE.ORDERS}/${orderId}/requirements`,
+        method: 'POST',
+        body: { responses },
+      }),
+      invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }],
+    }),
   }),
 });
 
@@ -102,4 +112,5 @@ export const {
   useCreatePaymentOrderMutation,
   useVerifyPaymentMutation,
   useRequestRevisionMutation,
+  useSubmitRequirementsMutation,
 } = ordersApi;

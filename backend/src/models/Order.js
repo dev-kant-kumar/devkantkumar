@@ -190,7 +190,8 @@ const orderSchema = new mongoose.Schema({
       attachments: [{
         name: String,
         url: String,
-        size: Number
+        size: Number,
+        mimetype: String
       }]
     }],
     lastMessageAt: Date
@@ -219,6 +220,19 @@ const orderSchema = new mongoose.Schema({
   notes: {
     customer: String,
     internal: String
+  },
+  requirementsData: {
+    status: {
+      type: String,
+      enum: ['pending', 'submitted', 'approved', 'changes_requested'],
+      default: 'pending'
+    },
+    responses: [{
+      question: String,
+      answer: String
+    }],
+    submittedAt: Date,
+    approvedAt: Date
   },
   estimatedDelivery: Date,
   actualDelivery: Date,

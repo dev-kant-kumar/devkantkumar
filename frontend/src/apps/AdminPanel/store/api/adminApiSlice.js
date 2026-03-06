@@ -509,6 +509,15 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Order'],
     }),
 
+    // Approve client requirements
+    approveRequirements: builder.mutation({
+      query: ({ id }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/requirements/approve`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
+    }),
+
     // Get single order detail
     getAdminOrderById: builder.query({
       query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}`,
@@ -815,6 +824,7 @@ export const {
   useDeleteServiceMutation,
   useGetAdminOrdersQuery,
   useUpdateAdminOrderStatusMutation,
+  useApproveRequirementsMutation,
   useGetAdminOrderByIdQuery,
   useAddMilestoneMutation,
   useUpdateMilestoneMutation,

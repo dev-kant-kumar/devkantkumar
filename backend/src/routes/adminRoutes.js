@@ -57,6 +57,7 @@ router.delete('/services/:id', adminMarketplaceController.deleteService);
 router.get('/marketplace/orders', adminMarketplaceController.getAllOrders);
 router.get('/marketplace/orders/:id', adminMarketplaceController.getOrderById);
 router.put('/marketplace/orders/:id', adminMarketplaceController.updateAdminOrderStatus);
+router.post('/marketplace/orders/:id/requirements/approve', adminMarketplaceController.approveRequirements);
 router.post('/marketplace/orders/:id/milestones', adminMarketplaceController.addMilestone);
 router.put('/marketplace/orders/:id/milestones/:milestoneId', adminMarketplaceController.updateMilestone);
 router.post('/marketplace/orders/:id/messages', adminMarketplaceController.addAdminMessage);

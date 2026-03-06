@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, FileText, MessageSquare, RefreshCw } from 'lucide-react';
-import { useState,useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetServiceByIdQuery } from '../../../store/api/marketplaceApi';
 import { useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
 import ServiceChat from '../components/ServiceChat';
 import ServiceFiles from '../components/ServiceFiles';
+import ServiceRequirements from '../components/ServiceRequirements';
 
 // Status colors mapping
 const STATUS_COLORS = {
@@ -369,6 +370,24 @@ const ServiceWorkspace = () => {
             <FileText className="h-4 w-4" />
             Files & Assets
           </button>
+
+          <button
+            onClick={() => setActiveTab('requirements')}
+            className={`
+              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
+              ${activeTab === 'requirements'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }
+            `}
+          >
+            <CheckCircle className="h-4 w-4" />
+            Requirements
+            {/* Notification pip for pending requirements */}
+            {order?.requirementsData?.status === 'pending' && activeTab !== 'requirements' && (
+              <span className="w-2 h-2 rounded-full bg-red-500 ml-1"></span>
+            )}
+          </button>
         </nav>
       </div>
 
@@ -589,6 +608,7 @@ const ServiceWorkspace = () => {
 
         {activeTab === 'messages' && <ServiceChat orderId={serviceId} />}
         {activeTab === 'files' && <ServiceFiles orderId={serviceId} order={order} />}
+        {activeTab === 'requirements' && <ServiceRequirements order={order} liveService={liveService} />}
       </div>
 
       {/* Revision Prompt Modal */}

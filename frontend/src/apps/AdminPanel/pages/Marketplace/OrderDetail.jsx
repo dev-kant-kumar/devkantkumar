@@ -5,6 +5,7 @@ import {
     CheckCircle,
     Clock,
     CreditCard,
+    FileText,
     Loader2,
     Mail,
     MessageSquare,
@@ -23,6 +24,7 @@ import PremiumButton from '../../common/components/PremiumButton';
 import {
     useAddAdminMessageMutation,
     useAddMilestoneMutation,
+    useApproveRequirementsMutation,
     useGetAdminOrderByIdQuery,
     useMarkOrderDeliveredMutation,
     useUpdateAdminOrderStatusMutation
@@ -68,6 +70,7 @@ const OrderDetail = () => {
   const [addMilestone, { isLoading: isAddingMilestone }] = useAddMilestoneMutation();
   const [addMessage, { isLoading: isSendingMessage }] = useAddAdminMessageMutation();
   const [markDelivered, { isLoading: isDelivering }] = useMarkOrderDeliveredMutation();
+  const [approveRequirements, { isLoading: isApproving }] = useApproveRequirementsMutation();
 
   const order = orderData?.data || orderData;
 
@@ -136,6 +139,15 @@ const OrderDetail = () => {
       setDeliveryNotes('');
     } catch (err) {
       toast.error(err?.data?.message || 'Failed to mark as delivered');
+    }
+  };
+
+  const handleApproveRequirements = async () => {
+    try {
+      await approveRequirements({ id }).unwrap();
+      toast.success('Requirements approved successfully. Order is now in progress.');
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to approve requirements');
     }
   };
 
@@ -276,6 +288,45 @@ const OrderDetail = () => {
               </div>
             </div>
           </div>
+
+          {/* Project Requirements */}
+          {order.requirementsData && order.requirementsData.responses?.length > 0 && (
+            <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-yellow-500" /> Project Requirements
+                </h3>
+                {order.requirementsData.status === 'submitted' && (
+                  <button
+                    onClick={handleApproveRequirements}
+                    disabled={isApproving}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
+                  >
+                    {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                    Approve Requirements
+                  </button>
+                )}
+                {order.requirementsData.status === 'approved' && (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4" /> Approved
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                {order.requirementsData.responses.map((resp, idx) => (
+                  <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700/50">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
+                      {idx + 1}. {resp.question}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                      {resp.answer}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Messages Section */}
           <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">

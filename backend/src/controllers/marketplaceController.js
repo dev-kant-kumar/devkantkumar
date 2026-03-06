@@ -1309,10 +1309,10 @@ const addOrderMessage = async (req, res) => {
     const { message, attachments = [] } = req.body;
     const userId = req.user.id;
 
-    if (!message || !message.trim()) {
+    if ((!message || !message.trim()) && attachments.length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "Message is required" });
+        .json({ success: false, message: "Message or attachment is required" });
     }
 
     const order = await Order.findById(orderId);
@@ -1342,6 +1342,7 @@ const addOrderMessage = async (req, res) => {
         name: att.name,
         url: att.url,
         size: att.size || 0,
+        mimetype: att.mimetype || '',
       })),
     };
 
@@ -1781,11 +1782,81 @@ const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+
+// @desc    Submit project requirements
+// @route   POST /api/v1/marketplace/orders/:id/requirements
+// @access  Private
+const submitRequirements = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { responses } = req.body;
+
+    if (!responses || !Array.isArray(responses)) {
+      return res.status(400).json({
+        success: false,
+        message: "Responses must be an array"
+      });
+    }
+
+    const order = await Order.findOne({
+      $or: [{ _id: id }, { orderNumber: id }],
+      user: req.user._id
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    // Initialize requirementsData if it doesn't exist
+    if (!order.requirementsData) {
+      order.requirementsData = {};
+    }
+
+    // You can only submit if pending or changes requested
+    if (order.requirementsData.status === 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: "Requirements have already been approved"
+      });
+    }
+
+    order.requirementsData.responses = responses;
+    order.requirementsData.status = 'submitted';
+    order.requirementsData.submittedAt = new Date();
+
+    // Add timeline entry
+    order.timeline.push({
+      status: "message",
+      message: "Project requirements have been submitted by the client",
+      timestamp: new Date(),
+      updatedBy: req.user._id,
+    });
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      data: order,
+      message: "Requirements submitted successfully"
+    });
+  } catch (error) {
+    logger.error(`Submit requirements error: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Error submitting requirements",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  getServices,
-  getServiceById,
   getProducts,
   getProductById,
+  getServices,
+  getServiceById,
   getCategories,
   search,
   getCart,
@@ -1808,4 +1879,5 @@ module.exports = {
   deleteReview,
   getReviews,
   handleRazorpayWebhook,
+  submitRequirements,
 };

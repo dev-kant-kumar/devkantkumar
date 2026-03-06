@@ -64,7 +64,7 @@ const AdminProjectWorkspace = () => {
     pollingInterval: 30000,
   });
 
-  const order = orderResponse?.order;
+  const order = orderResponse?.data || orderResponse;
 
   const calculateProgress = (order) => {
     if (!order?.timeline || order.timeline.length === 0) return 0;
