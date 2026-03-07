@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
+import SEOHead from '../../../../components/SEO/SEOHead';
+import { ItemListSchema } from '../../../../components/SEO/SchemaMarkup';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
 import TrustSignals, { HowItWorks } from '../../common/components/TrustSignals';
@@ -40,6 +42,19 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Dev Kant Kumar Marketplace — Premium React Templates & Dev Services"
+        description="Buy premium React templates, Next.js boilerplates, MERN stack kits, and hire a full-stack developer for web development, APIs, and SaaS. Instant digital download. Starting from ₹999."
+        keywords={["React templates", "Next.js boilerplate", "MERN stack kit", "hire full stack developer", "React admin dashboard", "web development services India", "buy React components", "SaaS starter kit"]}
+        url="https://www.devkantkumar.com/marketplace"
+        canonical="https://www.devkantkumar.com/marketplace"
+        type="website"
+      />
+      <ItemListSchema
+        items={[...featuredServices.map(s => ({ ...s, type: 'service' })), ...featuredProducts.map(p => ({ ...p, type: 'product' }))]}
+        listName="Dev Kant Kumar Marketplace — Featured Services & Products"
+        listUrl="https://www.devkantkumar.com/marketplace"
+      />
       {/* Hero Section */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>

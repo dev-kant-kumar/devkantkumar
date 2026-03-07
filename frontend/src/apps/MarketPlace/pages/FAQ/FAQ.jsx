@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
+import SEOHead from '../../../../components/SEO/SEOHead';
+import { FAQPageSchema } from '../../../../components/SEO/SchemaMarkup';
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -34,6 +36,15 @@ const FAQ = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <SEOHead
+        title="FAQ — Marketplace Help & Support | Dev Kant Kumar"
+        description="Find answers to common questions about purchasing digital products, payment methods, refunds, licensing, and support on the Dev Kant Kumar Marketplace."
+        keywords={["marketplace FAQ", "digital products help", "refund policy", "license terms", "developer marketplace support"]}
+        url="https://www.devkantkumar.com/marketplace/faq"
+        canonical="https://www.devkantkumar.com/marketplace/faq"
+        type="website"
+      />
+      <FAQPageSchema faqs={faqs} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

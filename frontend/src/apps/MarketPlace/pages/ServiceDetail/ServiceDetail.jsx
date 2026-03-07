@@ -18,7 +18,7 @@ import PriceDisplay from '../../../../components/common/PriceDisplay';
 import ShareModal from '../../../../components/common/ShareModal';
 import ReviewForm from '../../../../components/Reviews/ReviewForm';
 import ReviewList from '../../../../components/Reviews/ReviewList';
-import { ServiceSchema } from '../../../../components/SEO/SchemaMarkup';
+import { ServiceSchema, BreadcrumbSchema } from '../../../../components/SEO/SchemaMarkup';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -154,8 +154,17 @@ const ServiceDetail = () => {
         description={service.description}
         image={service.images?.[0]?.url}
         type="service"
+        canonical={`https://www.devkantkumar.com/marketplace/services/${service._id}`}
+        keywords={[service.title, service.category, "hire developer", "web development", "India"].filter(Boolean)}
       />
-      <ServiceSchema service={service} />
+      <ServiceSchema service={service} reviews={service.reviews || []} />
+      <BreadcrumbSchema
+        items={[
+          { name: "Marketplace", url: "/marketplace" },
+          { name: "Services", url: "/marketplace/services" },
+          { name: service.title, url: `/marketplace/services/${service._id}` }
+        ]}
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">
