@@ -518,6 +518,16 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
     }),
 
+    // Request changes to client requirements
+    requestRequirementsChanges: builder.mutation({
+      query: ({ id, feedback }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/requirements/request-changes`,
+        method: 'POST',
+        body: { feedback },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
+    }),
+
     // Get single order detail
     getAdminOrderById: builder.query({
       query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}`,
@@ -562,6 +572,16 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         body: deliveryData,
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
+    }),
+
+    // Complete SDLC Phase
+    completePhase: builder.mutation({
+      query: ({ id, phase, ...phaseData }) => ({
+        url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/phases/${phase}/complete`,
+        method: 'POST',
+        body: phaseData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
     }),
 
     getMarketplaceStats: builder.query({
@@ -825,11 +845,13 @@ export const {
   useGetAdminOrdersQuery,
   useUpdateAdminOrderStatusMutation,
   useApproveRequirementsMutation,
+  useRequestRequirementsChangesMutation,
   useGetAdminOrderByIdQuery,
   useAddMilestoneMutation,
   useUpdateMilestoneMutation,
   useAddAdminMessageMutation,
   useMarkOrderDeliveredMutation,
+  useCompletePhaseMutation,
   useGetMarketplaceStatsQuery,
   useGetCustomersQuery,
   useGetCustomerByIdQuery,

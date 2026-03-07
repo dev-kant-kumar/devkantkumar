@@ -1,4 +1,4 @@
-const Product = require("../models/Product");
+﻿const Product = require("../models/Product");
 const Service = require("../models/Service");
 const Order = require("../models/Order");
 const User = require("../models/User");
@@ -735,12 +735,7 @@ exports.getOrderById = async (req, res) => {
       .populate(
         "communication.messages.sender",
         "firstName lastName email avatar role"
-      )
-      .populate({
-        path: "items.itemId",
-        select:
-          "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages requirements", // Select necessary fields for Products/Services
-      });
+      );
 
     if (!order) {
       return res
@@ -1113,19 +1108,18 @@ exports.approveRequirements = async (req, res) => {
       });
     }
 
-    if (!order.requirementsData || !['submitted', 'resubmitted'].includes(order.requirementsData.status)) {
+    if (!order.requirementsData || order.requirementsData.status !== 'submitted') {
       return res.status(400).json({
         success: false,
-        message: "Requirements are not in a reviewable state",
+        message: "Requirements are not in submitted state",
       });
     }
 
     order.requirementsData.status = 'approved';
     order.requirementsData.approvedAt = new Date();
-    order.requirementsData.adminFeedback = '';
 
     // If order was waiting on requirements, move it to in_progress
-    if (['confirmed', 'awaiting_requirements'].includes(order.status)) {
+    if (order.status === 'confirmed') {
       order.status = 'in_progress';
 
       // Update pipeline entry
@@ -1146,184 +1140,16 @@ exports.approveRequirements = async (req, res) => {
 
     await order.save();
 
-    res.json({
-      success: true,
-      data: order,
-      message: "Requirements approved successfully"
-    });
-  } catch (error) {
-    logger.error("Approve requirements error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// @desc    Complete a specific Phase
-// @route   POST /api/v1/admin/marketplace/orders/:id/phases/:phaseKey/complete
-// @access  Admin
-exports.completePhase = async (req, res) => {
-  try {
-    const { id, phaseKey } = req.params;
-    const { notes, deliverableUrl, externalLink } = req.body;
-
-    // In a real app we'd save this to `OrderPhase` and `OrderPhaseDeliverable` tables.
-    // For this demonstration step we simply mark order's current phase forward and log progress.
-    const order = await Order.findById(id);
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    // Rough phase progression logic
-    const phaseOrder = ['requirements_gathering', 'legal_documentation', 'planning_scoping', 'design', 'development', 'testing_qa', 'delivery', 'revision_window', 'support_window', 'completed'];
-    const currentIndex = phaseOrder.indexOf(phaseKey);
-    const nextPhase = phaseOrder[currentIndex + 1];
-
-    order.currentPhase = nextPhase;
-
-    // Add timeline entry with deliverable data
-    order.timeline.push({
-      status: nextPhase === 'completed' ? 'completed' : phaseKey, // Status represents the completed phase
-      message: `Phase ${phaseKey.replace('_', ' ')} marked complete by Admin.`,
-      timestamp: new Date(),
-      updatedBy: req.user._id,
-      notes: notes || '',
-      deliverableUrl: deliverableUrl || '',
-      externalLink: externalLink || '',
-    });
-
-    await order.save();
-
-    res.json({
-      success: true,
-      message: `Phase ${phaseKey} completed successfully. Moved to ${nextPhase}.`,
-      data: order,
-    });
-
-  } catch (error) {
-    logger.error("Complete phase error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// @desc    Mark Customer Approval
-// @route   POST /api/v1/admin/marketplace/orders/:id/approvals
-// @access  Admin
-exports.markApproval = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { approval_type, status, notes } = req.body; // e.g., 'design_approval', 'approved'
-
-    const order = await Order.findById(id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-
-    // Add timeline entry
-    order.timeline.push({
-      status: status === 'approved' ? 'in_progress' : 'message',
-      message: `${approval_type.replace('_', ' ')} marked as ${status} by Admin. ${notes || ''}`,
-      timestamp: new Date(),
-      updatedBy: req.user._id,
-    });
-
-    await order.save();
-
-    res.json({
-      success: true,
-      message: `Approval recorded successfully.`,
-      data: order,
-    });
-
-  } catch (error) {
-    logger.error("Mark approval error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// @desc    Request changes to submitted requirements
-// @route   POST /api/v1/admin/marketplace/orders/:id/requirements/request-changes
-// @access  Private/Admin
-exports.requestRequirementsChanges = async (req, res) => {
-  try {
-    const { feedback } = req.body;
-
-    if (!feedback || !feedback.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Feedback is required when requesting changes",
-      });
-    }
-
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    if (!order.requirementsData || !['submitted', 'resubmitted'].includes(order.requirementsData.status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Requirements are not in a reviewable state",
-      });
-    }
-
-    // Update requirements data
-    order.requirementsData.status = 'changes_requested';
-    order.requirementsData.adminFeedback = feedback.trim();
-
-    // Add to feedback history
-    if (!order.requirementsData.feedbackHistory) {
-      order.requirementsData.feedbackHistory = [];
-    }
-    order.requirementsData.feedbackHistory.push({
-      feedback: feedback.trim(),
-      timestamp: new Date(),
-      by: req.user._id,
-    });
-
-    // Update order status
-    if (order.status !== 'awaiting_requirements') {
-      order.status = 'awaiting_requirements';
-    }
-
-    // Add timeline entry
-    order.timeline.push({
-      status: "message",
-      message: `Admin requested changes to requirements: "${feedback.trim().substring(0, 100)}${feedback.length > 100 ? '...' : ''}"`,
-      timestamp: new Date(),
-      updatedBy: req.user._id,
-    });
-
-    await order.save();
-
-    // Notify client
-    try {
-      const { createNotification } = require("../services/notificationService");
-      await createNotification({
-        user: order.user,
-        title: `Changes Requested: ${order.orderNumber}`,
-        message: `Admin has requested changes to your project requirements. Please review and resubmit.`,
-        type: "order",
-        relatedId: order._id,
-        priority: "high",
-      });
-    } catch (notifError) {
-      logger.warn("Failed to send changes requested notification:", notifError);
-    }
-
     res.status(200).json({
       success: true,
       data: order,
-      message: "Changes requested successfully",
+      message: "Requirements approved successfully",
     });
   } catch (error) {
-    logger.error(`Request requirements changes error: ${error.message}`);
+    logger.error(`Approve requirements error: ${error.message}`);
     res.status(500).json({
       success: false,
-      message: "Error requesting changes",
+      message: "Error approving requirements",
       error: error.message,
     });
   }

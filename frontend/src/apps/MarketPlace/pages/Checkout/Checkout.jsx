@@ -264,7 +264,7 @@ const Checkout = () => {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-            "x-country-code": detectedCountryCode || "INR",
+            "x-country-code": detectedCountryCode || (billingInfo.country?.toLowerCase().includes('india') ? 'IN' : 'US'),
           },
           body: JSON.stringify({
             amount: total,
@@ -760,7 +760,7 @@ const Checkout = () => {
                         </span>
                         {currentCurrency !== 'INR' && (
                           <p className="text-[10px] font-bold text-gray-400 mt-0.5 uppercase tracking-wider">
-                            (~{new Intl.NumberFormat('en-US', { style: 'currency', currency: currentCurrency }).format(total * 0.012)})
+                            (~{new Intl.NumberFormat('en-US', { style: 'currency', currency: currentCurrency }).format(getFinalPrice(total, currentCurrency))})
                           </p>
                         )}
                       </div>

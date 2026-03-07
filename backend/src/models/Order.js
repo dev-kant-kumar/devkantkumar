@@ -163,7 +163,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'in_progress', 'revising', 'delivered', 'completed', 'cancelled', 'refunded'],
+    enum: ['pending', 'confirmed', 'awaiting_requirements', 'in_progress', 'revising', 'delivered', 'completed', 'cancelled', 'refunded'],
     default: 'pending'
   },
   fulfillment: {
@@ -221,18 +221,58 @@ const orderSchema = new mongoose.Schema({
     customer: String,
     internal: String
   },
+  currentPhase: {
+    type: String,
+    default: 'requirements_gathering'
+  },
+  overallProgress: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
+  revisionWindowOpensAt: Date,
+  revisionWindowClosesAt: Date,
+  supportWindowOpensAt: Date,
+  supportWindowClosesAt: Date,
   requirementsData: {
     status: {
       type: String,
-      enum: ['pending', 'submitted', 'approved', 'changes_requested'],
+      enum: ['pending', 'submitted', 'approved', 'changes_requested', 'resubmitted'],
       default: 'pending'
     },
     responses: [{
       question: String,
       answer: String
     }],
+    attachments: [{
+      name: String,
+      url: String,
+      size: Number,
+      mimetype: String,
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    adminFeedback: String,
+    feedbackHistory: [{
+      feedback: String,
+      timestamp: {
+        type: Date,
+        default: Date.now
+      },
+      by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    }],
     submittedAt: Date,
-    approvedAt: Date
+    approvedAt: Date,
+    revision: {
+      type: Number,
+      default: 0
+    }
   },
   estimatedDelivery: Date,
   actualDelivery: Date,

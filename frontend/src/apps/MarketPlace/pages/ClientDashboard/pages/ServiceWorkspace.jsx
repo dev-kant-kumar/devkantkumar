@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetServiceByIdQuery } from '../../../store/api/marketplaceApi';
 import { useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
+import ClientPhaseAction from '../components/ClientPhaseAction';
 import ServiceChat from '../components/ServiceChat';
 import ServiceFiles from '../components/ServiceFiles';
-import ServiceRequirements from '../components/ServiceRequirements';
+import ServicePhaseActivity from '../components/ServicePhaseActivity';
+import ServicePhaseHistory from '../components/ServicePhaseHistory';
+// import ServiceRequirements from '../components/ServiceRequirements';
 
 // Status colors mapping
 const STATUS_COLORS = {
@@ -159,21 +162,25 @@ const ServiceWorkspace = () => {
   }, [dynamicDeadline]);
 
 
-  // Calculate progress from timeline
+  // Calculate progress based on SDLC phase weights
   const calculateProgress = (order) => {
+    if (order?.status === 'completed') return 100;
+    if (order?.status === 'cancelled') return 0;
     if (!order?.timeline || order.timeline.length === 0) return 0;
-    if (order.status === 'completed') return 100;
-    if (order.status === 'cancelled') return 0;
 
-    // Count completed milestones
-    const completedStatuses = ['completed', 'delivered', 'payment_completed'];
-    const completed = order.timeline.filter(entry =>
-      completedStatuses.includes(entry.status)
-    ).length;
+    let progress = 0;
+    const completedStatuses = order.timeline.map(entry => entry.status);
 
-    // Assume 5 major milestones: created, confirmed, in_progress, delivered, completed
-    const totalMilestones = 5;
-    return Math.min(Math.round((completed / totalMilestones) * 100), 95);
+    if (completedStatuses.includes('payment_completed')) progress = 10; // Phase 1: Requirements Gathering
+    if (completedStatuses.includes('legal_documentation')) progress = 15; // Phase 2: Legal & Documentation
+    if (completedStatuses.includes('planning_scoping')) progress = 25; // Phase 3: Planning & Scoping
+    if (completedStatuses.includes('design')) progress = 40; // Phase 4: Design
+    if (completedStatuses.includes('in_progress')) progress = 65; // Phase 5: Development
+    if (completedStatuses.includes('testing_qa')) progress = 75; // Phase 6: Testing & QA
+    if (completedStatuses.includes('delivered')) progress = 85; // Phase 7: Delivery
+    if (completedStatuses.includes('revision_window_closed')) progress = 95; // Phase 8: Revisions complete
+
+    return progress;
   };
 
   // Format date
@@ -372,19 +379,19 @@ const ServiceWorkspace = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab('requirements')}
+            onClick={() => setActiveTab('activity')}
             className={`
               whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
-              ${activeTab === 'requirements'
+              ${activeTab === 'activity'
                 ? 'border-green-500 text-green-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }
             `}
           >
             <CheckCircle className="h-4 w-4" />
-            Requirements
+            Phase Activity
             {/* Notification pip for pending requirements */}
-            {order?.requirementsData?.status === 'pending' && activeTab !== 'requirements' && (
+            {order?.requirementsData?.status === 'pending' && activeTab !== 'activity' && (
               <span className="w-2 h-2 rounded-full bg-red-500 ml-1"></span>
             )}
           </button>
@@ -397,50 +404,175 @@ const ServiceWorkspace = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            className="flex flex-col gap-8"
           >
-            {/* Timeline */}
-            <div className="lg:col-span-2 space-y-8">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-6">Project Timeline</h3>
-                <div className="relative">
-                  <div className="absolute top-0 left-4 h-full w-0.5 bg-gray-200" />
-                  <div className="space-y-8">
-                    {order.timeline && order.timeline.length > 0 ? (
-                      order.timeline.map((entry, index) => (
-                        <div key={entry._id || index} className="relative flex items-start pl-12">
-                          <div
-                            className={`
-                              absolute left-0 top-1 h-8 w-8 rounded-full border-4 border-white shadow-sm flex items-center justify-center z-10
-                              ${TIMELINE_STATUS_COLORS[entry.status] || 'bg-gray-300'}
-                            `}
-                          >
-                            {['completed', 'delivered', 'payment_completed'].includes(entry.status) && (
-                              <CheckCircle className="h-4 w-4 text-white" />
-                            )}
-                            {entry.status === 'in_progress' && (
-                              <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-bold text-gray-900">
-                              {entry.message}
-                            </h4>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {formatDate(entry.timestamp)}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        No timeline entries yet
-                      </div>
-                    )}
+            {/* Mission Trajectory Dashboard (Light Mode Glassmorphic) */}
+            <div className="w-full bg-slate-50 rounded-[2rem] shadow-xl border border-gray-200 p-8 pt-10 pb-12 overflow-visible relative mt-4">
+              {/* Subtle radial background effect overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-slate-50 to-white opacity-80 mix-blend-multiply rounded-[2rem]" />
+
+              <div className="relative z-10 w-full max-w-6xl mx-auto">
+                <div className="flex justify-between items-end mb-8">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 tracking-widest uppercase flex items-center gap-3">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+                      Mission Trajectory
+                    </h3>
+                    <p className="text-gray-500 text-xs mt-1 font-mono uppercase tracking-widest border-l-2 border-blue-200 pl-2">
+                      T+ {formatDate(order.createdAt)}
+                    </p>
                   </div>
+                  <div className="text-right">
+                    <span className="text-4xl font-light text-gray-900 font-mono tracking-tight">{progress}%</span>
+                    <p className="text-blue-600 text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-90">Overall Progress</p>
+                  </div>
+                </div>
+
+                {/* SVG Curve Timeline */}
+                <div className="relative w-full mt-12 pb-4">
+                  <svg viewBox="0 0 1000 160" className="w-full h-auto overflow-visible" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                      <filter id="cyanGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComponentTransfer in="blur" result="glow">
+                          <feFuncA type="linear" slope="0.5" />
+                        </feComponentTransfer>
+                        <feComposite in="SourceGraphic" in2="glow" operator="over" />
+                      </filter>
+                      <linearGradient id="activePathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#06b6d4" />
+                      </linearGradient>
+                      <clipPath id="progressClip">
+                        <rect x="-20" y="-20" height="200" style={{ width: `${60 + (progress/100)*890}px`, transition: 'width 1.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                      </clipPath>
+                    </defs>
+
+                    {/* Background Arc */}
+                    <path
+                      d="M 50,110 Q 500,20 950,110"
+                      fill="none"
+                      stroke="#e2e8f0"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+
+                    {/* Active Glowing Arc */}
+                    <path
+                      d="M 50,110 Q 500,20 950,110"
+                      fill="none"
+                      stroke="url(#activePathGrad)"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      clipPath="url(#progressClip)"
+                      filter="url(#cyanGlow)"
+                    />
+
+                    {/* Phase Nodes */}
+                    {['requirements_gathering', 'legal_documentation', 'planning_scoping', 'design', 'development', 'testing_qa', 'delivery', 'revision_window', 'support_window', 'completed'].map((phaseKey, index, arr) => {
+                      const phaseNames = {
+                        'requirements_gathering': 'Requirements',
+                        'legal_documentation': 'Legal',
+                        'planning_scoping': 'Planning',
+                        'design': 'Design',
+                        'development': 'Dev',
+                        'testing_qa': 'Testing',
+                        'delivery': 'Delivery',
+                        'revision_window': 'Revisions',
+                        'support_window': 'Support',
+                        'completed': 'Done'
+                      };
+
+                      const t = index / 9;
+                      const x = Math.pow(1-t, 2)*50 + 2*(1-t)*t*500 + Math.pow(t, 2)*950;
+                      const y = Math.pow(1-t, 2)*110 + 2*(1-t)*t*20 + Math.pow(t, 2)*110;
+
+                      const currentIndex = arr.indexOf(order.currentPhase || 'requirements_gathering');
+                      const isCompleted = index < currentIndex || order.status === 'completed';
+                      const isCurrent = index === currentIndex && order.status !== 'completed';
+
+                      return (
+                        <g key={phaseKey} style={{ transition: 'all 0.5s ease' }}>
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r={isCurrent ? "8" : "6"}
+                            fill={isCompleted || isCurrent ? "#0ea5e9" : "#f8fafc"}
+                            stroke={isCompleted ? "#ffffff" : isCurrent ? "#3b82f6" : "#cbd5e1"}
+                            strokeWidth={isCurrent ? "3" : "2"}
+                            filter={isCompleted || isCurrent ? "url(#cyanGlow)" : "drop-shadow(0 1px 2px rgba(0,0,0,0.1))"}
+                          />
+                          {isCurrent && (
+                            <circle cx={x} cy={y} r="16" fill="none" stroke="#3b82f6" strokeWidth="1.5" className="animate-ping" opacity="0.6" style={{ transformOrigin: `${x}px ${y}px` }} />
+                          )}
+                          <text
+                            x={x}
+                            y={y + 35}
+                            textAnchor="middle"
+                            fill={isCompleted || isCurrent ? "#0f172a" : "#64748b"}
+                            fontSize="11"
+                            className="font-mono uppercase tracking-[0.15em] transition-all duration-500 font-semibold"
+                          >
+                            {phaseNames[phaseKey]}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
                 </div>
               </div>
             </div>
+
+            {/* Active Action Center */}
+            <ClientPhaseAction order={order} setActiveTab={setActiveTab} />
+
+            {/* Bottom Details Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Recent Activity (Left 2 cols) */}
+              <div className="lg:col-span-2 space-y-8">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full">
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-6">Recent Activity Updates</h3>
+                  <div className="relative">
+                    <div className="absolute top-0 left-4 h-full w-0.5 bg-gray-200" />
+                    <div className="space-y-6">
+                      {order.timeline && order.timeline.length > 0 ? (
+                        [...order.timeline].reverse().slice(0, 5).map((entry, index) => (
+                          <div key={entry._id || index} className="relative flex items-start pl-12">
+                            <div
+                              className={`
+                                absolute left-0 top-1 h-8 w-8 rounded-full border-4 border-white shadow-sm flex items-center justify-center z-10
+                                ${TIMELINE_STATUS_COLORS[entry.status] || 'bg-gray-300'}
+                              `}
+                            >
+                              {['completed', 'delivered', 'payment_completed'].includes(entry.status) && (
+                                <CheckCircle className="h-4 w-4 text-white" />
+                              )}
+                              {entry.status === 'in_progress' && (
+                                <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-medium text-gray-800">
+                                {entry.message}
+                              </h4>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {formatDate(entry.timestamp)}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-500 text-sm">
+                          No recent timeline activity
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase Deliverables / Outputs */}
+                <ServicePhaseHistory timeline={order.timeline} />
+              </div>
 
             {/* Sidebar Stats */}
             <div className="space-y-6">
@@ -603,12 +735,13 @@ const ServiceWorkspace = () => {
                 </div>
               )}
             </div>
+          </div>
           </motion.div>
         )}
 
         {activeTab === 'messages' && <ServiceChat orderId={serviceId} />}
         {activeTab === 'files' && <ServiceFiles orderId={serviceId} order={order} />}
-        {activeTab === 'requirements' && <ServiceRequirements order={order} liveService={liveService} />}
+        {activeTab === 'activity' && <ServicePhaseActivity order={order} liveService={liveService} />}
       </div>
 
       {/* Revision Prompt Modal */}

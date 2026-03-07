@@ -58,10 +58,13 @@ router.get('/marketplace/orders', adminMarketplaceController.getAllOrders);
 router.get('/marketplace/orders/:id', adminMarketplaceController.getOrderById);
 router.put('/marketplace/orders/:id', adminMarketplaceController.updateAdminOrderStatus);
 router.post('/marketplace/orders/:id/requirements/approve', adminMarketplaceController.approveRequirements);
+router.post('/marketplace/orders/:id/requirements/request-changes', adminMarketplaceController.requestRequirementsChanges);
 router.post('/marketplace/orders/:id/milestones', adminMarketplaceController.addMilestone);
 router.put('/marketplace/orders/:id/milestones/:milestoneId', adminMarketplaceController.updateMilestone);
 router.post('/marketplace/orders/:id/messages', adminMarketplaceController.addAdminMessage);
 router.post('/marketplace/orders/:id/deliver', adminMarketplaceController.markDelivered);
+router.post('/marketplace/orders/:id/phases/:phaseKey/complete', adminMarketplaceController.completePhase);
+router.post('/marketplace/orders/:id/approvals', adminMarketplaceController.markApproval);
 router.get('/marketplace/stats', adminMarketplaceController.getStats);
 
 // Customers

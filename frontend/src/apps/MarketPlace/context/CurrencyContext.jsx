@@ -59,34 +59,22 @@ export const CurrencyProvider = ({ children }) => {
             }
 
             try {
-                // Use ip-api.com - free, no API key, no CORS issues for client-side
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-                // ip-api.com doesn't have CORS issues and is more reliable
-                const res = await fetch('http://ip-api.com/json/?fields=countryCode,currency', {
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
+                // Using ipapi.co - supports HTTPS on free tier, 30k reqs/month
+                const res = await fetch('https://ipapi.co/json/');
 
                 if (res.ok) {
                     const data = await res.json();
-                    const detectedCountry = data.countryCode || 'IN';
-                    // ip-api doesn't return currency, map common countries
-                    const currencyMap = {
-                        'US': 'USD', 'GB': 'GBP', 'EU': 'EUR', 'IN': 'INR',
-                        'AU': 'AUD', 'CA': 'CAD', 'JP': 'JPY', 'CN': 'CNY'
-                    };
-                    const detectedCurrency = currencyMap[detectedCountry] || 'USD';
+                    const detectedCountry = data.country_code || 'IN';
+                    const detectedCurrency = data.currency || 'INR';
 
                     setCountryCode(detectedCountry);
                     if (!savedCurrency) {
                         setCurrency(detectedCurrency);
                     }
                 }
-            } catch {
-                // Silent fail - defaults already set to IN/INR
+            } catch (err) {
+                console.error('[CurrencyContext] Location detection failed:', err);
+                // Fallback to IN/INR is already set in state
             } finally {
                 setIsLoadingLocation(false);
             }

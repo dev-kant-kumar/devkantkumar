@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, CheckCircle, ClipboardList, Clock, FileText, Globe, Link2, Loader2, MessageSquare, RefreshCw, Target } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, ClipboardList, Clock, FileText, Globe, History as HistoryIcon, Link2, Loader2, MessageSquare, RefreshCw, Target } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import PremiumButton from '../../../common/components/PremiumButton';
-import { useApproveRequirementsMutation, useGetAdminOrderByIdQuery } from '../../../store/api/adminApiSlice';
+import { useApproveRequirementsMutation, useGetAdminOrderByIdQuery, useRequestRequirementsChangesMutation } from '../../../store/api/adminApiSlice';
 
+import AdminPhaseManager from '../components/AdminPhaseManager';
 import AdminProjectTimeline from './AdminProjectTimeline';
 
+import ServicePhaseHistory from '../../../../MarketPlace/pages/ClientDashboard/components/ServicePhaseHistory';
 import AdminProjectFiles from './AdminProjectFiles';
 import AdminProjectMessages from './AdminProjectMessages';
 
@@ -15,10 +17,14 @@ import AdminProjectMessages from './AdminProjectMessages';
 const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300',
   confirmed: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300',
+  awaiting_requirements: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300',
   in_progress: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300',
   completed: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300',
   cancelled: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300',
+  delivered: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300',
+  revising: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300',
 };
+
 
 // Loading skeleton
 const LoadingSkeleton = () => (
@@ -215,17 +221,17 @@ const AdminProjectWorkspace = () => {
             Files & Assets
           </button>
           <button
-            onClick={() => setActiveTab('requirements')}
+            onClick={() => setActiveTab('activity')}
             className={`
               whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors
-              ${activeTab === 'requirements'
+              ${activeTab === 'activity'
                 ? 'border-purple-500 text-purple-600 dark:text-purple-400'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
               }
             `}
           >
-            <ClipboardList className="h-4 w-4" />
-            Requirements
+            <HistoryIcon className="h-4 w-4" />
+            Phase Activity
             {order.requirementsData?.status === 'submitted' && (
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -246,7 +252,11 @@ const AdminProjectWorkspace = () => {
           >
             {/* Timeline Area */}
             <div className="lg:col-span-2 space-y-8">
+              {order?.items?.[0]?.itemType === 'service' && (
+                <AdminPhaseManager order={order} />
+              )}
               <AdminProjectTimeline order={order} refetch={refetch} />
+              <ServicePhaseHistory timeline={order.timeline} />
             </div>
 
             {/* Sidebar Stats Area */}
@@ -362,7 +372,7 @@ const AdminProjectWorkspace = () => {
 
         {activeTab === 'messages' && <AdminProjectMessages orderId={order._id} />}
         {activeTab === 'files' && <AdminProjectFiles orderId={order._id} order={order} />}
-        {activeTab === 'requirements' && <AdminRequirementsTab order={order} refetch={refetch} />}
+        {activeTab === 'activity' && <AdminPhaseActivity order={order} refetch={refetch} />}
       </div>
     </motion.div>
   );
@@ -398,12 +408,18 @@ const ICON_COLORS = [
   'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
 ];
 
-// Admin Requirements Tab
-const AdminRequirementsTab = ({ order, refetch }) => {
+// Admin Phase Activity Tab (Consolidated Requirements + History)
+const AdminPhaseActivity = ({ order, refetch }) => {
   const [approveRequirements, { isLoading: isApproving }] = useApproveRequirementsMutation();
+  const [requestRequirementsChanges, { isLoading: isRequesting }] = useRequestRequirementsChangesMutation();
+  const [showChangesModal, setShowChangesModal] = useState(false);
+  const [feedback, setFeedback] = useState('');
   const reqData = order?.requirementsData;
   const responses = reqData?.responses || [];
+  const attachments = reqData?.attachments || [];
+  const feedbackHistory = reqData?.feedbackHistory || [];
   const status = reqData?.status || 'pending';
+  const revision = reqData?.revision || 0;
 
   const handleApprove = async () => {
     try {
@@ -415,7 +431,41 @@ const AdminRequirementsTab = ({ order, refetch }) => {
     }
   };
 
+  const handleRequestChanges = async () => {
+    if (!feedback.trim()) {
+      toast.error('Please provide feedback for the client.');
+      return;
+    }
+    try {
+      await requestRequirementsChanges({ id: order._id, feedback: feedback.trim() }).unwrap();
+      toast.success('Changes requested! The client will be notified.');
+      setShowChangesModal(false);
+      setFeedback('');
+      refetch();
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to request changes');
+    }
+  };
+
   if (status === 'pending' || responses.length === 0) {
+    if (['in_progress', 'delivered', 'completed', 'revising'].includes(order.status)) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-16 text-gray-500 dark:text-gray-400"
+        >
+          <div className="h-16 w-16 mb-4 bg-green-500/10 rounded-full flex items-center justify-center">
+            <CheckCircle className="h-8 w-8 text-green-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Requirements Handled</h3>
+          <p className="text-sm mt-2 text-center max-w-md">
+            This project is currently marked as {order.status.replace('_', ' ')}. Requirements were likely gathered externally or bypassed.
+          </p>
+        </motion.div>
+      );
+    }
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -429,22 +479,27 @@ const AdminRequirementsTab = ({ order, refetch }) => {
     );
   }
 
+  const isReviewable = ['submitted', 'resubmitted'].includes(status);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* Status Banner */}
-      {status === 'submitted' && (
+      {/* Status Banner — Submitted / Resubmitted */}
+      {isReviewable && (
         <div className="bg-gradient-to-r from-purple-900/60 to-purple-800/40 dark:from-purple-900/80 dark:to-purple-800/60 backdrop-blur-xl rounded-xl p-6 border border-purple-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center">
               <ClipboardList className="h-6 w-6 text-purple-300" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Requirements Review Required</h3>
+              <h3 className="text-lg font-bold text-white">
+                {status === 'resubmitted' ? 'Revised Requirements' : 'Requirements Review Required'}
+              </h3>
               <p className="text-sm text-purple-200">
+                {status === 'resubmitted' && <span className="bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded text-xs font-bold mr-2">Revision #{revision}</span>}
                 Submitted on {reqData.submittedAt ? new Date(reqData.submittedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Unknown'}
               </p>
             </div>
@@ -452,9 +507,9 @@ const AdminRequirementsTab = ({ order, refetch }) => {
           <div className="flex items-center gap-3">
             <button
               className="px-5 py-2.5 bg-transparent border border-red-400 text-red-300 hover:bg-red-500/20 rounded-lg text-sm font-medium transition-colors"
-              onClick={() => toast('Request revisions feature coming soon!', { icon: '🔄' })}
+              onClick={() => setShowChangesModal(true)}
             >
-              Request Revisions
+              Request Changes
             </button>
             <button
               onClick={handleApprove}
@@ -472,6 +527,30 @@ const AdminRequirementsTab = ({ order, refetch }) => {
         </div>
       )}
 
+      {/* Status Banner — Changes Requested */}
+      {status === 'changes_requested' && (
+        <div className="bg-gradient-to-r from-amber-900/60 to-orange-800/40 dark:from-amber-900/80 dark:to-orange-800/60 backdrop-blur-xl rounded-xl p-6 border border-amber-700/50">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 bg-amber-500/20 rounded-full flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-amber-300" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">Changes Requested — Waiting for Client</h3>
+              <p className="text-sm text-amber-200 mt-1">
+                You requested changes. The client will revise and resubmit.
+              </p>
+            </div>
+          </div>
+          {reqData.adminFeedback && (
+            <div className="mt-4 bg-amber-950/30 rounded-lg p-4 border border-amber-700/30">
+              <p className="text-xs font-bold text-amber-400 uppercase tracking-wide mb-1">Your Feedback</p>
+              <p className="text-sm text-amber-100 whitespace-pre-wrap">{reqData.adminFeedback}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Status Banner — Approved */}
       {status === 'approved' && (
         <div className="bg-green-900/30 backdrop-blur-xl rounded-xl p-6 border border-green-700/50 flex items-center gap-4">
           <div className="h-12 w-12 bg-green-500/20 rounded-full flex items-center justify-center">
@@ -480,11 +559,46 @@ const AdminRequirementsTab = ({ order, refetch }) => {
           <div>
             <h3 className="text-lg font-bold text-white">Requirements Approved</h3>
             <p className="text-sm text-green-200">
+              {revision > 0 && <span className="bg-green-500/30 text-green-200 px-2 py-0.5 rounded text-xs font-bold mr-2">After {revision} revision{revision > 1 ? 's' : ''}</span>}
               Approved on {reqData.approvedAt ? new Date(reqData.approvedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Unknown'}
             </p>
           </div>
         </div>
       )}
+
+      {/* Feedback History */}
+      {feedbackHistory.length > 0 && (
+        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
+          <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Clock className="h-4 w-4 text-gray-500" />
+            Feedback History
+            <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs px-2 py-0.5 rounded-full">{feedbackHistory.length}</span>
+          </h4>
+          <div className="space-y-3">
+            {feedbackHistory.map((entry, idx) => (
+              <div key={idx} className="flex gap-3 border-l-2 border-amber-400 pl-4 py-2">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{entry.feedback}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Unknown'}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Project Activity History Section */}
+      <div className="mt-12 pt-12 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+            <HistoryIcon className="h-4 w-4" />
+            Project Activity History
+          </h3>
+        </div>
+        <ServicePhaseHistory timeline={order.timeline} />
+      </div>
 
       {/* Requirement Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -510,18 +624,86 @@ const AdminRequirementsTab = ({ order, refetch }) => {
         })}
       </div>
 
-      {/* Additional Context */}
-      {responses.length > 4 && (
+      {/* Attachments */}
+      {attachments.length > 0 && (
         <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-10 w-10 rounded-lg flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
-              <AlertCircle className="h-5 w-5" />
-            </div>
-            <h4 className="font-bold text-gray-900 dark:text-white">Additional Context</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <FileText className="h-4 w-4 text-gray-500" />
+            Attachments
+            <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs px-2 py-0.5 rounded-full">{attachments.length}</span>
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {attachments.map((att, idx) => (
+              <a
+                key={idx}
+                href={att.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200/50 dark:border-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+              >
+                <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{att.name}</p>
+                  {att.size > 0 && (
+                    <p className="text-xs text-gray-500">{(att.size / 1024).toFixed(1)} KB</p>
+                  )}
+                </div>
+                <Link2 className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors flex-shrink-0" />
+              </a>
+            ))}
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-            No additional files or documents were attached with this submission.
-          </p>
+        </div>
+      )}
+
+      {/* Request Changes Modal */}
+      {showChangesModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-lg w-full"
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Request Changes</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Provide specific feedback for the client to revise their requirements.
+              </p>
+            </div>
+            <div className="p-6">
+              <textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={5}
+                placeholder="e.g., Please provide more details about the target audience, color scheme preferences, and specific pages needed..."
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all resize-none text-gray-900 dark:text-white placeholder-gray-400"
+              />
+              <p className="text-xs text-gray-400 mt-2">
+                This feedback will be shown to the client on their requirements page.
+              </p>
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+              <button
+                onClick={() => { setShowChangesModal(false); setFeedback(''); }}
+                className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRequestChanges}
+                disabled={isRequesting || !feedback.trim()}
+                className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isRequesting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <AlertCircle className="h-4 w-4" />
+                )}
+                Send Feedback
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>

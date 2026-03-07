@@ -92,10 +92,10 @@ export const ordersApi = baseApiSlice.injectEndpoints({
 
     // Submit requirements
     submitRequirements: builder.mutation({
-      query: ({ orderId, responses }) => ({
+      query: ({ orderId, responses, attachments = [] }) => ({
         url: `${API_ENDPOINTS.MARKETPLACE.ORDERS}/${orderId}/requirements`,
         method: 'POST',
-        body: { responses },
+        body: { responses, attachments },
       }),
       invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }],
     }),

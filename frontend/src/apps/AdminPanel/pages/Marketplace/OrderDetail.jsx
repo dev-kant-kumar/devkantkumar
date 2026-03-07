@@ -230,6 +230,7 @@ const OrderDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Order Details */}
         <div className="lg:col-span-2 space-y-6">
+
           {/* Customer Info */}
           <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">

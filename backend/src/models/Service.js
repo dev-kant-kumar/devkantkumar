@@ -99,6 +99,22 @@ const serviceSchema = new mongoose.Schema(
           duration: { type: Number, default: 3 },
           unit: { type: String, enum: ['days', 'weeks', 'months', 'years'], default: 'days' }
         },
+        nda_required: {
+          type: Boolean,
+          default: false
+        },
+        sow_required: {
+          type: Boolean,
+          default: false
+        },
+        ip_transfer_required: {
+          type: Boolean,
+          default: false
+        },
+        legal_sign_required: {
+          type: Boolean,
+          default: false
+        },
         features: [
           {
             type: String,

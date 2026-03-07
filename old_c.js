@@ -1,4 +1,4 @@
-const axios = require("axios");
+﻿const axios = require("axios");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
 const Coupon = require("../models/Coupon");
@@ -520,7 +520,7 @@ const getOrderById = async (req, res) => {
       .populate({
         path: "items.itemId",
         select:
-          "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages requirements", // Select necessary fields for Products/Services
+          "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages", // Select necessary fields for Products/Services
       })
       .populate({
         path: "communication.messages.sender",
@@ -1793,7 +1793,7 @@ const handleRazorpayWebhook = async (req, res) => {
 const submitRequirements = async (req, res) => {
   try {
     const { id } = req.params;
-    const { responses, attachments = [] } = req.body;
+    const { responses } = req.body;
 
     if (!responses || !Array.isArray(responses)) {
       return res.status(400).json({
@@ -1819,77 +1819,32 @@ const submitRequirements = async (req, res) => {
       order.requirementsData = {};
     }
 
-    // Can only submit if pending, changes_requested, or resubmitting
-    const currentStatus = order.requirementsData.status;
-    if (currentStatus === 'approved') {
+    // You can only submit if pending or changes requested
+    if (order.requirementsData.status === 'approved') {
       return res.status(400).json({
         success: false,
         message: "Requirements have already been approved"
       });
     }
 
-    if (currentStatus === 'submitted' || currentStatus === 'resubmitted') {
-      return res.status(400).json({
-        success: false,
-        message: "Requirements are already under review"
-      });
-    }
-
-    // Determine the new status based on current state
-    const isResubmission = currentStatus === 'changes_requested';
-    const newStatus = isResubmission ? 'resubmitted' : 'submitted';
-
     order.requirementsData.responses = responses;
-    order.requirementsData.status = newStatus;
+    order.requirementsData.status = 'submitted';
     order.requirementsData.submittedAt = new Date();
-
-    // Handle attachments
-    if (attachments.length > 0) {
-      order.requirementsData.attachments = attachments.map(att => ({
-        name: att.name,
-        url: att.url,
-        size: att.size || 0,
-        mimetype: att.mimetype || '',
-        uploadedAt: new Date()
-      }));
-    }
-
-    // Track revision count
-    if (isResubmission) {
-      order.requirementsData.revision = (order.requirementsData.revision || 0) + 1;
-    }
 
     // Add timeline entry
     order.timeline.push({
       status: "message",
-      message: isResubmission
-        ? `Project requirements resubmitted (revision #${order.requirementsData.revision})`
-        : "Project requirements have been submitted by the client",
+      message: "Project requirements have been submitted by the client",
       timestamp: new Date(),
       updatedBy: req.user._id,
     });
 
     await order.save();
 
-    // Send notification to admin
-    try {
-      const { createNotification } = require("../services/notificationService");
-      await createNotification({
-        user: null,
-        title: isResubmission ? `Requirements Resubmitted: ${order.orderNumber}` : `New Requirements: ${order.orderNumber}`,
-        message: `Client ${isResubmission ? 'resubmitted' : 'submitted'} project requirements for ${order.items?.[0]?.title || 'a service'}`,
-        type: "order",
-        relatedId: order._id,
-        priority: "high",
-      });
-    } catch (notifError) {
-      logger.warn("Failed to send requirements notification:", notifError);
-    }
-
     res.status(200).json({
       success: true,
       data: order,
-      message: isResubmission ? "Requirements resubmitted successfully" : "Requirements submitted successfully"
+      message: "Requirements submitted successfully"
     });
   } catch (error) {
     logger.error(`Submit requirements error: ${error.message}`);
@@ -1900,7 +1855,6 @@ const submitRequirements = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   getProducts,

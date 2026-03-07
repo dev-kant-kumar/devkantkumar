@@ -34,11 +34,14 @@ export const mockAuth = {
           return;
         }
 
+        // MOCK OBFUSCATION: In production, always use bcrypt/argon2 on backend
+        const obfuscatedPassword = btoa(userData.password);
+
         const newUser = {
           id: Date.now().toString(),
           name: userData.name,
           email: userData.email,
-          password: userData.password, // In a real app, this would be hashed!
+          password: obfuscatedPassword,
           role: 'client',
           createdAt: new Date().toISOString()
         };
@@ -63,20 +66,10 @@ export const mockAuth = {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const users = getUsers();
-        const user = users.find(u => u.email === email && u.password === password);
+        const obfuscatedPassword = btoa(password);
+        const user = users.find(u => u.email === email && u.password === obfuscatedPassword);
 
         if (!user) {
-          // Fallback for the hardcoded demo user if not found in DB
-          if (email === 'demo@example.com' && password === 'Password123!') {
-             resolve({
-                id: '1',
-                name: 'Demo User',
-                email: 'demo@example.com',
-                role: 'client'
-             });
-             return;
-          }
-
           reject(new Error('Invalid email or password'));
           return;
         }

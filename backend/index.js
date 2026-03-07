@@ -91,8 +91,6 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use('/api/', limiter);
-
 app.use(cors({
   origin: function (origin, callback) {
     console.log('=== CORS Debug ===');
@@ -127,6 +125,8 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
+
+app.use('/api/', limiter);
 
 // Body parsing middleware
 app.use(express.json({

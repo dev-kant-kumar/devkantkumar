@@ -16,41 +16,63 @@ import {
 } from '../../../store/api/adminApiSlice';
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'All Status', icon: '📋' },
-  { value: 'pending', label: 'Pending', icon: '⏳' },
-  { value: 'confirmed', label: 'Confirmed', icon: '✅' },
-  { value: 'in_progress', label: 'In Progress', icon: '🔄' },
-  { value: 'completed', label: 'Completed', icon: '🎉' },
-  { value: 'cancelled', label: 'Cancelled', icon: '❌' },
+  { value: '', label: 'All Status', icon: '📋', color: 'text-gray-400' },
+  { value: 'pending', label: 'Pending', icon: '⏳', color: 'text-amber-500' },
+  { value: 'confirmed', label: 'Confirmed', icon: '✅', color: 'text-blue-500' },
+  { value: 'awaiting_requirements', label: 'Awaiting Reqs', icon: '⏳', color: 'text-orange-500' },
+  { value: 'revising', label: 'Revising', icon: '🔄', color: 'text-amber-600' },
+  { value: 'in_progress', label: 'In Progress', icon: '🔄', color: 'text-purple-500' },
+  { value: 'delivered', label: 'Delivered', icon: '📦', color: 'text-emerald-500' },
+  { value: 'completed', label: 'Completed', icon: '🎉', color: 'text-green-500' },
+  { value: 'cancelled', label: 'Cancelled', icon: '❌', color: 'text-rose-500' },
 ];
 
 const STATUS_COLORS = {
-  pending: 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 ring-yellow-600/20 dark:ring-yellow-400/20',
-  confirmed: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 ring-blue-600/20 dark:ring-blue-400/20',
-  in_progress: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 ring-purple-600/20 dark:ring-purple-400/20',
-  completed: 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 ring-green-600/20 dark:ring-green-400/20',
-  cancelled: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 ring-red-600/20 dark:ring-red-400/20',
+  pending: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-amber-500/20',
+  confirmed: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 ring-blue-500/20',
+  awaiting_requirements: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-orange-500/20',
+  revising: 'bg-amber-600/10 text-amber-700 dark:text-amber-500 ring-amber-600/20',
+  in_progress: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 ring-purple-500/20',
+  delivered: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-emerald-500/20',
+  completed: 'bg-green-500/10 text-green-600 dark:text-green-400 ring-green-500/20',
+  cancelled: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 ring-rose-500/20',
 };
+
+const PROJECT_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pending', icon: '⏳', color: 'text-amber-500' },
+  { value: 'confirmed', label: 'Confirmed', icon: '✅', color: 'text-blue-500' },
+  { value: 'awaiting_requirements', label: 'Awaiting Reqs', icon: '⏳', color: 'text-orange-500' },
+  { value: 'revising', label: 'Revising', icon: '🔄', color: 'text-amber-600' },
+  { value: 'in_progress', label: 'In Progress', icon: '🔄', color: 'text-purple-500' },
+  { value: 'delivered', label: 'Delivered', icon: '📦', color: 'text-emerald-500' },
+  { value: 'completed', label: 'Completed', icon: '🎉', color: 'text-green-500' },
+  { value: 'cancelled', label: 'Cancelled', icon: '❌', color: 'text-rose-500' },
+];
 
 // Calculate progress from timeline
 const calculateProgress = (order) => {
-  if (!order?.timeline || order.timeline.length === 0) return 0;
-  if (order.status === 'completed') return 100;
-  if (order.status === 'cancelled') return 0;
+  if (order?.status === 'completed') return 100;
+  if (order?.status === 'cancelled') return 0;
+  if (order?.status === 'delivered') return 90;
 
-  const completedStatuses = ['completed', 'delivered', 'payment_completed'];
-  const completed = order.timeline.filter(entry =>
-    completedStatuses.includes(entry.status)
-  ).length;
+  if (!order?.timeline || order.timeline.length === 0) return 0;
+
+  const completedStatuses = ['completed', 'delivered', 'payment_completed', 'confirmed', 'in_progress'];
+
+  // Count unique progression steps from timeline
+  const uniqueSteps = new Set(
+    order.timeline
+      .filter(entry => completedStatuses.includes(entry.status))
+      .map(entry => entry.status)
+  ).size;
 
   const totalMilestones = 5;
-  return Math.min(Math.round((completed / totalMilestones) * 100), 95);
+  return Math.min(Math.round((uniqueSteps / totalMilestones) * 100), 85);
 };
 
-const CustomDropdown = ({ value, onChange, options }) => {
+const ProjectStatusDropdown = ({ value, onChange, options = PROJECT_STATUS_OPTIONS, disabled }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-
   const selectedOption = options.find(opt => opt.value === value) || options[0];
 
   useEffect(() => {
@@ -64,26 +86,31 @@ const CustomDropdown = ({ value, onChange, options }) => {
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative inline-block" ref={dropdownRef}>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl bg-transparent text-left transition-all duration-200 outline-none hover:bg-white/50 dark:hover:bg-gray-800/50
-          ${isOpen ? 'bg-white/50 dark:bg-gray-800/50' : ''}`}
+        className={`group flex items-center gap-2 px-3 py-1.5 rounded-full ring-1 ring-inset transition-all duration-200 capitalize text-xs font-semibold
+          ${STATUS_COLORS[value] || 'bg-gray-500/10 text-gray-500 ring-gray-500/20'}
+          ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95 cursor-pointer'}`}
       >
-        <span className="text-lg">{selectedOption.icon}</span>
-        <span className="text-gray-900 dark:text-white font-medium">{selectedOption.label}</span>
-        <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span>{selectedOption.icon}</span>
+        <span>{selectedOption.label.replace('_', ' ')}</span>
+        <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''} opacity-60 group-hover:opacity-100`} />
       </button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute z-50 right-0 w-48 mt-2 py-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl shadow-gray-200/50 dark:shadow-black/30"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="absolute z-[100] left-0 mt-2 w-44 py-1.5 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-white/10 shadow-2xl shadow-black/20 overflow-hidden"
           >
+            <div className="px-3 py-1 mb-1 border-b border-gray-100 dark:border-white/5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Change Status</span>
+            </div>
             {options.map((option) => (
               <button
                 key={option.value}
@@ -92,16 +119,18 @@ const CustomDropdown = ({ value, onChange, options }) => {
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full px-4 py-2.5 flex items-center gap-3 text-left transition-colors
+                className={`w-full px-3 py-2 flex items-center gap-2.5 text-left transition-all duration-200
                   ${value === option.value
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    ? 'bg-gray-100/50 dark:bg-white/5 text-gray-900 dark:text-white'
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                   }`}
               >
-                <span className="text-lg">{option.icon}</span>
-                <span className="flex-1 font-medium">{option.label}</span>
+                <div className={`w-1.5 h-1.5 rounded-full ${option.color.replace('text-', 'bg-')}`} />
+                <span className="text-xs font-medium flex-1">{option.label}</span>
                 {value === option.value && (
-                  <Check size={16} className="text-blue-600 dark:text-blue-400" />
+                  <div className="w-4 h-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <Check size={10} className="text-blue-500" />
+                  </div>
                 )}
               </button>
             ))}
@@ -188,7 +217,7 @@ const AdminProjects = () => {
 
         <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden md:block" />
 
-        <CustomDropdown value={statusFilter} onChange={setStatusFilter} options={STATUS_OPTIONS} />
+        <ProjectStatusDropdown value={statusFilter} onChange={setStatusFilter} options={STATUS_OPTIONS} />
 
         <button className="p-3 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-xl transition-colors">
           <Filter size={20} />
@@ -260,19 +289,12 @@ const AdminProjects = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 cursor-pointer relative z-20">
-                      <select
+                    <td className="px-6 py-4">
+                      <ProjectStatusDropdown
                         value={project.status}
-                        onChange={(e) => handleStatusChange(project._id, e.target.value)}
+                        onChange={(newStatus) => handleStatusChange(project._id, newStatus)}
                         disabled={isUpdating}
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full ring-1 ring-inset cursor-pointer capitalize appearance-none outline-none bg-transparent focus:ring-2 relative z-20 ${STATUS_COLORS[project.status] || 'bg-gray-100'}`}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
+                      />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {formatDate(project.createdAt)}
