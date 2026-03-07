@@ -16,7 +16,7 @@ const ClientPhaseAction = ({ order, setActiveTab }) => {
             buttonLabel: "Submit Requirements Now",
             icon: FileText,
             color: "blue",
-            action: () => setActiveTab('requirements'),
+            action: () => setActiveTab('activity'),
             showButton: true
           };
         }
@@ -27,7 +27,7 @@ const ClientPhaseAction = ({ order, setActiveTab }) => {
             buttonLabel: "View Submission",
             icon: Clock,
             color: "amber",
-            action: () => setActiveTab('requirements'),
+            action: () => setActiveTab('activity'),
             showButton: true
           };
         }
@@ -38,7 +38,7 @@ const ClientPhaseAction = ({ order, setActiveTab }) => {
             buttonLabel: "Fix Requirements",
             icon: AlertCircle,
             color: "red",
-            action: () => setActiveTab('requirements'),
+            action: () => setActiveTab('activity'),
             showButton: true
           };
         }

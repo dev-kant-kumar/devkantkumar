@@ -3,17 +3,25 @@ import {
     AlertCircle,
     ArrowLeft,
     CheckCircle,
+    ClipboardList,
     Clock,
+    Cpu,
     CreditCard,
     FileText,
+    Globe,
+    Layout,
+    Link2,
     Loader2,
     Mail,
     MessageSquare,
     Package,
+    Palette,
     Phone,
     Plus,
     RefreshCw,
+    Rocket,
     Send,
+    Target,
     Truck,
     User
 } from 'lucide-react';
@@ -293,9 +301,9 @@ const OrderDetail = () => {
           {/* Project Requirements */}
           {order.requirementsData && order.requirementsData.responses?.length > 0 && (
             <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50 p-6">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-yellow-500" /> Project Requirements
+                  <ClipboardList className="h-5 w-5 text-purple-500" /> Project Requirements
                 </h3>
                 {order.requirementsData.status === 'submitted' && (
                   <button
@@ -314,17 +322,37 @@ const OrderDetail = () => {
                 )}
               </div>
 
-              <div className="space-y-4">
-                {order.requirementsData.responses.map((resp, idx) => (
-                  <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-100 dark:border-gray-700/50">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">
-                      {idx + 1}. {resp.question}
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                      {resp.answer}
-                    </p>
-                  </div>
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {order.requirementsData.responses.map((resp, idx) => {
+                  const Icon = (() => {
+                    const lowerQ = resp.question?.toLowerCase() || '';
+                    if (lowerQ.includes('title') || lowerQ.includes('identity')) return Layout;
+                    if (lowerQ.includes('description') || lowerQ.includes('overview')) return FileText;
+                    if (lowerQ.includes('goals') || lowerQ.includes('objectives')) return Target;
+                    if (lowerQ.includes('audience') || lowerQ.includes('market')) return Globe;
+                    if (lowerQ.includes('technical') || lowerQ.includes('stack')) return Cpu;
+                    if (lowerQ.includes('features')) return Rocket;
+                    if (lowerQ.includes('design') || lowerQ.includes('look') || lowerQ.includes('feel')) return Palette;
+                    if (lowerQ.includes('reference') || lowerQ.includes('links')) return Link2;
+                    return ClipboardList;
+                  })();
+
+                  return (
+                    <div key={idx} className="bg-gray-50/50 dark:bg-gray-800/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-7 w-7 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 dark:text-purple-400">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                          {resp.question}
+                        </h4>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap leading-relaxed">
+                        {resp.answer || 'No answer provided'}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

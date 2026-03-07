@@ -1,20 +1,25 @@
 import { motion } from 'framer-motion';
 import {
-    AlertCircle,
+    Activity,
+    Bug,
     CheckCircle,
     ClipboardList,
     Clock,
-    ExternalLink,
+    Cpu,
     FileText,
     Globe,
     History as HistoryIcon,
+    Layout,
     Link2,
-    Loader,
-    Save,
+    MessageSquare,
+    Palette,
+    RefreshCw,
+    Rocket,
+    ShieldCheck,
     Target
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useSubmitRequirementsMutation } from '../../../store/orders/ordersApi';
+import { useState } from 'react';
+import ServiceRequirements from './ServiceRequirements';
 
 // Question icon mapper for rich display
 const QUESTION_ICONS = {
@@ -46,333 +51,289 @@ const ICON_COLORS = [
   'bg-orange-500',
 ];
 
-const PHASE_DISPLAY_NAMES = {
-  requirements_gathering: 'Requirements',
-  legal_documentation: 'Legal & Documentation',
-  planning_scoping: 'Planning & Scoping',
-  design: 'Design & Prototyping',
-  development: 'Development Phase',
-  testing_qa: 'Testing & QA',
-  delivery: 'Final Delivery',
-  revision_window: 'Revision Window',
-  support_window: 'Support Window',
-  completed: 'Project Completed'
-};
+const PHASES = [
+  { id: 'requirements_gathering', label: 'Requirements', icon: ClipboardList, weight: 10 },
+  { id: 'legal_documentation', label: 'Legal', icon: ShieldCheck, weight: 5 },
+  { id: 'planning_scoping', label: 'Planning', icon: Target, weight: 10 },
+  { id: 'design', label: 'Design', icon: Palette, weight: 15 },
+  { id: 'development', label: 'Dev', icon: Cpu, weight: 25 },
+  { id: 'testing_qa', label: 'Testing', icon: Bug, weight: 10 },
+  { id: 'delivery', label: 'Delivery', icon: Rocket, weight: 10 },
+  { id: 'revision_window', label: 'Revisions', icon: RefreshCw, weight: 10 },
+  { id: 'support_window', label: 'Support', icon: MessageSquare, weight: 5 },
+];
 
 const ServicePhaseActivity = ({ order, liveService }) => {
-  const [submitRequirements, { isLoading: isSubmitting }] = useSubmitRequirementsMutation();
-  const [responses, setResponses] = useState({});
-  const [error, setError] = useState('');
-
   const reqData = order?.requirementsData || {};
   const status = reqData?.status || 'pending';
-  const revision = reqData?.revision || 0;
-  const adminFeedback = reqData?.adminFeedback || '';
-  const feedbackHistory = reqData?.feedbackHistory || [];
-  const attachments = reqData?.attachments || [];
-
   const isPending = status === 'pending';
-  const isSubmitted = status === 'submitted';
-  const isResubmitted = status === 'resubmitted';
   const isApproved = status === 'approved';
   const isChangesRequested = status === 'changes_requested';
+  const isSubmitted = status === 'submitted' || status === 'resubmitted';
+  const responsesFromOrder = reqData?.responses || [];
 
   const currentPhase = order?.currentPhase || 'requirements_gathering';
-  const isRequirementsPhase = currentPhase === 'requirements_gathering';
-  const showRequirementsForm = isRequirementsPhase && (isPending || isChangesRequested);
+  const [activeSubPhase, setActiveSubPhase] = useState(currentPhase);
+  const [activeSubTab, setActiveSubTab] = useState('input'); // 'input' or 'output'
 
-  const responsesFromOrder = reqData?.responses || [];
-  const questions = responsesFromOrder.length > 0
-    ? responsesFromOrder.map(r => r.question)
-    : (liveService?.requirements || []);
+  // Filter timeline for phase completions
+  const activityHistory = [...(order?.timeline || [])].reverse();
 
-  useEffect(() => {
-    if (isChangesRequested && responsesFromOrder.length > 0) {
-      const prefilled = {};
-      responsesFromOrder.forEach((r, idx) => {
-        prefilled[idx] = r.answer || '';
-      });
-      setResponses(prefilled);
-    }
-  }, [status, isChangesRequested]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Helper to categorize timeline events by phase keywords
+  const getEventsForPhase = (phaseId) => {
+    const keywords = {
+      requirements_gathering: ['requirement', 'responses', 'initiation', 'brief'],
+      legal_documentation: ['legal', 'nda', 'sow', 'contract', 'signature'],
+      planning_scoping: ['plan', 'scope', 'milestone', 'timeline', 'estimate'],
+      design: ['design', 'wireframe', 'mockup', 'figma', 'ui', 'ux'],
+      development: ['build', 'staging', 'repo', 'dev', 'pushed', 'deployed'],
+      testing_qa: ['test', 'bug', 'qa', 'fix', 'performance'],
+      delivery: ['deliver', 'final', 'handover', 'completion'],
+      revision_window: ['revision', 'feedback', 'update'],
+      support_window: ['support', 'ticket', 'resolved', 'help']
+    };
 
-  const handleInputChange = (idx, val) => {
-    setResponses((prev) => ({ ...prev, [idx]: val }));
-    setError('');
+    const phaseKeywords = keywords[phaseId] || [];
+    return activityHistory.filter(entry => {
+      const msg = entry.message?.toLowerCase() || '';
+      const status = entry.status?.toLowerCase() || '';
+      return phaseKeywords.some(kw => msg.includes(kw) || status.includes(kw));
+    });
   };
 
-  const handleSubmit = async () => {
-    if (questions.length === 0) {
-      setError('No requirements defined for this service. Please contact the administrator.');
-      return;
-    }
-
-    for (let i = 0; i < questions.length; i++) {
-      if (!responses[i] || !responses[i].trim()) {
-        setError('Please answer all required questions before submitting.');
-        return;
-      }
-    }
-
-    try {
-      const formattedResponses = questions.map((q, idx) => ({
-        question: q,
-        answer: responses[idx]
-      }));
-
-      await submitRequirements({
-        orderId: order._id,
-        responses: formattedResponses,
-        attachments: [],
-      }).unwrap();
-    } catch (err) {
-      console.error('Failed to submit requirements:', err);
-      setError(err?.data?.message || 'Failed to submit requirements. Please try again.');
-    }
-  };
-
-  // Filter timeline for phase completions (items with deliverableUrl or specific status)
-  const activityHistory = (order?.timeline || []).filter(entry =>
-    entry.notes || entry.deliverableUrl || entry.externalLink ||
-    ['payment_completed', 'delivered', 'completed'].includes(entry.status)
-  ).reverse();
+  const currentPhaseEvents = getEventsForPhase(activeSubPhase);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-8"
+      className="space-y-6"
     >
-      {/* 1. CURRENT PHASE CONTEXT */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 bg-slate-50 border-b border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
-              <Clock className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Active Phase</h3>
-              <p className="text-xl font-black text-slate-900 leading-tight">
-                {PHASE_DISPLAY_NAMES[currentPhase] || currentPhase}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-             <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide border border-blue-200">
-               In Progress
-             </span>
-          </div>
-        </div>
+      {/* 1st Level: Phase Navigation Bar */}
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-2 flex overflow-x-auto no-scrollbar gap-2">
+        {PHASES.map((phase) => {
+          const isActive = activeSubPhase === phase.id;
+          const isCurrent = currentPhase === phase.id;
+          const phaseIndex = PHASES.findIndex(p => p.id === phase.id);
+          const currentIndex = PHASES.findIndex(p => p.id === currentPhase);
+          const isCompleted = phaseIndex < currentIndex;
 
-        {/* Requirements Form Section */}
-        {showRequirementsForm ? (
-          <div className="p-8">
-            {isChangesRequested && adminFeedback && (
-              <div className="mb-8 bg-amber-50 rounded-xl p-6 border border-amber-200">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 bg-amber-500 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
-                    <AlertCircle className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-amber-900">Changes Requested</h3>
-                    <p className="text-sm text-amber-700 mt-1">{adminFeedback}</p>
-                    {revision > 0 && (
-                      <p className="text-xs text-amber-600 mt-2 font-medium italic">Revision #{revision} requested by Admin</p>
-                    )}
-                  </div>
+          return (
+            <button
+              key={phase.id}
+              onClick={() => setActiveSubPhase(phase.id)}
+              className={`
+                flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap
+                ${isActive
+                  ? 'bg-slate-900 text-white shadow-xl shadow-slate-200 scale-105 z-10'
+                  : 'text-slate-500 hover:bg-slate-50'
+                }
+                ${isCurrent && !isActive ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
+              `}
+            >
+              <div className={`
+                h-8 w-8 rounded-xl flex items-center justify-center
+                ${isActive ? 'bg-white/10' : (isCompleted ? 'bg-green-100 text-green-600' : 'bg-slate-100')}
+              `}>
+                {isCompleted ? <CheckCircle className="h-4 w-4" /> : <phase.icon className="h-4 w-4" />}
+              </div>
+              {phase.label}
+              {isCurrent && (
+                <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse ml-1" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 2nd Level: Section Tabs (Input/Output) */}
+      <div className="flex border-b border-slate-100 gap-8 px-4">
+        <button
+          onClick={() => setActiveSubTab('input')}
+          className={`pb-4 text-xs font-black uppercase tracking-widest transition-all border-b-2
+            ${activeSubTab === 'input'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-slate-400 hover:text-slate-600'}
+          `}
+        >
+          Phase Inputs
+        </button>
+        <button
+          onClick={() => setActiveSubTab('output')}
+          className={`pb-4 text-xs font-black uppercase tracking-widest transition-all border-b-2
+            ${activeSubTab === 'output'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-slate-400 hover:text-slate-600'}
+          `}
+        >
+          Phase Deliverables
+        </button>
+      </div>
+
+      {/* Main Phase Display */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Main Content Area */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+            <div className={`p-8 flex items-center justify-between ${activeSubPhase === currentPhase ? 'bg-blue-600' : 'bg-slate-900'} text-white`}>
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-inner">
+                  {(() => {
+                    const PhaseIcon = PHASES.find(p => p.id === activeSubPhase)?.icon;
+                    return PhaseIcon ? <PhaseIcon className="h-7 w-7" /> : null;
+                  })()}
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] opacity-60">
+                    {activeSubTab === 'input' ? 'Objective & Brief' : 'Results & Files'}
+                  </h3>
+                  <p className="text-2xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.label}</p>
                 </div>
               </div>
-            )}
+              <div className="text-right hidden sm:block">
+                 <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">Status</p>
+                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border
+                   ${activeSubPhase === currentPhase ? 'bg-white text-blue-600 border-white' :
+                     (PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase)
+                       ? 'bg-green-500 text-white border-green-500'
+                       : 'bg-white/10 text-white border-white/20')}
+                 `}>
+                   {activeSubPhase === currentPhase ? 'In Progress' :
+                    (PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase)
+                      ? 'Completed' : 'Upcoming')}
+                 </span>
+              </div>
+            </div>
 
-            <div className="space-y-8">
-              {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-lg flex items-start gap-3 border border-red-100 italic font-medium">
-                  <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm">{error}</p>
+            <div className="p-8">
+              {activeSubTab === 'input' ? (
+                /* Input Section Content */
+                activeSubPhase === 'requirements_gathering' ? (
+                  <div>
+                    {(isPending || isChangesRequested) && activeSubPhase === currentPhase ? (
+                      <ServiceRequirements order={order} liveService={liveService} />
+                    ) : (
+                      <div className="space-y-8">
+                        <div className="flex items-center justify-between">
+                           <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                             <Activity className="h-4 w-4" /> Mission Scope & Vision
+                           </h4>
+                           <span className="text-[10px] font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase tracking-tighter">Approved at Project Start</span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {responsesFromOrder.map((resp, idx) => {
+                            const Icon = getQuestionIcon(resp.question);
+                            return (
+                              <div key={idx} className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-blue-200 transition-colors group">
+                                <div className="flex items-center gap-3 mb-4">
+                                  <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors text-blue-600">
+                                    <Icon className="h-4 w-4" />
+                                  </div>
+                                  <h4 className="text-sm font-bold text-slate-900 tracking-tight">{resp.question}</h4>
+                                </div>
+                                <p className="text-xs text-slate-500 leading-relaxed italic line-clamp-3">"{resp.answer}"</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                         <Layout className="h-10 w-10 text-slate-300" />
+                      </div>
+                      <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Phase Documentation</h4>
+                      <p className="text-sm text-slate-500 mt-2 max-w-sm">Detailed inputs and brief for this phase will appear here as the project progresses.</p>
+                      <button className="mt-8 px-6 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors">
+                        Download Phase Brief
+                      </button>
+                    </div>
+                  </div>
+                )
+              ) : (
+                /* Output Section Content */
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <HistoryIcon className="h-4 w-4" /> Accomplishments
+                    </h4>
+                  </div>
+
+                  <div className="space-y-6">
+                    {currentPhaseEvents.length > 0 ? (
+                      currentPhaseEvents.map((entry, idx) => (
+                        <div key={idx} className="relative pl-8">
+                          {idx !== currentPhaseEvents.length - 1 && (
+                            <div className="absolute left-[0.25rem] top-6 w-px h-full bg-slate-100" />
+                          )}
+                          <div className="absolute left-0 top-1 h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-50" />
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(entry.timestamp).toLocaleDateString()}</span>
+                              {entry.deliverableUrl && (
+                                <a href={entry.deliverableUrl} target="_blank" rel="noreferrer" className="text-[10px] font-black text-blue-600 hover:underline">ACCESS FILE</a>
+                              )}
+                            </div>
+                            <p className="text-sm font-bold text-slate-900 leading-tight">{entry.message}</p>
+                            {entry.notes && (
+                              <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl italic">"{entry.notes}"</p>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                         <Clock className="h-10 w-10 text-slate-200 mx-auto mb-4" />
+                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose text-center">No results<br/>logged yet</p>
+                         <p className="text-[10px] text-slate-400 mt-4 max-w-[200px] mx-auto opacity-60 italic">Deliverables will be accessible here once uploaded by the admin team.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-
-              <div className="grid grid-cols-1 gap-8">
-                {questions.length > 0 ? (
-                  questions.map((question, idx) => (
-                    <div key={idx} className="space-y-3 group">
-                      <label className="flex items-center gap-2 text-sm font-bold text-slate-700 group-focus-within:text-blue-600 transition-colors">
-                        <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 group-focus-within:bg-blue-100 group-focus-within:text-blue-600">
-                          {idx + 1}
-                        </span>
-                        {question}
-                        <span className="text-red-500 text-xs">*</span>
-                      </label>
-                      <textarea
-                        value={responses[idx] || ''}
-                        onChange={(e) => handleInputChange(idx, e.target.value)}
-                        rows={4}
-                        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all resize-none shadow-sm"
-                        placeholder="Type your detailed answer here..."
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                    <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-4" />
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No requirement questions found</p>
-                    <p className="text-xs text-slate-400 mt-2 italic">Please wait for the administrator to define requirements or contact support.</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-6 flex justify-end">
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting || questions.length === 0}
-                  className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:bg-black transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-xl shadow-slate-200 active:scale-95"
-                >
-                  {isSubmitting ? <Loader className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5 group-hover:rotate-12 transition-transform" />}
-                  {isSubmitting ? 'Submitting Responses...' : (isChangesRequested ? 'Resubmit Revisions' : 'Launch Project Initiation')}
-                </button>
-              </div>
             </div>
           </div>
-        ) : (
-          <div className="p-8 text-center bg-white">
-             {isRequirementsPhase && isSubmitted && (
-               <div className="py-12">
-                 <div className="h-20 w-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <HistoryIcon className="h-10 w-10 text-blue-600 animate-pulse" />
-                 </div>
-                 <h4 className="text-2xl font-black text-slate-900">Awaiting Validation</h4>
-                 <p className="text-slate-500 mt-2 max-w-sm mx-auto">Your responses have been transmitted to mission control. We are currently verifying the project requirements.</p>
-               </div>
-             )}
-             {!isRequirementsPhase && (
-               <div className="py-12">
-                 <div className="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle className="h-10 w-10 text-green-600" />
-                 </div>
-                 <h4 className="text-2xl font-black text-slate-900">Requirements Approved</h4>
-                 <p className="text-slate-500 mt-2 max-w-sm mx-auto">Project is currently in the <b>{PHASE_DISPLAY_NAMES[currentPhase]}</b> phase. Check the activity history below for updates.</p>
-               </div>
-             )}
-          </div>
-        )}
-      </div>
-
-      {/* 2. ACTIVITY HISTORY / DELIVERABLES */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            <HistoryIcon className="h-4 w-4" />
-            Project Activity History
-          </h3>
-          <span className="text-xs font-mono text-slate-400">{activityHistory.length} EVENTS RECORDED</span>
         </div>
 
-        <div className="space-y-4">
-          {activityHistory.length > 0 ? (
-            activityHistory.map((entry, idx) => (
-              <motion.div
-                key={entry._id || idx}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="group relative bg-white rounded-2xl border border-slate-100 p-6 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all"
-              >
-                {/* Visual Connector Line */}
-                {idx !== activityHistory.length - 1 && (
-                  <div className="absolute left-[2.25rem] top-[4.5rem] w-px h-12 bg-slate-100" />
-                )}
+        {/* Right Column: Key Stats/Impact Card */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-xl p-8 text-white relative overflow-hidden group">
+            <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
+               <Activity className="h-40 w-40" />
+            </div>
+            <div className="relative z-10">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-70">Project Impact</h4>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.weight}%</span>
+                <span className="text-sm font-bold opacity-70">Progress Weight</span>
+              </div>
+              <p className="text-xs mt-6 leading-relaxed opacity-80">Completion of this phase significantly advances the mission trajectory.</p>
 
-                <div className="flex items-start gap-5">
-                  <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
-                    <div className="h-2.5 w-2.5 rounded-full bg-slate-300 group-hover:bg-blue-500 transition-colors" />
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded">
-                          {entry.status?.replace('_', ' ')}
-                        </span>
-                        <h4 className="text-sm font-bold text-slate-900">{entry.message}</h4>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400">
-                        {new Date(entry.timestamp).toLocaleDateString()} • {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-
-                    {entry.notes && (
-                      <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{entry.notes}</p>
-                      </div>
-                    )}
-
-                    {(entry.deliverableUrl || entry.externalLink) && (
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        {entry.deliverableUrl && (
-                          <a
-                            href={entry.deliverableUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition-all shadow-lg shadow-slate-200"
-                          >
-                            <FileText className="h-3.5 w-3.5" />
-                            Access Deliverable
-                          </a>
-                        )}
-                        {entry.externalLink && (
-                          <a
-                            href={entry.externalLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:border-blue-500 hover:text-blue-600 transition-all"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            View External Assets
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
+              <div className="mt-8 pt-6 border-t border-white/20">
+                <div className="flex justify-between items-center mb-2">
+                   <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">Phase Readiness</span>
+                   <span className="text-xs font-black">
+                     {PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? '100%' :
+                      PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '65%' : '0%'}
+                   </span>
                 </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="py-20 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-            <HistoryIcon className="h-10 w-10 text-slate-300 mx-auto mb-4" />
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No activity records found</p>
+                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? '100%' :
+                              PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '65%' : '0%' }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    className="h-full bg-white"
+                  />
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
-
-      {/* 3. ORIGINAL REQUIREMENTS DATA (As an expandable "Project Brief") */}
-      {isApproved && responsesFromOrder.length > 0 && (
-        <div className="bg-slate-900 rounded-[2rem] p-8 shadow-2xl overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-8 opacity-10">
-            <ClipboardList className="h-32 w-32 text-white" />
-          </div>
-
-          <div className="relative z-10">
-            <h3 className="text-sm font-black text-blue-400 uppercase tracking-[0.3em] mb-8">Mission Scope & Requirements</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {responsesFromOrder.map((resp, idx) => {
-                const Icon = getQuestionIcon(resp.question);
-                return (
-                  <div key={idx} className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="h-8 w-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                        <Icon className="h-4 w-4 text-blue-400" />
-                      </div>
-                      <h4 className="text-sm font-bold text-white tracking-tight">{resp.question}</h4>
-                    </div>
-                    <p className="text-sm text-slate-400 leading-relaxed italic line-clamp-3">"{resp.answer}"</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };

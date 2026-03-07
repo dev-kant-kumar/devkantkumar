@@ -9,7 +9,57 @@ import ServiceChat from '../components/ServiceChat';
 import ServiceFiles from '../components/ServiceFiles';
 import ServicePhaseActivity from '../components/ServicePhaseActivity';
 import ServicePhaseHistory from '../components/ServicePhaseHistory';
-// import ServiceRequirements from '../components/ServiceRequirements';
+
+const PHASES = [
+  { id: 'requirements_gathering', label: 'Requirements' },
+  { id: 'legal_documentation', label: 'Legal' },
+  { id: 'planning_scoping', label: 'Planning' },
+  { id: 'design', label: 'Design' },
+  { id: 'development', label: 'Dev' },
+  { id: 'testing_qa', label: 'Testing' },
+  { id: 'delivery', label: 'Delivery' },
+  { id: 'revision_window', label: 'Revisions' },
+  { id: 'support_window', label: 'Support' },
+  { id: 'completed', label: 'Done' }
+];
+
+// Robust phase index calculator that looks at actual completed events
+const getActivePhaseIndex = (order) => {
+  if (!order) return 0;
+  if (order.status === 'completed') return PHASES.length - 1;
+
+  const completedEvents = [...(order.timeline || [])].reverse();
+  let highestCompletedIndex = -1;
+  const phaseIds = PHASES.map(p => p.id);
+
+  const legacyMap = {
+    'payment_completed': 'requirements_gathering',
+    'in_progress': 'development',
+    'delivered': 'delivery',
+    'revision_window_closed': 'support_window'
+  };
+
+  for (const event of completedEvents) {
+    const rawStatus = event.status;
+    const mappedStatus = legacyMap[rawStatus] || rawStatus;
+    const idx = phaseIds.indexOf(mappedStatus);
+
+    if (idx !== -1) {
+      highestCompletedIndex = Math.max(highestCompletedIndex, idx);
+    }
+  }
+
+  if (order.currentPhase) {
+    const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
+    const currentIdx = phaseIds.indexOf(mappedCurrent);
+    if (currentIdx > highestCompletedIndex) {
+      highestCompletedIndex = currentIdx;
+    }
+  }
+
+  const activeIndex = highestCompletedIndex + 1;
+  return Math.min(activeIndex, PHASES.length - 1);
+};
 
 // Status colors mapping
 const STATUS_COLORS = {
@@ -93,8 +143,9 @@ const ServiceWorkspace = () => {
   const serviceItem = order?.items?.find((item) => item.itemType === "service");
 
   // Fetch LIVE service data to ensure it reflects recent admin updates (features, support window, etc)
-  const { data: liveService } = useGetServiceByIdQuery(serviceItem?.itemId, {
-    skip: !serviceItem?.itemId,
+  const serviceIdToFetch = typeof serviceItem?.itemId === 'object' ? serviceItem?.itemId?._id : serviceItem?.itemId;
+  const { data: liveService } = useGetServiceByIdQuery(serviceIdToFetch, {
+    skip: !serviceIdToFetch,
   });
 
   // Find the specific package from live data (case-insensitive)
@@ -109,11 +160,15 @@ const ServiceWorkspace = () => {
 
     // Priority 2: Live calculation if backend hasn't set it yet
     const pkg = livePackage || serviceItem?.selectedPackage;
-    if (!pkg?.revisionWindow || !order?.payment?.paidAt) return null;
+
+    // Find the 'delivered' status in the timeline
+    const deliveryEvent = order?.timeline?.find(e => e.status === 'delivered');
+    const deliveryDate = deliveryEvent?.timestamp;
+
+    if (!pkg?.revisionWindow || !deliveryDate) return null;
 
     const { duration, unit } = pkg.revisionWindow;
-    const startDate = new Date(order.payment.paidAt);
-    const deadline = new Date(startDate);
+    const deadline = new Date(deliveryDate);
 
     const numDuration = Number(duration);
     if (isNaN(numDuration)) return null;
@@ -378,6 +433,7 @@ const ServiceWorkspace = () => {
             Files & Assets
           </button>
 
+
           <button
             onClick={() => setActiveTab('activity')}
             className={`
@@ -390,10 +446,6 @@ const ServiceWorkspace = () => {
           >
             <CheckCircle className="h-4 w-4" />
             Phase Activity
-            {/* Notification pip for pending requirements */}
-            {order?.requirementsData?.status === 'pending' && activeTab !== 'activity' && (
-              <span className="w-2 h-2 rounded-full bg-red-500 ml-1"></span>
-            )}
           </button>
         </nav>
       </div>
@@ -444,7 +496,7 @@ const ServiceWorkspace = () => {
                         <stop offset="100%" stopColor="#06b6d4" />
                       </linearGradient>
                       <clipPath id="progressClip">
-                        <rect x="-20" y="-20" height="200" style={{ width: `${60 + (progress/100)*890}px`, transition: 'width 1.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                        <rect x="-20" y="-20" height="200" style={{ width: `${60 + (getActivePhaseIndex(order) / (PHASES.length - 1)) * 890}px`, transition: 'width 1.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                       </clipPath>
                     </defs>
 
@@ -469,30 +521,17 @@ const ServiceWorkspace = () => {
                     />
 
                     {/* Phase Nodes */}
-                    {['requirements_gathering', 'legal_documentation', 'planning_scoping', 'design', 'development', 'testing_qa', 'delivery', 'revision_window', 'support_window', 'completed'].map((phaseKey, index, arr) => {
-                      const phaseNames = {
-                        'requirements_gathering': 'Requirements',
-                        'legal_documentation': 'Legal',
-                        'planning_scoping': 'Planning',
-                        'design': 'Design',
-                        'development': 'Dev',
-                        'testing_qa': 'Testing',
-                        'delivery': 'Delivery',
-                        'revision_window': 'Revisions',
-                        'support_window': 'Support',
-                        'completed': 'Done'
-                      };
-
-                      const t = index / 9;
+                    {PHASES.map((phase, index) => {
+                      const t = index / (PHASES.length - 1);
                       const x = Math.pow(1-t, 2)*50 + 2*(1-t)*t*500 + Math.pow(t, 2)*950;
                       const y = Math.pow(1-t, 2)*110 + 2*(1-t)*t*20 + Math.pow(t, 2)*110;
 
-                      const currentIndex = arr.indexOf(order.currentPhase || 'requirements_gathering');
-                      const isCompleted = index < currentIndex || order.status === 'completed';
-                      const isCurrent = index === currentIndex && order.status !== 'completed';
+                      const activeIdx = getActivePhaseIndex(order);
+                      const isCompleted = index < activeIdx || order.status === 'completed';
+                      const isCurrent = index === activeIdx && order.status !== 'completed';
 
                       return (
-                        <g key={phaseKey} style={{ transition: 'all 0.5s ease' }}>
+                        <g key={phase.id} style={{ transition: 'all 0.5s ease' }}>
                           <circle
                             cx={x}
                             cy={y}
@@ -513,7 +552,7 @@ const ServiceWorkspace = () => {
                             fontSize="11"
                             className="font-mono uppercase tracking-[0.15em] transition-all duration-500 font-semibold"
                           >
-                            {phaseNames[phaseKey]}
+                            {phase.label}
                           </text>
                         </g>
                       );
@@ -635,24 +674,30 @@ const ServiceWorkspace = () => {
                   )}
 
                   {/* Revision Deadline */}
-                  {dynamicDeadline && (
-                    <div className="flex justify-between items-center py-3 border-t border-gray-100">
-                      <span className="text-sm text-gray-500">Revision Deadline</span>
-                      <div className="text-right">
-                        <span className={`text-sm font-medium ${new Date() > new Date(dynamicDeadline) ? 'text-red-600' : 'text-indigo-600'}`}>
-                          {formatDate(dynamicDeadline)}
+                  <div className="flex justify-between items-center py-3 border-t border-gray-100">
+                    <span className="text-sm text-gray-500">Revision Deadline</span>
+                    <div className="text-right">
+                      {dynamicDeadline ? (
+                        <>
+                          <span className={`text-sm font-medium ${new Date() > new Date(dynamicDeadline) ? 'text-red-600' : 'text-indigo-600'}`}>
+                            {formatDate(dynamicDeadline)}
+                          </span>
+                          {new Date() <= new Date(dynamicDeadline) && (
+                            <p className={`text-[10px] mt-0.5 font-bold uppercase tracking-tight ${order?.status === 'delivered' ? 'text-indigo-500 animate-pulse' : 'text-gray-400'}`}>
+                              {timeLeft ? `Ends in ${timeLeft}` : `Revisions end in ${Math.ceil((new Date(dynamicDeadline) - new Date()) / (1000 * 60 * 60 * 24))} days`}
+                            </p>
+                          )}
+                          {new Date() > new Date(dynamicDeadline) && (
+                             <p className="text-[10px] text-red-400 mt-0.5 font-bold uppercase">Window Expired</p>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-sm font-medium text-gray-400 whitespace-nowrap">
+                           {order?.timeline?.some(e => e.status === 'delivered') ? 'N/A' : 'Pending Delivery'}
                         </span>
-                        {new Date() <= new Date(dynamicDeadline) && (
-                          <p className={`text-[10px] mt-0.5 font-bold uppercase tracking-tight ${order.status === 'delivered' ? 'text-indigo-500 animate-pulse' : 'text-gray-400'}`}>
-                            {order.status === 'delivered' ? `Ends in ${timeLeft}` : `Revisions end in ${Math.ceil((new Date(dynamicDeadline) - new Date()) / (1000 * 60 * 60 * 24))} days`}
-                          </p>
-                        )}
-                        {new Date() > new Date(dynamicDeadline) && (
-                          <p className="text-[10px] text-red-400 mt-0.5 font-bold uppercase">Window Expired</p>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 

@@ -731,7 +731,7 @@ exports.updateAdminOrderStatus = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate("user", "firstName lastName email profile avatar createdAt")
+      .populate("user", "firstName lastName email profile avatar createdAt marketplace")
       .populate(
         "communication.messages.sender",
         "firstName lastName email avatar role"
