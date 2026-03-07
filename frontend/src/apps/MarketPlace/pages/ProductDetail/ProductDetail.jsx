@@ -17,7 +17,7 @@ import PriceDisplay from '../../../../components/common/PriceDisplay';
 import ShareModal from '../../../../components/common/ShareModal';
 import ReviewForm from '../../../../components/Reviews/ReviewForm';
 import ReviewList from '../../../../components/Reviews/ReviewList';
-import ProductSchema from '../../../../components/SEO/SchemaMarkup';
+import ProductSchema, { BreadcrumbSchema } from '../../../../components/SEO/SchemaMarkup';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -148,8 +148,17 @@ const ProductDetail = () => {
         description={product.description}
         image={product.images?.[0]?.url}
         type="product"
+        canonical={`https://www.devkantkumar.com/marketplace/products/${product._id}`}
+        keywords={[product.title, product.category, "buy", "download", "React template"].filter(Boolean)}
       />
-      <ProductSchema product={product} />
+      <ProductSchema product={product} reviews={product.reviews || []} />
+      <BreadcrumbSchema
+        items={[
+          { name: "Marketplace", url: "/marketplace" },
+          { name: "Products", url: "/marketplace/products" },
+          { name: product.title, url: `/marketplace/products/${product._id}` }
+        ]}
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-14 flex items-center">

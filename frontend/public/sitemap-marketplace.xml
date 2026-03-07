@@ -34,6 +34,37 @@
   </url>
 
   <!-- ============================================ -->
+  <!-- SERVICE CATEGORY PAGES -->
+  <!-- ============================================ -->
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/services?category=web-development</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/services?category=mobile-development</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/services?category=ui-ux-design</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/services?category=backend-development</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ============================================ -->
   <!-- SUPPORT & INFO PAGES -->
   <!-- ============================================ -->
   <url>
@@ -89,7 +120,10 @@
   </url>
 
   <!-- ============================================ -->
-  <!-- PRODUCT PAGES (Add dynamically when products are created) -->
+  <!-- PRODUCT PAGES -->
+  <!-- Individual product and service URLs are generated dynamically. -->
+  <!-- Run: node frontend/src/utils/generateMarketplaceSitemap.js    -->
+  <!-- to regenerate this file with real product/service IDs.        -->
   <!-- ============================================ -->
   <!-- Example:
   <url>
@@ -106,7 +140,7 @@
   -->
 
   <!-- ============================================ -->
-  <!-- SERVICE PAGES (Add dynamically when services are created) -->
+  <!-- SERVICE PAGES -->
   <!-- ============================================ -->
   <!-- Example:
   <url>
@@ -114,6 +148,11 @@
     <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/.../service-image.jpg</image:loc>
+      <image:title>Service Title</image:title>
+      <image:caption>Service description for SEO</image:caption>
+    </image:image>
   </url>
   -->
 
