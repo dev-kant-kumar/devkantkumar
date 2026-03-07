@@ -22,6 +22,8 @@ import { toast } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PriceDisplay from "../../../../components/common/PriceDisplay";
+import SEOHead from '../../../../components/SEO/SEOHead';
+import { ItemListSchema } from '../../../../components/SEO/SchemaMarkup';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
@@ -97,6 +99,19 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Web Development Services — Hire React & Node.js Developer | Dev Kant Kumar"
+        description="Hire an expert full-stack developer for React apps, Node.js APIs, MERN stack development, SaaS MVPs, and more. Professional packages starting from ₹4,999."
+        keywords={["hire React developer", "web development services India", "Node.js developer for hire", "MERN stack development service", "SaaS MVP development", "API development service", "custom web app development"]}
+        url="https://www.devkantkumar.com/marketplace/services"
+        canonical="https://www.devkantkumar.com/marketplace/services"
+        type="website"
+      />
+      <ItemListSchema
+        items={services.map(s => ({ ...s, type: 'service' }))}
+        listName="Web Development Services — Dev Kant Kumar Marketplace"
+        listUrl="https://www.devkantkumar.com/marketplace/services"
+      />
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white overflow-hidden relative">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>

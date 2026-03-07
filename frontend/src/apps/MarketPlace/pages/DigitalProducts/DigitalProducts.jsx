@@ -17,6 +17,8 @@ import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
+import SEOHead from '../../../../components/SEO/SEOHead';
+import { ItemListSchema } from '../../../../components/SEO/SchemaMarkup';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
@@ -187,6 +189,19 @@ const DigitalProducts = ({ category: propCategory }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Buy React Templates & Digital Products — Next.js, MERN, Tailwind | Dev Kant Kumar"
+        description="Download premium React dashboards, Next.js starter templates, Tailwind CSS UI kits, MERN boilerplates and more. One-time payment, instant download. Starting from ₹999."
+        keywords={["buy React template", "Next.js starter template download", "React admin dashboard template", "Tailwind CSS UI kit", "MERN boilerplate", "React component library", "premium website template India"]}
+        url="https://www.devkantkumar.com/marketplace/products"
+        canonical="https://www.devkantkumar.com/marketplace/products"
+        type="website"
+      />
+      <ItemListSchema
+        items={products.map(p => ({ ...p, type: 'product' }))}
+        listName="React Templates & Digital Products — Dev Kant Kumar Marketplace"
+        listUrl="https://www.devkantkumar.com/marketplace/products"
+      />
       {/* Featured Product Hero Section */}
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white overflow-hidden relative">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>

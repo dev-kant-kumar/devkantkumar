@@ -23,6 +23,8 @@ import {
     FaStar,
     FaUsers
 } from 'react-icons/fa';
+import SEOHead from '../../../../components/SEO/SEOHead';
+import { ServiceSchema } from '../../../../components/SEO/SchemaMarkup';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -201,6 +203,24 @@ const CustomSolutions = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Custom Software Development Solutions | Dev Kant Kumar"
+        description="Get a custom-built web app, mobile app, API, or enterprise software solution. Tailored development packages starting from ₹4,999. React, Node.js, MERN stack experts."
+        keywords={["custom web development", "custom software solution", "hire React developer India", "MERN stack development", "enterprise software development", "SaaS development", "API development India"]}
+        url="https://www.devkantkumar.com/marketplace/custom-solutions"
+        canonical="https://www.devkantkumar.com/marketplace/custom-solutions"
+        type="website"
+      />
+      <ServiceSchema
+        service={{
+          _id: "custom-solutions",
+          title: "Custom Software Development",
+          description: "Get a custom-built web app, mobile app, API, or enterprise software solution tailored to your exact requirements.",
+          category: "custom-solutions",
+          startingPrice: 4999,
+          images: []
+        }}
+      />
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
