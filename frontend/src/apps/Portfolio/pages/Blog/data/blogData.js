@@ -1,5 +1,18 @@
 export const blogData = [
   {
+    id: "golpo-ai-review-2026",
+    slug: "golpo-ai-review-2026",
+    title: "Golpo AI Review 2026: Is This $39 Whiteboard Video Tool Actually Worth It?",
+    excerpt: "Golpo AI generates genuinely impressive whiteboard explainer videos from just a text prompt or document. The output quality is real. But is it worth $39/month? Find out in our comprehensive review.",
+    category: "AI Tools",
+    tags: ["Golpo AI", "AI Video Generator", "Whiteboard Animation", "Content Creation", "Productivity"],
+    author: "Dev Kant Kumar",
+    readTime: "8 min read",
+    publishDate: "2026-03-08",
+    image: "/images/blog/golpo-ai-review-2026.png",
+    featured: true
+  },
+  {
     id: "agentic-ai-guide",
     slug: "agentic-ai-guide",
     title: "Agentic AI: The Complete Guide to Building Autonomous Systems",
