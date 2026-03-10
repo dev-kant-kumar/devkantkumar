@@ -981,65 +981,95 @@ exports.markDelivered = async (req, res) => {
 // @access  Admin
 exports.getStats = async (req, res) => {
   try {
-    const totalProducts = await Product.countDocuments();
-    const totalServices = await Service.countDocuments();
-    const totalOrders = await Order.countDocuments();
+    // Statuses that represent a successfully paid order.
+    // "pending" and "cancelled"/"refunded" are excluded because payment
+    // is either not yet captured or has been reversed.
+    const PAID_STATUSES = [
+      "confirmed",
+      "awaiting_requirements",
+      "in_progress",
+      "revising",
+      "delivered",
+      "completed",
+    ];
 
-    // Calculate total revenue from completed/confirmed orders
+    // Robust trend calculator – returns a rounded number (never NaN / Infinity).
+    // Returns null when there is no prior-period baseline so the UI can show "N/A".
+    const calcTrend = (cur, prev) => {
+      const c = Number(cur) || 0;
+      const p = Number(prev) || 0;
+      if (p === 0 && c === 0) return null; // no data in either window
+      if (p === 0) return 100;             // previous period had no data; treat as 100% growth
+      const pct = ((c - p) / p) * 100;
+      return Math.round(pct * 10) / 10;   // one decimal place, as a number
+    };
+
+    const [totalProducts, totalServices, totalOrders] = await Promise.all([
+      Product.countDocuments(),
+      Service.countDocuments(),
+      Order.countDocuments(),
+    ]);
+
+    // All-time revenue: sum of total amount on every paid order.
     const revenueAggregation = await Order.aggregate([
       {
         $match: {
-          status: { $in: ["confirmed", "completed"] },
+          status: { $in: PAID_STATUSES },
+          "payment.status": "completed",
         },
       },
       {
         $group: {
           _id: null,
-          totalRevenue: { $sum: "$payment.amount.subtotal" },
+          totalRevenue: {
+            $sum: { $ifNull: ["$payment.amount.total", 0] },
+          },
         },
       },
     ]);
 
     const totalRevenue =
-      revenueAggregation.length > 0 ? revenueAggregation[0].totalRevenue : 0;
+      revenueAggregation.length > 0
+        ? revenueAggregation[0].totalRevenue
+        : 0;
 
-    // Timeline & Trend Calculation
+    // Period windows for trend comparison
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
-    // Current period revenue/orders
-    const currentPeriod = await Order.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-          status: { $in: ["confirmed", "completed"] },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          revenue: { $sum: "$payment.amount.subtotal" },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    const periodMatch = (from, to) => {
+      const match = {
+        status: { $in: PAID_STATUSES },
+        "payment.status": "completed",
+        createdAt: { $gte: from },
+      };
+      if (to) match.createdAt.$lt = to;
+      return match;
+    };
 
-    // Previous period revenue/orders
-    const previousPeriod = await Order.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
-          status: { $in: ["confirmed", "completed"] },
+    // Current period (last 30 days) and previous period (30–60 days ago)
+    const [currentPeriod, previousPeriod] = await Promise.all([
+      Order.aggregate([
+        { $match: periodMatch(thirtyDaysAgo) },
+        {
+          $group: {
+            _id: null,
+            revenue: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+            count: { $sum: 1 },
+          },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          revenue: { $sum: "$payment.amount.subtotal" },
-          count: { $sum: 1 },
+      ]),
+      Order.aggregate([
+        { $match: periodMatch(sixtyDaysAgo, thirtyDaysAgo) },
+        {
+          $group: {
+            _id: null,
+            revenue: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+            count: { $sum: 1 },
+          },
         },
-      },
+      ]),
     ]);
 
     const curRev = currentPeriod[0]?.revenue || 0;
@@ -1047,35 +1077,30 @@ exports.getStats = async (req, res) => {
     const curOrders = currentPeriod[0]?.count || 0;
     const prevOrders = previousPeriod[0]?.count || 0;
 
-    const calcTrend = (cur, prev) => {
-      if (prev === 0) return cur > 0 ? 100 : 0;
-      return ((cur - prev) / prev) * 100;
-    };
-
-    const revenueTimeline = await Order.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-          status: { $in: ["confirmed", "completed"] },
+    // Revenue timeline: daily breakdown for the last 30 days (paid orders only)
+    const [revenueTimeline, statusDistribution] = await Promise.all([
+      Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: thirtyDaysAgo },
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+          },
         },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          revenue: { $sum: "$payment.amount.subtotal" },
-          orders: { $sum: 1 },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            },
+            revenue: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+            orders: { $sum: 1 },
+          },
         },
-      },
-      { $sort: { _id: 1 } },
-    ]);
-
-    const statusDistribution = await Order.aggregate([
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
+        { $sort: { _id: 1 } },
+      ]),
+      Order.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
     ]);
 
     res.json({
@@ -1088,9 +1113,9 @@ exports.getStats = async (req, res) => {
         revenueTimeline,
         statusDistribution,
         trends: {
-          revenue: calcTrend(curRev, prevRev).toFixed(1),
-          orders: calcTrend(curOrders, prevOrders).toFixed(1),
-          products: "0.0", // Content growth trend could be added similarly
+          revenue: calcTrend(curRev, prevRev),
+          orders: calcTrend(curOrders, prevOrders),
+          products: null,
         },
       },
     });
