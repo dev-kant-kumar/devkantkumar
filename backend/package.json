@@ -24,7 +24,7 @@
     "axios": "^1.13.5",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.66.4",
-    "cloudinary": "^2.7.0",
+    "cloudinary": "^2.9.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -60,5 +60,9 @@
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "supertest": "^6.3.3"
+  },
+  "overrides": {
+    "basic-ftp": "^5.2.0",
+    "minimatch": "^3.1.4"
   }
 }
