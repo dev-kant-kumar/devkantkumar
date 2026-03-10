@@ -112,7 +112,7 @@ export const baseApiSlice = createApi({
     "Category", "Tag", "Contact", "Message", "Newsletter",
     "Upload", "File", "Image", "Analytics", "PageView",
     "Interaction", "Health", "Settings", "AdminSettings", "Service", "Product",
-    "Notification", "Referral", "Orders", "Order",
+    "Notification", "Referral", "Orders", "Order", "Wishlist",
   ],
   endpoints: () => ({}),
 });

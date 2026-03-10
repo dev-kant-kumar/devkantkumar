@@ -24,6 +24,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { useGetProductByIdQuery } from '../../store/api/marketplaceApi';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
 import { addToCart } from '../../store/cart/cartSlice';
+import WishlistButton from '../../common/components/WishlistButton';
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -226,13 +227,16 @@ const ProductDetail = () => {
                                 {isAdding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart size={18} />}
                                 {isAdding ? 'Adding...' : 'Add to Cart'}
                             </button>
-                            <button
-                                onClick={handleShare}
-                                className="col-span-1 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
-                            >
-                                <Share2 size={18} />
-                                Share
-                            </button>
+                            <div className="flex gap-2">
+                                <WishlistButton itemId={product._id} type="product" className="flex-1 h-full rounded-xl" />
+                                <button
+                                    onClick={handleShare}
+                                    className="flex-1 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+                                >
+                                    <Share2 size={18} />
+                                    Share
+                                </button>
+                            </div>
                         </div>
                     </div>
 

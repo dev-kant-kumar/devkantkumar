@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-The marketplace has a solid foundation with core e-commerce features implemented. Key areas needing attention before global launch: product inventory, marketing strategy, and some feature enhancements.
+The marketplace has a solid foundation with core e-commerce features implemented. Key areas needing attention before global launch: adding actual product listings, marketing strategy, and some feature enhancements.
 
 ---
 
@@ -38,21 +38,29 @@ The marketplace has a solid foundation with core e-commerce features implemented
 
 | Feature | Status | What's Missing |
 |---------|--------|----------------|
-| **Product Inventory** | 🟡 Low | Need actual products listed |
+| **Product Listings** | 🟡 Low | Need actual products listed |
 | **Service Portfolio** | 🟡 Low | Need past project examples |
 | **Testimonials** | 🟡 Empty | Removed fake ones, need real reviews |
 | **Blog/Content** | 🟡 Minimal | No blog posts for SEO |
 | **Analytics** | 🟡 Basic | Google Analytics setup needed |
 
-### ❌ Missing Features (High Priority)
+### ✅ Previously Missing — Now Implemented
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Wishlist/Favorites** | ✅ Done | Heart icons on cards, `/dashboard/wishlist` page |
+| **Coupon/Discount Codes** | ✅ Done | Full system: model, API, admin UI, checkout input |
+| **Invoice PDF** | ✅ Done | Browser print-to-PDF with dedicated invoice page |
+
+### ⚠️ Still Missing (Medium Priority)
 
 | Feature | Priority | Impact |
 |---------|----------|--------|
-| **Wishlist/Favorites** | Medium | User engagement |
-| **Coupon/Discount Codes** | High | Sales promotions |
-| **Email Marketing** | High | Customer retention |
-| **Social Login** | Medium | Reduce friction |
-| **Invoice PDF** | Medium | Professional receipts |
+| **Email Marketing Campaigns** | High | Customer retention |
+| **Social Login** | Medium | Reduce signup friction |
+| **Abandoned Cart Recovery** | Medium | Recover lost sales |
+
+> **Not needed:** Stock/inventory management — this is a digital-only marketplace.
 
 ---
 
@@ -257,7 +265,7 @@ Dashboard → Download Files
 ## Summary
 
 The marketplace is **85% ready** for launch. Focus on:
-1. **Creating products** - You need inventory!
+1. **Creating products** - You need to add digital products to sell!
 2. **SEO foundation** - Sitemap, Schema, blog
 3. **Traffic acquisition** - Content + social + paid
 

@@ -28,6 +28,7 @@ import PremiumDropdown from "../../../../shared/components/PremiumDropdown.jsx";
 import FAQ from "../../common/components/FAQ";
 import Testimonials from "../../common/components/Testimonials";
 import WhyChooseUs from "../../common/components/WhyChooseUs";
+import WishlistButton from "../../common/components/WishlistButton";
 import EmptyState from "../../common/components/ui/EmptyState";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useGetServicesQuery } from "../../store/api/marketplaceApi";
@@ -392,13 +393,16 @@ const Services = () => {
                             />
                           );
                         })()}
-                        <Link
-                          to={`/marketplace/services/${service._id}`}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center font-medium"
-                        >
-                          View Offer
-                          <ArrowRight className="ml-1 h-4 w-4" />
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to={`/marketplace/services/${service._id}`}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center font-medium"
+                          >
+                            View Offer
+                            <ArrowRight className="ml-1 h-4 w-4" />
+                          </Link>
+                          <WishlistButton itemId={service._id} type="service" />
+                        </div>
                       </div>
                     </div>
                   </motion.div>

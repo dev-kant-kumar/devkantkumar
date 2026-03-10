@@ -37,6 +37,7 @@ const Tutorials = React.lazy(() => import('./pages/Tutorials/Tutorials'));
 const KnowledgeBase = React.lazy(() => import('./pages/KnowledgeBase/KnowledgeBase'));
 const CommunityForum = React.lazy(() => import('./pages/Community/CommunityForum'));
 const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
+const Wishlist = React.lazy(() => import('./pages/Wishlist/Wishlist'));
 
 // User Management
 const AuthLayout = React.lazy(() => import('./pages/UserManagement/AuthLayout'));
@@ -94,6 +95,7 @@ const MarketPlaceRoutes = () => {
               <Route path="billing" element={<Billing />} />
               <Route path="referral" element={<Referral />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="wishlist" element={<Wishlist />} />
             </Route>
 
             {/* User Management Routes */}
