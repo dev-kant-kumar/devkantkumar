@@ -1914,6 +1914,73 @@ const submitRequirements = async (req, res) => {
 };
 
 
+const invoiceService = require('../services/invoiceService');
+
+// --- INVOICE GENERATION ---
+
+/**
+ * Download Invoice as PDF
+ * GET /marketplace/orders/:orderId/invoice
+ */
+const downloadInvoice = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    // Verify the order belongs to this user
+    const order = await Order.findOne({ _id: orderId, user: req.user.id });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const { buffer } = await invoiceService.generateInvoicePDF(orderId);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="invoice-${order.orderNumber}.pdf"`,
+    );
+    res.setHeader('Content-Length', buffer.length);
+    res.end(buffer);
+  } catch (error) {
+    logger.error('Download invoice error:', error);
+    res.status(500).json({ message: 'Failed to generate invoice PDF' });
+  }
+};
+
+/**
+ * Send Invoice by Email
+ * POST /marketplace/orders/:orderId/invoice/send
+ * Body: { email? }  — defaults to the billing email on the order
+ */
+const sendInvoiceByEmail = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const order = await Order.findOne({ _id: orderId, user: req.user.id });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const recipientEmail = req.body.email || order.billing?.email;
+    if (!recipientEmail) {
+      return res.status(400).json({ message: 'No email address available for this order' });
+    }
+
+    await emailService.sendInvoiceEmail(
+      recipientEmail,
+      order,
+      order.billing?.firstName || 'Customer',
+    );
+
+    res.json({
+      success: true,
+      message: `Invoice emailed to ${recipientEmail}`,
+    });
+  } catch (error) {
+    logger.error('Send invoice email error:', error);
+    res.status(500).json({ message: 'Failed to send invoice email' });
+  }
+};
+
+
 module.exports = {
   getProducts,
   getProductById,
@@ -1942,4 +2009,6 @@ module.exports = {
   getReviews,
   handleRazorpayWebhook,
   submitRequirements,
+  downloadInvoice,
+  sendInvoiceByEmail,
 };

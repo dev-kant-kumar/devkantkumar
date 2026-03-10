@@ -11,6 +11,7 @@ const {
   getProductNotificationTemplate,
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
+  getInvoiceEmailTemplate,
   getEmailChangeOtpTemplate,
   getPasswordChangeOtpTemplate
 } = require('../utils/emailTemplates');
@@ -133,6 +134,26 @@ class EmailService {
       subject: `Order Confirmation - #${order.orderNumber}`,
       html,
       type: 'order-confirmation-email'
+    });
+  }
+
+  /**
+   * Send invoice email with a link to view/download the invoice PDF
+   * @param {string} email
+   * @param {Object} order
+   * @param {string} firstName
+   */
+  async sendInvoiceEmail(email, order, firstName) {
+    const clientUrl = this._getClientUrl();
+    const invoiceUrl = `${clientUrl}/marketplace/dashboard/orders/${order._id}/invoice`;
+
+    const html = getInvoiceEmailTemplate({ firstName, order, invoiceUrl });
+
+    return addEmailToQueue({
+      to: email,
+      subject: `Invoice for Order #${order.orderNumber} - Dev Kant Kumar Marketplace`,
+      html,
+      type: 'invoice-email'
     });
   }
 

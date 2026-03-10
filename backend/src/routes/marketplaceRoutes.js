@@ -58,6 +58,10 @@ router.post('/payment/verify', marketplaceController.verifyRazorpayPayment);
 router.get('/orders/:orderId/items/:itemId/download', marketplaceController.downloadPurchasedItem);
 router.post('/orders/:orderId/regenerate/:itemId', marketplaceController.regenerateDownloadLinks);
 
+// Invoice routes
+router.get('/orders/:orderId/invoice', marketplaceController.downloadInvoice);
+router.post('/orders/:orderId/invoice/send', marketplaceController.sendInvoiceByEmail);
+
 // Review routes
 
 

@@ -99,6 +99,31 @@ export const ordersApi = baseApiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }],
     }),
+
+    // Download invoice PDF (server-generated via Puppeteer)
+    downloadInvoicePDF: builder.query({
+      query: (orderId) => ({
+        url: `${API_ENDPOINTS.MARKETPLACE.ORDERS}/${orderId}/invoice`,
+        responseHandler: async (response) => {
+          if (!response.ok) {
+            const json = await response.json().catch(() => ({}));
+            throw new Error(json.message || 'Failed to generate invoice PDF');
+          }
+          const blob = await response.blob();
+          return blob;
+        },
+        cache: 'no-store',
+      }),
+    }),
+
+    // Send invoice by email
+    sendInvoiceEmail: builder.mutation({
+      query: ({ orderId, email }) => ({
+        url: `${API_ENDPOINTS.MARKETPLACE.ORDERS}/${orderId}/invoice/send`,
+        method: 'POST',
+        body: email ? { email } : {},
+      }),
+    }),
   }),
 });
 
@@ -113,4 +138,6 @@ export const {
   useVerifyPaymentMutation,
   useRequestRevisionMutation,
   useSubmitRequirementsMutation,
+  useLazyDownloadInvoicePDFQuery,
+  useSendInvoiceEmailMutation,
 } = ordersApi;
