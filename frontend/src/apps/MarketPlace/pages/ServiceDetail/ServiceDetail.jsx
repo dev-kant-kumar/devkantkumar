@@ -25,6 +25,7 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { useGetServiceByIdQuery } from '../../store/api/marketplaceApi';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
 import { addToCart } from '../../store/cart/cartSlice';
+import WishlistButton from '../../common/components/WishlistButton';
 
 const ServiceDetail = () => {
   const { serviceId } = useParams();
@@ -390,19 +391,22 @@ const ServiceDetail = () => {
                                 {isAdding ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart size={20} />}
                                 {isAdding ? 'Adding...' : 'Continue'}
                             </button>
+                            <div className="flex gap-2">
+                                <WishlistButton itemId={service._id} type="service" className="flex-1 h-11 rounded-lg" />
+                                <button
+                                    onClick={handleShare}
+                                    className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                    <Share2 size={18} />
+                                    Share
+                                </button>
+                            </div>
                             <Link
                                 to="/marketplace/contact"
                                 className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center"
                             >
                                 Contact Seller
                             </Link>
-                            <button
-                                onClick={handleShare}
-                                className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Share2 size={18} />
-                                Share Service
-                            </button>
                         </div>
                     </div>
                 </div>

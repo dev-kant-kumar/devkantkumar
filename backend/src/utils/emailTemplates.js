@@ -556,6 +556,72 @@ const getAccountReactivationTemplate = ({ firstName, dashboardUrl }) => {
   return wrapHtml('Account Reactivated', content, 'Welcome back! Your account has been restored.');
 };
 
+const getInvoiceEmailTemplate = ({ firstName, order, invoiceUrl }) => {
+  // Helper to format currency
+  const formatCurrency = (amount, currency = 'INR') => {
+    const symbols = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
+    const symbol = symbols[currency] || (currency + ' ');
+    return `${symbol}${(amount || 0).toFixed(2)}`;
+  };
+
+  const currency = order.payment?.currency || 'INR';
+  const total = order.payment?.amount?.total || 0;
+  const date = new Date(order.payment?.paidAt || order.createdAt).toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'long', year: 'numeric'
+  });
+
+  const content = `
+    <div class="text-center">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background-color: #ecfdf5; border-radius: 50%; color: #10b981; margin-bottom: 24px;">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="32" height="32" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+    </div>
+    <h1 class="text-center">Your Invoice is Ready</h1>
+    <p class="text-center text-muted">Order #${order.orderNumber}</p>
+
+    <p>Hi ${firstName},</p>
+    <p>Your invoice for order <strong>#${order.orderNumber}</strong> is now available. You can view and download your invoice as a PDF using the button below.</p>
+
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 24px; margin: 24px 0;">
+      <div class="kv-row">
+        <span class="kv-label">Invoice Number</span>
+        <span class="kv-value">#${order.orderNumber}</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-label">Date</span>
+        <span class="kv-value">${date}</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-label">Status</span>
+        <span class="kv-value" style="color: #059669;">Paid</span>
+      </div>
+      <div class="kv-row" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+        <span class="kv-label">Total Amount</span>
+        <span class="kv-value" style="font-size: 18px; color: #111827;">${formatCurrency(total, currency)}</span>
+      </div>
+    </div>
+
+    <div class="text-center" style="margin: 32px 0;">
+      <a href="${invoiceUrl}" class="button">View &amp; Download Invoice (PDF)</a>
+    </div>
+
+    <div class="box box-info">
+      <p class="mb-0 text-sm">
+        <strong>Tip:</strong> On the invoice page you can print directly or use your browser's
+        "Save as PDF" option to save a copy for your records.
+      </p>
+    </div>
+
+    <p class="text-sm text-center text-muted" style="margin-top: 32px;">
+      If you have any questions about this invoice, please reply to this email
+      or contact <a href="mailto:${COMPANY_INFO.supportEmail}" class="link">${COMPANY_INFO.supportEmail}</a>.
+    </p>
+  `;
+  return wrapHtml(`Invoice #${order.orderNumber} - ${COMPANY_INFO.name}`, content, `Your invoice for order #${order.orderNumber} is ready.`);
+};
+
 module.exports = {
   getVerificationEmailTemplate,
   getPasswordResetTemplate,
@@ -567,6 +633,7 @@ module.exports = {
   getProductNotificationTemplate,
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
+  getInvoiceEmailTemplate,
   getEmailChangeOtpTemplate,
   getPasswordChangeOtpTemplate,
   COMPANY_INFO
