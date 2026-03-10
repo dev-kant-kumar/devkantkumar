@@ -26,13 +26,13 @@ const PHASES = [
   { id: 'completed', label: 'Done' }
 ];
 
-// Robust phase index calculator that looks at actual completed events
+// Returns the index of the CURRENTLY ACTIVE phase (the one in progress right now).
+// order.currentPhase is set by the backend to the NEXT phase when the previous one
+// is completed — so it IS the active phase, not a completed one.
 const getActivePhaseIndex = (order) => {
   if (!order) return 0;
   if (order.status === 'completed') return PHASES.length - 1;
 
-  const completedEvents = [...(order.timeline || [])].reverse();
-  let highestCompletedIndex = -1;
   const phaseIds = PHASES.map(p => p.id);
 
   const legacyMap = {
@@ -41,26 +41,31 @@ const getActivePhaseIndex = (order) => {
     'revision_window_closed': 'support_window'
   };
 
+  // PRIMARY: use currentPhase directly — it IS the active (in-progress) phase
+  if (order.currentPhase) {
+    const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
+    const currentIdx = phaseIds.indexOf(mappedCurrent);
+    if (currentIdx !== -1) return currentIdx;
+  }
+
+  // FALLBACK: derive from the highest completed timeline event + 1
+  const completedEvents = [...(order.timeline || [])].reverse();
+  let highestCompletedIndex = -1;
+
   for (const event of completedEvents) {
     const rawStatus = event.status;
     const mappedStatus = legacyMap[rawStatus] || rawStatus;
     const idx = phaseIds.indexOf(mappedStatus);
-
     if (idx !== -1) {
       highestCompletedIndex = Math.max(highestCompletedIndex, idx);
     }
   }
 
-  if (order.currentPhase) {
-    const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
-    const currentIdx = phaseIds.indexOf(mappedCurrent);
-    if (currentIdx > highestCompletedIndex) {
-      highestCompletedIndex = currentIdx;
-    }
+  if (highestCompletedIndex >= 0) {
+    return Math.min(highestCompletedIndex + 1, PHASES.length - 1);
   }
 
-  const activeIndex = highestCompletedIndex + 1;
-  return Math.min(activeIndex, PHASES.length - 1);
+  return 0;
 };
 
 // Status colors mapping
@@ -477,7 +482,7 @@ const ServiceWorkspace = () => {
                         <stop offset="100%" stopColor="#06b6d4" />
                       </linearGradient>
                       <clipPath id="progressClip">
-                        <rect x="-20" y="-20" height="200" style={{ width: `${60 + (getActivePhaseIndex(order) / (PHASES.length - 1)) * 890}px`, transition: 'width 1.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                        <rect x="-20" y="-20" height="200" style={{ width: `${70 + (getActivePhaseIndex(order) / (PHASES.length - 1)) * 900}px`, transition: 'width 1.5s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                       </clipPath>
                     </defs>
 

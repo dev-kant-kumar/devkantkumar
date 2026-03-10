@@ -124,16 +124,13 @@ const PHASES = [
   { id: "completed", label: "Done", icon: Check, weight: 0 },
 ];
 
-// Robust phase index calculator that looks at actual completed events
+// Returns the index of the CURRENTLY ACTIVE phase (the one in progress right now).
+// order.currentPhase is set by the backend to the NEXT phase when the previous one
+// is completed — so it IS the active phase, not a completed one.
 const getActivePhaseIndex = (order) => {
   if (!order) return 0;
   if (order.status === "completed") return PHASES.length - 1;
 
-  // 1. Get all completed phases from the timeline, reverse them to start from latest
-  const completedEvents = [...(order.timeline || [])].reverse();
-
-  // 2. Find the highest phase ID that actually exists in our PHASES array
-  let highestCompletedIndex = -1;
   const phaseIds = PHASES.map((p) => p.id);
 
   // Fallback map for legacy or mismatched statuses if any exist in the database
@@ -143,29 +140,32 @@ const getActivePhaseIndex = (order) => {
     revision_window_closed: "support_window",
   };
 
+  // PRIMARY: use currentPhase directly — it IS the active (in-progress) phase
+  if (order.currentPhase) {
+    const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
+    const currentIdx = phaseIds.indexOf(mappedCurrent);
+    if (currentIdx !== -1) return currentIdx;
+  }
+
+  // FALLBACK: derive from highest completed timeline event + 1
+  const completedEvents = [...(order.timeline || [])].reverse();
+  let highestCompletedIndex = -1;
+
   for (const event of completedEvents) {
     const rawStatus = event.status;
     const mappedStatus = legacyMap[rawStatus] || rawStatus;
     const idx = phaseIds.indexOf(mappedStatus);
 
-    // Once we find the most recent completed phase that matches our track
     if (idx !== -1) {
       highestCompletedIndex = Math.max(highestCompletedIndex, idx);
     }
   }
 
-  // 3. Fallback to order.currentPhase if available and higher
-  if (order.currentPhase) {
-    const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
-    const currentIdx = phaseIds.indexOf(mappedCurrent);
-    if (currentIdx > highestCompletedIndex) {
-      highestCompletedIndex = currentIdx;
-    }
+  if (highestCompletedIndex >= 0) {
+    return Math.min(highestCompletedIndex + 1, PHASES.length - 1);
   }
 
-  // Active phase is usually the one *after* the highest completed phase, capped at the end
-  const activeIndex = highestCompletedIndex + 1;
-  return Math.min(activeIndex, PHASES.length - 1);
+  return 0;
 };
 
 const PHASE_CHECKLISTS = {
