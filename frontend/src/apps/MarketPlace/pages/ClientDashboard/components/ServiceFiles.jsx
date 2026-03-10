@@ -124,10 +124,18 @@ const ServiceFiles = ({ orderId, order }) => {
       toast.error('Download link not available');
       return;
     }
-    // Force download by adding fl_attachment for Cloudinary URLs
     let downloadUrl = file.url;
-    if (downloadUrl.includes('cloudinary.com') && downloadUrl.includes('/upload/')) {
-      downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
+    try {
+      const parsed = new URL(file.url);
+      if (
+        (parsed.hostname === 'res.cloudinary.com' ||
+          parsed.hostname.endsWith('.cloudinary.com')) &&
+        parsed.pathname.includes('/upload/')
+      ) {
+        downloadUrl = file.url.replace('/upload/', '/upload/fl_attachment/');
+      }
+    } catch (_) {
+      // Not a valid absolute URL — use as-is
     }
     const a = document.createElement('a');
     a.href = downloadUrl;

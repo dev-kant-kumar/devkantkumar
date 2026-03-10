@@ -12,9 +12,13 @@ export const calculateProjectProgress = (order) => {
   if (order.timeline && order.timeline.length > 0) {
     const completedStatuses = order.timeline.map(entry => entry.status);
 
-    // SDLC Phase Weights
-    if (completedStatuses.includes('revision_window_closed')) return 95;
-    if (completedStatuses.includes('delivered')) return 85;
+    // SDLC Phase Weights — statuses match what completePhase stores (phaseKey itself)
+    if (completedStatuses.includes('support_window')) return 97;
+    if (completedStatuses.includes('revision_window')) return 92;
+    if (completedStatuses.includes('delivery')) return 82;
+    // Legacy: 'delivered' may appear from older markDelivered / updateAdminOrderStatus flows.
+    // Intentionally the same value as 'delivery' since both represent the same milestone.
+    if (completedStatuses.includes('delivered')) return 82;
     if (completedStatuses.includes('testing_qa')) return 75;
     if (completedStatuses.includes('development')) return 65;
     if (completedStatuses.includes('design')) return 40;
