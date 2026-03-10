@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  BarChart2,
   Briefcase,
   ChevronLeft,
   ChevronRight,
@@ -67,6 +68,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
 
   const marketplaceItems = [
     { name: "Overview", path: "/admin/marketplace", icon: PieChart },
+    { name: "Analytics", path: "/admin/marketplace/analytics", icon: BarChart2 },
     { name: "Products", path: "/admin/marketplace/products", icon: Package },
     { name: "Services", path: "/admin/marketplace/services", icon: Code },
     { name: "Orders", path: "/admin/marketplace/orders", icon: ShoppingBag },

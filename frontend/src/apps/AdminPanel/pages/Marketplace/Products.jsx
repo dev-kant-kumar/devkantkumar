@@ -1,10 +1,13 @@
 import {
+    BarChart2,
     Download,
     Edit2,
+    Eye,
     Filter,
     Package,
     Plus,
     Search,
+    Star,
     Trash2
 } from 'lucide-react';
 import { useState } from 'react';
@@ -113,6 +116,8 @@ const Products = () => {
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Product</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Price</th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Views / Downloads</th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Rating</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
                   <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
                 </tr>
@@ -149,6 +154,25 @@ const Products = () => {
                       ₹{product.price}
                     </td>
                     <td className="px-6 py-4">
+                      <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <Eye size={13} className="text-blue-400" />
+                          {product.views ?? 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Download size={13} className="text-green-400" />
+                          {product.downloads ?? 0}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="flex items-center gap-1 text-amber-500 font-medium text-sm">
+                        <Star size={13} className="fill-amber-400 text-amber-400" />
+                        {(product.rating?.average ?? 0).toFixed(1)}
+                        <span className="text-xs text-gray-400 font-normal">({product.rating?.count ?? 0})</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                             Active
@@ -156,12 +180,13 @@ const Products = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
-                         <button
-                           className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
-                           title="Download Stats"
-                         >
-                            <Download size={18} />
-                         </button>
+                        <Link
+                          to={`${product._id}/analytics`}
+                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all inline-block"
+                          title="View Analytics"
+                        >
+                          <BarChart2 size={18} />
+                        </Link>
                         <Link
                           to={`edit/${product._id}`}
                           className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-all inline-block"

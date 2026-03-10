@@ -39,9 +39,9 @@ router.put('/settings/seo', settingsController.updateSettings);
 const adminMarketplaceController = require('../controllers/adminMarketplaceController');
 
 // Products
-// Products
 router.get('/products', adminMarketplaceController.getAllProducts);
 router.get('/products/:id', adminMarketplaceController.getProductById);
+router.get('/products/:id/analytics', adminMarketplaceController.getProductAnalytics);
 router.post('/products', adminMarketplaceController.createProduct);
 router.put('/products/:id', adminMarketplaceController.updateProduct);
 router.delete('/products/:id', adminMarketplaceController.deleteProduct);
@@ -49,6 +49,7 @@ router.delete('/products/:id', adminMarketplaceController.deleteProduct);
 // Services
 router.get('/services', adminMarketplaceController.getAdminServices);
 router.get('/services/:id', adminMarketplaceController.getAdminServiceById);
+router.get('/services/:id/analytics', adminMarketplaceController.getServiceAnalytics);
 router.post('/services', adminMarketplaceController.createService);
 router.put('/services/:id', adminMarketplaceController.updateService);
 router.delete('/services/:id', adminMarketplaceController.deleteService);
@@ -66,6 +67,7 @@ router.post('/marketplace/orders/:id/deliver', adminMarketplaceController.markDe
 router.post('/marketplace/orders/:id/phases/:phaseKey/complete', adminMarketplaceController.completePhase);
 router.post('/marketplace/orders/:id/approvals', adminMarketplaceController.markApproval);
 router.get('/marketplace/stats', adminMarketplaceController.getStats);
+router.get('/marketplace/analytics', adminMarketplaceController.getMarketplaceAnalytics);
 
 // Customers
 router.get('/customers', adminMarketplaceController.getCustomers);
