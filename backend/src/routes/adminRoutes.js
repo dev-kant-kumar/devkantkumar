@@ -40,16 +40,16 @@ const adminMarketplaceController = require('../controllers/adminMarketplaceContr
 
 // Products
 router.get('/products', adminMarketplaceController.getAllProducts);
-router.get('/products/:id', adminMarketplaceController.getProductById);
 router.get('/products/:id/analytics', adminMarketplaceController.getProductAnalytics);
+router.get('/products/:id', adminMarketplaceController.getProductById);
 router.post('/products', adminMarketplaceController.createProduct);
 router.put('/products/:id', adminMarketplaceController.updateProduct);
 router.delete('/products/:id', adminMarketplaceController.deleteProduct);
 
 // Services
 router.get('/services', adminMarketplaceController.getAdminServices);
-router.get('/services/:id', adminMarketplaceController.getAdminServiceById);
 router.get('/services/:id/analytics', adminMarketplaceController.getServiceAnalytics);
+router.get('/services/:id', adminMarketplaceController.getAdminServiceById);
 router.post('/services', adminMarketplaceController.createService);
 router.put('/services/:id', adminMarketplaceController.updateService);
 router.delete('/services/:id', adminMarketplaceController.deleteService);
