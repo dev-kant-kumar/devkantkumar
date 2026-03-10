@@ -234,6 +234,37 @@ const PHASE_CHECKLISTS = {
   },
 };
 
+// --- Shared Helpers ---
+
+/**
+ * Force-download a Cloudinary (or any) file URL.
+ * For Cloudinary URLs, appends `fl_attachment` so the browser always triggers
+ * a Save-As dialog instead of opening the file inline.
+ */
+const handleDeliverableDownload = (url, name = "download") => {
+  if (!url) return;
+  let downloadUrl = url;
+  try {
+    const parsed = new URL(url);
+    if (
+      (parsed.hostname === "res.cloudinary.com" ||
+        parsed.hostname.endsWith(".cloudinary.com")) &&
+      parsed.pathname.includes("/upload/")
+    ) {
+      downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
+    }
+  } catch (_) {
+    // Not a valid absolute URL — use as-is
+  }
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = name;
+  a.target = "_blank";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
 // --- Phase-specific Data ---
 
 const PHASE_DETAILS = {
@@ -626,15 +657,16 @@ const PhaseInputContent = ({
                     </p>
                   )}
                   {entry.deliverableUrl && (
-                    <a
-                      href={entry.deliverableUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`View deliverable: ${entry.message}`}
-                      className="text-[10px] font-black text-blue-600 hover:underline mt-1 inline-block"
+                    <button
+                      onClick={() =>
+                        handleDeliverableDownload(entry.deliverableUrl)
+                      }
+                      aria-label={`Download deliverable: ${entry.message}`}
+                      className="inline-flex items-center gap-1 text-[10px] font-black text-blue-600 hover:underline mt-1"
                     >
-                      VIEW FILE →
-                    </a>
+                      <Download className="h-3 w-3" />
+                      DOWNLOAD FILE
+                    </button>
                   )}
                   {entry.externalLink && (
                     <a
@@ -663,6 +695,7 @@ const PhaseOutputContent = ({
   isCurrentPhase,
   currentPhaseConfig,
   fileUrl,
+  fileName,
   externalLink,
   adminNotes,
   isUploading,
@@ -800,15 +833,16 @@ const PhaseOutputContent = ({
                 <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
                 <div className="flex gap-3">
                   {entry.deliverableUrl && (
-                    <a
-                      href={entry.deliverableUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`View deliverable: ${entry.message}`}
-                      className="text-blue-500 hover:text-blue-400 font-black"
+                    <button
+                      onClick={() =>
+                        handleDeliverableDownload(entry.deliverableUrl)
+                      }
+                      aria-label={`Download deliverable: ${entry.message}`}
+                      className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-400 font-black"
                     >
-                      VIEW FILE
-                    </a>
+                      <Download className="h-3 w-3" />
+                      DOWNLOAD FILE
+                    </button>
                   )}
                   {entry.externalLink && (
                     <a
@@ -879,13 +913,24 @@ const PhaseOutputContent = ({
                           <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
                             <FileText className="h-4 w-4 text-blue-600" />
                           </div>
-                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
-                            File Uploaded ✓
-                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">
+                              {fileName || "File Uploaded ✓"}
+                            </p>
+                            <a
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[10px] text-blue-500 hover:underline"
+                            >
+                              View file →
+                            </a>
+                          </div>
                         </div>
                         <button
                           onClick={onClearFile}
                           className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"
+                          title="Remove file"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -1080,6 +1125,7 @@ const AdminPhaseActivity = ({ order, refetch }) => {
   const [feedback, setFeedback] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const [fileUrl, setFileUrl] = useState("");
+  const [fileName, setFileName] = useState("");
   const [externalLink, setExternalLink] = useState("");
 
   const reqData = order?.requirementsData || {};
@@ -1107,13 +1153,17 @@ const AdminPhaseActivity = ({ order, refetch }) => {
     try {
       const result = await uploadFile(file).unwrap();
       setFileUrl(result.file.url);
+      setFileName(result.file.originalName || file.name);
       toast.success("File uploaded successfully!");
     } catch (err) {
       toast.error(err?.data?.message || "Upload failed");
     }
   };
 
-  const clearFile = () => setFileUrl("");
+  const clearFile = () => {
+    setFileUrl("");
+    setFileName("");
+  };
 
   const handleDownloadRequirements = () => {
     if (!responses || responses.length === 0) {
@@ -1344,6 +1394,7 @@ const AdminPhaseActivity = ({ order, refetch }) => {
       toast.success(`${currentPhaseConfig.title} phase completed!`);
       setAdminNotes("");
       setFileUrl("");
+      setFileName("");
       setExternalLink("");
       refetch();
     } catch (err) {
@@ -1374,6 +1425,9 @@ const AdminPhaseActivity = ({ order, refetch }) => {
 
     const phaseKeywords = keywords[phaseId] || [];
     return activityHistory.filter((entry) => {
+      // Primary: direct status match (set by completePhase backend)
+      if (entry.status === phaseId) return true;
+      // Secondary: keyword fallback for backward compatibility
       const msg = entry.message?.toLowerCase() || "";
       const st = entry.status?.toLowerCase() || "";
       return phaseKeywords.some((kw) => msg.includes(kw) || st.includes(kw));
@@ -1659,6 +1713,7 @@ const AdminPhaseActivity = ({ order, refetch }) => {
                   isCurrentPhase={isCurrentlyActivePhase}
                   currentPhaseConfig={currentPhaseConfig}
                   fileUrl={fileUrl}
+                  fileName={fileName}
                   externalLink={externalLink}
                   adminNotes={adminNotes}
                   isUploading={isUploading}

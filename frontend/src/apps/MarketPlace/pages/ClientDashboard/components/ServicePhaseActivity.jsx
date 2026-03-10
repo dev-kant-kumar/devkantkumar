@@ -6,6 +6,7 @@ import {
   ClipboardList,
   Clock,
   Cpu,
+  Download,
   FileText,
   Globe,
   Link2,
@@ -263,6 +264,30 @@ const ClientPhaseOutputContent = ({
   const isCompleted = phaseIndex < currentIndex;
   const isUpcoming = phaseIndex > currentIndex;
 
+  const handleDeliverableDownload = (url, name = "download") => {
+    if (!url) return;
+    let downloadUrl = url;
+    try {
+      const parsed = new URL(url);
+      if (
+        (parsed.hostname === "res.cloudinary.com" ||
+          parsed.hostname.endsWith(".cloudinary.com")) &&
+        parsed.pathname.includes("/upload/")
+      ) {
+        downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
+      }
+    } catch (_) {
+      // Not a valid absolute URL — use as-is
+    }
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = name;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const PHASE_OUTPUT_TITLES = {
     legal_documentation: "Signed Legal Documents",
     planning_scoping: "Project Plan & Scope Document",
@@ -306,15 +331,16 @@ const ClientPhaseOutputContent = ({
                   </span>
                   <div className="flex gap-3">
                     {entry.deliverableUrl && (
-                      <a
-                        href={entry.deliverableUrl}
-                        target="_blank"
-                        rel="noreferrer"
+                      <button
+                        onClick={() =>
+                          handleDeliverableDownload(entry.deliverableUrl)
+                        }
                         aria-label={`Download deliverable from ${new Date(entry.timestamp).toLocaleDateString()}`}
-                        className="text-[10px] font-black text-blue-600 hover:underline"
+                        className="inline-flex items-center gap-1 text-[10px] font-black text-blue-600 hover:underline"
                       >
+                        <Download className="h-3 w-3" />
                         DOWNLOAD FILE
-                      </a>
+                      </button>
                     )}
                     {entry.externalLink && (
                       <a
@@ -496,6 +522,9 @@ const ServicePhaseActivity = ({ order, liveService }) => {
 
     const phaseKeywords = keywords[phaseId] || [];
     return activityHistory.filter((entry) => {
+      // Primary: direct status match (set by completePhase backend)
+      if (entry.status === phaseId) return true;
+      // Secondary: keyword fallback for backward compatibility
       const msg = entry.message?.toLowerCase() || "";
       const status = entry.status?.toLowerCase() || "";
       return phaseKeywords.some(
