@@ -34,6 +34,7 @@ const MarketCustomerDetail = React.lazy(() => import("./pages/Marketplace/Custom
 const MarketQuoteRequests = React.lazy(() => import("./pages/Marketplace/QuoteRequests.jsx"));
 const MarketSettings = React.lazy(() => import("./pages/Marketplace/Settings.jsx"));
 const CouponManagement = React.lazy(() => import("./pages/Coupons/CouponManagement.jsx"));
+const AdminReferrals = React.lazy(() => import("./pages/Referrals/AdminReferrals.jsx"));
 const AdminProjects = React.lazy(() => import("./pages/Marketplace/Projects/AdminProjects.jsx"));
 const AdminProjectWorkspace = React.lazy(() => import("./pages/Marketplace/Projects/AdminProjectWorkspace.jsx"));
 const SupportTickets = React.lazy(() => import("./pages/Support/SupportTickets.jsx"));
@@ -74,6 +75,7 @@ const AdminPanelRoutes = () => {
             <Route path="quotes" element={<MarketQuoteRequests />} />
             <Route path="settings" element={<MarketSettings />} />
             <Route path="coupons" element={<CouponManagement />} />
+            <Route path="referrals" element={<AdminReferrals />} />
           </Route>
 
           {/* Support */}

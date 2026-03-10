@@ -12,6 +12,7 @@ const cloudinary = require("../services/cloudinaryService");
 const downloadService = require("../services/downloadService");
 const emailService = require("../services/emailService");
 const logger = require("../utils/logger");
+const referralController = require("./referralController");
 
 // Initialize Razorpay — crash early if credentials are missing
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -856,6 +857,11 @@ const verifyRazorpayPayment = async (req, res) => {
       } catch (emailError) {
         logger.error("Failed to send order confirmation email:", emailError);
       }
+
+      // Award referral commission (fire and forget)
+      referralController.awardCommission(order).catch(err =>
+        logger.error('Referral awardCommission failed:', err)
+      );
 
       logger.info(`Payment verified for order ${orderId}`);
 
