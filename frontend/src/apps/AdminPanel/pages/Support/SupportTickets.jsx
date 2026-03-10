@@ -1,74 +1,70 @@
 import {
-    CheckCircle,
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    Eye,
-    MessageSquare,
-    RefreshCw,
-    Search,
-    Trash2
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
-import PremiumButton from '../../common/components/PremiumButton';
-import PremiumConfirmModal from '../../common/components/PremiumConfirmModal';
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Eye,
+  MessageSquare,
+  RefreshCw,
+  Search,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import PremiumDropdown from "../../../../shared/components/PremiumDropdown.jsx";
+import PremiumButton from "../../common/components/PremiumButton";
+import PremiumConfirmModal from "../../common/components/PremiumConfirmModal";
 import {
-    useDeleteSupportTicketMutation,
-    useGetAdminSupportStatsQuery,
-    useGetAdminSupportTicketsQuery
-} from '../../store/api/adminApiSlice';
+  useDeleteAdminSupportTicketMutation,
+  useGetAdminSupportStatsQuery,
+  useGetAdminSupportTicketsQuery,
+} from "../../store/api/adminApiSlice";
 
 // --- Constants & Config ---
 const STATUS_COLORS = {
-  'open': 'bg-blue-50 text-blue-700 ring-blue-600/20',
-  'in-progress': 'bg-purple-50 text-purple-700 ring-purple-600/20',
-  'awaiting-response': 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
-  'resolved': 'bg-green-50 text-green-700 ring-green-600/20',
-  'closed': 'bg-gray-50 text-gray-700 ring-gray-600/20'
+  open: "bg-blue-50 text-blue-700 ring-blue-600/20",
+  "in-progress": "bg-purple-50 text-purple-700 ring-purple-600/20",
+  "awaiting-response": "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
+  resolved: "bg-green-50 text-green-700 ring-green-600/20",
+  closed: "bg-gray-50 text-gray-700 ring-gray-600/20",
 };
 
 const PRIORITY_COLORS = {
-  'low': 'text-gray-600',
-  'medium': 'text-blue-600',
-  'high': 'text-orange-600',
-  'urgent': 'text-red-600'
+  low: "text-gray-600",
+  medium: "text-blue-600",
+  high: "text-orange-600",
+  urgent: "text-red-600",
 };
 
 const TICKET_CATEGORIES = {
-  'technical': { label: 'Technical', color: 'text-purple-600 bg-purple-50' },
-  'billing': { label: 'Billing', color: 'text-green-600 bg-green-50' },
-  'general': { label: 'General', color: 'text-blue-600 bg-blue-50' },
-  'feedback': { label: 'Feedback', color: 'text-pink-600 bg-pink-50' },
-  'order': { label: 'Order', color: 'text-orange-600 bg-orange-50' },
-  'refund': { label: 'Refund', color: 'text-red-600 bg-red-50' }
+  technical: { label: "Technical", color: "text-purple-600 bg-purple-50" },
+  billing: { label: "Billing", color: "text-green-600 bg-green-50" },
+  general: { label: "General", color: "text-blue-600 bg-blue-50" },
+  feedback: { label: "Feedback", color: "text-pink-600 bg-pink-50" },
+  order: { label: "Order", color: "text-orange-600 bg-orange-50" },
+  refund: { label: "Refund", color: "text-red-600 bg-red-50" },
 };
 
 // --- Helper Functions ---
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 // --- Components ---
 
-
-
-
-
 // Main Page Component
 const SupportTickets = () => {
   const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [deleteId, setDeleteId] = useState(null);
   const navigate = useNavigate();
 
@@ -81,16 +77,20 @@ const SupportTickets = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data: ticketsData, isLoading: isLoadingTickets, refetch } = useGetAdminSupportTicketsQuery({
+  const {
+    data: ticketsData,
+    isLoading: isLoadingTickets,
+    refetch,
+  } = useGetAdminSupportTicketsQuery({
     page,
     limit: 10,
     search: debouncedSearch,
-    status: statusFilter
+    status: statusFilter,
   });
 
   const { data: statsData } = useGetAdminSupportStatsQuery();
 
-  const [deleteTicket] = useDeleteSupportTicketMutation();
+  const [deleteTicket] = useDeleteAdminSupportTicketMutation();
 
   const tickets = ticketsData?.data?.tickets || [];
   const pagination = ticketsData?.data?.pagination || {};
@@ -104,10 +104,10 @@ const SupportTickets = () => {
     if (!deleteId) return;
     try {
       await deleteTicket(deleteId).unwrap();
-      toast.success('Ticket deleted successfully');
+      toast.success("Ticket deleted successfully");
       setDeleteId(null);
     } catch (error) {
-      toast.error('Failed to delete ticket');
+      toast.error("Failed to delete ticket");
     }
   };
 
@@ -120,13 +120,11 @@ const SupportTickets = () => {
             <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
               Support Center
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">Manage support tickets and inquiries</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg">
+              Manage support tickets and inquiries
+            </p>
           </div>
-          <PremiumButton
-            onClick={refetch}
-            label="Refresh"
-            icon={RefreshCw}
-          />
+          <PremiumButton onClick={refetch} label="Refresh" icon={RefreshCw} />
         </div>
 
         {/* Stats Grid */}
@@ -136,10 +134,16 @@ const SupportTickets = () => {
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
                 <TicketIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded-lg font-medium">Total</span>
+              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded-lg font-medium">
+                Total
+              </span>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.total || 0}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">All Tickets</p>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+              {stats.total || 0}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              All Tickets
+            </p>
           </div>
 
           <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
@@ -147,10 +151,16 @@ const SupportTickets = () => {
               <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl">
                 <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
-              <span className="px-2 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs rounded-lg font-medium">Pending</span>
+              <span className="px-2 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs rounded-lg font-medium">
+                Pending
+              </span>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.byStatus?.['open'] || 0}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Open Tickets</p>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+              {stats.byStatus?.["open"] || 0}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Open Tickets
+            </p>
           </div>
 
           <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
@@ -158,10 +168,16 @@ const SupportTickets = () => {
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
                 <MessageSquare className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <span className="px-2 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs rounded-lg font-medium">Active</span>
+              <span className="px-2 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 text-xs rounded-lg font-medium">
+                Active
+              </span>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.byStatus?.['in-progress'] || 0}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">In Progress</p>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+              {stats.byStatus?.["in-progress"] || 0}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              In Progress
+            </p>
           </div>
 
           <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-700/50">
@@ -169,9 +185,13 @@ const SupportTickets = () => {
               <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-xl">
                 <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
-              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-lg font-medium">Done</span>
+              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-lg font-medium">
+                Done
+              </span>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.byStatus?.['resolved'] || 0}</h3>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+              {stats.byStatus?.["resolved"] || 0}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">Resolved</p>
           </div>
         </div>
@@ -196,12 +216,12 @@ const SupportTickets = () => {
             onChange={setStatusFilter}
             placeholder="All Statuses"
             options={[
-              { value: '', label: 'All Statuses' },
-              { value: 'open', label: 'Open' },
-              { value: 'in-progress', label: 'In Progress' },
-              { value: 'awaiting-response', label: 'Awaiting Response' },
-              { value: 'resolved', label: 'Resolved' },
-              { value: 'closed', label: 'Closed' }
+              { value: "", label: "All Statuses" },
+              { value: "open", label: "Open" },
+              { value: "in-progress", label: "In Progress" },
+              { value: "awaiting-response", label: "Awaiting Response" },
+              { value: "resolved", label: "Resolved" },
+              { value: "closed", label: "Closed" },
             ]}
             className="w-56"
             buttonClassName="bg-white/50 dark:bg-gray-800/50 border-none rounded-xl text-gray-900 dark:text-white"
@@ -215,12 +235,24 @@ const SupportTickets = () => {
           <table className="w-full">
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200/50 dark:border-gray-700/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket Details</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Requested By</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Ticket Details
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Requested By
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Priority
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -228,21 +260,38 @@ const SupportTickets = () => {
                 // Loading Skeleton
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-2"></div><div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-48"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div><div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-32"></div></td>
-                    <td className="px-6 py-4"><div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div></td>
-                    <td className="px-6 py-4"><div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24"></div></td>
-                    <td className="px-6 py-4"><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div></td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-2"></div>
+                      <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-48"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+                      <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded w-32"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </td>
                     <td className="px-6 py-4"></td>
                   </tr>
                 ))
               ) : tickets.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                  <td
+                    colSpan="6"
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                  >
                     <div className="flex flex-col items-center justify-center">
                       <MessageSquare className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
                       <p className="text-lg font-medium">No tickets found</p>
-                      <p className="text-sm">Try adjusting your filters or search terms</p>
+                      <p className="text-sm">
+                        Try adjusting your filters or search terms
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -255,12 +304,31 @@ const SupportTickets = () => {
                   >
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="font-medium text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {ticket.subject}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                          {ticket.ticketNumber}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {ticket.subject}
+                          </span>
+                          {ticket.unreadByAdmin > 0 && (
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white min-w-[20px] animate-pulse">
+                              {ticket.unreadByAdmin}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                            {ticket.ticketNumber}
+                          </span>
+                          {ticket.isGuest && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold">
+                              Guest
+                            </span>
+                          )}
+                          {ticket.source && ticket.source !== "dashboard" && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium capitalize">
+                              {ticket.source.replace("-", " ")}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -269,36 +337,56 @@ const SupportTickets = () => {
                           {ticket.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">{ticket.name}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{ticket.email}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {ticket.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {ticket.email}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TICKET_CATEGORIES[ticket.category]?.color || 'bg-gray-100 text-gray-800'}`}>
-                        {TICKET_CATEGORIES[ticket.category]?.label || ticket.category}
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TICKET_CATEGORIES[ticket.category]?.color || "bg-gray-100 text-gray-800"}`}
+                      >
+                        {TICKET_CATEGORIES[ticket.category]?.label ||
+                          ticket.category}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${STATUS_COLORS[ticket.status]}`}>
-                        {ticket.status.replace('-', ' ')}
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${STATUS_COLORS[ticket.status]}`}
+                      >
+                        {ticket.status.replace("-", " ")}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <div className={`h-2 w-2 rounded-full ${
-                          ticket.priority === 'urgent' ? 'bg-red-500' :
-                          ticket.priority === 'high' ? 'bg-orange-500' :
-                          ticket.priority === 'medium' ? 'bg-blue-500' :
-                          'bg-gray-400'
-                        }`} />
-                        <span className={`text-sm font-medium ${PRIORITY_COLORS[ticket.priority]}`}>
-                          {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                        <div
+                          className={`h-2 w-2 rounded-full ${
+                            ticket.priority === "urgent"
+                              ? "bg-red-500"
+                              : ticket.priority === "high"
+                                ? "bg-orange-500"
+                                : ticket.priority === "medium"
+                                  ? "bg-blue-500"
+                                  : "bg-gray-400"
+                          }`}
+                        />
+                        <span
+                          className={`text-sm font-medium ${PRIORITY_COLORS[ticket.priority]}`}
+                        >
+                          {ticket.priority.charAt(0).toUpperCase() +
+                            ticket.priority.slice(1)}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex items-center justify-end gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           onClick={() => handleOpenTicket(ticket)}
                           className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
@@ -322,30 +410,46 @@ const SupportTickets = () => {
           </table>
         </div>
 
-        {/* Pagination */
+        {
+          /* Pagination */
           pagination.pages > 1 && (
-          <div className="bg-gray-50/50 dark:bg-gray-800/50 px-6 py-4 border-t border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              Showing <span className="font-medium">{(page - 1) * 10 + 1}</span> to <span className="font-medium">{Math.min(page * 10, pagination.total)}</span> of <span className="font-medium">{pagination.total}</span> results
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 hover:bg-white dark:hover:bg-gray-800 transition-colors"
-              >
-                <ChevronLeft size={18} className="text-gray-600 dark:text-gray-400" />
-              </button>
-              <button
-                onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-                disabled={page === pagination.pages}
-                className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 hover:bg-white dark:hover:bg-gray-800 transition-colors"
-              >
-                <ChevronRight size={18} className="text-gray-600 dark:text-gray-400" />
-              </button>
+            <div className="bg-gray-50/50 dark:bg-gray-800/50 px-6 py-4 border-t border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Showing{" "}
+                <span className="font-medium">{(page - 1) * 10 + 1}</span> to{" "}
+                <span className="font-medium">
+                  {Math.min(page * 10, pagination.total)}
+                </span>{" "}
+                of <span className="font-medium">{pagination.total}</span>{" "}
+                results
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 hover:bg-white dark:hover:bg-gray-800 transition-colors"
+                >
+                  <ChevronLeft
+                    size={18}
+                    className="text-gray-600 dark:text-gray-400"
+                  />
+                </button>
+                <button
+                  onClick={() =>
+                    setPage((p) => Math.min(pagination.pages, p + 1))
+                  }
+                  disabled={page === pagination.pages}
+                  className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 hover:bg-white dark:hover:bg-gray-800 transition-colors"
+                >
+                  <ChevronRight
+                    size={18}
+                    className="text-gray-600 dark:text-gray-400"
+                  />
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
       </div>
 
       <PremiumConfirmModal
@@ -362,8 +466,18 @@ const SupportTickets = () => {
 
 // Icon component needed for stats
 const TicketIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+  <svg
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+    />
   </svg>
 );
 

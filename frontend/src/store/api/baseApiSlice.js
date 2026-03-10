@@ -1,13 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Mutex } from 'async-mutex';
-import { logout, setCredentials } from "../../apps/MarketPlace/store/auth/authSlice";
+import { Mutex } from "async-mutex";
+import {
+  logout,
+  setCredentials,
+} from "../../apps/MarketPlace/store/auth/authSlice";
 import { API_CONFIG, API_ENDPOINTS, API_URL } from "../../config/api";
 
 const mutex = new Mutex();
 
 const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
-  credentials: API_CONFIG.CORS.credentials ? 'include' : 'same-origin',
+  credentials: API_CONFIG.CORS.credentials ? "include" : "same-origin",
 
   prepareHeaders: (headers, { getState, endpoint }) => {
     Object.entries(API_CONFIG.DEFAULT_HEADERS).forEach(([key, value]) => {
@@ -21,14 +24,19 @@ const baseQuery = fetchBaseQuery({
 
     // Intelligent token selection
     let token;
-    const isAdminRequest = endpoint?.startsWith('admin') ||
-                          endpoint?.startsWith('getAdmin') ||
-                          endpoint?.includes('Admin');
+    const isWindowAdmin =
+      typeof window !== "undefined" &&
+      window.location.pathname.startsWith("/admin");
+    const isAdminRequest =
+      isWindowAdmin ||
+      endpoint?.startsWith("admin") ||
+      endpoint?.startsWith("getAdmin") ||
+      endpoint?.includes("Admin");
 
     if (isAdminRequest) {
-      token = adminToken;
+      token = adminToken || marketplaceToken || portfolioToken;
     } else {
-      token = marketplaceToken || portfolioToken;
+      token = marketplaceToken || portfolioToken || adminToken;
     }
 
     if (token) {
@@ -57,9 +65,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    const isRefreshRequest = typeof args === 'string'
-      ? args.includes('refresh')
-      : args.url?.includes('refresh');
+    const isRefreshRequest =
+      typeof args === "string"
+        ? args.includes("refresh")
+        : args.url?.includes("refresh");
 
     if (isRefreshRequest || !token) {
       if (token && isRefreshRequest) {
@@ -72,17 +81,19 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       const release = await mutex.acquire();
       try {
         const refreshResult = await baseQuery(
-          { url: API_ENDPOINTS.AUTH.REFRESH_TOKEN, method: 'POST' },
+          { url: API_ENDPOINTS.AUTH.REFRESH_TOKEN, method: "POST" },
           api,
-          extraOptions
+          extraOptions,
         );
 
         if (refreshResult.data) {
           const { token: newToken, user } = refreshResult.data;
-          api.dispatch(setCredentials({
-            user: user || state.auth.user,
-            token: newToken
-          }));
+          api.dispatch(
+            setCredentials({
+              user: user || state.auth.user,
+              token: newToken,
+            }),
+          );
           result = await baseQuery(args, api, extraOptions);
         } else {
           api.dispatch(logout());
@@ -107,12 +118,38 @@ export const baseApiSlice = createApi({
   refetchOnFocus: true,
   refetchOnReconnect: true,
   tagTypes: [
-    "Auth", "User", "Admin", "Project", "Skill", "Experience",
-    "Education", "Testimonial", "About", "Blog", "BlogPost",
-    "Category", "Tag", "Contact", "Message", "Newsletter",
-    "Upload", "File", "Image", "Analytics", "PageView",
-    "Interaction", "Health", "Settings", "AdminSettings", "Service", "Product",
-    "Notification", "Referral", "Orders", "Order", "Wishlist",
+    "Auth",
+    "User",
+    "Admin",
+    "Project",
+    "Skill",
+    "Experience",
+    "Education",
+    "Testimonial",
+    "About",
+    "Blog",
+    "BlogPost",
+    "Category",
+    "Tag",
+    "Contact",
+    "Message",
+    "Newsletter",
+    "Upload",
+    "File",
+    "Image",
+    "Analytics",
+    "PageView",
+    "Interaction",
+    "Health",
+    "Settings",
+    "AdminSettings",
+    "Service",
+    "Product",
+    "Notification",
+    "Referral",
+    "Orders",
+    "Order",
+    "Wishlist",
   ],
   endpoints: () => ({}),
 });

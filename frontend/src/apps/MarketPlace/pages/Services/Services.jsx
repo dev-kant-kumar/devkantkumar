@@ -21,7 +21,7 @@ import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import SEOHead from "../../../../components/SEO/SEOHead";
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
@@ -103,7 +103,7 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead
+      <MarketPlaceSEO
         title="Web Development Services — Hire React & Node.js Developer | Dev Kant Kumar"
         description="Hire an expert full-stack developer for React apps, Node.js APIs, MERN stack development, SaaS MVPs, and more. Professional packages starting from ₹4,999."
         keywords={[

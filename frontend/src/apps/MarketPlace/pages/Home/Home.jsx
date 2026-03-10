@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
-import SEOHead from '../../../../components/SEO/SEOHead';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { ItemListSchema } from '../../../../components/SEO/SchemaMarkup';
 import FAQ from '../../common/components/FAQ';
 import Testimonials from '../../common/components/Testimonials';
@@ -42,7 +42,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead
+      <MarketPlaceSEO
         title="Dev Kant Kumar Marketplace — Premium React Templates & Dev Services"
         description="Buy premium React templates, Next.js boilerplates, MERN stack kits, and hire a full-stack developer for web development, APIs, and SaaS. Instant digital download. Starting from ₹999."
         keywords={["React templates", "Next.js boilerplate", "MERN stack kit", "hire full stack developer", "React admin dashboard", "web development services India", "buy React components", "SaaS starter kit"]}

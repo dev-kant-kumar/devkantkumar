@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast';
 import PremiumButton from '../../common/components/PremiumButton';
 import {
     useGetAdminGeneralSettingsQuery,
-    useUpdateGeneralSettingsMutation
+    useUpdateAdminGeneralSettingsMutation
 } from '../../store/api/adminApiSlice';
 
 const CURRENCY_OPTIONS = [
@@ -29,7 +29,7 @@ const CURRENCY_OPTIONS = [
 
 const MarketplaceSettings = () => {
   const { data, isLoading } = useGetAdminGeneralSettingsQuery();
-  const [updateSettings, { isLoading: isUpdating }] = useUpdateGeneralSettingsMutation();
+  const [updateSettings, { isLoading: isUpdating }] = useUpdateAdminGeneralSettingsMutation();
 
   const [formData, setFormData] = useState({
     currency: {

@@ -16,7 +16,7 @@ import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
-import SEOHead from "../../../../components/SEO/SEOHead";
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
@@ -195,7 +195,7 @@ const DigitalProducts = ({ category: propCategory }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead
+      <MarketPlaceSEO
         title="Buy React Templates & Digital Products — Next.js, MERN, Tailwind | Dev Kant Kumar"
         description="Download premium React dashboards, Next.js starter templates, Tailwind CSS UI kits, MERN boilerplates and more. One-time payment, instant download. Starting from ₹999."
         keywords={[

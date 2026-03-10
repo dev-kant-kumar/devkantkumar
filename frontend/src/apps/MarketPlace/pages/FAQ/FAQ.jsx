@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
-import SEOHead from '../../../../components/SEO/SEOHead';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { FAQPageSchema } from '../../../../components/SEO/SchemaMarkup';
 
 const FAQ = () => {
@@ -36,7 +36,7 @@ const FAQ = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <SEOHead
+      <MarketPlaceSEO
         title="FAQ — Marketplace Help & Support | Dev Kant Kumar"
         description="Find answers to common questions about purchasing digital products, payment methods, refunds, licensing, and support on the Dev Kant Kumar Marketplace."
         keywords={["marketplace FAQ", "digital products help", "refund policy", "license terms", "developer marketplace support"]}

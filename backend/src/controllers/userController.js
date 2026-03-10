@@ -132,9 +132,12 @@ const getUserDownloads = async (req, res) => {
 const getFavorites = async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .populate('favorites.products favorites.services');
+      .populate('marketplace.favoriteProducts marketplace.favoriteServices');
 
-    res.json(user.favorites || { products: [], services: [] });
+    const products = (user && user.marketplace && user.marketplace.favoriteProducts) || [];
+    const services = (user && user.marketplace && user.marketplace.favoriteServices) || [];
+
+    res.json({ products, services });
   } catch (error) {
     logger.error('Get favorites error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -148,13 +151,13 @@ const addToFavorites = async (req, res) => {
     const { type } = req.body; // 'product' or 'service'
 
     const user = await User.findById(req.user.id);
-    if (!user.favorites) {
-      user.favorites = { products: [], services: [] };
+    if (!user.marketplace) {
+      user.marketplace = { favoriteProducts: [], favoriteServices: [], totalOrders: 0, totalSpent: 0 };
     }
 
-    const favoriteArray = type === 'product' ? user.favorites.products : user.favorites.services;
+    const favoriteArray = type === 'product' ? user.marketplace.favoriteProducts : user.marketplace.favoriteServices;
 
-    if (!favoriteArray.includes(itemId)) {
+    if (!favoriteArray.map(String).includes(String(itemId))) {
       favoriteArray.push(itemId);
       await user.save();
     }
@@ -173,12 +176,12 @@ const removeFromFavorites = async (req, res) => {
     const { type } = req.body;
 
     const user = await User.findById(req.user.id);
-    if (!user.favorites) {
+    if (!user.marketplace) {
       return res.status(404).json({ message: 'No favorites found' });
     }
 
-    const favoriteArray = type === 'product' ? user.favorites.products : user.favorites.services;
-    const index = favoriteArray.indexOf(itemId);
+    const favoriteArray = type === 'product' ? user.marketplace.favoriteProducts : user.marketplace.favoriteServices;
+    const index = favoriteArray.map(String).indexOf(String(itemId));
 
     if (index > -1) {
       favoriteArray.splice(index, 1);

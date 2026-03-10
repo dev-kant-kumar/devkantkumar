@@ -19,14 +19,14 @@ import { toast } from 'react-hot-toast';
 import PremiumButton from '../../common/components/PremiumButton';
 import {
     useGetAdminGeneralSettingsQuery,
-    useUpdateGeneralSettingsMutation
+    useUpdateAdminGeneralSettingsMutation
 } from '../../store/api/adminApiSlice';
 
 
 
 const Announcements = () => {
     const { data: settings, isLoading, refetch } = useGetAdminGeneralSettingsQuery();
-    const [updateSettings, { isLoading: isUpdating }] = useUpdateGeneralSettingsMutation();
+    const [updateSettings, { isLoading: isUpdating }] = useUpdateAdminGeneralSettingsMutation();
 
     const [announcementData, setAnnouncementData] = useState({
         campaignName: 'New Year Special',

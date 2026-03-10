@@ -6,13 +6,15 @@ import Footer from "./common/components/Footer";
 import Header from "./common/components/Header";
 import PerformanceMonitor from "./common/components/ui/PerformanceMonitor";
 import "./common/styles/animations.css";
+import MarketPlaceSEOManager from "./components/SEO/MarketPlaceSEOManager";
 
 const MarketPlaceLayout = () => {
   // Show performance monitor in development mode
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   return (
     <CartProvider>
+      <MarketPlaceSEOManager />
       {/* SEO: Organization Schema for Google rich results */}
       <OrganizationSchema />
       {/* Analytics component for page tracking */}

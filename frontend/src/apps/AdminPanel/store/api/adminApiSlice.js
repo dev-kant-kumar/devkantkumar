@@ -15,15 +15,15 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     adminLogin: builder.mutation({
       query: (credentials) => ({
         url: API_ENDPOINTS.AUTH.LOGIN,
-        method: 'POST',
+        method: "POST",
         body: credentials,
       }),
-      invalidatesTags: ['Auth', 'Admin'],
+      invalidatesTags: ["Auth", "Admin"],
       transformResponse: (response) => {
         return response;
       },
       transformErrorResponse: (response) => {
-        console.error('❌ [Admin API] Login error:', response);
+        console.error("❌ [Admin API] Login error:", response);
         return response;
       },
     }),
@@ -31,54 +31,54 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     adminLogout: builder.mutation({
       query: () => ({
         url: API_ENDPOINTS.AUTH.LOGOUT,
-        method: 'POST',
+        method: "POST",
       }),
-      invalidatesTags: ['Auth', 'Admin', 'User'],
+      invalidatesTags: ["Auth", "Admin", "User"],
     }),
 
     refreshToken: builder.mutation({
       query: (refreshToken) => ({
         url: API_ENDPOINTS.AUTH.REFRESH_TOKEN,
-        method: 'POST',
+        method: "POST",
         body: { refreshToken },
       }),
-      invalidatesTags: ['Auth'],
+      invalidatesTags: ["Auth"],
     }),
 
     verifyAdmin2FALogin: builder.mutation({
       query: (credentials) => ({
-        url: '/admin/verify-2fa',
-        method: 'POST',
+        url: "/admin/verify-2fa",
+        method: "POST",
         body: credentials,
       }),
     }),
 
     setupAdmin2FA: builder.mutation({
       query: () => ({
-        url: '/admin/setup-2fa',
-        method: 'POST',
+        url: "/admin/setup-2fa",
+        method: "POST",
       }),
     }),
 
     verifyAdmin2FASetup: builder.mutation({
       query: (data) => ({
-        url: '/admin/verify-2fa-setup',
-        method: 'POST',
+        url: "/admin/verify-2fa-setup",
+        method: "POST",
         body: data,
       }),
     }),
 
     disableAdmin2FA: builder.mutation({
       query: (data) => ({
-        url: '/admin/disable-2fa',
-        method: 'POST',
+        url: "/admin/disable-2fa",
+        method: "POST",
         body: data,
       }),
     }),
 
     verifyToken: builder.query({
       query: () => API_ENDPOINTS.AUTH.VERIFY_TOKEN,
-      providesTags: ['Auth'],
+      providesTags: ["Auth"],
     }),
 
     // ===================
@@ -86,42 +86,42 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     getAdminProfile: builder.query({
       query: () => API_ENDPOINTS.ADMIN.PROFILE,
-      providesTags: ['Admin', 'User'],
+      providesTags: ["Admin", "User"],
       transformResponse: (response) => response.data,
     }),
 
     updateAdminProfile: builder.mutation({
       query: (profileData) => ({
         url: API_ENDPOINTS.ADMIN.UPDATE_PROFILE,
-        method: 'PUT',
+        method: "PUT",
         body: profileData,
       }),
-      invalidatesTags: ['Admin', 'User'],
+      invalidatesTags: ["Admin", "User"],
     }),
 
     changeAdminPassword: builder.mutation({
       query: (passwordData) => ({
         url: API_ENDPOINTS.ADMIN.CHANGE_PASSWORD,
-        method: 'POST',
+        method: "POST",
         body: passwordData,
       }),
-      invalidatesTags: ['Auth'],
+      invalidatesTags: ["Auth"],
     }),
 
     uploadAdminAvatar: builder.mutation({
       query: (formData) => ({
         url: API_ENDPOINTS.ADMIN.UPLOAD_AVATAR,
-        method: 'POST',
+        method: "POST",
         body: formData,
         formData: true,
       }),
-      invalidatesTags: ['Admin', 'User'],
+      invalidatesTags: ["Admin", "User"],
     }),
 
     initiateEmailChange: builder.mutation({
       query: (data) => ({
         url: API_ENDPOINTS.ADMIN.INITIATE_EMAIL_CHANGE,
-        method: 'POST',
+        method: "POST",
         body: data,
       }),
     }),
@@ -129,10 +129,10 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     verifyEmailChangeOTP: builder.mutation({
       query: (data) => ({
         url: API_ENDPOINTS.ADMIN.VERIFY_EMAIL_CHANGE,
-        method: 'POST',
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['Admin', 'User'],
+      invalidatesTags: ["Admin", "User"],
     }),
 
     initiatePasswordChange: builder.mutation({
@@ -156,17 +156,17 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     getAdminDashboard: builder.query({
       query: () => API_ENDPOINTS.ADMIN.DASHBOARD_OVERVIEW,
-      providesTags: ['Admin'],
+      providesTags: ["Admin"],
     }),
 
     getDashboardStats: builder.query({
       query: () => API_ENDPOINTS.ADMIN.DASHBOARD_STATS,
-      providesTags: ['Analytics'],
+      providesTags: ["Analytics"],
     }),
 
     getAdminPortfolioStats: builder.query({
-      query: () => '/portfolio/stats',
-      providesTags: ['Project', 'Skill', 'Message'],
+      query: () => "/portfolio/stats",
+      providesTags: ["Project", "Skill", "Message"],
     }),
 
     getDashboardAnalytics: builder.query({
@@ -174,7 +174,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         url: API_ENDPOINTS.ADMIN.DASHBOARD_ANALYTICS,
         params,
       }),
-      providesTags: ['Analytics'],
+      providesTags: ["Analytics"],
     }),
 
     // ===================
@@ -184,139 +184,139 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // Projects Management
     getAdminProjects: builder.query({
       query: () => API_ENDPOINTS.ADMIN.CONTENT.PROJECTS,
-      providesTags: ['Project'],
+      providesTags: ["Project"],
     }),
 
     getProjectById: builder.query({
       query: (id) => `${API_ENDPOINTS.ADMIN.CONTENT.PROJECTS}/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Project', id }],
+      providesTags: (result, error, id) => [{ type: "Project", id }],
     }),
 
     createProject: builder.mutation({
       query: (projectData) => ({
         url: API_ENDPOINTS.ADMIN.CONTENT.PROJECTS,
-        method: 'POST',
+        method: "POST",
         body: projectData,
       }),
-      invalidatesTags: ['Project'],
+      invalidatesTags: ["Project"],
     }),
 
     updateProject: builder.mutation({
       query: ({ id, ...projectData }) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.PROJECTS}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: projectData,
       }),
-      invalidatesTags: ['Project'],
+      invalidatesTags: ["Project"],
     }),
 
     deleteProject: builder.mutation({
       query: (id) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.PROJECTS}/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Project'],
+      invalidatesTags: ["Project"],
     }),
 
     // Skills Management
     getAdminSkills: builder.query({
       query: () => API_ENDPOINTS.ADMIN.CONTENT.SKILLS,
-      providesTags: ['Skill'],
+      providesTags: ["Skill"],
     }),
 
     createSkill: builder.mutation({
       query: (skillData) => ({
         url: API_ENDPOINTS.ADMIN.CONTENT.SKILLS,
-        method: 'POST',
+        method: "POST",
         body: skillData,
       }),
-      invalidatesTags: ['Skill'],
+      invalidatesTags: ["Skill"],
     }),
 
     updateSkill: builder.mutation({
       query: ({ id, ...skillData }) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.SKILLS}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: skillData,
       }),
-      invalidatesTags: ['Skill'],
+      invalidatesTags: ["Skill"],
     }),
 
     deleteSkill: builder.mutation({
       query: (id) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.SKILLS}/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Skill'],
+      invalidatesTags: ["Skill"],
     }),
 
     // Blog Management
     getAdminBlogPosts: builder.query({
       query: () => API_ENDPOINTS.ADMIN.CONTENT.BLOG,
-      providesTags: ['BlogPost'],
+      providesTags: ["BlogPost"],
     }),
 
     getAdminBlogPostBySlug: builder.query({
       query: (slug) => `${API_ENDPOINTS.ADMIN.CONTENT.BLOG}/${slug}`,
-      providesTags: (result, error, slug) => [{ type: 'BlogPost', id: slug }],
+      providesTags: (result, error, slug) => [{ type: "BlogPost", id: slug }],
     }),
 
     createBlogPost: builder.mutation({
       query: (blogData) => ({
         url: API_ENDPOINTS.ADMIN.CONTENT.BLOG,
-        method: 'POST',
+        method: "POST",
         body: blogData,
       }),
-      invalidatesTags: ['BlogPost'],
+      invalidatesTags: ["BlogPost"],
     }),
 
     updateBlogPost: builder.mutation({
       query: ({ id, ...blogData }) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.BLOG}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: blogData,
       }),
-      invalidatesTags: ['BlogPost'],
+      invalidatesTags: ["BlogPost"],
     }),
 
     deleteBlogPost: builder.mutation({
       query: (id) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.BLOG}/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['BlogPost'],
+      invalidatesTags: ["BlogPost"],
     }),
 
     // Experience Management
     getAdminExperience: builder.query({
       query: () => API_ENDPOINTS.ADMIN.CONTENT.EXPERIENCE,
-      providesTags: ['Experience'],
+      providesTags: ["Experience"],
     }),
 
     createExperience: builder.mutation({
       query: (experienceData) => ({
         url: API_ENDPOINTS.ADMIN.CONTENT.EXPERIENCE,
-        method: 'POST',
+        method: "POST",
         body: experienceData,
       }),
-      invalidatesTags: ['Experience'],
+      invalidatesTags: ["Experience"],
     }),
 
     updateExperience: builder.mutation({
       query: ({ id, ...experienceData }) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.EXPERIENCE}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: experienceData,
       }),
-      invalidatesTags: ['Experience'],
+      invalidatesTags: ["Experience"],
     }),
 
     deleteExperience: builder.mutation({
       query: (id) => ({
         url: `${API_ENDPOINTS.ADMIN.CONTENT.EXPERIENCE}/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Experience'],
+      invalidatesTags: ["Experience"],
     }),
 
     // ===================
@@ -325,17 +325,17 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     uploadImage: builder.mutation({
       query: (formData) => ({
         url: API_ENDPOINTS.ADMIN.UPLOAD_IMAGE,
-        method: 'POST',
+        method: "POST",
         body: formData,
         formData: true,
       }),
-      invalidatesTags: ['Upload'],
+      invalidatesTags: ["Upload"],
     }),
 
     uploadFiles: builder.mutation({
       query: (formData) => ({
-        url: '/upload/multiple',
-        method: 'POST',
+        url: "/upload/multiple",
+        method: "POST",
         body: formData,
       }),
     }),
@@ -343,11 +343,11 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     uploadProjectImage: builder.mutation({
       query: (formData) => ({
         url: API_ENDPOINTS.ADMIN.UPLOAD_PROJECT_IMAGE,
-        method: 'POST',
+        method: "POST",
         body: formData,
         formData: true,
       }),
-      invalidatesTags: ['Upload', 'Project'],
+      invalidatesTags: ["Upload", "Project"],
     }),
 
     // ===================
@@ -355,23 +355,23 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     getAdminContactMessages: builder.query({
       query: () => API_ENDPOINTS.ADMIN.MESSAGES,
-      providesTags: ['Message'],
+      providesTags: ["Message"],
     }),
 
     markAdminMessageAsRead: builder.mutation({
       query: (messageId) => ({
         url: `${API_ENDPOINTS.ADMIN.MARK_MESSAGE_READ}/${messageId}/read`,
-        method: 'PATCH',
+        method: "PATCH",
       }),
-      invalidatesTags: ['Message'],
+      invalidatesTags: ["Message"],
     }),
 
     deleteAdminMessage: builder.mutation({
       query: (messageId) => ({
         url: `${API_ENDPOINTS.ADMIN.MESSAGES}/${messageId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Message'],
+      invalidatesTags: ["Message"],
     }),
 
     // ===================
@@ -379,44 +379,44 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     getAdminGeneralSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
-      providesTags: ['AdminSettings'],
+      providesTags: ["AdminSettings"],
     }),
 
     updateAdminGeneralSettings: builder.mutation({
       query: (settingsData) => ({
         url: API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
-        method: 'PUT',
+        method: "PUT",
         body: settingsData,
       }),
-      invalidatesTags: ['AdminSettings'],
+      invalidatesTags: ["AdminSettings"],
     }),
 
     getAdminSeoSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.SEO_SETTINGS,
-      providesTags: ['AdminSettings'],
+      providesTags: ["AdminSettings"],
     }),
 
     updateAdminSeoSettings: builder.mutation({
       query: (seoData) => ({
         url: API_ENDPOINTS.ADMIN.SEO_SETTINGS,
-        method: 'PUT',
+        method: "PUT",
         body: seoData,
       }),
-      invalidatesTags: ['AdminSettings'],
+      invalidatesTags: ["AdminSettings"],
     }),
 
     getAdminSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.SETTINGS,
-      providesTags: ['AdminSettings'],
+      providesTags: ["AdminSettings"],
     }),
 
     updateAdminSettings: builder.mutation({
       query: (data) => ({
         url: API_ENDPOINTS.ADMIN.SETTINGS,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: ['AdminSettings'],
+      invalidatesTags: ["AdminSettings"],
     }),
 
     // ===================
@@ -429,38 +429,38 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         url: API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS,
         params,
       }),
-      providesTags: ['Product'],
+      providesTags: ["Product"],
     }),
 
     getAdminProductById: builder.query({
       query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS}/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Product', id }],
+      providesTags: (result, error, id) => [{ type: "Product", id }],
     }),
 
     createProduct: builder.mutation({
       query: (productData) => ({
         url: API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS,
-        method: 'POST',
+        method: "POST",
         body: productData,
       }),
-      invalidatesTags: ['Product'],
+      invalidatesTags: ["Product"],
     }),
 
     updateProduct: builder.mutation({
       query: ({ id, ...productData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: productData,
       }),
-      invalidatesTags: ['Product'],
+      invalidatesTags: ["Product"],
     }),
 
     deleteProduct: builder.mutation({
       query: (id) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.PRODUCTS}/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Product'],
+      invalidatesTags: ["Product"],
     }),
 
     // Services
@@ -469,38 +469,38 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         url: API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES,
         params,
       }),
-      providesTags: ['Service'],
+      providesTags: ["Service"],
     }),
 
     getAdminServiceById: builder.query({
       query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES}/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Service', id }],
+      providesTags: (result, error, id) => [{ type: "Service", id }],
     }),
 
     createService: builder.mutation({
       query: (serviceData) => ({
         url: API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES,
-        method: 'POST',
+        method: "POST",
         body: serviceData,
       }),
-      invalidatesTags: ['Service'],
+      invalidatesTags: ["Service"],
     }),
 
     updateService: builder.mutation({
       query: ({ id, ...serviceData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: serviceData,
       }),
-      invalidatesTags: ['Service'],
+      invalidatesTags: ["Service"],
     }),
 
     deleteService: builder.mutation({
       query: (id) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.SERVICES}/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Service'],
+      invalidatesTags: ["Service"],
     }),
 
     // Orders
@@ -509,191 +509,208 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
         url: API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS,
         params,
       }),
-      providesTags: ['Order'],
+      providesTags: ["Order"],
     }),
 
     updateAdminOrderStatus: builder.mutation({
       query: ({ id, ...statusData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: statusData,
       }),
-      invalidatesTags: ['Order'],
+      invalidatesTags: ["Order"],
     }),
 
     // Approve client requirements
     approveRequirements: builder.mutation({
       query: ({ id }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/requirements/approve`,
-        method: 'POST',
+        method: "POST",
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Order", id },
+        "Order",
+      ],
     }),
 
     // Request changes to client requirements
     requestRequirementsChanges: builder.mutation({
       query: ({ id, feedback }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/requirements/request-changes`,
-        method: 'POST',
+        method: "POST",
         body: { feedback },
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Order", id },
+        "Order",
+      ],
     }),
 
     // Get single order detail
     getAdminOrderById: builder.query({
       query: (id) => `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Order', id }],
+      providesTags: (result, error, id) => [{ type: "Order", id }],
     }),
 
     // Add milestone to order
     addAdminMilestone: builder.mutation({
       query: ({ id, ...milestoneData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/milestones`,
-        method: 'POST',
+        method: "POST",
         body: milestoneData,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
+      invalidatesTags: (result, error, { id }) => [{ type: "Order", id }],
     }),
 
     // Update milestone
     updateAdminMilestone: builder.mutation({
       query: ({ orderId, milestoneId, ...data }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${orderId}/milestones/${milestoneId}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }],
+      invalidatesTags: (result, error, { orderId }) => [
+        { type: "Order", id: orderId },
+      ],
     }),
 
     // Add admin message to order
     addAdminMessage: builder.mutation({
       query: ({ id, ...messageData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/messages`,
-        method: 'POST',
+        method: "POST",
         body: messageData,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
+      invalidatesTags: (result, error, { id }) => [{ type: "Order", id }],
     }),
 
     // Mark order as delivered
     markAdminOrderDelivered: builder.mutation({
       query: ({ id, ...deliveryData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/deliver`,
-        method: 'POST',
+        method: "POST",
         body: deliveryData,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }],
+      invalidatesTags: (result, error, { id }) => [{ type: "Order", id }],
     }),
 
     // Complete SDLC Phase
     completeAdminPhase: builder.mutation({
       query: ({ id, phase, ...phaseData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/phases/${phase}/complete`,
-        method: 'POST',
+        method: "POST",
         body: phaseData,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Order", id },
+        "Order",
+      ],
     }),
 
     getAdminMarketplaceStats: builder.query({
-      query: () => '/admin/marketplace/stats',
-      providesTags: ['Order', 'Product', 'Service'],
+      query: () => "/admin/marketplace/stats",
+      providesTags: ["Order", "Product", "Service"],
     }),
 
     // Customers
     getAdminCustomers: builder.query({
       query: (params) => ({
-        url: '/admin/customers',
+        url: "/admin/customers",
         params,
       }),
-      providesTags: ['Customer'],
+      providesTags: ["Customer"],
     }),
 
     getAdminCustomerById: builder.query({
       query: (id) => `/admin/customers/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Customer', id }],
+      providesTags: (result, error, id) => [{ type: "Customer", id }],
     }),
 
     // Quote Requests
     getAdminQuotes: builder.query({
       query: (params) => ({
-        url: '/admin/marketplace/quotes',
+        url: "/admin/marketplace/quotes",
         params,
       }),
-      providesTags: ['Quote'],
+      providesTags: ["Quote"],
     }),
 
     getAdminQuoteById: builder.query({
       query: (id) => `/admin/marketplace/quotes/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Quote', id }],
+      providesTags: (result, error, id) => [{ type: "Quote", id }],
     }),
 
     getAdminQuoteStats: builder.query({
-      query: () => '/admin/marketplace/quotes/stats',
-      providesTags: ['Quote'],
+      query: () => "/admin/marketplace/quotes/stats",
+      providesTags: ["Quote"],
     }),
 
     updateAdminQuote: builder.mutation({
       query: ({ id, ...data }) => ({
         url: `/admin/marketplace/quotes/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: ['Quote'],
+      invalidatesTags: ["Quote"],
     }),
 
     deleteAdminQuote: builder.mutation({
       query: (id) => ({
         url: `/admin/marketplace/quotes/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Quote'],
+      invalidatesTags: ["Quote"],
     }),
 
     // Support Tickets
     getAdminSupportTickets: builder.query({
       query: (params) => ({
-        url: '/admin/support/tickets',
+        url: "/admin/support/tickets",
         params,
       }),
-      providesTags: ['SupportTicket'],
+      providesTags: ["SupportTicket"],
     }),
 
     getAdminSupportTicketById: builder.query({
       query: (id) => `/admin/support/tickets/${id}`,
-      providesTags: (result, error, id) => [{ type: 'SupportTicket', id }],
+      providesTags: (result, error, id) => [{ type: "SupportTicket", id }],
     }),
 
-    updateSupportTicket: builder.mutation({
+    updateAdminSupportTicket: builder.mutation({
       query: ({ id, ...data }) => ({
         url: `/admin/support/tickets/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => ['SupportTicket', { type: 'SupportTicket', id }],
+      invalidatesTags: (result, error, { id }) => [
+        "SupportTicket",
+        { type: "SupportTicket", id },
+      ],
     }),
 
-    respondToSupportTicket: builder.mutation({
+    respondToAdminSupportTicket: builder.mutation({
       query: ({ id, message }) => ({
         url: `/admin/support/tickets/${id}/respond`,
-        method: 'POST',
+        method: "POST",
         body: { message },
       }),
-      invalidatesTags: (result, error, { id }) => ['SupportTicket', { type: 'SupportTicket', id }],
+      invalidatesTags: (result, error, { id }) => [
+        "SupportTicket",
+        { type: "SupportTicket", id },
+      ],
     }),
 
-    deleteSupportTicket: builder.mutation({
+    deleteAdminSupportTicket: builder.mutation({
       query: (id) => ({
         url: `/admin/support/tickets/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['SupportTicket'],
+      invalidatesTags: ["SupportTicket"],
     }),
 
     getAdminSupportStats: builder.query({
-      query: () => '/admin/support/stats',
-      providesTags: ['SupportTicket'],
+      query: () => "/admin/support/stats",
+      providesTags: ["SupportTicket"],
     }),
 
     // ===================
@@ -701,52 +718,52 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     getAdminCoupons: builder.query({
       query: (params) => ({
-        url: '/coupons',
+        url: "/coupons",
         params,
       }),
-      providesTags: ['Coupon'],
+      providesTags: ["Coupon"],
     }),
 
     getAdminCouponStats: builder.query({
-      query: () => '/coupons/stats/overview',
-      providesTags: ['Coupon'],
+      query: () => "/coupons/stats/overview",
+      providesTags: ["Coupon"],
     }),
 
     createCoupon: builder.mutation({
       query: (couponData) => ({
-        url: '/coupons',
-        method: 'POST',
+        url: "/coupons",
+        method: "POST",
         body: couponData,
       }),
-      invalidatesTags: ['Coupon'],
+      invalidatesTags: ["Coupon"],
     }),
 
     updateCoupon: builder.mutation({
       query: ({ id, ...couponData }) => ({
         url: `/coupons/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: couponData,
       }),
-      invalidatesTags: ['Coupon'],
+      invalidatesTags: ["Coupon"],
     }),
 
     deleteCoupon: builder.mutation({
       query: (id) => ({
         url: `/coupons/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Coupon'],
+      invalidatesTags: ["Coupon"],
     }),
 
     // --- Email Templates ---
     getAdminEmailTemplates: builder.query({
-      query: () => '/admin/email-templates',
+      query: () => "/admin/email-templates",
       keepUnusedDataFor: 300,
     }),
     previewEmailTemplate: builder.mutation({
       query: (data) => ({
-        url: '/admin/email-templates/preview',
-        method: 'POST',
+        url: "/admin/email-templates/preview",
+        method: "POST",
         body: data,
       }),
     }),
@@ -864,9 +881,9 @@ export const {
   // Support Tickets
   useGetAdminSupportTicketsQuery,
   useGetAdminSupportTicketByIdQuery,
-  useUpdateSupportTicketMutation,
-  useRespondToSupportTicketMutation,
-  useDeleteSupportTicketMutation,
+  useUpdateAdminSupportTicketMutation,
+  useRespondToAdminSupportTicketMutation,
+  useDeleteAdminSupportTicketMutation,
   useGetAdminSupportStatsQuery,
 
   // Coupons

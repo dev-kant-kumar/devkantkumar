@@ -1,14 +1,20 @@
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { io } from 'socket.io-client';
-import { API_URL } from '../config/api';
-import { baseApiSlice } from '../store/api/baseApiSlice';
 import {
-    addNotification,
-    setSocketConnected,
-    setUnreadCount,
-    showNotificationToast,
-} from '../store/notification/notificationSlice';
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { io } from "socket.io-client";
+import { API_URL } from "../config/api";
+import { baseApiSlice } from "../store/api/baseApiSlice";
+import {
+  addNotification,
+  setSocketConnected,
+  setUnreadCount,
+  showNotificationToast,
+} from "../store/notification/notificationSlice";
 
 const SocketContext = createContext(null);
 
@@ -31,37 +37,51 @@ export const SocketProvider = ({ children }) => {
 
   // Connect to Socket.io server
   const connect = useCallback(() => {
-    if (!token || socketRef.current?.connected) return;
+    if (!token) return;
 
-    const socketUrl = API_URL.replace('/api/v1', '');
+    // If already connected or connecting, skip
+    if (
+      socketRef.current &&
+      (socketRef.current.connected || socketRef.current.connecting)
+    )
+      return;
+
+    // Clean up any stale socket before creating a new one
+    if (socketRef.current) {
+      socketRef.current.removeAllListeners();
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+
+    const socketUrl = API_URL.replace("/api/v1", "");
 
     socketRef.current = io(socketUrl, {
       auth: { token },
-      transports: ['websocket', 'polling'],
+      transports: ["polling", "websocket"],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 10000,
     });
 
-    socketRef.current.on('connect', () => {
-      console.log('🔌 Socket connected:', socketRef.current.id);
+    socketRef.current.on("connect", () => {
+      console.log("🔌 Socket connected:", socketRef.current.id);
       dispatch(setSocketConnected(true));
     });
 
-    socketRef.current.on('disconnect', (reason) => {
-      console.log('🔌 Socket disconnected:', reason);
+    socketRef.current.on("disconnect", (reason) => {
+      console.log("🔌 Socket disconnected:", reason);
       dispatch(setSocketConnected(false));
     });
 
-    socketRef.current.on('connect_error', (error) => {
-      console.error('🔌 Socket connection error:', error.message);
+    socketRef.current.on("connect_error", (error) => {
+      console.error("🔌 Socket connection error:", error.message);
       dispatch(setSocketConnected(false));
     });
 
     // Handle new notification
-    socketRef.current.on('notification:new', (notification) => {
-      console.log('📬 New notification received:', notification);
+    socketRef.current.on("notification:new", (notification) => {
+      console.log("📬 New notification received:", notification);
 
       // Add to Redux store
       dispatch(addNotification(notification));
@@ -71,25 +91,35 @@ export const SocketProvider = ({ children }) => {
 
       // Play notification sound
       try {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2861/2861-preview.mp3');
+        const audio = new Audio(
+          "https://assets.mixkit.co/active_storage/sfx/2861/2861-preview.mp3",
+        );
         audio.volume = 0.5;
-        audio.play().catch(e => console.log('Sound play prevented by browser policy/missing asset:', e));
+        audio
+          .play()
+          .catch((e) =>
+            console.log(
+              "Sound play prevented by browser policy/missing asset:",
+              e,
+            ),
+          );
       } catch (err) {
-        console.error('Error playing notification sound:', err);
+        console.error("Error playing notification sound:", err);
       }
 
       // Invalidate RTK Query cache to refetch
-      dispatch(baseApiSlice.util.invalidateTags([
-        { type: 'Notification', id: 'LIST' },
-        { type: 'Notification', id: 'COUNT' },
-      ]));
+      dispatch(
+        baseApiSlice.util.invalidateTags([
+          { type: "Notification", id: "LIST" },
+          { type: "Notification", id: "COUNT" },
+        ]),
+      );
     });
 
     // Handle unread count update
-    socketRef.current.on('notification:count', (count) => {
+    socketRef.current.on("notification:count", (count) => {
       dispatch(setUnreadCount(count));
     });
-
   }, [token, dispatch]);
 
   // Disconnect from Socket.io server
@@ -130,9 +160,7 @@ export const SocketProvider = ({ children }) => {
   };
 
   return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
 };
 

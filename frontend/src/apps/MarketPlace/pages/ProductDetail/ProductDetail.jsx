@@ -18,7 +18,7 @@ import ShareModal from '../../../../components/common/ShareModal';
 import ReviewForm from '../../../../components/Reviews/ReviewForm';
 import ReviewList from '../../../../components/Reviews/ReviewList';
 import ProductSchema, { BreadcrumbSchema } from '../../../../components/SEO/SchemaMarkup';
-import SEOHead from '../../../../components/SEO/SEOHead';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetProductByIdQuery } from '../../store/api/marketplaceApi';
@@ -144,7 +144,7 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead
+      <MarketPlaceSEO
         title={product.title}
         description={product.description}
         image={product.images?.[0]?.url}

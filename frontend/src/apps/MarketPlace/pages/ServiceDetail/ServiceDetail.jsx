@@ -19,7 +19,7 @@ import ShareModal from '../../../../components/common/ShareModal';
 import ReviewForm from '../../../../components/Reviews/ReviewForm';
 import ReviewList from '../../../../components/Reviews/ReviewList';
 import { ServiceSchema, BreadcrumbSchema } from '../../../../components/SEO/SchemaMarkup';
-import SEOHead from '../../../../components/SEO/SEOHead';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { useAddToCartMutation } from '../../../../store/cart/cartApi';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useGetServiceByIdQuery } from '../../store/api/marketplaceApi';
@@ -150,7 +150,7 @@ const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead
+      <MarketPlaceSEO
         title={service.title}
         description={service.description}
         image={service.images?.[0]?.url}
