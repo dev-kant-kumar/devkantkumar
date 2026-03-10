@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, Check, CreditCard, FileText, Info, Loader2, MessageSquare, Package, Ticket, Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import {
     useClearAllNotificationsMutation,
@@ -106,6 +107,16 @@ const Notifications = () => {
     await deleteNotification(notificationId);
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm('Clear all notifications? This cannot be undone.')) return;
+    try {
+      await clearAllNotifications().unwrap();
+      toast.success('All notifications cleared');
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to clear notifications');
+    }
+  };
+
   const typeOptions = [
     { value: null, label: 'All Types' },
     { value: 'order_status', label: 'Orders' },
@@ -146,7 +157,7 @@ const Notifications = () => {
           )}
           {notifications.length > 0 && (
             <button
-              onClick={() => clearAllNotifications()}
+              onClick={handleClearAll}
               disabled={isClearing}
               className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
             >

@@ -1,4 +1,5 @@
 import {
+    Bell,
     Box,
     CreditCard,
     Download,
@@ -63,6 +64,7 @@ const DashboardLayout = () => {
 
   const navigation = [
     { name: 'Overview', href: '/marketplace/dashboard', icon: LayoutDashboard, exact: true },
+    { name: 'Notifications', href: '/marketplace/dashboard/notifications', icon: Bell, exact: false },
     { name: 'My Orders', href: '/marketplace/dashboard/orders', icon: ShoppingBag, exact: false },
     { name: 'My Services', href: '/marketplace/dashboard/services', icon: Box, exact: false },
     { name: 'My Products', href: '/marketplace/dashboard/products', icon: Download, exact: false },

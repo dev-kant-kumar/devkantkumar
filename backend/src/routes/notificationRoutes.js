@@ -7,22 +7,22 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
+// Get unread count (must come before parameterized routes)
+router.get('/unread-count', notificationController.getUnreadCount);
+
 // Get all notifications with pagination
 router.get('/', notificationController.getNotifications);
 
-// Get unread count
-router.get('/unread-count', notificationController.getUnreadCount);
+// Mark all notifications as read (must come before /:id/read)
+router.put('/mark-all-read', notificationController.markAllAsRead);
 
 // Mark single notification as read
 router.put('/:id/read', notificationController.markAsRead);
 
-// Mark all notifications as read
-router.put('/mark-all-read', notificationController.markAllAsRead);
+// Clear all notifications (must come before /:id)
+router.delete('/clear-all', notificationController.clearAllNotifications);
 
 // Delete single notification
 router.delete('/:id', notificationController.deleteNotification);
-
-// Clear all notifications
-router.delete('/clear-all', notificationController.clearAllNotifications);
 
 module.exports = router;
