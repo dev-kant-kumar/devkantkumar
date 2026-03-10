@@ -7,7 +7,9 @@ import { useGetServiceByIdQuery } from '../../../../MarketPlace/store/api/market
 import PremiumButton from '../../../common/components/PremiumButton';
 import { useApproveRequirementsMutation, useCompletePhaseMutation, useGetAdminOrderByIdQuery, useGetCustomerByIdQuery, useRequestRequirementsChangesMutation } from '../../../store/api/adminApiSlice';
 
+import { Download, Upload, X } from 'lucide-react';
 import ServicePhaseHistory from '../../../../MarketPlace/pages/ClientDashboard/components/ServicePhaseHistory';
+import { useUploadFileMutation } from '../../../../MarketPlace/store/upload/uploadApi';
 import AdminProjectFiles from './AdminProjectFiles';
 import AdminProjectMessages from './AdminProjectMessages';
 import AdminProjectTimeline from './AdminProjectTimeline';
@@ -237,9 +239,226 @@ const AdminPhaseActivity = ({ order, refetch }) => {
   const [approveRequirements, { isLoading: isApproving }] = useApproveRequirementsMutation();
   const [requestChanges, { isLoading: isRequesting }] = useRequestRequirementsChangesMutation();
   const [completePhase, { isLoading: isCompleting }] = useCompletePhaseMutation();
+  const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
 
   const currentPhaseConfig = PHASE_CHECKLISTS[activeSubPhase];
   const isCurrentlyActivePhase = activeSubPhase === currentPhase;
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const result = await uploadFile(file).unwrap();
+      setFileUrl(result.file.url);
+      toast.success('File uploaded successfully!');
+    } catch (err) {
+      toast.error(err?.data?.message || 'Upload failed');
+    }
+  };
+
+  const clearFile = () => setFileUrl('');
+
+  const handleDownloadRequirements = () => {
+    if (!responses || responses.length === 0) {
+      toast.error('No requirements to download');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    const projectTitle = order?.items?.[0]?.title || 'Project Requirements';
+    const clientName = `${order.billing?.firstName || ''} ${order.billing?.lastName || ''}`;
+    const submissionDate = order?.createdAt ? new Date(order.createdAt).toLocaleString('en-US', {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    }) : new Date().toLocaleString();
+
+    const requirementsHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Requirements - ${projectTitle}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: 'Inter', sans-serif;
+              padding: 50px;
+              color: #111827;
+              line-height: 1.6;
+              background: #fff;
+            }
+
+            .brand-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              border-bottom: 2px solid #3b82f6;
+              padding-bottom: 25px;
+              margin-bottom: 40px;
+            }
+
+            .brand-name {
+              font-size: 18px;
+              font-weight: 800;
+              color: #3b82f6;
+              text-transform: uppercase;
+              letter-spacing: 0.1em;
+            }
+
+            .doc-type {
+              font-size: 10px;
+              font-weight: 700;
+              background: #eff6ff;
+              color: #1d4ed8;
+              padding: 4px 12px;
+              border-radius: 9999px;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+
+            .title-section { margin-bottom: 40px; }
+            .main-title {
+              font-size: 32px;
+              font-weight: 800;
+              color: #111827;
+              margin-bottom: 10px;
+              line-height: 1.2;
+            }
+
+            .info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 40px;
+              margin-bottom: 50px;
+              padding: 25px;
+              background: #f8fafc;
+              border-radius: 16px;
+              border: 1px solid #e2e8f0;
+            }
+
+            .info-label {
+              font-size: 11px;
+              font-weight: 700;
+              color: #64748b;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              margin-bottom: 8px;
+            }
+
+            .info-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+            .info-subtext { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+            .section-label {
+              font-size: 12px;
+              font-weight: 800;
+              color: #3b82f6;
+              text-transform: uppercase;
+              letter-spacing: 0.1em;
+              margin-bottom: 25px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            }
+            .section-label::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+            .question-box {
+              margin-bottom: 30px;
+              page-break-inside: avoid;
+            }
+
+            .question-text {
+              font-size: 12px;
+              font-weight: 700;
+              color: #475569;
+              margin-bottom: 10px;
+              text-transform: uppercase;
+              letter-spacing: 0.025em;
+            }
+
+            .answer-text {
+              font-size: 15px;
+              color: #1e293b;
+              background: #fff;
+              padding: 20px;
+              border-radius: 12px;
+              border: 1px solid #e2e8f0;
+              box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+              white-space: pre-wrap;
+            }
+
+            .footer {
+              margin-top: 60px;
+              padding-top: 20px;
+              border-top: 1px solid #e2e8f0;
+              text-align: center;
+              font-size: 12px;
+              color: #94a3b8;
+            }
+
+            @media print {
+              body { padding: 20px; }
+              .info-grid { background: transparent !important; border: 1px solid #e2e8f0; }
+              .answer-text { box-shadow: none; border: 1px solid #e2e8f0; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="brand-header">
+            <div class="brand-name">Dev Kant Kumar / Marketplace</div>
+            <div class="doc-type">Project Specification</div>
+          </div>
+
+          <div class="title-section">
+            <h1 class="main-title">${projectTitle}</h1>
+            <p style="color: #64748b; font-size: 14px; font-weight: 500;">Comprehensive Project Requirements Documentation</p>
+          </div>
+
+          <div class="info-grid">
+            <div>
+              <div class="info-label">Client Details</div>
+              <div class="info-value">${clientName}</div>
+              <div class="info-subtext">${order?.billing?.email || 'N/A'}</div>
+              ${order?.billing?.company ? `<div class="info-subtext">${order.billing.company}</div>` : ''}
+              ${order?.billing?.phone ? `<div class="info-subtext">${order.billing.phone}</div>` : ''}
+            </div>
+            <div style="text-align: right;">
+              <div class="info-label">Submission Archive</div>
+              <div class="info-value">Order #${order?.orderNumber || 'N/A'}</div>
+              <div class="info-subtext">Submitted: ${submissionDate}</div>
+              <div class="info-subtext">Generated: ${new Date().toLocaleString()}</div>
+            </div>
+          </div>
+
+          <div class="section-label">Defined Requirements</div>
+
+          ${responses.map(resp => `
+            <div class="question-box">
+              <div class="question-text">${resp.question}</div>
+              <div class="answer-text">${resp.answer || 'No response provided.'}</div>
+            </div>
+          `).join('')}
+
+          <div class="footer">
+            &copy; ${new Date().getFullYear()} Dev Kant Kumar. All rights reserved. This document contains confidential project information.
+          </div>
+
+          <script>
+            window.onload = function() {
+              setTimeout(() => {
+                window.print();
+                window.onafterprint = function() { window.close(); }
+              }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(requirementsHtml);
+    printWindow.document.close();
+  };
 
   const handleCompletePhase = async () => {
     if (currentPhaseConfig?.requiresUpload && !fileUrl) {
@@ -371,9 +590,20 @@ const AdminPhaseActivity = ({ order, refetch }) => {
                    <p className="text-2xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.label}</p>
                 </div>
               </div>
-              <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/30 truncate max-w-[150px]">
-                {activeSubPhase === currentPhase ? 'Active Phase' : (PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? 'Completed' : 'Upcoming')}
-              </span>
+              <div className="flex items-center gap-3">
+                {activeSubPhase === 'requirements_gathering' && activeSubTab === 'input' && responses.length > 0 && (
+                  <button
+                    onClick={handleDownloadRequirements}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/20"
+                  >
+                    <Download className="h-3 w-3" />
+                   Download PDF
+                  </button>
+                )}
+                <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/30 truncate max-w-[150px]">
+                  {activeSubPhase === currentPhase ? 'Active Phase' : (PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? 'Completed' : 'Upcoming')}
+                </span>
+              </div>
             </div>
 
             <div className="p-8">
@@ -450,24 +680,61 @@ const AdminPhaseActivity = ({ order, refetch }) => {
                     ))}
                     {isCurrentlyActivePhase && status === 'approved' && (
                       <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800 space-y-6">
-                        <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-3xl p-6 border border-blue-100 dark:border-blue-800">
-                          <h4 className="text-[10px] font-black text-blue-600 uppercase mb-4">FINALIZE {currentPhaseConfig?.title}</h4>
+                        <div className="bg-blue-50/50 dark:bg-blue-900/40 rounded-3xl p-6 border border-blue-100 dark:border-blue-800/60 shadow-inner">
+                          <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase mb-4 tracking-widest">FINALIZE {currentPhaseConfig?.title}</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {currentPhaseConfig?.requiresUpload && (
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase">{currentPhaseConfig.uploadLabel}</label>
-                                <input className="w-full bg-white dark:bg-gray-900 border border-gray-200 rounded-xl px-4 py-2 text-xs" value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} placeholder="Link to Deliverable" />
-                              </div>
-                            )}
-                            {currentPhaseConfig?.requiresLink && (
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase">Resource Link</label>
-                                <input className="w-full bg-white dark:bg-gray-900 border border-gray-200 rounded-xl px-4 py-2 text-xs" value={externalLink} onChange={(e) => setExternalLink(e.target.value)} placeholder="https://..." />
-                              </div>
-                            )}
+                             {currentPhaseConfig?.requiresUpload && (
+                               <div className="space-y-2">
+                                 <label className="text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-wider">{currentPhaseConfig.uploadLabel}</label>
+                                 <div className="relative group">
+                                   <input
+                                      type="file"
+                                      id="file-upload"
+                                      className="hidden"
+                                      onChange={handleFileUpload}
+                                      accept=".pdf,.doc,.docx,.zip"
+                                   />
+                                   {!fileUrl ? (
+                                     <label
+                                       htmlFor="file-upload"
+                                       className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all
+                                         ${isUploading ? 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700/60 hover:border-blue-400 dark:hover:border-blue-600'}
+                                       `}
+                                     >
+                                       {isUploading ? (
+                                         <RefreshCw className="h-6 w-6 text-blue-500 animate-spin" />
+                                       ) : (
+                                         <>
+                                           <Upload className="h-6 w-6 text-gray-400 group-hover:text-blue-500 mb-2" />
+                                           <span className="text-[10px] font-bold text-gray-500 uppercase">Click to upload file</span>
+                                         </>
+                                       )}
+                                     </label>
+                                   ) : (
+                                     <div className="flex items-center justify-between gap-4 w-full p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl">
+                                       <div className="flex items-center gap-3 overflow-hidden">
+                                         <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
+                                            <FileText className="h-4 w-4 text-blue-600" />
+                                         </div>
+                                         <span className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">Delivery File Uploaded</span>
+                                       </div>
+                                       <button onClick={clearFile} className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
+                                         <X className="h-4 w-4" />
+                                       </button>
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             )}
+                             {currentPhaseConfig?.requiresLink && (
+                               <div className="space-y-2">
+                                 <label className="text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-wider">Resource Link</label>
+                                 <input className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500" value={externalLink} onChange={(e) => setExternalLink(e.target.value)} placeholder="https://..." />
+                               </div>
+                             )}
                           </div>
-                          <textarea className="w-full h-24 mt-4 bg-white dark:bg-gray-900 border border-gray-200 rounded-xl px-4 py-3 text-xs" value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} placeholder="Client notes..." />
-                          <button onClick={handleCompletePhase} disabled={isCompleting} className="mt-6 w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black">COMPLETE PHASE</button>
+                           <textarea className="w-full h-24 mt-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500" value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} placeholder="Client notes..." />
+                           <button onClick={handleCompletePhase} disabled={isCompleting || isUploading} className="mt-6 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-[0.98] uppercase">COMPLETE PHASE</button>
                         </div>
                       </div>
                     )}

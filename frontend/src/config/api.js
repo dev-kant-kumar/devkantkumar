@@ -126,7 +126,7 @@ export const API_ENDPOINTS = {
   // File upload endpoints
   UPLOAD: {
     IMAGE: '/upload/image',
-    FILE: '/upload/file',
+    FILE: '/upload',
     AVATAR: '/upload/avatar',
   },
 

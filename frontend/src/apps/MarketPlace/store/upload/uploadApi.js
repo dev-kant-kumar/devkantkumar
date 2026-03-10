@@ -15,9 +15,22 @@ export const uploadApi = baseApiSlice.injectEndpoints({
       },
       invalidatesTags: [],
     }),
+    uploadFile: builder.mutation({
+      query: (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return {
+          url: `${API_ENDPOINTS.UPLOAD.FILE}/single`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: [],
+    }),
   }),
 });
 
 export const {
   useUploadImageMutation,
+  useUploadFileMutation,
 } = uploadApi;
