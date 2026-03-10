@@ -1587,7 +1587,7 @@ const approveDelivery = async (req, res) => {
   }
 };
 
-
+const createReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
     const productId = req.params.id;
