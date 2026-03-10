@@ -601,6 +601,24 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: ['Order', 'Product', 'Service'],
     }),
 
+    getMarketplaceAnalytics: builder.query({
+      query: (period) => ({
+        url: '/admin/marketplace/analytics',
+        params: period ? { period } : {},
+      }),
+      providesTags: ['Order', 'Product', 'Service'],
+    }),
+
+    getProductAnalytics: builder.query({
+      query: (id) => `/admin/products/${id}/analytics`,
+      providesTags: (result, error, id) => [{ type: 'Product', id }],
+    }),
+
+    getServiceAnalytics: builder.query({
+      query: (id) => `/admin/services/${id}/analytics`,
+      providesTags: (result, error, id) => [{ type: 'Service', id }],
+    }),
+
     // Customers
     getAdminCustomers: builder.query({
       query: (params) => ({
@@ -851,6 +869,9 @@ export const {
   useMarkAdminOrderDeliveredMutation,
   useCompleteAdminPhaseMutation,
   useGetAdminMarketplaceStatsQuery,
+  useGetMarketplaceAnalyticsQuery,
+  useGetProductAnalyticsQuery,
+  useGetServiceAnalyticsQuery,
   useGetAdminCustomersQuery,
   useGetAdminCustomerByIdQuery,
 

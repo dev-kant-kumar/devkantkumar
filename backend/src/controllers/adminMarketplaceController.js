@@ -1388,3 +1388,773 @@ exports.requestRequirementsChanges = async (req, res) => {
     });
   }
 };
+
+// ──────────────────────────────────────────────────────────────────────────────
+// ANALYTICS ENDPOINTS
+// ──────────────────────────────────────────────────────────────────────────────
+
+const PAID_STATUSES = [
+  "confirmed",
+  "awaiting_requirements",
+  "in_progress",
+  "revising",
+  "delivered",
+  "completed",
+];
+
+const calcTrend = (cur, prev) => {
+  const c = Number(cur) || 0;
+  const p = Number(prev) || 0;
+  if (p === 0 && c === 0) return null;
+  if (p === 0) return 100;
+  const pct = ((c - p) / p) * 100;
+  return Math.round(pct * 10) / 10;
+};
+
+// @desc    Get comprehensive marketplace analytics
+// @route   GET /api/v1/admin/marketplace/analytics
+// @access  Admin
+exports.getMarketplaceAnalytics = async (req, res) => {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.period) || 30, 7), 365);
+    const now = new Date();
+    const periodStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+    const prevPeriodStart = new Date(
+      now.getTime() - days * 2 * 24 * 60 * 60 * 1000
+    );
+
+    const paidMatch = {
+      status: { $in: PAID_STATUSES },
+      "payment.status": "completed",
+    };
+
+    const [
+      totalProducts,
+      totalServices,
+      allTimeRevenue,
+      currentPeriod,
+      previousPeriod,
+      revenueTimeline,
+      statusDistribution,
+      topProducts,
+      topServices,
+      productCategoryDist,
+      serviceCategoryDist,
+      newCustomers,
+      prevNewCustomers,
+      avgOrderValueAgg,
+      prevAvgOrderValueAgg,
+      totalPaidOrders,
+      prevTotalPaidOrders,
+      productPerformance,
+      servicePerformance,
+    ] = await Promise.all([
+      Product.countDocuments(),
+      Service.countDocuments(),
+
+      // All-time revenue
+      Order.aggregate([
+        { $match: paidMatch },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+          },
+        },
+      ]),
+
+      // Current period revenue + orders
+      Order.aggregate([
+        {
+          $match: {
+            ...paidMatch,
+            createdAt: { $gte: periodStart },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            revenue: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Previous period revenue + orders
+      Order.aggregate([
+        {
+          $match: {
+            ...paidMatch,
+            createdAt: { $gte: prevPeriodStart, $lt: periodStart },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            revenue: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Daily revenue + order timeline
+      Order.aggregate([
+        {
+          $match: {
+            ...paidMatch,
+            createdAt: { $gte: periodStart },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            },
+            revenue: { $sum: { $ifNull: ["$payment.amount.total", 0] } },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+
+      // All-time status distribution
+      Order.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+
+      // Top 10 products by revenue
+      Order.aggregate([
+        { $match: paidMatch },
+        { $unwind: "$items" },
+        { $match: { "items.itemType": "product" } },
+        {
+          $group: {
+            _id: "$items.itemId",
+            title: { $first: "$items.title" },
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { revenue: -1 } },
+        { $limit: 10 },
+      ]),
+
+      // Top 10 services by revenue
+      Order.aggregate([
+        { $match: paidMatch },
+        { $unwind: "$items" },
+        { $match: { "items.itemType": "service" } },
+        {
+          $group: {
+            _id: "$items.itemId",
+            title: { $first: "$items.title" },
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { revenue: -1 } },
+        { $limit: 10 },
+      ]),
+
+      // Product category distribution (by count)
+      Product.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+
+      // Service category distribution (by count)
+      Service.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+      ]),
+
+      // New customers in current period
+      User.countDocuments({
+        role: "user",
+        createdAt: { $gte: periodStart },
+      }),
+
+      // New customers in previous period
+      User.countDocuments({
+        role: "user",
+        createdAt: { $gte: prevPeriodStart, $lt: periodStart },
+      }),
+
+      // Current period average order value
+      Order.aggregate([
+        {
+          $match: {
+            ...paidMatch,
+            createdAt: { $gte: periodStart },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            avg: { $avg: { $ifNull: ["$payment.amount.total", 0] } },
+          },
+        },
+      ]),
+
+      // Previous period average order value
+      Order.aggregate([
+        {
+          $match: {
+            ...paidMatch,
+            createdAt: { $gte: prevPeriodStart, $lt: periodStart },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            avg: { $avg: { $ifNull: ["$payment.amount.total", 0] } },
+          },
+        },
+      ]),
+
+      // Total paid orders all time
+      Order.countDocuments(paidMatch),
+
+      // Total paid orders previous period
+      Order.countDocuments({
+        ...paidMatch,
+        createdAt: { $gte: prevPeriodStart, $lt: periodStart },
+      }),
+
+      // Per-product performance (all products with order data)
+      Order.aggregate([
+        { $match: paidMatch },
+        { $unwind: "$items" },
+        { $match: { "items.itemType": "product" } },
+        {
+          $group: {
+            _id: "$items.itemId",
+            title: { $first: "$items.title" },
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+            totalUnits: { $sum: { $ifNull: ["$items.quantity", 1] } },
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id",
+            foreignField: "_id",
+            as: "product",
+          },
+        },
+        { $unwind: { path: "$product", preserveNullAndEmpty: true } },
+        {
+          $project: {
+            title: 1,
+            revenue: 1,
+            orders: 1,
+            totalUnits: 1,
+            category: "$product.category",
+            views: { $ifNull: ["$product.views", 0] },
+            downloads: { $ifNull: ["$product.downloads", 0] },
+            rating: { $ifNull: ["$product.rating.average", 0] },
+            ratingCount: { $ifNull: ["$product.rating.count", 0] },
+            isActive: { $ifNull: ["$product.isActive", false] },
+          },
+        },
+        { $sort: { revenue: -1 } },
+      ]),
+
+      // Per-service performance
+      Order.aggregate([
+        { $match: paidMatch },
+        { $unwind: "$items" },
+        { $match: { "items.itemType": "service" } },
+        {
+          $group: {
+            _id: "$items.itemId",
+            title: { $first: "$items.title" },
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+        {
+          $lookup: {
+            from: "services",
+            localField: "_id",
+            foreignField: "_id",
+            as: "service",
+          },
+        },
+        { $unwind: { path: "$service", preserveNullAndEmpty: true } },
+        {
+          $project: {
+            title: 1,
+            revenue: 1,
+            orders: 1,
+            category: "$service.category",
+            rating: { $ifNull: ["$service.rating.average", 0] },
+            ratingCount: { $ifNull: ["$service.rating.count", 0] },
+            isActive: { $ifNull: ["$service.isActive", false] },
+          },
+        },
+        { $sort: { revenue: -1 } },
+      ]),
+    ]);
+
+    const curRev = currentPeriod[0]?.revenue || 0;
+    const prevRev = previousPeriod[0]?.revenue || 0;
+    const curOrders = currentPeriod[0]?.count || 0;
+    const prevOrders = previousPeriod[0]?.count || 0;
+    const curAvg = avgOrderValueAgg[0]?.avg || 0;
+    const prevAvg = prevAvgOrderValueAgg[0]?.avg || 0;
+
+    res.json({
+      success: true,
+      analytics: {
+        period: days,
+        overview: {
+          totalProducts,
+          totalServices,
+          totalOrders: totalPaidOrders,
+          totalRevenue: allTimeRevenue[0]?.total || 0,
+          periodRevenue: curRev,
+          periodOrders: curOrders,
+          avgOrderValue: Math.round(curAvg),
+          newCustomers,
+          trends: {
+            revenue: calcTrend(curRev, prevRev),
+            orders: calcTrend(curOrders, prevOrders),
+            avgOrderValue: calcTrend(curAvg, prevAvg),
+            newCustomers: calcTrend(newCustomers, prevNewCustomers),
+          },
+        },
+        revenueTimeline,
+        statusDistribution,
+        topProducts,
+        topServices,
+        productCategoryDist,
+        serviceCategoryDist,
+        productPerformance,
+        servicePerformance,
+      },
+    });
+  } catch (error) {
+    logger.error("Get marketplace analytics error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// @desc    Get individual product analytics
+// @route   GET /api/v1/admin/products/:id/analytics
+// @access  Admin
+exports.getProductAnalytics = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const mongoose = require("mongoose");
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const product = await Product.findById(productId).lean();
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const objId = new mongoose.Types.ObjectId(productId);
+
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+    const paidMatchItem = {
+      status: { $in: PAID_STATUSES },
+      "payment.status": "completed",
+      "items.itemId": objId,
+      "items.itemType": "product",
+    };
+
+    const [
+      allTimeAgg,
+      currentPeriodAgg,
+      previousPeriodAgg,
+      monthlyTimeline,
+      allOrders,
+    ] = await Promise.all([
+      // All-time totals
+      Order.aggregate([
+        { $match: { status: { $in: PAID_STATUSES }, "payment.status": "completed" } },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "product" } },
+        {
+          $group: {
+            _id: null,
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+            units: { $sum: { $ifNull: ["$items.quantity", 1] } },
+          },
+        },
+      ]),
+
+      // Current 30-day period
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+            createdAt: { $gte: thirtyDaysAgo },
+          },
+        },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "product" } },
+        {
+          $group: {
+            _id: null,
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Previous 30-day period
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+            createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+          },
+        },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "product" } },
+        {
+          $group: {
+            _id: null,
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Monthly timeline (last 6 months)
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+            createdAt: {
+              $gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000),
+            },
+          },
+        },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "product" } },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m", date: "$createdAt" },
+            },
+            revenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+
+      // Recent 10 orders
+      Order.find({
+        status: { $in: PAID_STATUSES },
+        "payment.status": "completed",
+        "items.itemId": objId,
+        "items.itemType": "product",
+      })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .select("orderNumber billing.email createdAt payment.amount.total status")
+        .lean(),
+    ]);
+
+    const totals = allTimeAgg[0] || { revenue: 0, orders: 0, units: 0 };
+    const cur = currentPeriodAgg[0] || { revenue: 0, orders: 0 };
+    const prev = previousPeriodAgg[0] || { revenue: 0, orders: 0 };
+
+    res.json({
+      success: true,
+      analytics: {
+        product: {
+          _id: product._id,
+          title: product.title,
+          category: product.category,
+          price: product.price,
+          isActive: product.isActive,
+          views: product.views || 0,
+          downloads: product.downloads || 0,
+          rating: product.rating || { average: 0, count: 0 },
+        },
+        allTime: {
+          revenue: totals.revenue,
+          orders: totals.orders,
+          units: totals.units,
+        },
+        period: {
+          revenue: cur.revenue,
+          orders: cur.orders,
+          trends: {
+            revenue: calcTrend(cur.revenue, prev.revenue),
+            orders: calcTrend(cur.orders, prev.orders),
+          },
+        },
+        monthlyTimeline,
+        recentOrders: allOrders,
+      },
+    });
+  } catch (error) {
+    logger.error("Get product analytics error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// @desc    Get individual service analytics
+// @route   GET /api/v1/admin/services/:id/analytics
+// @access  Admin
+exports.getServiceAnalytics = async (req, res) => {
+  try {
+    const serviceId = req.params.id;
+    const mongoose = require("mongoose");
+
+    if (!mongoose.Types.ObjectId.isValid(serviceId)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+
+    const service = await Service.findById(serviceId).lean();
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    const objId = new mongoose.Types.ObjectId(serviceId);
+
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+    const [
+      allTimeAgg,
+      currentPeriodAgg,
+      previousPeriodAgg,
+      monthlyTimeline,
+      packageBreakdown,
+      activeOrdersCount,
+      recentOrders,
+    ] = await Promise.all([
+      // All-time totals
+      Order.aggregate([
+        { $match: { status: { $in: PAID_STATUSES }, "payment.status": "completed" } },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "service" } },
+        {
+          $group: {
+            _id: null,
+            revenue: {
+              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Current 30-day period
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+            createdAt: { $gte: thirtyDaysAgo },
+          },
+        },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "service" } },
+        {
+          $group: {
+            _id: null,
+            revenue: {
+              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Previous 30-day period
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+            createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+          },
+        },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "service" } },
+        {
+          $group: {
+            _id: null,
+            revenue: {
+              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+      ]),
+
+      // Monthly timeline (last 6 months)
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+            createdAt: { $gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000) },
+          },
+        },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "service" } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+            revenue: {
+              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+            },
+            orders: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+
+      // Package tier breakdown
+      Order.aggregate([
+        { $match: { status: { $in: PAID_STATUSES }, "payment.status": "completed" } },
+        { $unwind: "$items" },
+        { $match: { "items.itemId": objId, "items.itemType": "service" } },
+        {
+          $group: {
+            _id: { $ifNull: ["$items.selectedPackage.name", "unknown"] },
+            count: { $sum: 1 },
+            revenue: {
+              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+            },
+          },
+        },
+        { $sort: { count: -1 } },
+      ]),
+
+      // Active orders count (in progress)
+      Order.countDocuments({
+        status: { $in: ["confirmed", "awaiting_requirements", "in_progress", "revising"] },
+        "items.itemId": objId,
+        "items.itemType": "service",
+      }),
+
+      // Recent 10 orders
+      Order.find({
+        status: { $in: PAID_STATUSES },
+        "payment.status": "completed",
+        "items.itemId": objId,
+        "items.itemType": "service",
+      })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .select("orderNumber billing.email createdAt payment.amount.total status items.selectedPackage")
+        .lean(),
+    ]);
+
+    const totals = allTimeAgg[0] || { revenue: 0, orders: 0 };
+    const cur = currentPeriodAgg[0] || { revenue: 0, orders: 0 };
+    const prev = previousPeriodAgg[0] || { revenue: 0, orders: 0 };
+
+    res.json({
+      success: true,
+      analytics: {
+        service: {
+          _id: service._id,
+          title: service.title,
+          category: service.category,
+          isActive: service.isActive,
+          rating: service.rating || { average: 0, count: 0 },
+          packages: service.packages || [],
+        },
+        allTime: {
+          revenue: totals.revenue,
+          orders: totals.orders,
+          activeOrders: activeOrdersCount,
+        },
+        period: {
+          revenue: cur.revenue,
+          orders: cur.orders,
+          trends: {
+            revenue: calcTrend(cur.revenue, prev.revenue),
+            orders: calcTrend(cur.orders, prev.orders),
+          },
+        },
+        packageBreakdown,
+        monthlyTimeline,
+        recentOrders,
+      },
+    });
+  } catch (error) {
+    logger.error("Get service analytics error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

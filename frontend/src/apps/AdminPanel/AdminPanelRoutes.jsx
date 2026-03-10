@@ -23,10 +23,13 @@ const EmailTemplates = React.lazy(() => import("./pages/EmailTemplates/EmailTemp
 
 // Marketplace Pages
 const MarketplaceOverview = React.lazy(() => import("./pages/Marketplace/Overview.jsx"));
+const MarketplaceAnalytics = React.lazy(() => import("./pages/Marketplace/MarketplaceAnalytics.jsx"));
 const MarketProducts = React.lazy(() => import("./pages/Marketplace/Products.jsx"));
 const ProductEditor = React.lazy(() => import("./pages/Marketplace/ProductEditor.jsx"));
+const ProductAnalytics = React.lazy(() => import("./pages/Marketplace/ProductAnalytics.jsx"));
 const MarketServices = React.lazy(() => import("./pages/Marketplace/Services.jsx"));
 const ServiceEditor = React.lazy(() => import("./pages/Marketplace/ServiceEditor.jsx"));
+const ServiceAnalytics = React.lazy(() => import("./pages/Marketplace/ServiceAnalytics.jsx"));
 const MarketOrders = React.lazy(() => import("./pages/Marketplace/Orders.jsx"));
 const MarketOrderDetail = React.lazy(() => import("./pages/Marketplace/OrderDetail.jsx"));
 const MarketCustomers = React.lazy(() => import("./pages/Marketplace/Customers.jsx"));
@@ -61,12 +64,15 @@ const AdminPanelRoutes = () => {
           {/* Marketplace Routes */}
           <Route path="marketplace">
             <Route index element={<MarketplaceOverview />} />
+            <Route path="analytics" element={<MarketplaceAnalytics />} />
             <Route path="products" element={<MarketProducts />} />
             <Route path="products/new" element={<ProductEditor />} />
             <Route path="products/edit/:id" element={<ProductEditor />} />
+            <Route path="products/:id/analytics" element={<ProductAnalytics />} />
             <Route path="services" element={<MarketServices />} />
             <Route path="services/new" element={<ServiceEditor />} />
             <Route path="services/edit/:id" element={<ServiceEditor />} />
+            <Route path="services/:id/analytics" element={<ServiceAnalytics />} />
             <Route path="orders" element={<MarketOrders />} />
             <Route path="orders/:id" element={<MarketOrderDetail />} />
             <Route path="projects" element={<AdminProjects />} />
