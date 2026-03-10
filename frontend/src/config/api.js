@@ -143,6 +143,20 @@ export const API_ENDPOINTS = {
       VERIFY: '/marketplace/payment/verify',
     },
   },
+
+  // Referral endpoints
+  REFERRAL: {
+    PROGRAM: '/referral/program',
+    ME: '/referral/me',
+    CONVERSIONS: '/referral/conversions',
+    PAYOUTS: '/referral/payouts',
+    REQUEST_PAYOUT: '/referral/payout',
+    ADMIN: {
+      ALL: '/referral/admin/all',
+      PENDING_PAYOUTS: '/referral/admin/payouts/pending',
+      PROCESS_PAYOUT: '/referral/admin/payouts',
+    },
+  },
 };
 
 // Create full URL for API calls

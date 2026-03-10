@@ -8,6 +8,7 @@ const { getRedisClient } = require('../db/redis'); // Import Redis client getter
 const { validationResult } = require('express-validator');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
+const referralController = require('./referralController');
 
 // Helper function to send token response
 const sendTokenResponse = (user, statusCode, res, message) => {
@@ -72,7 +73,7 @@ const register = async (req, res, next) => {
       });
     }
 
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, referralCode } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -136,6 +137,13 @@ const register = async (req, res, next) => {
     }
 
     logger.info(`New user registered: ${user.email} - awaiting verification`);
+
+    // Track referral sign-up (fire and forget)
+    if (referralCode) {
+      referralController.trackSignUp(referralCode, user).catch(err =>
+        logger.error('Referral trackSignUp failed:', err)
+      );
+    }
 
     res.status(201).json({
       success: true,
