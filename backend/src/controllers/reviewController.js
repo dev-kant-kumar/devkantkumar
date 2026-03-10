@@ -12,7 +12,7 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
 
   const reviews = await Review.find(filter)
     .sort({ createdAt: -1 })
-    .populate('user', 'name photo');
+    .populate('user', 'firstName lastName photo');
 
   res.status(200).json({
     status: 'success',
@@ -58,11 +58,11 @@ exports.createReview = catchAsync(async (req, res, next) => {
   }
 
   // 2. Check for duplicate review
-  const existingReview = await Review.findOne({
-    user: user,
-    product: product,
-    service: service
-  });
+  const reviewFilter = { user };
+  if (product) reviewFilter.product = product;
+  else if (service) reviewFilter.service = service;
+
+  const existingReview = await Review.findOne(reviewFilter);
 
   if (existingReview) {
     return next(new AppError('You have already reviewed this item.', 400));

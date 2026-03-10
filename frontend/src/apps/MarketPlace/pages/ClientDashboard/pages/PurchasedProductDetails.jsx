@@ -169,8 +169,9 @@ const PurchasedProductDetails = () => {
     }
 
     try {
-      if (isEditing) {
+      if (isEditing && userReview) {
         await updateReview({
+            reviewId: userReview._id,
             productId: product._id,
             rating,
             comment
@@ -180,7 +181,6 @@ const PurchasedProductDetails = () => {
       } else {
         await createReview({
             productId: product._id,
-            orderId: order._id, // Some backend checks might need this
             rating,
             comment
         }).unwrap();
@@ -195,7 +195,7 @@ const PurchasedProductDetails = () => {
       if(!window.confirm("Are you sure you want to delete this review?")) return;
 
       try {
-          await deleteReview({ productId: product._id }).unwrap();
+          await deleteReview({ reviewId: userReview._id, productId: product._id }).unwrap();
           toast.success("Review deleted successfully");
           setRating(5);
           setComment("");
@@ -564,6 +564,49 @@ const PurchasedProductDetails = () => {
                                  </form>
                              )}
                         </div>
+
+                        {/* All Public Reviews */}
+                        {reviews.length > 0 && (
+                            <div>
+                                <h3 className="text-base font-semibold text-gray-800 mb-3">
+                                    All Reviews ({reviews.length})
+                                </h3>
+                                <div className="space-y-4">
+                                    {reviews.filter(r => r._id !== userReview?._id).map((review) => {
+                                        const reviewer = review.user;
+                                        const name = reviewer?.firstName
+                                            ? `${reviewer.firstName} ${reviewer.lastName || ''}`.trim()
+                                            : reviewer?.name || 'Anonymous';
+                                        return (
+                                            <div key={review._id} className="bg-white rounded-xl p-5 border border-gray-200">
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
+                                                            {name.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-semibold text-gray-900">{name}</p>
+                                                            {review.isVerifiedPurchase && (
+                                                                <span className="text-xs text-green-600 font-medium">✓ Verified Purchase</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-0.5 flex-shrink-0">
+                                                        {[1, 2, 3, 4, 5].map(s => (
+                                                            <Star key={s} className={`h-4 w-4 ${s <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                                                <p className="text-xs text-gray-400 mt-2">
+                                                    {new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                </p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

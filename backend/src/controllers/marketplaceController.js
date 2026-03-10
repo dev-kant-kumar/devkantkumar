@@ -1007,6 +1007,13 @@ const downloadPurchasedItem = async (req, res) => {
         logger.warn(`Failed to update download count: ${updateErr.message}`);
       }
 
+      // Increment the global product downloads counter (non-critical)
+      try {
+        await Product.findByIdAndUpdate(item.itemId, { $inc: { downloads: 1 } });
+      } catch (dlErr) {
+        logger.warn(`Failed to increment product downloads: ${dlErr.message}`);
+      }
+
       // Log success
       await downloadService.logDownload({
         user: userId,

@@ -81,12 +81,6 @@ reviewSchema.statics.calcAverageRatings = async function(resourceId, resourceTyp
     await Model.findByIdAndUpdate(resourceId, {
       'rating.average': Math.round(stats[0].avgRating * 10) / 10,
       'rating.count': stats[0].nRating,
-      'reviews': [] // We don't want to embed anymore, or we keep IDs if we want refs, but let's stick to virtuals/separate queries usually.
-                   // However, existing models show `reviews` field. The plan said to remove embedded or use virtual.
-                   // To minimize breaking changes immediately, we might leave it but not populate it, or update it if it was storing IDs.
-                   // The Product model had embedded schema, not IDs. So we should probably clear it or ignore it.
-                   // Actually, let's look at Product.js again. It had embedded schema.
-                   // So we should probably NOT update specific review fields there, just the aggregates.
     });
   } else {
     await Model.findByIdAndUpdate(resourceId, {

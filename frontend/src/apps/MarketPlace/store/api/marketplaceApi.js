@@ -65,41 +65,52 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
     // Reviews
     getProductReviews: builder.query({
       query: (productId) => `/marketplace/products/${productId}/reviews`,
-      providesTags: (result, error, productId) => [{ type: 'Reviews', id: productId }],
+      providesTags: (result, error, productId) => [{ type: 'Reviews', id: `product-${productId}` }],
+    }),
+
+    getServiceReviews: builder.query({
+      query: (serviceId) => `/marketplace/services/${serviceId}/reviews`,
+      providesTags: (result, error, serviceId) => [{ type: 'Reviews', id: `service-${serviceId}` }],
     }),
 
     createReview: builder.mutation({
-      query: ({ productId, rating, comment, orderId }) => ({
-        url: `/marketplace/products/${productId}/reviews`,
+      query: ({ productId, serviceId, rating, comment }) => ({
+        url: productId
+          ? `/marketplace/products/${productId}/reviews`
+          : `/marketplace/services/${serviceId}/reviews`,
         method: 'POST',
-        body: { rating, comment, orderId },
+        body: { rating, comment },
       }),
-      invalidatesTags: (result, error, { productId }) => [
-        { type: 'Reviews', id: productId },
-        { type: 'Product', id: productId }
+      invalidatesTags: (result, error, { productId, serviceId }) => [
+        ...(productId ? [{ type: 'Reviews', id: `product-${productId}` }, { type: 'Product', id: productId }] : []),
+        ...(serviceId ? [{ type: 'Reviews', id: `service-${serviceId}` }, { type: 'Service', id: serviceId }] : []),
       ],
     }),
 
     updateReview: builder.mutation({
-      query: ({ productId, rating, comment }) => ({
-        url: `/marketplace/products/${productId}/reviews`,
-        method: 'PUT',
+      query: ({ reviewId, productId, serviceId, rating, comment }) => ({
+        url: productId
+          ? `/marketplace/products/${productId}/reviews/${reviewId}`
+          : `/marketplace/services/${serviceId}/reviews/${reviewId}`,
+        method: 'PATCH',
         body: { rating, comment },
       }),
-      invalidatesTags: (result, error, { productId }) => [
-        { type: 'Reviews', id: productId },
-        { type: 'Product', id: productId }
+      invalidatesTags: (result, error, { productId, serviceId }) => [
+        ...(productId ? [{ type: 'Reviews', id: `product-${productId}` }, { type: 'Product', id: productId }] : []),
+        ...(serviceId ? [{ type: 'Reviews', id: `service-${serviceId}` }, { type: 'Service', id: serviceId }] : []),
       ],
     }),
 
     deleteReview: builder.mutation({
-      query: ({ productId }) => ({
-        url: `/marketplace/products/${productId}/reviews`,
+      query: ({ reviewId, productId, serviceId }) => ({
+        url: productId
+          ? `/marketplace/products/${productId}/reviews/${reviewId}`
+          : `/marketplace/services/${serviceId}/reviews/${reviewId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { productId }) => [
-        { type: 'Reviews', id: productId },
-        { type: 'Product', id: productId }
+      invalidatesTags: (result, error, { productId, serviceId }) => [
+        ...(productId ? [{ type: 'Reviews', id: `product-${productId}` }, { type: 'Product', id: productId }] : []),
+        ...(serviceId ? [{ type: 'Reviews', id: `service-${serviceId}` }, { type: 'Service', id: serviceId }] : []),
       ],
     }),
 
@@ -150,6 +161,7 @@ export const {
   useGetCategoriesQuery,
   useSearchMarketplaceQuery,
   useGetProductReviewsQuery,
+  useGetServiceReviewsQuery,
   useCreateReviewMutation,
   useUpdateReviewMutation,
   useDeleteReviewMutation,
