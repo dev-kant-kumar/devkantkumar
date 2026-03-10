@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import PremiumDropdown from '../../common/components/PremiumDropdown';
+import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import { useGetCustomersQuery } from '../../store/api/adminApiSlice';
 
 const STATUS_OPTIONS = [

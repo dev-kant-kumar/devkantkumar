@@ -9,7 +9,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl: API_URL,
   credentials: API_CONFIG.CORS.credentials ? 'include' : 'same-origin',
 
-  prepareHeaders: (headers, { getState }) => {
+  prepareHeaders: (headers, { getState, endpoint }) => {
     Object.entries(API_CONFIG.DEFAULT_HEADERS).forEach(([key, value]) => {
       headers.set(key, value);
     });
@@ -18,7 +18,18 @@ const baseQuery = fetchBaseQuery({
     const marketplaceToken = state.auth?.token;
     const portfolioToken = state.portfolioUI?.auth?.token;
     const adminToken = state.adminAuth?.adminToken;
-    const token = marketplaceToken || portfolioToken || adminToken;
+
+    // Intelligent token selection
+    let token;
+    const isAdminRequest = endpoint?.startsWith('admin') ||
+                          endpoint?.startsWith('getAdmin') ||
+                          endpoint?.includes('Admin');
+
+    if (isAdminRequest) {
+      token = adminToken;
+    } else {
+      token = marketplaceToken || portfolioToken;
+    }
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);

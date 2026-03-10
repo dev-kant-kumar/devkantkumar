@@ -8,7 +8,7 @@ import {
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import PremiumDropdown from '../../common/components/PremiumDropdown';
+import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import {
     useGetAdminOrdersQuery,
     useUpdateAdminOrderStatusMutation

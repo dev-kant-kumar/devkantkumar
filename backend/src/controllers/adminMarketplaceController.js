@@ -1124,20 +1124,31 @@ exports.approveRequirements = async (req, res) => {
     order.requirementsData.approvedAt = new Date();
     order.requirementsData.adminFeedback = '';
 
-    // If order was waiting on requirements, move it to in_progress
+    // Move to next phase
+    order.currentPhase = 'legal_documentation';
+
+    // If order was waiting on requirements, move it to in_progress status
     if (['confirmed', 'awaiting_requirements'].includes(order.status)) {
       order.status = 'in_progress';
 
       // Update pipeline entry
       order.timeline.push({
+        status: "requirements_gathering",
+        message: "Requirements approved. Phase completed.",
+        timestamp: new Date(),
+        updatedBy: req.user._id,
+      });
+
+      // Also add in_progress status for general order tracking
+      order.timeline.push({
         status: "in_progress",
-        message: "Requirements approved. Project is now in progress.",
+        message: "Project is now in progress.",
         timestamp: new Date(),
         updatedBy: req.user._id,
       });
     } else {
       order.timeline.push({
-        status: "message",
+        status: "requirements_gathering",
         message: "Requirements approved by admin.",
         timestamp: new Date(),
         updatedBy: req.user._id,

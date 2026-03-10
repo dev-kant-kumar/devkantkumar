@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, Briefcase, Calendar, CheckCircle, Clock, FileText, Loader2, MessageSquare, MoreVertical, RefreshCw, RotateCcw, Search, Shield, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowRight, Briefcase, Calendar, CheckCircle, Clock, FileText, Loader2, MessageSquare, RefreshCw, RotateCcw, Search, Shield, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { calculateProjectProgress } from '../../../../../shared/utils/serviceUtils';
 import { useGetUserOrdersQuery } from '../../../store/orders/ordersApi';
 
 // Status styles mapping
@@ -17,7 +18,7 @@ const STATUS_STYLES = {
 const PACKAGE_COLORS = {
   basic: 'bg-gray-100 text-gray-700 border-gray-200',
   standard: 'bg-blue-100 text-blue-700 border-blue-200',
-  premium: 'bg-purple-100 text-purple-700 border-purple-200',
+  premium: 'bg-purple-100 text-purple-700 border-blue-200',
 };
 
 const PurchasedServices = () => {
@@ -38,17 +39,8 @@ const PurchasedServices = () => {
       const serviceItems = order.items?.filter(item => item.itemType === 'service') || [];
 
       serviceItems.forEach(item => {
-        // Calculate progress from timeline
-        let progress = 0;
-        if (order.status === 'completed') {
-          progress = 100;
-        } else if (order.status === 'in_progress') {
-          progress = 50;
-        } else if (order.status === 'confirmed') {
-          progress = 25;
-        } else if (order.status === 'pending') {
-          progress = 10;
-        }
+        // Calculate progress from centralized utility
+        const progress = calculateProjectProgress(order);
 
         // Get latest milestone
         const latestMilestone = order.timeline?.[order.timeline.length - 1];
@@ -213,9 +205,6 @@ const PurchasedServices = () => {
                           </span>
                         )}
                       </div>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <MoreVertical className="h-5 w-5" />
-                      </button>
                     </div>
 
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>

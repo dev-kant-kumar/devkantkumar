@@ -3,14 +3,23 @@ import { AlertCircle, ChevronRight, Download, Loader2, Package, RefreshCw, Searc
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
 import { useGetUserOrdersQuery } from '../../store/orders/ordersApi';
-
 const Orders = () => {
   const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+
+  const statusOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'confirmed', label: 'Confirmed' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
 
   // Fetch real orders
   const { data: ordersData, isLoading, isError, refetch } = useGetUserOrdersQuery();
@@ -115,22 +124,20 @@ const Orders = () => {
               placeholder="Search orders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent w-full sm:w-64"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-green-400 transition-all w-full sm:w-64 outline-0"
             />
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          <div className="min-w-[180px]">
+            <PremiumDropdown
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={statusOptions}
+              variant="marketplace"
+              placeholder="All Status"
+              buttonClassName="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50 transition-all font-medium flex items-center justify-between"
+            />
+          </div>
         </div>
       </div>
 

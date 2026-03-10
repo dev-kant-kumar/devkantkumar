@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import {
     useClearAllNotificationsMutation,
     useDeleteNotificationMutation,
@@ -218,19 +219,16 @@ const AdminNotifications = () => {
                 </button>
             </div>
 
-            <div className="flex items-center gap-2">
-                <Filter size={16} className="text-gray-400" />
-                <select
-                    value={typeFilter || ''}
-                    onChange={(e) => setTypeFilter(e.target.value || null)}
-                    className="bg-transparent border-none text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-0 cursor-pointer"
-                >
-                    {typeOptions.map((option) => (
-                        <option key={option.value || 'all'} value={option.value || ''} className="dark:bg-gray-800">
-                        {option.label}
-                        </option>
-                    ))}
-                </select>
+            <div className="flex items-center gap-2 min-w-[200px]">
+                <Filter size={16} className="text-gray-400 shrink-0" />
+                <PremiumDropdown
+                    value={typeFilter}
+                    onChange={setTypeFilter}
+                    options={typeOptions}
+                    placeholder="All Types"
+                    className="flex-1"
+                    buttonClassName="px-3 py-2 bg-transparent border-none rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all font-medium"
+                />
             </div>
         </div>
 

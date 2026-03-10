@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import PremiumDropdown from '../../common/components/PremiumDropdown';
+import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import {
     useDeleteAdminQuoteMutation,
     useGetAdminQuotesQuery,

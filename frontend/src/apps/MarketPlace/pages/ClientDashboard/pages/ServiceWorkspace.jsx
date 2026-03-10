@@ -2,8 +2,11 @@ import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, FileText, MessageSquare, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { calculateProjectProgress } from '../../../../../shared/utils/serviceUtils';
 import { useGetServiceByIdQuery } from '../../../store/api/marketplaceApi';
 import { useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
+
+
 import ClientPhaseAction from '../components/ClientPhaseAction';
 import ServiceChat from '../components/ServiceChat';
 import ServiceFiles from '../components/ServiceFiles';
@@ -34,7 +37,6 @@ const getActivePhaseIndex = (order) => {
 
   const legacyMap = {
     'payment_completed': 'requirements_gathering',
-    'in_progress': 'development',
     'delivered': 'delivery',
     'revision_window_closed': 'support_window'
   };
@@ -217,27 +219,6 @@ const ServiceWorkspace = () => {
   }, [dynamicDeadline]);
 
 
-  // Calculate progress based on SDLC phase weights
-  const calculateProgress = (order) => {
-    if (order?.status === 'completed') return 100;
-    if (order?.status === 'cancelled') return 0;
-    if (!order?.timeline || order.timeline.length === 0) return 0;
-
-    let progress = 0;
-    const completedStatuses = order.timeline.map(entry => entry.status);
-
-    if (completedStatuses.includes('payment_completed')) progress = 10; // Phase 1: Requirements Gathering
-    if (completedStatuses.includes('legal_documentation')) progress = 15; // Phase 2: Legal & Documentation
-    if (completedStatuses.includes('planning_scoping')) progress = 25; // Phase 3: Planning & Scoping
-    if (completedStatuses.includes('design')) progress = 40; // Phase 4: Design
-    if (completedStatuses.includes('in_progress')) progress = 65; // Phase 5: Development
-    if (completedStatuses.includes('testing_qa')) progress = 75; // Phase 6: Testing & QA
-    if (completedStatuses.includes('delivered')) progress = 85; // Phase 7: Delivery
-    if (completedStatuses.includes('revision_window_closed')) progress = 95; // Phase 8: Revisions complete
-
-    return progress;
-  };
-
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -322,7 +303,7 @@ const ServiceWorkspace = () => {
     );
   }
 
-  const progress = calculateProgress(order);
+  const progress = calculateProjectProgress(order);
 
   // Helper to determine display data (Live vs Snapshot)
   const displayPackage = livePackage || serviceItem?.selectedPackage;

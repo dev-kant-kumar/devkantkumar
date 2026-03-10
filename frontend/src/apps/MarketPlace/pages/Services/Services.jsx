@@ -1,45 +1,46 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import {
-    ArrowRight,
-    Award,
-    CheckCircle,
-    Clock,
-    Code,
-    Database,
-    Globe,
-    Loader2,
-    Palette,
-    Search,
-    Shield,
-    ShieldCheck,
-    Smartphone,
-    Star,
-    User,
-    Zap
-} from 'lucide-react';
-import React, { useMemo, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+  ArrowRight,
+  Award,
+  CheckCircle,
+  Clock,
+  Code,
+  Database,
+  Globe,
+  Loader2,
+  Palette,
+  Search,
+  Shield,
+  ShieldCheck,
+  Smartphone,
+  Star,
+  User,
+  Zap,
+} from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import SEOHead from "../../../../components/SEO/SEOHead";
+import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
-import SEOHead from '../../../../components/SEO/SEOHead';
-import { ItemListSchema } from '../../../../components/SEO/SchemaMarkup';
-import FAQ from '../../common/components/FAQ';
-import Testimonials from '../../common/components/Testimonials';
-import WhyChooseUs from '../../common/components/WhyChooseUs';
-import EmptyState from '../../common/components/ui/EmptyState';
-import { useCurrency } from '../../context/CurrencyContext';
-import { useGetServicesQuery } from '../../store/api/marketplaceApi';
-import { addToCart } from '../../store/cart/cartSlice';
+import PremiumDropdown from "../../../../shared/components/PremiumDropdown.jsx";
+import FAQ from "../../common/components/FAQ";
+import Testimonials from "../../common/components/Testimonials";
+import WhyChooseUs from "../../common/components/WhyChooseUs";
+import EmptyState from "../../common/components/ui/EmptyState";
+import { useCurrency } from "../../context/CurrencyContext";
+import { useGetServicesQuery } from "../../store/api/marketplaceApi";
+import { addToCart } from "../../store/cart/cartSlice";
 import mobile from "./Assets/Images/Products/mobile_app_development.png";
 import web from "./Assets/Images/Products/web_development.png";
 
 const Services = () => {
   const dispatch = useDispatch();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState('all');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState("all");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Debounce search
   React.useEffect(() => {
@@ -50,27 +51,27 @@ const Services = () => {
   }, [searchTerm]);
 
   const categories = [
-    { id: 'all', name: 'All Services', icon: Globe },
-    { id: 'web-development', name: 'Web Development', icon: Globe },
-    { id: 'mobile-development', name: 'Mobile Apps', icon: Smartphone },
-    { id: 'ui-ux-design', name: 'UI/UX Design', icon: Palette },
-    { id: 'backend-development', name: 'Backend Development', icon: Database },
-    { id: 'consulting', name: 'Consulting', icon: Shield },
-    { id: 'custom-solutions', name: 'Custom Solutions', icon: Code }
+    { id: "all", name: "All Services", icon: Globe },
+    { id: "web-development", name: "Web Development", icon: Globe },
+    { id: "mobile-development", name: "Mobile Apps", icon: Smartphone },
+    { id: "ui-ux-design", name: "UI/UX Design", icon: Palette },
+    { id: "backend-development", name: "Backend Development", icon: Database },
+    { id: "consulting", name: "Consulting", icon: Shield },
+    { id: "custom-solutions", name: "Custom Solutions", icon: Code },
   ];
 
   // Build query params
   const queryParams = useMemo(() => {
     const params = { limit: 50 };
-    if (selectedCategory !== 'all') params.category = selectedCategory;
+    if (selectedCategory !== "all") params.category = selectedCategory;
     if (debouncedSearch) params.search = debouncedSearch;
-    if (priceRange !== 'all') {
-      if (priceRange === 'low') {
+    if (priceRange !== "all") {
+      if (priceRange === "low") {
         params.maxPrice = 1000;
-      } else if (priceRange === 'medium') {
+      } else if (priceRange === "medium") {
         params.minPrice = 1000;
         params.maxPrice = 2000;
-      } else if (priceRange === 'high') {
+      } else if (priceRange === "high") {
         params.minPrice = 2000;
       }
     }
@@ -84,17 +85,19 @@ const Services = () => {
 
   const handleAddToCart = (service) => {
     const pkg = service.packages?.[0];
-    dispatch(addToCart({
-      id: service._id,
-      itemId: service._id,
-      itemType: 'service',
-      title: service.title,
-      price: pkg?.price || service.startingPrice || 0,
-      image: service.images?.[0]?.url,
-      quantity: 1,
-      package: pkg?.name || 'Standard',
-    }));
-    toast.success('Added to cart!');
+    dispatch(
+      addToCart({
+        id: service._id,
+        itemId: service._id,
+        itemType: "service",
+        title: service.title,
+        price: pkg?.price || service.startingPrice || 0,
+        image: service.images?.[0]?.url,
+        quantity: 1,
+        package: pkg?.name || "Standard",
+      }),
+    );
+    toast.success("Added to cart!");
   };
 
   return (
@@ -102,13 +105,21 @@ const Services = () => {
       <SEOHead
         title="Web Development Services — Hire React & Node.js Developer | Dev Kant Kumar"
         description="Hire an expert full-stack developer for React apps, Node.js APIs, MERN stack development, SaaS MVPs, and more. Professional packages starting from ₹4,999."
-        keywords={["hire React developer", "web development services India", "Node.js developer for hire", "MERN stack development service", "SaaS MVP development", "API development service", "custom web app development"]}
+        keywords={[
+          "hire React developer",
+          "web development services India",
+          "Node.js developer for hire",
+          "MERN stack development service",
+          "SaaS MVP development",
+          "API development service",
+          "custom web app development",
+        ]}
         url="https://www.devkantkumar.com/marketplace/services"
         canonical="https://www.devkantkumar.com/marketplace/services"
         type="website"
       />
       <ItemListSchema
-        items={services.map(s => ({ ...s, type: 'service' }))}
+        items={services.map((s) => ({ ...s, type: "service" }))}
         listName="Web Development Services — Dev Kant Kumar Marketplace"
         listUrl="https://www.devkantkumar.com/marketplace/services"
       />
@@ -132,11 +143,16 @@ const Services = () => {
                 </span>
               </h1>
               <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                From custom web applications to enterprise solutions. Hire top talent to build your next project.
+                From custom web applications to enterprise solutions. Hire top
+                talent to build your next project.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={() => document.getElementById('services-grid')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() =>
+                    document
+                      .getElementById("services-grid")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center"
                 >
                   Explore Services
@@ -150,7 +166,8 @@ const Services = () => {
               </div>
               <div className="mt-8 flex items-center text-sm text-gray-400 space-x-6">
                 <div className="flex items-center">
-                  <CheckCircle className="text-green-400 mr-2 h-5 w-5" /> {services.length}+ Services
+                  <CheckCircle className="text-green-400 mr-2 h-5 w-5" />{" "}
+                  {services.length}+ Services
                 </div>
                 <div className="flex items-center">
                   <Star className="text-yellow-400 mr-2 h-5 w-5" /> 4.9/5 Rating
@@ -165,8 +182,16 @@ const Services = () => {
             >
               <div className="absolute -inset-4 bg-blue-500/30 rounded-full blur-3xl"></div>
               <div className="relative grid grid-cols-2 gap-4">
-                <img src={web} alt="Web Development" className="rounded-2xl shadow-2xl border border-white/10 transform translate-y-8" />
-                <img src={mobile} alt="Mobile Development" className="rounded-2xl shadow-2xl border border-white/10 transform -translate-y-8" />
+                <img
+                  src={web}
+                  alt="Web Development"
+                  className="rounded-2xl shadow-2xl border border-white/10 transform translate-y-8"
+                />
+                <img
+                  src={mobile}
+                  alt="Mobile Development"
+                  className="rounded-2xl shadow-2xl border border-white/10 transform -translate-y-8"
+                />
               </div>
             </motion.div>
           </div>
@@ -200,11 +225,15 @@ const Services = () => {
           {/* Sidebar Filters */}
           <div className="lg:w-1/4">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Filters
+              </h3>
 
               {/* Search */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Search Services</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search Services
+                </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
@@ -212,14 +241,16 @@ const Services = () => {
                     placeholder="Search..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400 transition-all"
                   />
                 </div>
               </div>
 
               {/* Categories */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                </label>
                 <div className="space-y-2">
                   {categories.map((category) => (
                     <button
@@ -227,8 +258,8 @@ const Services = () => {
                       onClick={() => setSelectedCategory(category.id)}
                       className={`w-full flex items-center px-3 py-2 rounded-lg text-left transition-colors ${
                         selectedCategory === category.id
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? "bg-blue-100 text-blue-700"
+                          : "text-gray-600 hover:bg-gray-100"
                       }`}
                     >
                       <category.icon className="h-4 w-4 mr-2" />
@@ -240,17 +271,22 @@ const Services = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
-                <select
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price Range
+                </label>
+                <PremiumDropdown
                   value={priceRange}
-                  onChange={(e) => setPriceRange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All Prices</option>
-                  <option value="low">Under $1,000</option>
-                  <option value="medium">$1,000 - $2,000</option>
-                  <option value="high">$2,000+</option>
-                </select>
+                  onChange={setPriceRange}
+                  options={[
+                    { value: "all", label: "All Prices" },
+                    { value: "low", label: "Under $1,000" },
+                    { value: "medium", label: "$1,000 - $2,000" },
+                    { value: "high", label: "$2,000+" },
+                  ]}
+                  variant="marketplace"
+                  placeholder="All Prices"
+                  buttonClassName="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm flex items-center justify-between"
+                />
               </div>
             </div>
           </div>
@@ -270,7 +306,9 @@ const Services = () => {
             {error && (
               <div className="text-center py-12 bg-white rounded-xl">
                 <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">Failed to load services</h3>
+                <h3 className="text-xl font-medium text-gray-900 mb-2">
+                  Failed to load services
+                </h3>
                 <p className="text-gray-600">Please try again later</p>
               </div>
             )}
@@ -286,32 +324,44 @@ const Services = () => {
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative"
                   >
                     <img
-                      src={service.images?.[0]?.url || '/api/placeholder/400/250'}
+                      src={
+                        service.images?.[0]?.url || "/api/placeholder/400/250"
+                      }
                       alt={service.title}
                       className="w-full h-48 object-cover"
                     />
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-2">
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium capitalize">
-                          {service.category?.replace(/-/g, ' ') || 'Service'}
+                          {service.category?.replace(/-/g, " ") || "Service"}
                         </span>
                         <div className="flex items-center text-yellow-500">
                           <Star className="h-4 w-4 fill-current" />
                           <span className="ml-1 text-sm text-gray-600">
-                            {service.rating?.average || 0} ({service.rating?.count || 0})
+                            {service.rating?.average || 0} (
+                            {service.rating?.count || 0})
                           </span>
                         </div>
                       </div>
 
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
-                      <p className="text-gray-600 mb-4 line-clamp-2">{service.description}</p>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        {service.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-2">
+                        {service.description}
+                      </p>
 
                       {service.features && (
                         <div className="mb-4 space-y-1">
                           {service.features.slice(0, 3).map((feature, idx) => (
-                            <div key={idx} className="flex items-center text-sm text-gray-500">
+                            <div
+                              key={idx}
+                              className="flex items-center text-sm text-gray-500"
+                            >
                               <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                              {typeof feature === 'string' ? feature : feature.name}
+                              {typeof feature === "string"
+                                ? feature
+                                : feature.name}
                             </div>
                           ))}
                         </div>
@@ -324,15 +374,23 @@ const Services = () => {
                           <CheckCircle className="h-3 w-3 text-blue-500 ml-1" />
                         </span>
                         <Clock className="h-4 w-4 mr-1" />
-                        <span>{service.packages?.[0]?.deliveryTime || 7} days</span>
+                        <span>
+                          {service.packages?.[0]?.deliveryTime || 7} days
+                        </span>
                       </div>
 
                       <div className="flex items-center justify-between mt-4">
                         {(() => {
-                             const defaultPkg = service.packages?.[0] || { price: service.startingPrice || 0 };
-                             return (
-                                <PriceDisplay price={defaultPkg.price} className="text-2xl" textClass="text-blue-600" />
-                             );
+                          const defaultPkg = service.packages?.[0] || {
+                            price: service.startingPrice || 0,
+                          };
+                          return (
+                            <PriceDisplay
+                              price={defaultPkg.price}
+                              className="text-2xl"
+                              textClass="text-blue-600"
+                            />
+                          );
                         })()}
                         <Link
                           to={`/marketplace/services/${service._id}`}
@@ -355,9 +413,9 @@ const Services = () => {
                 description="Try adjusting your filters or check back later for new services."
                 actionLabel="Clear All Filters"
                 onAction={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('all');
-                  setPriceRange('all');
+                  setSearchTerm("");
+                  setSelectedCategory("all");
+                  setPriceRange("all");
                 }}
                 showNewsletter={true}
               />
@@ -370,21 +428,43 @@ const Services = () => {
       <div className="bg-white py-16 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Simple, transparent, and efficient.</p>
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+              How It Works
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Simple, transparent, and efficient.
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
-              { step: '01', title: 'Select Service', desc: 'Choose the package that fits your needs.' },
-              { step: '02', title: 'Briefing', desc: 'Share your requirements and details.' },
-              { step: '03', title: 'Development', desc: 'We build with regular updates.' },
-              { step: '04', title: 'Delivery', desc: 'Receive your project with source code.' }
+              {
+                step: "01",
+                title: "Select Service",
+                desc: "Choose the package that fits your needs.",
+              },
+              {
+                step: "02",
+                title: "Briefing",
+                desc: "Share your requirements and details.",
+              },
+              {
+                step: "03",
+                title: "Development",
+                desc: "We build with regular updates.",
+              },
+              {
+                step: "04",
+                title: "Delivery",
+                desc: "Receive your project with source code.",
+              },
             ].map((item, index) => (
               <div key={index} className="text-center relative">
                 <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   {item.step}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  {item.title}
+                </h3>
                 <p className="text-sm text-gray-600">{item.desc}</p>
               </div>
             ))}
@@ -398,7 +478,9 @@ const Services = () => {
       {/* CTA */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-extrabold text-white mb-4">Can't Find What You're Looking For?</h2>
+          <h2 className="text-3xl font-extrabold text-white mb-4">
+            Can't Find What You're Looking For?
+          </h2>
           <p className="text-blue-100 text-xl mb-8 max-w-2xl mx-auto">
             We specialize in custom software solutions tailored to your needs.
           </p>

@@ -91,7 +91,6 @@ const getActivePhaseIndex = (order) => {
   // Fallback map for legacy or mismatched statuses if any exist in the database
   const legacyMap = {
     'payment_completed': 'requirements_gathering',
-    'in_progress': 'development',
     'delivered': 'delivery',
     'revision_window_closed': 'support_window'
   };
@@ -541,7 +540,16 @@ const AdminPhaseActivity = ({ order, refetch }) => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-20">
       {/* Phase Nav */}
-      <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-[2rem] border border-gray-200/50 dark:border-gray-700/50 p-2 flex overflow-x-auto no-scrollbar gap-2 shadow-sm">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-[2rem] border border-gray-200/50 dark:border-gray-700/50 p-2 flex overflow-x-auto no-scrollbar gap-4 shadow-sm">
         {PHASES.map((phase) => {
           const isActive = activeSubPhase === phase.id;
           const isCurrent = currentPhase === phase.id;
@@ -553,12 +561,20 @@ const AdminPhaseActivity = ({ order, refetch }) => {
             <button
               key={phase.id}
               onClick={() => setActiveSubPhase(phase.id)}
-              className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-black transition-all whitespace-nowrap
-                ${isActive ? 'bg-slate-900 text-white shadow-xl scale-105 z-10' : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800'}
-                ${isCurrent && !isActive ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
+              className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-black transition-all whitespace-nowrap border group
+                ${isActive
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-xl scale-105 z-10'
+                  : 'text-slate-400 dark:text-slate-500 bg-transparent border-transparent hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-gray-800/50'}
+                ${isCurrent && !isActive ? 'ring-2 ring-blue-500 ring-offset-2 !border-transparent' : ''}
               `}
             >
-              <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${isActive ? 'bg-white/10' : (isCompleted ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : 'bg-gray-100 dark:bg-gray-800')}`}>
+              <div className={`h-8 w-8 rounded-xl flex items-center justify-center transition-colors
+                ${isActive
+                  ? 'bg-white/10'
+                  : (isCompleted
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                      : 'bg-slate-100 dark:bg-gray-800 text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-gray-700 group-hover:text-slate-600')}`}
+              >
                 {isCompleted ? <CheckCircle className="h-4 w-4" /> : <phase.icon className="h-4 w-4" />}
               </div>
               {phase.label}
@@ -570,8 +586,8 @@ const AdminPhaseActivity = ({ order, refetch }) => {
 
       {/* Sub Tabs */}
       <div className="flex border-b border-gray-200 dark:border-gray-800 gap-8 px-4">
-        <button onClick={() => setActiveSubTab('input')} className={`pb-4 text-sm font-black uppercase tracking-widest transition-all border-b-2 ${activeSubTab === 'input' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-gray-400'}`}>Phase Input</button>
-        <button onClick={() => setActiveSubTab('output')} className={`pb-4 text-sm font-black uppercase tracking-widest transition-all border-b-2 ${activeSubTab === 'output' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-gray-400'}`}>Phase Output</button>
+        <button onClick={() => setActiveSubTab('input')} className={`pb-4 text-sm font-black uppercase tracking-widest transition-all border-b-2 ${activeSubTab === 'input' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}>Phase Input</button>
+        <button onClick={() => setActiveSubTab('output')} className={`pb-4 text-sm font-black uppercase tracking-widest transition-all border-b-2 ${activeSubTab === 'output' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}>Phase Output</button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -586,7 +602,7 @@ const AdminPhaseActivity = ({ order, refetch }) => {
                   })()}
                 </div>
                 <div>
-                   <h3 className="text-xs font-black uppercase tracking-[0.2em] opacity-60">{activeSubTab === 'input' ? 'Inputs' : 'Deliverables'}</h3>
+                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white underline decoration-white/30 underline-offset-4">{activeSubTab === 'input' ? 'Inputs' : 'Deliverables'}</h3>
                    <p className="text-2xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.label}</p>
                 </div>
               </div>
@@ -659,9 +675,9 @@ const AdminPhaseActivity = ({ order, refetch }) => {
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12 opacity-60 dark:opacity-40">
-                     <Layout className="h-20 w-20 mx-auto mb-4 text-gray-400" />
-                     <p className="text-sm font-black uppercase tracking-widest">Phase Documentation & Scoping</p>
+                  <div className="text-center py-12">
+                     <Layout className="h-20 w-20 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                     <p className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Phase Documentation & Scoping</p>
                   </div>
                 )
               ) : (
@@ -749,10 +765,10 @@ const AdminPhaseActivity = ({ order, refetch }) => {
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
              <Activity className="absolute -top-10 -right-10 h-40 w-40 opacity-10" />
-             <h4 className="text-[10px] font-black uppercase opacity-70 tracking-widest mb-4">Phase Impact</h4>
+             <h4 className="text-[10px] font-black uppercase text-white tracking-widest mb-4">Phase Impact</h4>
              <div className="flex items-baseline gap-2">
                <span className="text-4xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.weight}%</span>
-               <span className="text-sm opacity-70">Weight</span>
+               <span className="text-sm text-white">Weight</span>
              </div>
              <div className="mt-8 pt-8 border-t border-white/20">
                <div className="w-full bg-white/10 rounded-full h-1"><div className="bg-white h-1 rounded-full" style={{ width: PHASES.findIndex(p => p.id === activeSubPhase) <= PHASES.findIndex(p => p.id === currentPhase) ? '100%' : '0%' }} /></div>
@@ -786,11 +802,11 @@ const AdminProjectWorkspace = () => {
     let progress = 0;
     const completedStatuses = order.timeline.map(entry => entry.status);
 
-    if (completedStatuses.includes('payment_completed')) progress = 10;
+    if (completedStatuses.includes('payment_completed') || completedStatuses.includes('requirements_gathering')) progress = 10;
     if (completedStatuses.includes('legal_documentation')) progress = 15;
     if (completedStatuses.includes('planning_scoping')) progress = 25;
     if (completedStatuses.includes('design')) progress = 40;
-    if (completedStatuses.includes('in_progress')) progress = 65;
+    if (completedStatuses.includes('development')) progress = 65;
     if (completedStatuses.includes('testing_qa')) progress = 75;
     if (completedStatuses.includes('delivered')) progress = 85;
     if (completedStatuses.includes('revision_window_closed')) progress = 95;
@@ -918,7 +934,7 @@ const AdminProjectWorkspace = () => {
                       <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest flex items-center gap-3">
                         <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" /> Mission Trajectory
                       </h3>
-                      <p className="text-[10px] text-gray-600 dark:text-gray-400 uppercase tracking-widest mt-2 border-l-2 border-blue-500 pl-3">Initiated: {formatDate(order.createdAt)}</p>
+                      <p className="text-[10px] text-gray-700 dark:text-gray-300 uppercase tracking-widest mt-2 border-l-2 border-blue-500 pl-3">Initiated: {formatDate(order.createdAt)}</p>
                     </div>
                     <div className="text-right">
                        <span className="text-4xl font-black text-gray-900 dark:text-gray-100">{progress}%</span>
@@ -943,7 +959,7 @@ const AdminProjectWorkspace = () => {
                              {isCurr && (
                                 <circle cx={x} cy={y} r="16" fill="none" stroke="#3b82f6" strokeWidth="1.5" className="animate-ping" opacity="0.6" style={{ transformOrigin: `${x}px ${y}px` }} />
                              )}
-                             <text x={x} y={y + 35} textAnchor="middle" fill="currentColor" className={`text-[9px] font-black tracking-tighter ${isComp || isCurr ? "text-gray-900 dark:text-gray-100" : "text-gray-400"}`}>{ph.label}</text>
+                             <text x={x} y={y + 35} textAnchor="middle" fill="currentColor" className={`text-[9px] font-black tracking-tighter ${isComp || isCurr ? "text-gray-900 dark:text-gray-100" : "text-gray-500"}`}>{ph.label}</text>
                            </g>
                          );
                       })}
@@ -969,7 +985,7 @@ const AdminProjectWorkspace = () => {
                         {/* Overall Progress */}
                         <div className="space-y-2 pb-3 border-b border-gray-800/50">
                            <div className="flex justify-between items-center text-[10px] font-bold tracking-widest">
-                              <span className="text-gray-600 dark:text-gray-400">Overall Progress</span>
+                              <span className="text-gray-700 dark:text-gray-300">Overall Progress</span>
                               <span className="text-white">{progress}%</span>
                            </div>
                            <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
@@ -979,13 +995,13 @@ const AdminProjectWorkspace = () => {
 
                         {/* Start Date */}
                         <div className="flex justify-between items-center py-2 border-b border-gray-800/50">
-                           <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 tracking-widest">Start Date</span>
+                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 tracking-widest">Start Date</span>
                            <span className="text-xs font-black text-white">{formatDate(order.createdAt)}</span>
                         </div>
 
                         {/* Est. Delivery */}
                         <div className="flex justify-between items-start py-2 border-b border-gray-800/50">
-                           <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 tracking-widest">Est. Delivery</span>
+                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 tracking-widest">Est. Delivery</span>
                            <div className="text-right">
                               <span className="text-xs font-black text-red-500">{formatDate(order.estimatedDelivery)}</span>
                               {(() => {
@@ -999,13 +1015,13 @@ const AdminProjectWorkspace = () => {
 
                         {/* Total Amount */}
                         <div className="flex justify-between items-center py-2 border-b border-gray-800/50">
-                           <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 tracking-widest">Total Amount</span>
+                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 tracking-widest">Total Amount</span>
                            <span className="text-sm font-black text-white">{formatCurrency(order.payment?.amount?.total, order.payment?.amount?.currency)}</span>
                         </div>
 
                         {/* Payment Status */}
                         <div className="flex justify-between items-center py-2 border-b border-gray-800/50">
-                           <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 tracking-widest">Payment Status</span>
+                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 tracking-widest">Payment Status</span>
                            <span className={`text-[10px] font-black capitalize ${order.payment?.status === 'completed' ? 'text-green-500' : 'text-amber-500'}`}>
                               {order.payment?.status || 'pending'}
                            </span>
@@ -1013,7 +1029,7 @@ const AdminProjectWorkspace = () => {
 
                          {/* Revisions Used */}
                         <div className="flex justify-between items-center py-2 border-b border-gray-800/50">
-                           <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 tracking-widest">Revisions Used</span>
+                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 tracking-widest">Revisions Used</span>
                            <span className="text-xs font-black text-white">
                               {order.revisionsUsed || 0} / {
                                  displayPackage?.revisions === -1 || displayPackage?.revisions === 'Unlimited'
@@ -1025,7 +1041,7 @@ const AdminProjectWorkspace = () => {
 
                         {/* Revision Deadline */}
                         <div className="flex justify-between items-start py-2">
-                           <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 tracking-widest">Revision Deadline</span>
+                           <span className="text-[10px] font-bold text-gray-700 dark:text-gray-300 tracking-widest">Revision Deadline</span>
                            <div className="text-right">
                               {dynamicDeadline ? (
                                  <>

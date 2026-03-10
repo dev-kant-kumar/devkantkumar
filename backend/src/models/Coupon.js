@@ -109,51 +109,50 @@ const couponSchema = new mongoose.Schema({
 });
 
 // Index for fast lookup
-couponSchema.index({ code: 1 });
 couponSchema.index({ isActive: 1, validUntil: 1 });
 couponSchema.index({ validFrom: 1, validUntil: 1 });
 
 // Instance method to validate coupon
 couponSchema.methods.isValid = function(userId, orderTotal) {
   const now = new Date();
-  
+
   // Check if expired
   if (now > this.validUntil || now < this.validFrom) {
     return { valid: false, reason: 'Coupon has expired' };
   }
-  
+
   // Check if inactive
   if (!this.isActive) {
     return { valid: false, reason: 'Coupon is currently inactive' };
   }
-  
+
   // Check max uses
   if (this.maxUses && this.usedCount >= this.maxUses) {
     return { valid: false, reason: 'Coupon usage limit has been exceeded' };
   }
-  
+
   // Check user usage limit
   if (userId) {
-    const userUsageCount = this.usedByUsers.filter(u => 
+    const userUsageCount = this.usedByUsers.filter(u =>
       u.userId && u.userId.toString() === userId.toString()
     ).length;
     if (userUsageCount >= this.maxUsesPerCustomer) {
       return { valid: false, reason: `You can only use this coupon ${this.maxUsesPerCustomer} time(s)` };
     }
   }
-  
+
   // Check minimum order amount
   if (orderTotal < this.minOrderAmount) {
     return { valid: false, reason: `Minimum order amount required: ₹${this.minOrderAmount}` };
   }
-  
+
   return { valid: true };
 };
 
 // Instance method to calculate discount
 couponSchema.methods.calculateDiscount = function(orderTotal) {
   let discount = 0;
-  
+
   if (this.discountType === 'percentage') {
     discount = (orderTotal * this.discountValue) / 100;
     // Apply max discount limit if set
@@ -163,7 +162,7 @@ couponSchema.methods.calculateDiscount = function(orderTotal) {
   } else if (this.discountType === 'fixed') {
     discount = Math.min(this.discountValue, orderTotal);
   }
-  
+
   return Math.round(discount * 100) / 100; // Round to 2 decimals
 };
 
@@ -184,12 +183,12 @@ couponSchema.pre('save', function(next) {
   if (this.validUntil <= this.validFrom) {
     next(new Error('Valid until date must be after valid from date'));
   }
-  
+
   // If discountType is percentage, validate value
   if (this.discountType === 'percentage' && (this.discountValue < 0 || this.discountValue > 100)) {
     next(new Error('Percentage discount must be between 0 and 100'));
   }
-  
+
   next();
 });
 

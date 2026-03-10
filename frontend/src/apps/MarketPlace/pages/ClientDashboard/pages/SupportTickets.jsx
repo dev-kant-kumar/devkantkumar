@@ -10,6 +10,14 @@ const SupportTickets = () => {
     message: ''
   });
 
+  const categoryOptions = [
+    { value: 'general', label: 'General Inquiry' },
+    { value: 'order', label: 'Order Issue' },
+    { value: 'billing', label: 'Billing Question' },
+    { value: 'technical', label: 'Technical Support' },
+    { value: 'refund', label: 'Refund Request' }
+  ];
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // For now, redirect to email
@@ -105,17 +113,13 @@ const SupportTickets = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <select
+              <PremiumDropdown
                 value={formData.category}
-                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="general">General Inquiry</option>
-                <option value="order">Order Issue</option>
-                <option value="billing">Billing Question</option>
-                <option value="technical">Technical Support</option>
-                <option value="refund">Refund Request</option>
-              </select>
+                onChange={(val) => setFormData(prev => ({ ...prev, category: val }))}
+                options={categoryOptions}
+                variant="marketplace"
+                buttonClassName="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50 transition-all flex items-center justify-between"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>

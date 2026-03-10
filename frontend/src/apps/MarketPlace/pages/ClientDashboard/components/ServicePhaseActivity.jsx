@@ -110,7 +110,16 @@ const ServicePhaseActivity = ({ order, liveService }) => {
       className="space-y-6"
     >
       {/* 1st Level: Phase Navigation Bar */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-2 flex overflow-x-auto no-scrollbar gap-2">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-2 flex overflow-x-auto no-scrollbar gap-4">
         {PHASES.map((phase) => {
           const isActive = activeSubPhase === phase.id;
           const isCurrent = currentPhase === phase.id;
@@ -123,17 +132,21 @@ const ServicePhaseActivity = ({ order, liveService }) => {
               key={phase.id}
               onClick={() => setActiveSubPhase(phase.id)}
               className={`
-                flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap
+                flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap border group
                 ${isActive
-                  ? 'bg-slate-900 text-white shadow-xl shadow-slate-200 scale-105 z-10'
-                  : 'text-slate-500 hover:bg-slate-50'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-xl shadow-slate-200 scale-105 z-10'
+                  : 'text-slate-400 dark:text-slate-500 bg-transparent border-transparent hover:text-slate-900 dark:hover:text-white hover:bg-slate-50/50'
                 }
-                ${isCurrent && !isActive ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
+                ${isCurrent && !isActive ? 'ring-2 ring-blue-500 ring-offset-2 !border-transparent bg-transparent' : ''}
               `}
             >
               <div className={`
-                h-8 w-8 rounded-xl flex items-center justify-center
-                ${isActive ? 'bg-white/10' : (isCompleted ? 'bg-green-100 text-green-600' : 'bg-slate-100')}
+                h-8 w-8 rounded-xl flex items-center justify-center transition-colors
+                ${isActive
+                  ? 'bg-white/10'
+                  : (isCompleted
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-slate-100 dark:bg-gray-800 text-slate-400 group-hover:bg-slate-200 dark:group-hover:bg-gray-700 group-hover:text-slate-600')}
               `}>
                 {isCompleted ? <CheckCircle className="h-4 w-4" /> : <phase.icon className="h-4 w-4" />}
               </div>
@@ -153,7 +166,7 @@ const ServicePhaseActivity = ({ order, liveService }) => {
           className={`pb-4 text-xs font-black uppercase tracking-widest transition-all border-b-2
             ${activeSubTab === 'input'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-400 hover:text-slate-600'}
+              : 'border-transparent text-slate-500 hover:text-slate-700'}
           `}
         >
           Phase Inputs
@@ -163,7 +176,7 @@ const ServicePhaseActivity = ({ order, liveService }) => {
           className={`pb-4 text-xs font-black uppercase tracking-widest transition-all border-b-2
             ${activeSubTab === 'output'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-400 hover:text-slate-600'}
+              : 'border-transparent text-slate-500 hover:text-slate-700'}
           `}
         >
           Phase Deliverables
@@ -184,7 +197,7 @@ const ServicePhaseActivity = ({ order, liveService }) => {
                   })()}
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-[0.2em] opacity-60">
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/90">
                     {activeSubTab === 'input' ? 'Objective & Brief' : 'Results & Files'}
                   </h3>
                   <p className="text-2xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.label}</p>
@@ -305,10 +318,10 @@ const ServicePhaseActivity = ({ order, liveService }) => {
                <Activity className="h-40 w-40" />
             </div>
             <div className="relative z-10">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-70">Project Impact</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 text-white/90">Project Impact</h4>
               <div className="flex items-baseline gap-2">
                 <span className="text-4xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.weight}%</span>
-                <span className="text-sm font-bold opacity-70">Progress Weight</span>
+                <span className="text-sm font-bold text-white/90">Progress Weight</span>
               </div>
               <p className="text-xs mt-6 leading-relaxed opacity-80">Completion of this phase significantly advances the mission trajectory.</p>
 
@@ -317,14 +330,14 @@ const ServicePhaseActivity = ({ order, liveService }) => {
                    <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">Phase Readiness</span>
                    <span className="text-xs font-black">
                      {PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? '100%' :
-                      PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '65%' : '0%'}
+                      PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '5%' : '0%'}
                    </span>
                 </div>
                 <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? '100%' :
-                              PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '65%' : '0%' }}
+                              PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '5%' : '0%' }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className="h-full bg-white"
                   />

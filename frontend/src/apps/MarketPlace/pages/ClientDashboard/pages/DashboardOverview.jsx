@@ -112,19 +112,37 @@ const DashboardOverview = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
+          <motion.div
+            key={index}
+            whileHover={{ y: -5, scale: 1.02 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden group hover:shadow-xl hover:shadow-green-900/5 transition-all duration-300"
+          >
+            {/* Decorative Background Element */}
+            <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity ${stat.bgColor}`} />
+
+            <div className="flex flex-col gap-4 relative z-10">
+              <div className="flex items-center justify-between">
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor} border border-white shadow-sm`}>
+                  <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
+                </div>
+                {/* Visual indicator of growth or trend could go here */}
+                <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
               </div>
-              <div className="ml-4 min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-600 truncate" title={stat.label}>{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900 truncate">{stat.value}</p>
+
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-black text-gray-900 leading-none">{stat.value}</p>
               </div>
             </div>
-          </div>
+
+            {/* Bottom Accent Bar */}
+            <div className={`absolute bottom-0 left-0 h-1 transition-all duration-300 w-0 group-hover:w-full ${stat.bgColor.replace('50', '500')}`} />
+          </motion.div>
         ))}
       </div>
 
