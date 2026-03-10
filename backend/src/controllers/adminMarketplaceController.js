@@ -1201,31 +1201,55 @@ exports.completePhase = async (req, res) => {
     const { id, phaseKey } = req.params;
     const { notes, deliverableUrl, externalLink } = req.body;
 
-    // In a real app we'd save this to `OrderPhase` and `OrderPhaseDeliverable` tables.
-    // For this demonstration step we simply mark order's current phase forward and log progress.
     const order = await Order.findById(id);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Rough phase progression logic
-    const phaseOrder = ['requirements_gathering', 'legal_documentation', 'planning_scoping', 'design', 'development', 'testing_qa', 'delivery', 'revision_window', 'support_window', 'completed'];
+    const phaseOrder = [
+      'requirements_gathering',
+      'legal_documentation',
+      'planning_scoping',
+      'design',
+      'development',
+      'testing_qa',
+      'delivery',
+      'revision_window',
+      'support_window',
+    ];
+
     const currentIndex = phaseOrder.indexOf(phaseKey);
-    const nextPhase = phaseOrder[currentIndex + 1];
 
-    order.currentPhase = nextPhase;
+    if (currentIndex === -1) {
+      return res.status(400).json({
+        success: false,
+        message: `Unknown phase key: ${phaseKey}. Must be one of: ${phaseOrder.join(', ')}`,
+      });
+    }
 
-    // Add timeline entry with deliverable data
+    const isLastPhase = currentIndex === phaseOrder.length - 1;
+    const nextPhase = isLastPhase ? 'completed' : phaseOrder[currentIndex + 1];
+
+    // Always record the COMPLETED phase as the timeline status so that
+    // calculateProjectProgress can detect it correctly on the frontend.
     order.timeline.push({
-      status: nextPhase === 'completed' ? 'completed' : phaseKey, // Status represents the completed phase
-      message: `Phase ${phaseKey.replace('_', ' ')} marked complete by Admin.`,
+      status: phaseKey,
+      message: `Phase ${phaseKey.replace(/_/g, ' ')} marked complete by Admin.`,
       timestamp: new Date(),
       updatedBy: req.user._id,
       notes: notes || '',
       deliverableUrl: deliverableUrl || '',
       externalLink: externalLink || '',
     });
+
+    order.currentPhase = nextPhase;
+
+    // When the final phase (support_window) is completed, mark the order as done.
+    if (isLastPhase) {
+      order.status = 'completed';
+      order.actualDelivery = order.actualDelivery || new Date();
+    }
 
     await order.save();
 

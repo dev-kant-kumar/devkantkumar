@@ -90,6 +90,15 @@ export const ordersApi = baseApiSlice.injectEndpoints({
       invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }, 'Orders'],
     }),
 
+    // Approve delivery (client marks project as complete)
+    approveDelivery: builder.mutation({
+      query: ({ orderId }) => ({
+        url: `${API_ENDPOINTS.MARKETPLACE.ORDERS}/${orderId}/approve-delivery`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, { orderId }) => [{ type: 'Order', id: orderId }, 'Orders'],
+    }),
+
     // Submit requirements
     submitRequirements: builder.mutation({
       query: ({ orderId, responses, attachments = [] }) => ({
@@ -112,5 +121,6 @@ export const {
   useCreatePaymentOrderMutation,
   useVerifyPaymentMutation,
   useRequestRevisionMutation,
+  useApproveDeliveryMutation,
   useSubmitRequirementsMutation,
 } = ordersApi;

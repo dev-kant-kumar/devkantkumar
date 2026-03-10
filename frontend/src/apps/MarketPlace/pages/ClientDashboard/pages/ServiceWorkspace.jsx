@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, FileText, MessageSquare, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { calculateProjectProgress } from '../../../../../shared/utils/serviceUtils';
 import { useGetServiceByIdQuery } from '../../../store/api/marketplaceApi';
-import { useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
+import { useApproveDeliveryMutation, useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
 
 
 import ClientPhaseAction from '../components/ClientPhaseAction';
@@ -136,8 +137,11 @@ const ServiceWorkspace = () => {
   const [showRevisionPrompt, setShowRevisionPrompt] = useState(false);
   const [revisionMessage, setRevisionMessage] = useState('');
   const [isSubmittingRevision, setIsSubmittingRevision] = useState(false);
+  const [showApproveConfirm, setShowApproveConfirm] = useState(false);
 
   const [requestRevision] = useRequestRevisionMutation();
+  const [approveDelivery] = useApproveDeliveryMutation();
+  const [isApprovingDelivery, setIsApprovingDelivery] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
 
 
@@ -256,6 +260,21 @@ const ServiceWorkspace = () => {
     return 0;
   };
 
+  // Handle approve delivery
+  const handleApproveDelivery = async () => {
+    setIsApprovingDelivery(true);
+    try {
+      await approveDelivery({ orderId: serviceId }).unwrap();
+      toast.success('Delivery approved! Project marked as complete.');
+      setShowApproveConfirm(false);
+    } catch (err) {
+      console.error('Failed to approve delivery:', err);
+      toast.error(err?.data?.message || 'Failed to approve delivery');
+    } finally {
+      setIsApprovingDelivery(false);
+    }
+  };
+
   // Handle request revision
   const handleRequestRevision = async () => {
     if (!revisionMessage.trim()) return;
@@ -270,7 +289,7 @@ const ServiceWorkspace = () => {
       setRevisionMessage('');
     } catch (err) {
       console.error('Failed to request revision:', err);
-      alert(err?.data?.message || 'Failed to request revision');
+      toast.error(err?.data?.message || 'Failed to request revision');
     } finally {
       setIsSubmittingRevision(false);
     }
@@ -345,7 +364,9 @@ const ServiceWorkspace = () => {
               Contact Support
             </button>
             {order.status === 'in_progress' && (
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+              <button
+                onClick={() => setActiveTab('activity')}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
                 View Progress
               </button>
             )}
@@ -363,8 +384,11 @@ const ServiceWorkspace = () => {
               </button>
             )}
             {order.status === 'delivered' && (
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
-                Approve & Complete
+              <button
+                onClick={() => setShowApproveConfirm(true)}
+                disabled={isApprovingDelivery}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                {isApprovingDelivery ? 'Approving...' : 'Approve & Complete'}
               </button>
             )}
           </div>
@@ -636,7 +660,7 @@ const ServiceWorkspace = () => {
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
                     <span className="text-sm text-gray-500">Total Amount</span>
                     <span className="text-sm font-medium text-gray-900">
-                      {formatCurrency(order.payment?.amount?.total, order.payment?.amount?.currency)}
+                      {formatCurrency(order.payment?.amount?.total, order.payment?.currency)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-3 border-t border-gray-100">
@@ -699,7 +723,7 @@ const ServiceWorkspace = () => {
                           <p className="text-xs text-gray-500 capitalize">{item.itemType}</p>
                         </div>
                         <span className="text-sm font-medium text-gray-900">
-                          {formatCurrency(item.price, order.payment?.amount?.currency)}
+                          {formatCurrency(item.price, order.payment?.currency)}
                         </span>
                       </div>
                     ))}
@@ -774,6 +798,43 @@ const ServiceWorkspace = () => {
         {activeTab === 'files' && <ServiceFiles orderId={serviceId} order={order} />}
         {activeTab === 'activity' && <ServicePhaseActivity order={order} liveService={liveService} />}
       </div>
+
+      {/* Approve & Complete Confirmation Modal */}
+      {showApproveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-full max-w-md"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Approve Delivery?</h3>
+            </div>
+            <p className="text-sm text-gray-500 mb-6">
+              By approving, you confirm you have received all deliverables and are satisfied with the work. This will mark the project as <strong>Complete</strong> and cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                disabled={isApprovingDelivery}
+                onClick={() => setShowApproveConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isApprovingDelivery}
+                onClick={handleApproveDelivery}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                {isApprovingDelivery ? 'Approving...' : 'Yes, Approve & Complete'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Revision Prompt Modal */}
       {showRevisionPrompt && (

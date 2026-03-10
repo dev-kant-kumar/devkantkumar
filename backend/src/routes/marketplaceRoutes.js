@@ -44,6 +44,7 @@ router.post('/orders', marketplaceController.createOrder);
 router.get('/orders', marketplaceController.getUserOrders);
 router.get('/orders/:id', marketplaceController.getOrderById);
 router.post('/orders/:id/revision', marketplaceController.requestRevision);
+router.post('/orders/:id/approve-delivery', marketplaceController.approveDelivery);
 router.post('/orders/:id/requirements', marketplaceController.submitRequirements);
 
 // Order Communication routes
