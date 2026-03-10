@@ -8,8 +8,6 @@ import {
     Cpu,
     FileText,
     Globe,
-    History as HistoryIcon,
-    Layout,
     Link2,
     MessageSquare,
     Palette,
@@ -62,6 +60,283 @@ const PHASES = [
   { id: 'revision_window', label: 'Revisions', icon: RefreshCw, weight: 10 },
   { id: 'support_window', label: 'Support', icon: MessageSquare, weight: 5 },
 ];
+
+// Client-facing phase descriptions
+const CLIENT_PHASE_INFO = {
+  legal_documentation: {
+    title: 'Legal & Agreements',
+    clientNote: 'Your project is protected by formal legal agreements. Please review and sign any documents shared with you promptly.',
+    whatToExpect: [
+      'Non-Disclosure Agreement (NDA) will be shared for review and signature',
+      'Statement of Work (SOW) defining the exact scope and deliverables',
+      'Project contract outlining payment terms and timeline',
+    ],
+    clientAction: 'Sign all documents and return them as soon as possible to keep your project on schedule.',
+  },
+  planning_scoping: {
+    title: 'Planning & Scoping',
+    clientNote: 'Your project is being carefully planned with a detailed roadmap, milestone schedule, and technical architecture.',
+    whatToExpect: [
+      'A comprehensive Scope of Work document will be shared for your approval',
+      'Project milestones and delivery timeline will be confirmed',
+      'Technical architecture and technology choices will be documented',
+    ],
+    clientAction: 'Review and approve the scope document to keep the project moving forward.',
+  },
+  design: {
+    title: 'Design & UX',
+    clientNote: "Your project's visual identity and user experience are being crafted. Feedback at this stage shapes the final product.",
+    whatToExpect: [
+      'Wireframes and initial layouts for your review',
+      'High-fidelity Figma mockups of all pages/screens',
+      'Design revisions based on your feedback',
+    ],
+    clientAction: 'Provide timely feedback on design concepts to avoid delays.',
+  },
+  development: {
+    title: 'Development',
+    clientNote: 'Your project is being actively built based on the approved designs. A staging environment will be shared for your review.',
+    whatToExpect: [
+      'A staging link where you can preview the project in real-time',
+      'Regular progress updates via the Messages tab',
+      'Opportunity to provide feedback before final delivery',
+    ],
+    clientAction: 'Review the staging build when shared and communicate any concerns early.',
+  },
+  testing_qa: {
+    title: 'Testing & Quality Assurance',
+    clientNote: 'Your project is undergoing rigorous quality checks to ensure everything works perfectly before delivery.',
+    whatToExpect: [
+      'All features tested across multiple browsers and devices',
+      'Performance optimization and bug fixes',
+      'A QA report confirming the project is delivery-ready',
+    ],
+    clientAction: 'No action needed. Sit tight — quality checks are in progress!',
+  },
+  delivery: {
+    title: 'Project Delivery',
+    clientNote: 'Your completed project is being prepared for final delivery. You will receive access to all deliverables.',
+    whatToExpect: [
+      'Final project deployed to your live environment',
+      'Complete source code and asset package',
+      'Admin credentials, user manuals, and handover documentation',
+    ],
+    clientAction: 'Confirm receipt of all deliverables and sign off on completion.',
+  },
+  revision_window: {
+    title: 'Revision Window',
+    clientNote: 'Your revision window is now open. Submit any change requests within the agreed timeframe and revisions per your package.',
+    whatToExpect: [
+      'Your requested changes will be implemented promptly',
+      'An updated staging/live link will be shared for review',
+      'Revisions are limited to changes within the original project scope',
+    ],
+    clientAction: 'Submit all revision requests clearly through the Messages tab.',
+  },
+  support_window: {
+    title: 'Post-Launch Support',
+    clientNote: 'Your project is live and within the support window. Report any issues or questions and they will be addressed promptly.',
+    whatToExpect: [
+      'Bug fixes for any post-launch issues',
+      'Minor adjustments within the support scope',
+      'Guidance on using and managing your project',
+    ],
+    clientAction: 'Report any issues via the Messages tab with as much detail as possible.',
+  },
+};
+
+
+const ClientPhaseInputContent = ({ phaseId, currentPhaseIndex, activePhaseIndex }) => {
+  const info = CLIENT_PHASE_INFO[phaseId];
+  if (!info) return null;
+
+  const isCompleted = currentPhaseIndex < activePhaseIndex;
+  const isUpcoming = currentPhaseIndex > activePhaseIndex;
+
+  return (
+    <div className="space-y-6">
+      {/* Status banner */}
+      {isCompleted && (
+        <div className="flex items-center gap-3 px-5 py-3 bg-green-50 border border-green-100 rounded-2xl">
+          <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
+          <p className="text-xs font-bold text-green-700">This phase has been successfully completed.</p>
+        </div>
+      )}
+      {isUpcoming && (
+        <div className="flex items-center gap-3 px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl">
+          <Clock className="h-4 w-4 text-slate-400 shrink-0" />
+          <p className="text-xs font-bold text-slate-500">This phase will begin once all previous phases are completed.</p>
+        </div>
+      )}
+
+      {/* Phase note for client */}
+      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
+        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2">What's Happening</p>
+        <p className="text-sm text-slate-700 leading-relaxed">{info.clientNote}</p>
+      </div>
+
+      {/* What to expect */}
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">What to Expect</p>
+        <div className="space-y-2.5">
+          {info.whatToExpect.map((item, idx) => (
+            <div key={idx} className="flex items-start gap-3 p-4 bg-white border border-slate-100 rounded-2xl">
+              <div className={`h-6 w-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${isCompleted ? 'bg-green-500' : 'bg-blue-100'}`}>
+                {isCompleted
+                  ? <CheckCircle className="h-3.5 w-3.5 text-white" />
+                  : <span className="text-[10px] font-black text-blue-600">{idx + 1}</span>}
+              </div>
+              <p className={`text-xs font-semibold leading-relaxed ${isCompleted ? 'text-slate-400 line-through' : 'text-slate-700'}`}>{item}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Client action required */}
+      {!isCompleted && (
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">Your Action</p>
+          <p className="text-sm text-amber-800 leading-relaxed">{info.clientAction}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ClientPhaseOutputContent = ({ phaseId, phaseEvents, isCurrentPhase, phaseIndex, currentIndex }) => {
+  const isCompleted = phaseIndex < currentIndex;
+  const isUpcoming = phaseIndex > currentIndex;
+
+  const PHASE_OUTPUT_TITLES = {
+    legal_documentation: 'Signed Legal Documents',
+    planning_scoping: 'Project Plan & Scope Document',
+    design: 'Approved Design Assets',
+    development: 'Staging Build',
+    testing_qa: 'QA Report & Sign-off',
+    delivery: 'Final Delivery Package',
+    revision_window: 'Revised Deliverables',
+    support_window: 'Support Activity Log',
+  };
+
+  return (
+    <div className="space-y-6">
+      {isUpcoming && (
+        <div className="text-center py-10">
+          <Clock className="h-10 w-10 text-slate-200 mx-auto mb-4" />
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Deliverables Pending</p>
+          <p className="text-[10px] text-slate-400 mt-2 max-w-xs mx-auto">Outputs for this phase will appear here once work is completed.</p>
+        </div>
+      )}
+
+      {!isUpcoming && phaseEvents.length > 0 && (
+        <div className="space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            {PHASE_OUTPUT_TITLES[phaseId] || 'Phase Deliverables'}
+          </p>
+          {phaseEvents.map((entry, idx) => (
+            <div key={idx} className="relative pl-7">
+              {idx !== phaseEvents.length - 1 && <div className="absolute left-[0.2rem] top-6 w-px h-full bg-slate-100" />}
+              <div className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-50" />
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(entry.timestamp).toLocaleDateString()}</span>
+                  <div className="flex gap-3">
+                    {entry.deliverableUrl && <a href={entry.deliverableUrl} target="_blank" rel="noreferrer" aria-label={`Download deliverable from ${new Date(entry.timestamp).toLocaleDateString()}`} className="text-[10px] font-black text-blue-600 hover:underline">DOWNLOAD FILE</a>}
+                    {entry.externalLink && <a href={entry.externalLink} target="_blank" rel="noreferrer" aria-label={`Open resource link from ${new Date(entry.timestamp).toLocaleDateString()}`} className="text-[10px] font-black text-indigo-600 hover:underline">OPEN LINK</a>}
+                  </div>
+                </div>
+                <p className="text-sm font-bold text-slate-900 leading-tight">{entry.message}</p>
+                {entry.notes && <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl italic">"{entry.notes}"</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isUpcoming && phaseEvents.length === 0 && (
+        <div className="text-center py-10">
+          <Clock className="h-10 w-10 text-slate-200 mx-auto mb-4" />
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose">
+            {isCurrentPhase ? 'In Progress' : 'No outputs logged yet'}
+          </p>
+          <p className="text-[10px] text-slate-400 mt-2 max-w-[200px] mx-auto opacity-60 italic">
+            Deliverables will be accessible here once uploaded by our team.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ClientPhaseImpactCard = ({ phase, activeSubPhaseIndex, currentPhaseIndex, totalPhases, completedWeight }) => {
+  if (!phase) return null;
+  const isCompleted = activeSubPhaseIndex < currentPhaseIndex;
+  const isCurrent = activeSubPhaseIndex === currentPhaseIndex;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-xl p-8 text-white relative overflow-hidden group">
+        <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
+          <Activity className="h-40 w-40" />
+        </div>
+        <div className="relative z-10">
+          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-70">Phase Weight</h4>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-black">{phase.weight}%</span>
+            <span className="text-sm font-bold opacity-70">of project</span>
+          </div>
+          <p className="text-xs mt-4 leading-relaxed opacity-80">
+            Completing this phase advances your project by {phase.weight} percentage points toward full completion.
+          </p>
+          <div className="mt-6 pt-6 border-t border-white/20">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">Phase Status</span>
+              <span className="text-xs font-black">
+                {isCompleted ? '✓ Done' : isCurrent ? 'Active' : 'Upcoming'}
+              </span>
+            </div>
+            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: isCompleted ? '100%' : isCurrent ? '60%' : '0%' }}
+                transition={{ duration: 1.5, ease: 'easeOut' }}
+                className="h-full bg-white rounded-full"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm">
+        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Overall Progress</h4>
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className="text-2xl font-black text-slate-900">{completedWeight}%</span>
+          <span className="text-xs text-slate-400">of project complete</span>
+        </div>
+        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${completedWeight}%` }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full"
+          />
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="bg-slate-50 rounded-xl p-3 text-center">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Phase</p>
+            <p className="text-sm font-black text-slate-900 mt-1">{activeSubPhaseIndex + 1} / {totalPhases}</p>
+          </div>
+          <div className={`rounded-xl p-3 text-center ${isCompleted ? 'bg-green-50' : isCurrent ? 'bg-blue-50' : 'bg-slate-50'}`}>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</p>
+            <p className={`text-xs font-black mt-1 ${isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-slate-400'}`}>
+              {isCompleted ? 'Completed' : isCurrent ? 'In Progress' : 'Upcoming'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ServicePhaseActivity = ({ order, liveService }) => {
   const reqData = order?.requirementsData || {};
@@ -240,98 +515,36 @@ const ServicePhaseActivity = ({ order, liveService }) => {
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-8">
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                         <Layout className="h-10 w-10 text-slate-300" />
-                      </div>
-                      <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Phase Documentation</h4>
-                      <p className="text-sm text-slate-500 mt-2 max-w-sm">Detailed inputs and brief for this phase will appear here as the project progresses.</p>
-                      <button className="mt-8 px-6 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors">
-                        Download Phase Brief
-                      </button>
-                    </div>
-                  </div>
+                  /* Rich phase-specific input content for non-requirements phases */
+                  <ClientPhaseInputContent
+                    phaseId={activeSubPhase}
+                    currentPhaseIndex={PHASES.findIndex(p => p.id === activeSubPhase)}
+                    activePhaseIndex={PHASES.findIndex(p => p.id === currentPhase)}
+                  />
                 )
               ) : (
-                /* Output Section Content */
-                <div className="space-y-8">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <HistoryIcon className="h-4 w-4" /> Accomplishments
-                    </h4>
-                  </div>
-
-                  <div className="space-y-6">
-                    {currentPhaseEvents.length > 0 ? (
-                      currentPhaseEvents.map((entry, idx) => (
-                        <div key={idx} className="relative pl-8">
-                          {idx !== currentPhaseEvents.length - 1 && (
-                            <div className="absolute left-[0.25rem] top-6 w-px h-full bg-slate-100" />
-                          )}
-                          <div className="absolute left-0 top-1 h-2 w-2 rounded-full bg-blue-500 ring-4 ring-blue-50" />
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(entry.timestamp).toLocaleDateString()}</span>
-                              {entry.deliverableUrl && (
-                                <a href={entry.deliverableUrl} target="_blank" rel="noreferrer" className="text-[10px] font-black text-blue-600 hover:underline">ACCESS FILE</a>
-                              )}
-                            </div>
-                            <p className="text-sm font-bold text-slate-900 leading-tight">{entry.message}</p>
-                            {entry.notes && (
-                              <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-xl italic">"{entry.notes}"</p>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-12">
-                         <Clock className="h-10 w-10 text-slate-200 mx-auto mb-4" />
-                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose text-center">No results<br/>logged yet</p>
-                         <p className="text-[10px] text-slate-400 mt-4 max-w-[200px] mx-auto opacity-60 italic">Deliverables will be accessible here once uploaded by the admin team.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                /* Phase Deliverables Output */
+                <ClientPhaseOutputContent
+                  phaseId={activeSubPhase}
+                  phaseEvents={currentPhaseEvents}
+                  isCurrentPhase={activeSubPhase === currentPhase}
+                  phaseIndex={PHASES.findIndex(p => p.id === activeSubPhase)}
+                  currentIndex={PHASES.findIndex(p => p.id === currentPhase)}
+                />
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Key Stats/Impact Card */}
+        {/* Right Column: Phase Impact Card */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] shadow-xl p-8 text-white relative overflow-hidden group">
-            <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
-               <Activity className="h-40 w-40" />
-            </div>
-            <div className="relative z-10">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-70">Project Impact</h4>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.weight}%</span>
-                <span className="text-sm font-bold opacity-70">Progress Weight</span>
-              </div>
-              <p className="text-xs mt-6 leading-relaxed opacity-80">Completion of this phase significantly advances the mission trajectory.</p>
-
-              <div className="mt-8 pt-6 border-t border-white/20">
-                <div className="flex justify-between items-center mb-2">
-                   <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">Phase Readiness</span>
-                   <span className="text-xs font-black">
-                     {PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? '100%' :
-                      PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '65%' : '0%'}
-                   </span>
-                </div>
-                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: PHASES.findIndex(p => p.id === activeSubPhase) < PHASES.findIndex(p => p.id === currentPhase) ? '100%' :
-                              PHASES.findIndex(p => p.id === activeSubPhase) === PHASES.findIndex(p => p.id === currentPhase) ? '65%' : '0%' }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    className="h-full bg-white"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <ClientPhaseImpactCard
+            phase={PHASES.find(p => p.id === activeSubPhase)}
+            activeSubPhaseIndex={PHASES.findIndex(p => p.id === activeSubPhase)}
+            currentPhaseIndex={PHASES.findIndex(p => p.id === currentPhase)}
+            totalPhases={PHASES.length}
+            completedWeight={PHASES.slice(0, PHASES.findIndex(p => p.id === currentPhase)).reduce((sum, p) => sum + p.weight, 0)}
+          />
         </div>
       </div>
     </motion.div>

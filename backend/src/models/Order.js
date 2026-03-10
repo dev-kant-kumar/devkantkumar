@@ -206,7 +206,10 @@ const orderSchema = new mongoose.Schema({
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
-    }
+    },
+    notes: String,
+    deliverableUrl: String,
+    externalLink: String
   }],
   metadata: {
     source: {
