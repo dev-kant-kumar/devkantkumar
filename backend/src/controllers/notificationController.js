@@ -63,6 +63,10 @@ exports.markAsRead = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
 
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ success: false, message: 'Invalid notification ID' });
+    }
+
     const notification = await Notification.findOneAndUpdate(
       { _id: id, recipient: userId },
       { read: true, readAt: new Date() },
@@ -118,6 +122,10 @@ exports.deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
+
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ success: false, message: 'Invalid notification ID' });
+    }
 
     const notification = await Notification.findOneAndDelete({
       _id: id,

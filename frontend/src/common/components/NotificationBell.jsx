@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, CreditCard, ExternalLink, FileText, Info, MessageSquare, Package, Ticket, UserPlus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
     useGetNotificationsQuery,
@@ -9,7 +9,7 @@ import {
     useMarkAllAsReadMutation,
     useMarkAsReadMutation,
 } from '../../store/notification/notificationApi';
-import { selectUnreadCount } from '../../store/notification/notificationSlice';
+import { resetUnreadCount, selectUnreadCount } from '../../store/notification/notificationSlice';
 
 /**
  * Notification Bell component with dropdown
@@ -18,6 +18,7 @@ import { selectUnreadCount } from '../../store/notification/notificationSlice';
 const NotificationBell = ({ isAdmin = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const dispatch = useDispatch();
 
   // Get unread count from Redux (for real-time updates)
   const realtimeUnreadCount = useSelector(selectUnreadCount);
@@ -34,8 +35,8 @@ const NotificationBell = ({ isAdmin = false }) => {
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllAsRead] = useMarkAllAsReadMutation();
 
-  // Use realtime count if available, otherwise API count
-  const unreadCount = realtimeUnreadCount || unreadData?.count || 0;
+  // RTK Query count is the source of truth; realtime count only supplements it
+  const unreadCount = unreadData?.count ?? realtimeUnreadCount ?? 0;
   const notifications = notificationsData?.notifications || [];
 
   // Close dropdown when clicking outside
@@ -99,6 +100,7 @@ const NotificationBell = ({ isAdmin = false }) => {
 
   const handleMarkAllAsRead = async () => {
     await markAllAsRead();
+    dispatch(resetUnreadCount());
   };
 
   const notificationsLink = isAdmin
