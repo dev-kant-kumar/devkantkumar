@@ -66,7 +66,6 @@ const Checkout = () => {
   });
 
   // Determine which cart items to use
-  // Determine which cart items to use
   const cartItems = isAuthenticated ? (cartData?.cart?.items || []) : localCartItems;
 
   // We ignore selectCartTotal as it is in base currency. We recalculate.
@@ -77,8 +76,9 @@ const Checkout = () => {
       if (!displayItem) return 0;
 
       let basePrice = 0;
+      const itemType = item.itemType || item.type;
 
-      if (item.type === 'service') {
+      if (itemType === 'service') {
            if (item.package && displayItem.packages) {
                 const pkg = displayItem.packages.find(p => p.name === item.package);
                 if (pkg) basePrice = pkg.price;
@@ -670,11 +670,11 @@ const Checkout = () => {
                     <div className="flex-1 min-w-0 py-1">
                       <div className="flex flex-col gap-1">
                         <span className={`w-fit px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          item.itemType === 'service'
+                          (item.itemType || item.type) === 'service'
                             ? 'bg-purple-50 text-purple-600 border border-purple-100'
                             : 'bg-blue-50 text-blue-600 border border-blue-100'
                         }`}>
-                          {item.itemType === 'service' ? 'Service' : 'Product'}
+                          {(item.itemType || item.type) === 'service' ? 'Service' : 'Product'}
                         </span>
                         <h4 className="font-semibold text-gray-800 line-clamp-1 group-hover:text-blue-600 transition-colors">
                           {item.title}

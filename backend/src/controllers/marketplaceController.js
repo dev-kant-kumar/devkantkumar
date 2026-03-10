@@ -1,21 +1,27 @@
 const axios = require("axios");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const Razorpay = require("razorpay");
 const Coupon = require("../models/Coupon");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Service = require("../models/Service");
-// Assuming SystemSetting is already required later in the file, or we adjust the path if setting.js was meant to be used
-// I'll use the require that matched previous usages.
+const SystemSetting = require("../models/SystemSetting");
 const User = require("../models/User");
 const cloudinary = require("../services/cloudinaryService");
 const downloadService = require("../services/downloadService");
+const emailService = require("../services/emailService");
 const logger = require("../utils/logger");
 
-// Initialize Razorpay
+// Initialize Razorpay — crash early if credentials are missing
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error(
+    "FATAL: Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET env vars."
+  );
+}
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "secret_placeholder",
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 // Get all services
@@ -162,10 +168,11 @@ const search = async (req, res) => {
     const { q, type } = req.query;
     const searchQuery = {
       $or: [
-        { name: { $regex: q, $options: "i" } },
+        { title: { $regex: q, $options: "i" } },
         { description: { $regex: q, $options: "i" } },
+        { tags: { $regex: q, $options: "i" } },
       ],
-      status: "active",
+      isActive: true,
     };
 
     let results = {};
@@ -267,12 +274,6 @@ const clearCart = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// Order management
-const SystemSetting = require("../models/SystemSetting");
-const emailService = require("../services/emailService");
-
-// ... existing imports ...
 
 // Order management
 const createOrder = async (req, res) => {
@@ -377,6 +378,10 @@ const createOrder = async (req, res) => {
       });
     }
 
+    if (orderItems.length === 0) {
+      return res.status(400).json({ message: "No valid items in cart. Some products may no longer be available." });
+    }
+
     // Calculate base tax
     let tax = subtotal * (taxRate / 100);
     let discountAmount = 0;
@@ -465,25 +470,6 @@ const createOrder = async (req, res) => {
 
     await order.save();
 
-    // Mark coupon as used if applied
-    if (couponApplied) {
-      await Coupon.findByIdAndUpdate(couponApplied, {
-        $push: {
-          usedByUsers: {
-            userId: req.user.id,
-            orderId: order._id,
-            discountApplied: discountAmount,
-          },
-        },
-        $inc: { usedCount: 1 },
-      });
-    }
-
-    // Clear cart
-    user.cart.items = [];
-    user.cart.updatedAt = Date.now();
-    await user.save();
-
     res.status(201).json({
       success: true,
       order,
@@ -525,8 +511,7 @@ const getOrderById = async (req, res) => {
       .populate({
         path: "communication.messages.sender",
         select: "firstName lastName email avatar role",
-      })
-      .sort("-createdAt");
+      });
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -650,6 +635,10 @@ const createRazorpayOrder = async (req, res) => {
       });
     }
 
+    if (orderItems.length === 0) {
+      return res.status(400).json({ message: "No valid items in cart. Some products may no longer be available." });
+    }
+
     const tax = subtotal * (taxRate / 100);
     const totalAmount = subtotal + tax; // Total in standard units (e.g. 50.00)
 
@@ -737,7 +726,7 @@ const verifyRazorpayPayment = async (req, res) => {
 
     if (expectedSignature === razorpay_signature) {
       // Payment Verified - Fetch the order
-      const order = await Order.findById(orderId);
+      const order = await Order.findOne({ _id: orderId, user: req.user.id });
 
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
@@ -800,7 +789,22 @@ const verifyRazorpayPayment = async (req, res) => {
 
       await order.save();
 
-      // Also clear cart if not already cleared
+      // Mark coupon as used now that payment is confirmed
+      if (order.couponApplied) {
+        await Coupon.findByIdAndUpdate(order.couponApplied, {
+          $push: {
+            usedByUsers: {
+              userId: req.user.id,
+              orderId: order._id,
+              usedAt: new Date(),
+              discountApplied: order.payment?.amount?.discount,
+            },
+          },
+          $inc: { usedCount: 1 },
+        });
+      }
+
+      // Clear cart now that payment is confirmed
       await User.findByIdAndUpdate(req.user.id, {
         "cart.items": [],
         "cart.updatedAt": Date.now(),
@@ -1529,6 +1533,7 @@ const createReview = async (req, res) => {
     const hasPurchased = await Order.findOne({
       user: userId,
       "items.itemId": productId,
+      "items.itemType": "product",
       "payment.status": "completed", // Ensure payment is completed
     });
 
@@ -1802,10 +1807,11 @@ const submitRequirements = async (req, res) => {
       });
     }
 
-    const order = await Order.findOne({
-      $or: [{ _id: id }, { orderNumber: id }],
-      user: req.user._id
-    });
+    const isObjectId = mongoose.Types.ObjectId.isValid(id);
+    const orderQuery = isObjectId
+      ? { $or: [{ _id: id }, { orderNumber: id }], user: req.user._id }
+      : { orderNumber: id, user: req.user._id };
+    const order = await Order.findOne(orderQuery);
 
     if (!order) {
       return res.status(404).json({
