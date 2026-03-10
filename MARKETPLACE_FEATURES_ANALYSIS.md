@@ -1,7 +1,154 @@
 # Marketplace Features Analysis - Missing Components & Functions
 
-**Date:** March 4, 2026
-**Status:** 85% Complete (per marketplace_readiness_audit.md)
+**Date:** March 10, 2026
+**Status:** 92% Complete — Ready for launch with a few remaining enhancements
+
+> **Note:** This is a **digital-only marketplace** (digital products + development services).
+> Stock/inventory management is **not required** — all deliverables are digital downloads or service engagements.
+
+---
+
+## 📊 Executive Summary
+
+The marketplace has a solid, near-production-ready foundation. All critical e-commerce features are implemented. The remaining gaps are primarily UX enhancements and marketing tools.
+
+---
+
+## ✅ CURRENTLY IMPLEMENTED FEATURES
+
+### Backend Controllers & Routes
+- ✅ **Products**: List, filter, search, get by ID, categories
+- ✅ **Services**: List, filter, search, get by ID
+- ✅ **Orders**: Create, retrieve, timeline tracking, status updates
+- ✅ **Cart**: Add/remove items, update quantities (via User model)
+- ✅ **Payment**: Razorpay integration, payment verification, webhook handling
+- ✅ **Downloads**: Secure download links with expiry, rate limiting
+- ✅ **Reviews**: Create, update, delete reviews with ratings
+- ✅ **Authentication**: User registration, login, email verification
+- ✅ **User Management**: Profile, addresses, preferences, favorites
+- ✅ **Notifications**: Order confirmations, email notifications
+- ✅ **Coupons**: Full coupon system (model, controller, routes, admin UI)
+- ✅ **Referrals**: Referral programme tracking
+- ✅ **Support Tickets**: Customer support ticket system
+- ✅ **Quote Requests**: Custom solution quote handling
+- ✅ **Admin Panel**: Product/service management, order tracking, coupon management
+
+### Frontend Pages
+- ✅ Home page
+- ✅ Product/Service listings with filtering & search (+ heart/wishlist buttons)
+- ✅ Product/Service detail pages (+ heart/wishlist button)
+- ✅ Shopping cart
+- ✅ Checkout flow with coupon input
+- ✅ User dashboard with order history
+- ✅ **Wishlist page** (`/marketplace/dashboard/wishlist`) ← newly added
+- ✅ Invoice page (print / browser PDF download)
+- ✅ Support/Contact forms
+- ✅ Legal pages (Terms, Privacy, Refund Policy, License)
+- ✅ FAQ page
+- ✅ Tutorials page
+- ✅ Knowledge Base
+- ✅ Community forum
+- ✅ Referral programme dashboard
+- ✅ Support tickets (client)
+
+### Data Models
+- ✅ User (with cart, addresses, preferences, favorites)
+- ✅ Product (with pricing, discounts, digital download files)
+- ✅ Service (with packages, pricing tiers)
+- ✅ Order (with items, payment, fulfillment, timeline)
+- ✅ Review (ratings, comments)
+- ✅ DownloadLog
+- ✅ Coupon
+- ✅ Referral
+- ✅ SupportTicket
+- ✅ QuoteRequest
+- ✅ OrderPhase / OrderRevision (service delivery workflow)
+
+---
+
+## ⚠️ REMAINING GAPS (Medium Priority)
+
+### 1. **Social Login (OAuth)**
+**Status:** ❌ Not implemented
+- Missing: Google OAuth / GitHub OAuth integration
+- **Priority:** 🟡 Medium — reduces signup friction but not a launch blocker
+
+---
+
+### 2. **Email Marketing / Newsletter Campaigns**
+**Status:** ⚠️ Partial — subscriber model & signup exist, campaign sending does not
+- Missing: Campaign creation interface
+- Missing: Scheduled/bulk email sending
+- **Priority:** 🟡 Medium — important for customer retention
+
+---
+
+### 3. **Abandoned Cart Recovery Emails**
+**Status:** ❌ Not implemented
+- Missing: Detect carts idle for 24 h+
+- Missing: Automated recovery email
+- **Priority:** 🟡 Medium — could recover 10-20% lost sales
+
+---
+
+### 4. **Advanced Analytics**
+**Status:** ⚠️ Basic analytics exist, product-level metrics missing
+- Missing: Best-selling products, revenue trends, conversion rates
+- **Priority:** 🟡 Medium — business intelligence
+
+---
+
+### 5. **Product Recommendations**
+**Status:** ❌ Not implemented
+- Missing: Related products / "You may also like" sections
+- **Priority:** 🟢 Low — boosts average order value
+
+---
+
+## ❌ EXPLICITLY OUT OF SCOPE
+
+- **Stock / Inventory Management** — Not needed (digital-only marketplace)
+
+---
+
+## 📋 UPDATED PRIORITY ROADMAP
+
+### Phase 1: ✅ Complete (done)
+1. ✅ Core shopping flow (browse → cart → checkout → payment)
+2. ✅ Digital download delivery
+3. ✅ Coupon / discount code system
+4. ✅ Wishlist / Favourites feature
+5. ✅ Admin management tools
+6. ✅ SEO (sitemap.xml, robots.txt, Open Graph, Schema.org)
+
+### Phase 2: Next Sprint
+1. Social login (Google OAuth)
+2. Abandoned cart recovery emails
+3. Email campaign sending
+
+### Phase 3: Growth
+1. Product recommendations
+2. Advanced analytics dashboard
+3. Affiliate / partner programme
+
+---
+
+## 📞 SUMMARY TABLE
+
+| Feature | Priority | Status | Effort | Impact |
+|---------|----------|--------|--------|--------|
+| Coupon / Discount Codes | ✅ Done | Complete | — | Revenue +5-10% |
+| Wishlist / Favourites | ✅ Done | Complete | — | Engagement +20% |
+| Social Login | 🟡 Medium | Missing | 6 h | Frictionless signup |
+| Abandoned Cart Emails | 🟡 Medium | Missing | 4 h | Revenue +10% |
+| Email Marketing | 🟡 Medium | Partial | 8 h | Retention +30% |
+| Advanced Analytics | 🟡 Medium | Partial | 8 h | Business insights |
+| Product Recommendations | 🟢 Low | Missing | 8 h | AOV +15% |
+
+---
+
+*Document last updated: March 10, 2026*
+
 
 ---
 

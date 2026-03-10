@@ -1,18 +1,33 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, Download, Loader2, Printer, RefreshCw } from 'lucide-react';
-import { useRef } from 'react';
+import { AlertCircle, ArrowLeft, Download, Loader2, Mail, Printer, RefreshCw, Send } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useGetOrderByIdQuery } from '../../store/orders/ordersApi';
+import { selectCurrentUser } from '../../store/auth/authSlice';
+import {
+  useLazyDownloadInvoicePDFQuery,
+  useSendInvoiceEmailMutation,
+  useGetOrderByIdQuery,
+} from '../../store/orders/ordersApi';
 
 const Invoice = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const invoiceRef = useRef(null);
+  const user = useSelector(selectCurrentUser);
 
   // Fetch real order data
   const { data: order, isLoading, isError, error, refetch } = useGetOrderByIdQuery(orderId, {
     skip: !orderId,
   });
+
+  // Server PDF download
+  const [triggerDownloadPDF, { isFetching: isDownloadingPDF }] = useLazyDownloadInvoicePDFQuery();
+
+  // Email invoice
+  const [sendInvoiceEmail, { isLoading: isSendingEmail }] = useSendInvoiceEmailMutation();
+  const [emailSent, setEmailSent] = useState(false);
 
   // Format date
   const formatDate = (dateString) => {
@@ -44,9 +59,28 @@ const Invoice = () => {
     window.location.reload(); // Reload to restore React state
   };
 
-  // Handle PDF download using print dialog with PDF option
-  const handleDownloadPDF = () => {
-    // Create a new window with only the invoice content
+  // Handle server-side PDF download (Puppeteer-generated)
+  const handleDownloadPDF = async () => {
+    try {
+      const blob = await triggerDownloadPDF(orderId).unwrap();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoice-${order?.orderNumber || orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      // Log for debugging, then fall back to the print dialog
+      console.error('Server PDF generation failed:', err);
+      toast.error('Server PDF unavailable — opening print dialog as fallback');
+      handlePrintToPDF();
+    }
+  };
+
+  // Fallback: open a new window and trigger print → save as PDF
+  const handlePrintToPDF = () => {
     const printWindow = window.open('', '_blank');
     const invoiceContent = invoiceRef.current.innerHTML;
 
@@ -56,156 +90,39 @@ const Invoice = () => {
         <head>
           <title>Invoice - ${order?.orderNumber || orderId}</title>
           <style>
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
               background: white;
               color: #111827;
               padding: 40px;
             }
-            .invoice-container {
-              max-width: 800px;
-              margin: 0 auto;
-              background: white;
-            }
-            .invoice-header {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              border-bottom: 1px solid #e5e7eb;
-              padding-bottom: 24px;
-              margin-bottom: 24px;
-            }
-            .invoice-title {
-              font-size: 24px;
-              font-weight: bold;
-              color: #111827;
-            }
-            .invoice-number {
-              color: #6b7280;
-              margin-top: 4px;
-            }
-            .brand-name {
-              font-size: 20px;
-              font-weight: bold;
-              color: #059669;
-            }
-            .brand-subtitle {
-              font-size: 12px;
-              color: #6b7280;
-            }
-            .info-grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 32px;
-              margin-bottom: 24px;
-            }
-            .info-label {
-              font-size: 10px;
-              font-weight: bold;
-              color: #9ca3af;
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
-              margin-bottom: 8px;
-            }
-            .client-name {
-              font-weight: bold;
-              color: #111827;
-            }
-            .client-detail {
-              font-size: 14px;
-              color: #4b5563;
-            }
-            .text-right {
-              text-align: right;
-            }
-            .status-badge {
-              display: inline-block;
-              padding: 4px 12px;
-              background: #d1fae5;
-              color: #065f46;
-              font-size: 12px;
-              font-weight: bold;
-              border-radius: 9999px;
-              text-transform: uppercase;
-            }
-            .status-pending {
-              background: #fef3c7;
-              color: #92400e;
-            }
-            .items-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 24px;
-            }
-            .items-table th {
-              text-align: left;
-              padding: 12px 0;
-              font-size: 10px;
-              font-weight: bold;
-              color: #6b7280;
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
-              border-bottom: 1px solid #e5e7eb;
-            }
-            .items-table th:last-child,
-            .items-table td:last-child {
-              text-align: right;
-            }
-            .items-table th:nth-child(2),
-            .items-table td:nth-child(2) {
-              text-align: right;
-            }
-            .items-table td {
-              padding: 16px 0;
-              font-size: 14px;
-              border-bottom: 1px solid #f3f4f6;
-            }
-            .item-title {
-              font-weight: 500;
-              color: #111827;
-            }
-            .item-type {
-              font-size: 12px;
-              color: #6b7280;
-            }
-            .totals-section {
-              display: flex;
-              justify-content: flex-end;
-              border-top: 1px solid #e5e7eb;
-              padding-top: 24px;
-            }
-            .totals-box {
-              width: 250px;
-            }
-            .total-row {
-              display: flex;
-              justify-content: space-between;
-              font-size: 14px;
-              margin-bottom: 8px;
-            }
-            .total-row.final {
-              font-size: 18px;
-              font-weight: bold;
-              border-top: 1px solid #e5e7eb;
-              padding-top: 12px;
-              margin-top: 12px;
-            }
-            .total-row.final span:last-child {
-              color: #059669;
-            }
-            .footer {
-              margin-top: 32px;
-              padding-top: 24px;
-              border-top: 1px solid #e5e7eb;
-              text-align: center;
-              font-size: 12px;
-              color: #6b7280;
-            }
+            .invoice-container { max-width: 800px; margin: 0 auto; background: white; }
+            .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #e5e7eb; padding-bottom: 24px; margin-bottom: 24px; }
+            .invoice-title { font-size: 24px; font-weight: bold; color: #111827; }
+            .invoice-number { color: #6b7280; margin-top: 4px; }
+            .brand-name { font-size: 20px; font-weight: bold; color: #059669; }
+            .brand-subtitle { font-size: 12px; color: #6b7280; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 24px; }
+            .info-label { font-size: 10px; font-weight: bold; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+            .client-name { font-weight: bold; color: #111827; }
+            .client-detail { font-size: 14px; color: #4b5563; }
+            .text-right { text-align: right; }
+            .status-badge { display: inline-block; padding: 4px 12px; background: #d1fae5; color: #065f46; font-size: 12px; font-weight: bold; border-radius: 9999px; text-transform: uppercase; }
+            .status-pending { background: #fef3c7; color: #92400e; }
+            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+            .items-table th { text-align: left; padding: 12px 0; font-size: 10px; font-weight: bold; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb; }
+            .items-table th:last-child, .items-table td:last-child { text-align: right; }
+            .items-table th:nth-child(2), .items-table td:nth-child(2) { text-align: right; }
+            .items-table td { padding: 16px 0; font-size: 14px; border-bottom: 1px solid #f3f4f6; }
+            .item-title { font-weight: 500; color: #111827; }
+            .item-type { font-size: 12px; color: #6b7280; }
+            .totals-section { display: flex; justify-content: flex-end; border-top: 1px solid #e5e7eb; padding-top: 24px; }
+            .totals-box { width: 250px; }
+            .total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+            .total-row.final { font-size: 18px; font-weight: bold; border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 12px; }
+            .total-row.final span:last-child { color: #059669; }
+            .footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #6b7280; }
           </style>
         </head>
         <body>
@@ -220,6 +137,17 @@ const Invoice = () => {
       </html>
     `);
     printWindow.document.close();
+  };
+
+  // Send invoice by email
+  const handleEmailInvoice = async () => {
+    try {
+      await sendInvoiceEmail({ orderId }).unwrap();
+      toast.success(`Invoice sent to ${order?.billing?.email || user?.email || 'your email'}`);
+      setEmailSent(true);
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to send invoice email');
+    }
   };
 
   if (isLoading) {
@@ -280,6 +208,14 @@ const Invoice = () => {
   const paymentStatus = order.payment?.status === 'completed' ? 'Paid' : order.payment?.status || 'Pending';
   const isPaid = order.payment?.status === 'completed';
 
+  // Compute effective GST rate from stored amounts
+  const subtotal = order.payment?.amount?.subtotal || 0;
+  const taxAmount = order.payment?.amount?.tax || 0;
+  const taxRatePct = subtotal > 0 ? Math.round((taxAmount / subtotal) * 100) : 0;
+  const taxLabel = currency === 'INR'
+    ? `GST${taxRatePct > 0 ? ` (${taxRatePct}%)` : ''}`
+    : `Tax${taxRatePct > 0 ? ` (${taxRatePct}%)` : ''}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -287,25 +223,49 @@ const Invoice = () => {
       className="space-y-6"
     >
       {/* Back Button & Actions */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Orders
         </button>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
+          {/* Email Invoice */}
+          <button
+            onClick={handleEmailInvoice}
+            disabled={isSendingEmail || emailSent}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            title={emailSent ? 'Invoice already sent' : `Email invoice to ${order.billing?.email}`}
+          >
+            {isSendingEmail
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : emailSent
+                ? <Send className="h-4 w-4 text-green-600" />
+                : <Mail className="h-4 w-4" />
+            }
+            {isSendingEmail ? 'Sending…' : emailSent ? 'Sent!' : 'Email Invoice'}
+          </button>
+
+          {/* Print */}
           <button
             onClick={handlePrint}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm cursor-pointer"
           >
             <Printer className="h-4 w-4" /> Print
           </button>
+
+          {/* Download PDF (server-generated) */}
           <button
             onClick={handleDownloadPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm cursor-pointer"
+            disabled={isDownloadingPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 shadow-sm cursor-pointer disabled:opacity-60"
           >
-            <Download className="h-4 w-4" /> Download PDF
+            {isDownloadingPDF
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <Download className="h-4 w-4" />
+            }
+            {isDownloadingPDF ? 'Generating PDF…' : 'Download PDF'}
           </button>
         </div>
       </div>
@@ -321,9 +281,9 @@ const Invoice = () => {
             </div>
             <div className="text-right">
               <span className="brand-name text-xl font-bold text-green-600">
-                Market Place
+                Dev Kant Kumar
               </span>
-              <p className="brand-subtitle text-sm text-gray-500 mt-1">Digital Services & Products</p>
+              <p className="brand-subtitle text-sm text-gray-500 mt-1">Digital Services &amp; Products</p>
             </div>
           </div>
 
@@ -351,8 +311,7 @@ const Invoice = () => {
                 <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Sold By</h3>
                 <p className="client-name font-bold text-gray-900">Dev Kant Kumar</p>
                 <p className="client-detail text-sm text-gray-600">Mehta Residency, Near Gajraj Motors, Sindoor</p>
-                <p className="client-detail text-sm text-gray-600">Nearby Vinoba Bhave University, Hazaribagh</p>
-                <p className="client-detail text-sm text-gray-600">Jharkhand 825301</p>
+                <p className="client-detail text-sm text-gray-600">Hazaribagh, Jharkhand 825301, India</p>
                 <p className="client-detail text-sm text-gray-600 mt-1">
                   <a href="mailto:support@devkantkumar.com" className="hover:text-green-600 hover:underline">support@devkantkumar.com</a>
                 </p>
@@ -365,6 +324,14 @@ const Invoice = () => {
               <div className="mb-4">
                 <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Date Issued</h3>
                 <p className="font-medium text-gray-900">{formatDate(order.payment?.paidAt || order.createdAt)}</p>
+              </div>
+              <div className="mb-4">
+                <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Order Date</h3>
+                <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+              </div>
+              <div className="mb-4">
+                <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Payment Method</h3>
+                <p className="text-sm text-gray-600 capitalize">{order.payment?.method || 'Online'}</p>
               </div>
               <div>
                 <h3 className="info-label text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Payment Status</h3>
@@ -408,12 +375,14 @@ const Invoice = () => {
             <div className="totals-box w-64 space-y-3">
               <div className="total-row flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium text-gray-900">{formatCurrency(order.payment?.amount?.subtotal, currency)}</span>
+                <span className="font-medium text-gray-900">{formatCurrency(subtotal, currency)}</span>
               </div>
-              <div className="total-row flex justify-between text-sm">
-                <span className="text-gray-600">Tax</span>
-                <span className="font-medium text-gray-900">{formatCurrency(order.payment?.amount?.tax || 0, currency)}</span>
-              </div>
+              {taxAmount > 0 && (
+                <div className="total-row flex justify-between text-sm">
+                  <span className="text-gray-600">{taxLabel}</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(taxAmount, currency)}</span>
+                </div>
+              )}
               {order.payment?.amount?.discount > 0 && (
                 <div className="total-row flex justify-between text-sm">
                   <span className="text-gray-600">Discount</span>
@@ -424,6 +393,9 @@ const Invoice = () => {
                 <span className="text-gray-900">Total</span>
                 <span className="text-green-600">{formatCurrency(order.payment?.amount?.total, currency)}</span>
               </div>
+              {currency === 'INR' && taxAmount > 0 && (
+                <p className="text-xs text-gray-400 text-right">* Includes {taxLabel} of {formatCurrency(taxAmount, currency)}</p>
+              )}
             </div>
           </div>
         </div>
@@ -431,7 +403,11 @@ const Invoice = () => {
         {/* Footer */}
         <div className="footer bg-gray-50 p-8 border-t border-gray-200 text-center">
           <p className="text-sm text-gray-500">
-            Thank you for your business! If you have any questions, please contact support@devkantkumar.com
+            Thank you for your business! If you have any questions, please contact{' '}
+            <a href="mailto:support@devkantkumar.com" className="text-green-600 hover:underline">support@devkantkumar.com</a>
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            This is a computer-generated invoice and does not require a physical signature.
           </p>
         </div>
       </div>
@@ -440,3 +416,4 @@ const Invoice = () => {
 };
 
 export default Invoice;
+

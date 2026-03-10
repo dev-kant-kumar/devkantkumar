@@ -44,6 +44,7 @@ router.post('/orders', marketplaceController.createOrder);
 router.get('/orders', marketplaceController.getUserOrders);
 router.get('/orders/:id', marketplaceController.getOrderById);
 router.post('/orders/:id/revision', marketplaceController.requestRevision);
+router.post('/orders/:id/approve-delivery', marketplaceController.approveDelivery);
 router.post('/orders/:id/requirements', marketplaceController.submitRequirements);
 
 // Order Communication routes
@@ -57,6 +58,10 @@ router.post('/payment/verify', marketplaceController.verifyRazorpayPayment);
 // Download routes
 router.get('/orders/:orderId/items/:itemId/download', marketplaceController.downloadPurchasedItem);
 router.post('/orders/:orderId/regenerate/:itemId', marketplaceController.regenerateDownloadLinks);
+
+// Invoice routes
+router.get('/orders/:orderId/invoice', marketplaceController.downloadInvoice);
+router.post('/orders/:orderId/invoice/send', marketplaceController.sendInvoiceByEmail);
 
 // Review routes
 

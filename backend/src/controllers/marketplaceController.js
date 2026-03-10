@@ -12,6 +12,7 @@ const cloudinary = require("../services/cloudinaryService");
 const downloadService = require("../services/downloadService");
 const emailService = require("../services/emailService");
 const logger = require("../utils/logger");
+const { createNotification } = require("../services/notificationService");
 const referralController = require("./referralController");
 
 // Initialize Razorpay — crash early if credentials are missing
@@ -1504,7 +1505,6 @@ const requestRevision = async (req, res) => {
 
     // Send notification
     try {
-      const { createNotification } = require("../services/notificationService");
       await createNotification({
         user: null, // Admin or appropriate logic
         title: `Revision Requested: ${order.orderNumber}`,
@@ -1528,8 +1528,66 @@ const requestRevision = async (req, res) => {
   }
 };
 
-// Reviews
-const createReview = async (req, res) => {
+// Approve delivery and mark order as completed (client action)
+const approveDelivery = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // Verify ownership
+    const userId = req.user._id || req.user.id;
+    if (order.user.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Not authorized" });
+    }
+
+    if (order.status !== "delivered") {
+      return res.status(400).json({
+        success: false,
+        message: "Order must be in delivered status to approve delivery",
+      });
+    }
+
+    order.status = "completed";
+    order.actualDelivery = order.actualDelivery || new Date();
+
+    order.timeline.push({
+      status: "completed",
+      message: "Client approved delivery and marked project as complete.",
+      timestamp: new Date(),
+      updatedBy: userId,
+    });
+
+    await order.save();
+
+    // Notify admin
+    try {
+      await createNotification({
+        user: null,
+        title: `Delivery Approved: ${order.orderNumber}`,
+        message: "Client has approved the delivery and marked the project as complete.",
+        type: "order",
+        relatedId: order._id,
+        priority: "normal",
+      });
+    } catch (notifError) {
+      logger.warn("Failed to send delivery approval notification:", notifError);
+    }
+
+    res.json({
+      success: true,
+      data: order,
+      message: "Delivery approved. Project marked as complete.",
+    });
+  } catch (error) {
+    logger.error("Approve delivery error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+
   try {
     const { rating, comment } = req.body;
     const productId = req.params.id;
@@ -1885,7 +1943,6 @@ const submitRequirements = async (req, res) => {
 
     // Send notification to admin
     try {
-      const { createNotification } = require("../services/notificationService");
       await createNotification({
         user: null,
         title: isResubmission ? `Requirements Resubmitted: ${order.orderNumber}` : `New Requirements: ${order.orderNumber}`,
@@ -1914,6 +1971,73 @@ const submitRequirements = async (req, res) => {
 };
 
 
+const invoiceService = require('../services/invoiceService');
+
+// --- INVOICE GENERATION ---
+
+/**
+ * Download Invoice as PDF
+ * GET /marketplace/orders/:orderId/invoice
+ */
+const downloadInvoice = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    // Verify the order belongs to this user
+    const order = await Order.findOne({ _id: orderId, user: req.user.id });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const { buffer } = await invoiceService.generateInvoicePDF(orderId);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="invoice-${order.orderNumber}.pdf"`,
+    );
+    res.setHeader('Content-Length', buffer.length);
+    res.end(buffer);
+  } catch (error) {
+    logger.error('Download invoice error:', error);
+    res.status(500).json({ message: 'Failed to generate invoice PDF' });
+  }
+};
+
+/**
+ * Send Invoice by Email
+ * POST /marketplace/orders/:orderId/invoice/send
+ * Body: { email? }  — defaults to the billing email on the order
+ */
+const sendInvoiceByEmail = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const order = await Order.findOne({ _id: orderId, user: req.user.id });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    const recipientEmail = req.body.email || order.billing?.email;
+    if (!recipientEmail) {
+      return res.status(400).json({ message: 'No email address available for this order' });
+    }
+
+    await emailService.sendInvoiceEmail(
+      recipientEmail,
+      order,
+      order.billing?.firstName || 'Customer',
+    );
+
+    res.json({
+      success: true,
+      message: `Invoice emailed to ${recipientEmail}`,
+    });
+  } catch (error) {
+    logger.error('Send invoice email error:', error);
+    res.status(500).json({ message: 'Failed to send invoice email' });
+  }
+};
+
+
 module.exports = {
   getProducts,
   getProductById,
@@ -1936,10 +2060,13 @@ module.exports = {
   addOrderMessage,
   getOrderMessages,
   requestRevision,
+  approveDelivery,
   createReview,
   updateReview,
   deleteReview,
   getReviews,
   handleRazorpayWebhook,
   submitRequirements,
+  downloadInvoice,
+  sendInvoiceByEmail,
 };

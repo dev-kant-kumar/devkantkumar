@@ -68,6 +68,7 @@ const emailConfig = {
       'order-confirmation-email': this.senders.orders,
       'payment-receipt': this.senders.billing,
       'refund-notification': this.senders.billing,
+      'invoice-email': this.senders.billing,
 
       // Contact & Support
       'contact-admin-notification': this.senders.hello,

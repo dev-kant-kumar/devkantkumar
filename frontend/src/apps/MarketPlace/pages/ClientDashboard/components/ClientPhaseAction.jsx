@@ -53,6 +53,15 @@ const ClientPhaseAction = ({ order, setActiveTab }) => {
           showButton: false
         };
 
+      case 'planning_scoping':
+        return {
+          title: "Planning & Scoping Phase",
+          description: "We are mapping out your project in detail — milestones, timelines, and technical architecture. You'll receive a scope document for your approval before development begins.",
+          icon: Clock,
+          color: "purple",
+          showButton: false
+        };
+
       case 'design':
       case 'development':
       case 'testing_qa':

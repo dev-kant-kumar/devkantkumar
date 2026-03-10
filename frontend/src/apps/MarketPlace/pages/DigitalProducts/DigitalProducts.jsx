@@ -24,6 +24,7 @@ import { useAddToCartMutation } from "../../../../store/cart/cartApi";
 import FAQ from "../../common/components/FAQ";
 import Testimonials from "../../common/components/Testimonials";
 import WhyChooseUs from "../../common/components/WhyChooseUs";
+import WishlistButton from "../../common/components/WishlistButton";
 import EmptyState from "../../common/components/ui/EmptyState";
 import { useCurrency } from "../../context/CurrencyContext";
 import {
@@ -551,16 +552,21 @@ const DigitalProducts = ({ category: propCategory }) => {
                               )}
                           </div>
 
-                          <div className="grid grid-cols-5 gap-3">
+                          <div className="flex items-stretch gap-2">
                             <Link
                               to={`/marketplace/products/${product._id || product.slug}`}
-                              className="col-span-4 bg-blue-600 text-white py-3 rounded-xl font-bold text-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+                              className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center justify-center"
                             >
                               View Details
                             </Link>
+                            <WishlistButton
+                              itemId={product._id}
+                              type="product"
+                              className="w-11 h-11 rounded-xl flex-shrink-0"
+                            />
                             <button
                               onClick={() => handleAddToCart(product)}
-                              className="col-span-1 flex items-center justify-center border-2 border-gray-100 rounded-xl text-gray-400 hover:border-blue-600 hover:text-blue-600 transition-all"
+                              className="w-11 h-11 flex items-center justify-center border-2 border-gray-100 rounded-xl text-gray-400 hover:border-blue-600 hover:text-blue-600 transition-all flex-shrink-0"
                             >
                               <ShoppingCart className="h-5 w-5" />
                             </button>

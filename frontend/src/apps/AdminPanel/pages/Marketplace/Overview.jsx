@@ -2,8 +2,10 @@ import {
     Activity,
     Clock,
     DollarSign,
+    Minus,
     Package,
     ShoppingBag,
+    TrendingDown,
     TrendingUp
 } from 'lucide-react';
 import {
@@ -40,6 +42,22 @@ const Overview = () => {
     }).format(amount);
   };
 
+  // Format trend value: null → "N/A", number → "+X.X%" / "-X.X%"
+  const formatTrend = (value) => {
+    if (value === null || value === undefined) return 'N/A';
+    const num = Number(value);
+    if (!isFinite(num)) return 'N/A';
+    return `${num >= 0 ? '+' : ''}${num.toFixed(1)}%`;
+  };
+
+  // Returns true for positive, false for negative, null for neutral/N/A
+  const trendDir = (value) => {
+    if (value === null || value === undefined) return null;
+    const num = Number(value);
+    if (!isFinite(num) || num === 0) return null;
+    return num > 0;
+  };
+
   const statCards = [
     {
       title: 'Total Revenue',
@@ -48,8 +66,8 @@ const Overview = () => {
       color: 'from-green-500 to-emerald-600',
       bgGlow: 'bg-green-500/10',
       text: 'text-green-600 dark:text-green-400',
-      trend: `${stats.trends?.revenue || '0.0'}%`,
-      trendUp: parseFloat(stats.trends?.revenue || 0) >= 0,
+      trend: formatTrend(stats.trends?.revenue),
+      trendDir: trendDir(stats.trends?.revenue),
       description: 'Total earnings'
     },
     {
@@ -59,8 +77,8 @@ const Overview = () => {
       color: 'from-blue-500 to-indigo-600',
       bgGlow: 'bg-blue-500/10',
       text: 'text-blue-600 dark:text-blue-400',
-      trend: `${stats.trends?.orders || '0.0'}%`,
-      trendUp: parseFloat(stats.trends?.orders || 0) >= 0,
+      trend: formatTrend(stats.trends?.orders),
+      trendDir: trendDir(stats.trends?.orders),
       description: 'All time orders'
     },
     {
@@ -70,8 +88,8 @@ const Overview = () => {
       color: 'from-purple-500 to-violet-600',
       bgGlow: 'bg-purple-500/10',
       text: 'text-purple-600 dark:text-purple-400',
-      trend: '0.0%',
-      trendUp: true,
+      trend: 'N/A',
+      trendDir: null,
       description: 'Digital assets available'
     },
     {
@@ -81,8 +99,8 @@ const Overview = () => {
       color: 'from-orange-500 to-red-600',
       bgGlow: 'bg-orange-500/10',
       text: 'text-orange-600 dark:text-orange-400',
-      trend: '0.0%',
-      trendUp: true,
+      trend: 'N/A',
+      trendDir: null,
       description: 'Freelance services live'
     }
   ];
@@ -143,8 +161,20 @@ const Overview = () => {
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-2 text-sm relative z-10">
-                <span className={`flex items-center gap-1 font-medium ${stat.text} bg-white/50 dark:bg-gray-800/50 px-2 py-0.5 rounded-full`}>
-                   <TrendingUp size={14} />
+                <span className={`flex items-center gap-1 font-medium px-2 py-0.5 rounded-full ${
+                  stat.trendDir === true
+                    ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30'
+                    : stat.trendDir === false
+                    ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30'
+                    : 'text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50'
+                }`}>
+                   {stat.trendDir === true ? (
+                     <TrendingUp size={14} />
+                   ) : stat.trendDir === false ? (
+                     <TrendingDown size={14} />
+                   ) : (
+                     <Minus size={14} />
+                   )}
                    {stat.trend}
                 </span>
                 <span className="text-gray-400 dark:text-gray-500 text-xs">{stat.description}</span>
@@ -196,7 +226,7 @@ const Overview = () => {
                                 dataKey="revenue"
                                 stroke="#8884d8"
                                 strokeWidth={3}
-                                insertOpacity={1}
+                                fillOpacity={1}
                                 fill="url(#colorRevenue)"
                             />
                         </AreaChart>
