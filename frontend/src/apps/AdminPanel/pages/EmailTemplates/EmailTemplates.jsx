@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 // Data / API
 import {
-    useGetEmailTemplatesQuery,
+    useGetAdminEmailTemplatesQuery,
     usePreviewEmailTemplateMutation
 } from '../../store/api/adminApiSlice';
 
@@ -15,7 +15,7 @@ const EmailTemplates = () => {
   const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'mobile'
 
   // --- API ---
-  const { data: templatesData, isLoading: isListLoading, refetch: refetchList } = useGetEmailTemplatesQuery();
+  const { data: templatesData, isLoading: isListLoading, refetch: refetchList } = useGetAdminEmailTemplatesQuery();
   const [previewTemplate, { data: previewData, isLoading: isPreviewLoading, error: previewError }] = usePreviewEmailTemplateMutation();
 
   const templates = templatesData?.data || [];

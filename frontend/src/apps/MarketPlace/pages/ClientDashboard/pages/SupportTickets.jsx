@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Mail, MessageSquare, Send } from 'lucide-react';
 import { useState } from 'react';
+import MarketplaceDropdown from '../../../common/components/ui/MarketplaceDropdown.jsx';
 
 const SupportTickets = () => {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -113,12 +114,12 @@ const SupportTickets = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <PremiumDropdown
+              <MarketplaceDropdown
                 value={formData.category}
                 onChange={(val) => setFormData(prev => ({ ...prev, category: val }))}
                 options={categoryOptions}
-                variant="marketplace"
-                buttonClassName="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50 transition-all flex items-center justify-between"
+                placeholder="Select Category"
+                className="w-full"
               />
             </div>
             <div>

@@ -40,10 +40,10 @@ const fmtDate = (d) =>
     : '—';
 
 const statusColor = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-blue-100 text-blue-800',
-  paid: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
+  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+  approved: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  paid: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+  rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
 };
 
 // ── ProcessPayoutModal ────────────────────────────────────────────────────────
@@ -77,47 +77,47 @@ const ProcessPayoutModal = ({ payout, onClose, onSuccess }) => {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md border dark:border-gray-800"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900">Process Payout</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Process Payout</h3>
           <button onClick={onClose}>
-            <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            <X className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-          <div className="bg-gray-50 rounded-lg p-3 text-sm">
-            <p className="text-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 text-sm">
+            <p className="text-gray-700 dark:text-gray-300">
               <span className="font-medium">Amount:</span> {fmt(payout.amount)}
             </p>
-            <p className="text-gray-700">
+            <p className="text-gray-700 dark:text-gray-300">
               <span className="font-medium">Method:</span>{' '}
               {payout.paymentMethod?.replace('_', ' ')}
             </p>
             {payout.paymentDetails?.upiId && (
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 <span className="font-medium">UPI ID:</span> {payout.paymentDetails.upiId}
               </p>
             )}
             {payout.paymentDetails?.accountNumber && (
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Account:</span>{' '}
                 {payout.paymentDetails.accountNumber} / {payout.paymentDetails.ifsc}
               </p>
             )}
             {payout.paymentDetails?.paypalEmail && (
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 <span className="font-medium">PayPal:</span> {payout.paymentDetails.paypalEmail}
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="paid">Paid</option>
               <option value="approved">Approved (Pending Transfer)</option>
@@ -127,7 +127,7 @@ const ProcessPayoutModal = ({ payout, onClose, onSuccess }) => {
 
           {status === 'paid' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Transaction ID
               </label>
               <input
@@ -135,19 +135,19 @@ const ProcessPayoutModal = ({ payout, onClose, onSuccess }) => {
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
                 placeholder="UTR / Transaction reference"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Admin Note</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admin Note</label>
             <textarea
               value={adminNote}
               onChange={(e) => setAdminNote(e.target.value)}
               rows={2}
               placeholder="Optional note for the user…"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none"
             />
           </div>
 
@@ -155,7 +155,7 @@ const ProcessPayoutModal = ({ payout, onClose, onSuccess }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Cancel
             </button>
@@ -243,8 +243,8 @@ const AdminReferrals = () => {
       >
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Referral Management</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Referral Management</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Monitor referrals, commissions, and process payout requests.
           </p>
         </div>
@@ -254,19 +254,19 @@ const AdminReferrals = () => {
           {overviewStats.map((s) => (
             <div
               key={s.label}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+              className="bg-white dark:bg-gray-900/40 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800/60 p-4"
             >
-              <div className={`inline-flex p-2 rounded-lg ${s.color} mb-2`}>
+              <div className={`inline-flex p-2 rounded-lg ${s.color} mb-2 bg-opacity-10 dark:bg-opacity-20`}>
                 <s.icon className="h-4 w-4" />
               </div>
-              <p className="text-xl font-bold text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{s.value}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-gray-800">
           <nav className="flex gap-6" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
@@ -274,8 +274,8 @@ const AdminReferrals = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -287,9 +287,9 @@ const AdminReferrals = () => {
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="font-bold text-gray-900">Top Referrers</h2>
+          <div className="bg-white dark:bg-gray-900/40 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800/60 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="font-bold text-gray-900 dark:text-white">Top Referrers</h2>
             </div>
             {referrals.length === 0 ? (
               <div className="p-12 text-center">
@@ -299,32 +299,32 @@ const AdminReferrals = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">User</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Code</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Referrals</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Conversions</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Total Earned</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Available</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Code</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Referrals</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Conversions</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Total Earned</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Available</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
                     {referrals.map((r) => (
-                      <tr key={r._id} className="hover:bg-gray-50">
+                      <tr key={r._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                         <td className="px-6 py-4">
                           <div>
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-gray-900 dark:text-gray-100">
                               {r.referrer?.firstName} {r.referrer?.lastName}
                             </p>
-                            <p className="text-xs text-gray-400">{r.referrer?.email}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">{r.referrer?.email}</p>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{r.code}</span>
+                          <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">{r.code}</span>
                         </td>
-                        <td className="px-6 py-4 text-gray-700">{r.totalReferrals}</td>
-                        <td className="px-6 py-4 text-gray-700">{r.totalConversions}</td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{r.totalReferrals}</td>
+                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{r.totalConversions}</td>
                         <td className="px-6 py-4 font-semibold text-green-600">{fmt(r.totalEarned)}</td>
                         <td className="px-6 py-4 font-semibold text-blue-600">{fmt(r.availableBalance)}</td>
                       </tr>
@@ -337,9 +337,9 @@ const AdminReferrals = () => {
         )}
 
         {activeTab === 'payouts' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="font-bold text-gray-900">Pending Payout Requests</h2>
+          <div className="bg-white dark:bg-gray-900/40 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800/60 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="font-bold text-gray-900 dark:text-white">Pending Payout Requests</h2>
             </div>
             {pendingPayouts.length === 0 ? (
               <div className="p-12 text-center">
@@ -349,30 +349,30 @@ const AdminReferrals = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Referrer</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Method</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Requested</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Action</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Referrer</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Method</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Requested</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
                     {pendingPayouts.map((p) => (
-                      <tr key={p._id} className="hover:bg-gray-50">
+                      <tr key={p._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                         <td className="px-6 py-4">
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
                             {p.referrer?.firstName} {p.referrer?.lastName}
                           </p>
-                          <p className="text-xs text-gray-400">{p.referrer?.email}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{p.referrer?.email}</p>
                         </td>
-                        <td className="px-6 py-4 font-semibold text-gray-900">{fmt(p.amount)}</td>
-                        <td className="px-6 py-4 capitalize text-gray-600">
+                        <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{fmt(p.amount)}</td>
+                        <td className="px-6 py-4 capitalize text-gray-600 dark:text-gray-400">
                           {p.paymentMethod?.replace('_', ' ')}
                         </td>
-                        <td className="px-6 py-4 text-gray-600">{fmtDate(p.requestedAt)}</td>
+                        <td className="px-6 py-4 text-gray-600 dark:text-gray-400">{fmtDate(p.requestedAt)}</td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
@@ -401,44 +401,44 @@ const AdminReferrals = () => {
         )}
 
         {activeTab === 'all' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="font-bold text-gray-900">All Referrers ({referrals.length})</h2>
+          <div className="bg-white dark:bg-gray-900/40 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800/60 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="font-bold text-gray-900 dark:text-white">All Referrers ({referrals.length})</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">User</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Code</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Referrals</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Conversions</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Earned</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Paid</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Available</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Joined</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Code</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Referrals</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Conversions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Earned</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Paid</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Available</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Joined</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
                   {referrals.map((r) => (
-                    <tr key={r._id} className="hover:bg-gray-50">
+                    <tr key={r._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
                             {r.referrer?.firstName} {r.referrer?.lastName}
                           </p>
-                          <p className="text-xs text-gray-400">{r.referrer?.email}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{r.referrer?.email}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{r.code}</span>
+                        <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">{r.code}</span>
                       </td>
-                      <td className="px-6 py-4">{r.totalReferrals}</td>
-                      <td className="px-6 py-4">{r.totalConversions}</td>
+                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{r.totalReferrals}</td>
+                      <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{r.totalConversions}</td>
                       <td className="px-6 py-4 text-green-600 font-semibold">{fmt(r.totalEarned)}</td>
                       <td className="px-6 py-4 text-blue-600 font-semibold">{fmt(r.totalPaid)}</td>
                       <td className="px-6 py-4 text-purple-600 font-semibold">{fmt(r.availableBalance)}</td>
-                      <td className="px-6 py-4 text-gray-500">{fmtDate(r.createdAt)}</td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">{fmtDate(r.createdAt)}</td>
                     </tr>
                   ))}
                 </tbody>

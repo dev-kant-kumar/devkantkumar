@@ -153,7 +153,7 @@ const CouponForm = ({ coupon, onSuccess }) => {
   };
 
   return (
-    <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm p-6 or p-8 relative z-0">
+    <div className="bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-800/20 shadow-sm p-6 or p-8 relative z-0">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
         {coupon ? 'Edit Coupon' : 'Create New Coupon'}
       </h2>

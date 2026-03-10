@@ -36,9 +36,9 @@ import { useGetServiceByIdQuery } from "../../../../MarketPlace/store/api/market
 import PremiumButton from "../../../common/components/PremiumButton";
 import {
   useApproveRequirementsMutation,
-  useCompletePhaseMutation,
+  useCompleteAdminPhaseMutation,
   useGetAdminOrderByIdQuery,
-  useGetCustomerByIdQuery,
+  useGetAdminCustomerByIdQuery,
   useRequestRequirementsChangesMutation,
 } from "../../../store/api/adminApiSlice";
 
@@ -1094,7 +1094,7 @@ const AdminPhaseActivity = ({ order, refetch }) => {
   const [requestChanges, { isLoading: isRequesting }] =
     useRequestRequirementsChangesMutation();
   const [completePhase, { isLoading: isCompleting }] =
-    useCompletePhaseMutation();
+    useCompleteAdminPhaseMutation();
   const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
 
   const currentPhaseConfig = PHASE_CHECKLISTS[activeSubPhase];
@@ -1751,11 +1751,9 @@ const AdminProjectWorkspace = () => {
     skip: !serviceIdToFetch,
   });
 
-  const { data: customerDataResponse } = useGetCustomerByIdQuery(
-    order?.user?._id,
-    {
-      skip: !order?.user?._id,
-    },
+  const { data: customerDataResponse } = useGetAdminCustomerByIdQuery(
+    order?.customerId,
+    { skip: !order?.customerId }
   );
   const customerData = customerDataResponse?.data || {};
 

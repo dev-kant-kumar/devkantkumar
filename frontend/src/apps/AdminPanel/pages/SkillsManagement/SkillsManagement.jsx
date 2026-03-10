@@ -1,25 +1,26 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Code2,
-  Cpu,
-  Database,
-  Globe,
-  Layout,
-  Loader,
-  Plus,
-  Save,
-  Settings2,
-  Terminal,
-  Trash2
+    Code2,
+    Cpu,
+    Database,
+    Globe,
+    Layout,
+    Loader,
+    Plus,
+    Save,
+    Settings2,
+    Terminal,
+    Trash2
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import PremiumButton from "../../common/components/PremiumButton";
+import PremiumConfirmModal from "../../common/components/PremiumConfirmModal";
 import {
-  useCreateSkillMutation,
-  useDeleteSkillMutation,
-  useGetAdminSkillsQuery,
-  useUpdateSkillMutation
+    useCreateSkillMutation,
+    useDeleteSkillMutation,
+    useGetAdminSkillsQuery,
+    useUpdateSkillMutation
 } from "../../store/api/adminApiSlice";
 
 const categoryIcons = {
@@ -47,6 +48,7 @@ const SkillsManagement = () => {
   });
 
   const [editingId, setEditingId] = useState(null);
+  const [skillToDelete, setSkillToDelete] = useState(null);
 
   // The backend might return grouped or flat data depending on implementation
   // Based on my refactored portfolioController, it returns grouped data with a 'details' array
@@ -64,14 +66,14 @@ const SkillsManagement = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Delete this skill?")) {
-      try {
-        await deleteSkill(id).unwrap();
-        toast.success("Skill deleted");
-      } catch (error) {
-        toast.error("Failed to delete skill");
-      }
+  const handleDelete = async () => {
+    if (!skillToDelete) return;
+    try {
+      await deleteSkill(skillToDelete).unwrap();
+      toast.success("Skill deleted");
+      setSkillToDelete(null);
+    } catch (error) {
+      toast.error("Failed to delete skill");
     }
   };
 
@@ -238,7 +240,7 @@ const SkillsManagement = () => {
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{skill.level}%</span>
                         <button
-                          onClick={() => handleDelete(skill._id)}
+                          onClick={() => setSkillToDelete(skill._id)}
                           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all rounded-md"
                         >
                           <Trash2 size={14} />
@@ -261,6 +263,15 @@ const SkillsManagement = () => {
           ))
         )}
       </div>
+
+      <PremiumConfirmModal
+        isOpen={!!skillToDelete}
+        onClose={() => setSkillToDelete(null)}
+        onConfirm={handleDelete}
+        title="Delete Skill?"
+        message="Are you sure you want to delete this mastery skill? This action cannot be undone."
+        confirmLabel="Delete Skill"
+      />
     </div>
   );
 };

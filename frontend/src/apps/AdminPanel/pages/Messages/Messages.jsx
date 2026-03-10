@@ -4,18 +4,18 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  useDeleteMessageMutation,
-  useGetContactMessagesQuery,
-  useMarkMessageAsReadMutation
+  useDeleteAdminMessageMutation,
+  useGetAdminContactMessagesQuery,
+  useMarkAdminMessageAsReadMutation
 } from "../../store/api/adminApiSlice";
 
 const Messages = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const { data, isLoading } = useGetContactMessagesQuery();
-  const [markRead] = useMarkMessageAsReadMutation();
-  const [deleteMsg] = useDeleteMessageMutation();
+  const { data, isLoading } = useGetAdminContactMessagesQuery();
+  const [markRead] = useMarkAdminMessageAsReadMutation();
+  const [deleteMsg] = useDeleteAdminMessageMutation();
 
   const [selectedMsg, setSelectedMsg] = useState(null);
   const [msgToDelete, setMsgToDelete] = useState(null);

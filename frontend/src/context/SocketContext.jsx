@@ -69,6 +69,15 @@ export const SocketProvider = ({ children }) => {
       // Show toast notification
       dispatch(showNotificationToast(notification));
 
+      // Play notification sound
+      try {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2861/2861-preview.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log('Sound play prevented by browser policy/missing asset:', e));
+      } catch (err) {
+        console.error('Error playing notification sound:', err);
+      }
+
       // Invalidate RTK Query cache to refetch
       dispatch(baseApiSlice.util.invalidateTags([
         { type: 'Notification', id: 'LIST' },

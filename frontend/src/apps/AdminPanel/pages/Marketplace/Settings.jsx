@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import PremiumButton from '../../common/components/PremiumButton';
 import {
-    useGetGeneralSettingsQuery,
+    useGetAdminGeneralSettingsQuery,
     useUpdateGeneralSettingsMutation
 } from '../../store/api/adminApiSlice';
 
@@ -28,7 +28,7 @@ const CURRENCY_OPTIONS = [
 
 
 const MarketplaceSettings = () => {
-  const { data, isLoading } = useGetGeneralSettingsQuery();
+  const { data, isLoading } = useGetAdminGeneralSettingsQuery();
   const [updateSettings, { isLoading: isUpdating }] = useUpdateGeneralSettingsMutation();
 
   const [formData, setFormData] = useState({

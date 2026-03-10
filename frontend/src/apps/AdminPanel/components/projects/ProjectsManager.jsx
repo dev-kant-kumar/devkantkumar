@@ -1,44 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  Trash2,
-  Eye,
-  Calendar,
-  Tag,
-  AlertCircle,
-  CheckCircle,
-  Clock,
+    AlertCircle,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Edit,
+    Eye,
+    Plus,
+    Search,
+    Trash2
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 // RTK Query hooks
+import PremiumConfirmModal from '../../common/components/PremiumConfirmModal';
 import {
-  useGetProjectsQuery,
-  useCreateProjectMutation,
-  useUpdateProjectMutation,
-  useDeleteProjectMutation,
-  useUploadProjectImageMutation,
+    useCreateProjectMutation,
+    useDeleteProjectMutation,
+    useGetProjectsQuery,
+    useUpdateProjectMutation,
+    useUploadProjectImageMutation,
 } from '../../store/api/adminApiSlice';
 
 // UI slice selectors and actions
 import {
-  selectProjectsList,
-  selectProjectFilter,
-  selectTableView,
-  selectSorting,
-  setProjectFilter,
-  setTableView,
-  setSorting,
-  openModal,
-  closeModal,
-  selectIsModalOpen,
-  selectModalType,
-  selectSelectedItem,
-  setActiveSection,
+    closeModal,
+    openModal,
+    selectIsModalOpen,
+    selectModalType,
+    selectProjectFilter,
+    selectProjectsList,
+    selectSelectedItem,
+    selectSorting,
+    selectTableView,
+    setActiveSection,
+    setProjectFilter,
+    setSorting,
+    setTableView,
 } from '../../store/ui/adminUISlice';
 
 const ProjectsManager = () => {
@@ -48,6 +47,7 @@ const ProjectsManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   // RTK Query hooks
   const {
@@ -121,14 +121,14 @@ const ProjectsManager = () => {
   };
 
   // Handle delete project
-  const handleDeleteProject = async (projectId) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      try {
-        await deleteProject(projectId).unwrap();
-        refetch();
-      } catch (error) {
-        console.error('Failed to delete project:', error);
-      }
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return;
+    try {
+      await deleteProject(projectToDelete).unwrap();
+      setProjectToDelete(null);
+      refetch();
+    } catch (error) {
+      console.error('Failed to delete project:', error);
     }
   };
 
@@ -332,7 +332,7 @@ const ProjectsManager = () => {
                     key={project.id}
                     project={project}
                     onEdit={() => openEditModal(project)}
-                    onDelete={() => handleDeleteProject(project.id)}
+                    onDelete={() => setProjectToDelete(project.id)}
                     isDeleting={isDeleting}
                     getStatusColor={getStatusColor}
                     getStatusIcon={getStatusIcon}
@@ -352,7 +352,7 @@ const ProjectsManager = () => {
                   sorting={sorting}
                   onSort={handleSortChange}
                   onEdit={openEditModal}
-                  onDelete={handleDeleteProject}
+                  onDelete={setProjectToDelete}
                   isDeleting={isDeleting}
                   getStatusColor={getStatusColor}
                   getStatusIcon={getStatusIcon}
@@ -429,6 +429,16 @@ const ProjectsManager = () => {
           isUploading={isUploading}
         />
       )}
+
+      <PremiumConfirmModal
+        isOpen={!!projectToDelete}
+        onClose={() => setProjectToDelete(null)}
+        onConfirm={handleDeleteProject}
+        isLoading={isDeleting}
+        title="Delete Project?"
+        message="Are you sure you want to delete this project? This action cannot be undone."
+        confirmLabel="Delete Project"
+      />
     </div>
   );
 };

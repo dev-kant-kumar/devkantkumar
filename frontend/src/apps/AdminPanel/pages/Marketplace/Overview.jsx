@@ -19,10 +19,10 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import { useGetMarketplaceStatsQuery } from '../../store/api/adminApiSlice';
+import { useGetAdminMarketplaceStatsQuery } from '../../store/api/adminApiSlice';
 
 const Overview = () => {
-  const { data, isLoading } = useGetMarketplaceStatsQuery();
+  const { data, isLoading } = useGetAdminMarketplaceStatsQuery();
   const stats = data?.stats || {
     products: 0,
     services: 0,

@@ -3,7 +3,7 @@ import { CheckCircle, Loader2, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import PremiumButton from '../../../common/components/PremiumButton';
-import { useAddMilestoneMutation } from '../../../store/api/adminApiSlice';
+import { useAddAdminMilestoneMutation } from '../../../store/api/adminApiSlice';
 
 // Timeline status colors matching the premium theme
 const TIMELINE_STATUS_COLORS = {
@@ -45,7 +45,7 @@ const AdminProjectTimeline = ({ order, refetch }) => {
   const [newStatus, setNewStatus] = useState('in_progress');
   const [newMessage, setNewMessage] = useState('');
 
-  const [addMilestone, { isLoading: isSubmitting }] = useAddMilestoneMutation();
+  const [addMilestone, { isLoading: isSubmitting }] = useAddAdminMilestoneMutation();
 
   const handleAddMilestone = async (e) => {
     e.preventDefault();

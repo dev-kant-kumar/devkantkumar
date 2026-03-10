@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
-import { useGetCustomersQuery } from '../../store/api/adminApiSlice';
+import { useGetAdminCustomersQuery } from '../../store/api/adminApiSlice';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Customers', icon: '👥' },
@@ -24,7 +24,7 @@ const Customers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  const { data, isLoading } = useGetCustomersQuery({
+  const { data, isLoading } = useGetAdminCustomersQuery({
     page,
     limit: 10,
     search: searchTerm,

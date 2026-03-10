@@ -11,7 +11,7 @@ import { useCallback, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import PremiumButton from '../../common/components/PremiumButton';
-import { useDeleteCouponMutation, useGetCouponsQuery, useGetCouponStatsQuery } from '../../store/api/adminApiSlice';
+import { useDeleteCouponMutation, useGetAdminCouponsQuery, useGetAdminCouponStatsQuery } from '../../store/api/adminApiSlice';
 import CouponForm from './CouponForm';
 import CouponStats from './CouponStats';
 
@@ -25,8 +25,11 @@ const CouponManagement = () => {
 
   const token = localStorage.getItem('token');
 
+  // Fetch stats
+  const { data: statsData } = useGetAdminCouponStatsQuery();
+
   // Fetch coupons
-  const { data: couponsData, isLoading, refetch } = useGetCouponsQuery({
+  const { data: couponsData, isLoading, refetch } = useGetAdminCouponsQuery({
     page,
     limit: 10,
     search: search || undefined,
@@ -34,7 +37,7 @@ const CouponManagement = () => {
   });
 
   // Fetch stats
-  const { data: stats } = useGetCouponStatsQuery();
+  const { data: stats } = useGetAdminCouponStatsQuery();
 
   // Delete coupon
   const [deleteCoupon] = useDeleteCouponMutation();
@@ -100,10 +103,10 @@ const CouponManagement = () => {
 
 
       {/* Statistics */}
-      {stats && <CouponStats stats={stats} />}
+      <CouponStats stats={stats} />
 
       {/* Search and Filter */}
-      <div className="relative z-10 flex flex-col md:flex-row items-center gap-4 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-2 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all duration-300">
+      <div className="relative z-10 flex flex-col md:flex-row items-center gap-4 bg-white/60 dark:bg-black/40 backdrop-blur-xl p-2 rounded-2xl border border-gray-200/50 dark:border-gray-800/20 shadow-sm focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input
@@ -147,7 +150,7 @@ const CouponManagement = () => {
               Loading coupons...
             </div>
           </div>
-        ) : couponsData?.coupons?.length === 0 ? (
+        ) : (!couponsData?.coupons || couponsData.coupons.length === 0) ? (
           <div className="p-16 text-center flex flex-col items-center">
             <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
               <Plus size={32} className="text-blue-500 opacity-50" />

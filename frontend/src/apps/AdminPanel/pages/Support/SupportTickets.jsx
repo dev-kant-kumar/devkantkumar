@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import {
     CheckCircle,
     ChevronLeft,
@@ -8,22 +7,18 @@ import {
     MessageSquare,
     RefreshCw,
     Search,
-    Send,
-    Tag,
-    Trash2,
-    User,
-    X
+    Trash2
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import PremiumButton from '../../common/components/PremiumButton';
+import PremiumConfirmModal from '../../common/components/PremiumConfirmModal';
 import {
     useDeleteSupportTicketMutation,
-    useGetSupportStatsQuery,
-    useGetSupportTicketsQuery,
-    useRespondToSupportTicketMutation,
-    useUpdateSupportTicketMutation
+    useGetAdminSupportStatsQuery,
+    useGetAdminSupportTicketsQuery
 } from '../../store/api/adminApiSlice';
 
 // --- Constants & Config ---
@@ -66,245 +61,7 @@ const formatDate = (dateString) => {
 
 
 
-// Ticket Detail Modal
-const TicketDetailModal = ({ ticket, isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState('conversation');
-  const [replyMessage, setReplyMessage] = useState('');
-  const [status, setStatus] = useState(ticket?.status || 'open');
-  const [priority, setPriority] = useState(ticket?.priority || 'medium');
 
-  const [respondToTicket, { isLoading: isResponding }] = useRespondToSupportTicketMutation();
-  const [updateTicket, { isLoading: isUpdating }] = useUpdateSupportTicketMutation();
-
-  useEffect(() => {
-    if (ticket) {
-      setStatus(ticket.status);
-      setPriority(ticket.priority);
-    }
-  }, [ticket]);
-
-  const handleSendReply = async (e) => {
-    e.preventDefault();
-    if (!replyMessage.trim()) return;
-
-    try {
-      await respondToTicket({ id: ticket._id, message: replyMessage }).unwrap();
-      toast.success('Reply sent successfully');
-      setReplyMessage('');
-    } catch (error) {
-      toast.error(error?.data?.message || 'Failed to send reply');
-    }
-  };
-
-  const handleUpdateStatus = async (newStatus) => {
-    try {
-      await updateTicket({ id: ticket._id, status: newStatus }).unwrap();
-      setStatus(newStatus);
-      toast.success(`Status updated to ${newStatus}`);
-    } catch (error) {
-      toast.error(error?.data?.message || 'Failed to update status');
-    }
-  };
-
-  const handleUpdatePriority = async (newPriority) => {
-    try {
-      await updateTicket({ id: ticket._id, priority: newPriority }).unwrap();
-      setPriority(newPriority);
-      toast.success(`Priority updated to ${newPriority}`);
-    } catch (error) {
-      toast.error(error?.data?.message || 'Failed to update priority');
-    }
-  };
-
-  if (!ticket) return null;
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-end z-50"
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-full max-w-2xl h-full bg-white dark:bg-gray-800 shadow-2xl overflow-hidden flex flex-col border-l border-gray-200 dark:border-gray-700"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {ticket.ticketNumber}
-                  </h2>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${STATUS_COLORS[status]}`}>
-                    {status}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-md">
-                  {ticket.subject}
-                </p>
-              </div>
-              <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                <X size={20} className="text-gray-500 dark:text-gray-400" />
-              </button>
-            </div>
-
-            {/* Quick Actions Bar */}
-            <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center gap-4">
-              <PremiumDropdown
-                value={status}
-                onChange={handleUpdateStatus}
-                buttonClassName="px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
-                options={[
-                  { value: 'open', label: 'Open' },
-                  { value: 'in-progress', label: 'In Progress' },
-                  { value: 'awaiting-response', label: 'Awaiting Response' },
-                  { value: 'resolved', label: 'Resolved' },
-                  { value: 'closed', label: 'Closed' }
-                ]}
-                className="w-48"
-              />
-              <PremiumDropdown
-                value={priority}
-                onChange={handleUpdatePriority}
-                buttonClassName="px-3 py-1.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
-                options={[
-                  { value: 'low', label: 'Low Priority' },
-                  { value: 'medium', label: 'Medium Priority' },
-                  { value: 'high', label: 'High Priority' },
-                  { value: 'urgent', label: 'Urgent' }
-                ]}
-                className="w-48"
-              />
-            </div>
-
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
-              <div className="p-6 space-y-6">
-                {/* User Info Card */}
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
-                  <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Customer Details</h3>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                        <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{ticket.name}</p>
-                        <a href={`mailto:${ticket.email}`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                          {ticket.email}
-                        </a>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300`}>
-                        <Tag className="h-3 w-3" />
-                        {ticket.categoryDisplay}
-                      </span>
-                      <p className="text-xs text-gray-400 mt-1">
-                        Opened {formatDate(ticket.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Original Message */}
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-                  <div className="flex items-center justify-between mb-3 border-b border-gray-100 dark:border-gray-700 pb-3">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Original Request</h3>
-                    <span className="text-xs text-gray-500">{formatDate(ticket.createdAt)}</span>
-                  </div>
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
-                    {ticket.message}
-                  </p>
-                </div>
-
-                {/* Responses Thread */}
-                <div className="space-y-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="bg-gray-50 dark:bg-gray-900 px-2 text-sm text-gray-500">Conversation History</span>
-                    </div>
-                  </div>
-
-                  {ticket.responses && ticket.responses.length > 0 ? (
-                    ticket.responses.map((response, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex flex-col max-w-[85%] ${
-                          response.sender === 'admin'
-                            ? 'ml-auto items-end'
-                            : 'mr-auto items-start'
-                        }`}
-                      >
-                        <div className={`p-4 rounded-2xl shadow-sm ${
-                          response.sender === 'admin'
-                            ? 'bg-blue-600 text-white rounded-br-none'
-                            : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-none'
-                        }`}>
-                          <p className="whitespace-pre-wrap text-sm leading-relaxed">{response.message}</p>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1 px-1">
-                          <span className="text-xs font-medium text-gray-500">
-                            {response.senderName || (response.sender === 'admin' ? 'Support Team' : ticket.name)}
-                          </span>
-                          <span className="text-[10px] text-gray-400">•</span>
-                          <span className="text-[10px] text-gray-400">{formatDate(response.timestamp)}</span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
-                      No responses yet. Be the first to reply.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Reply Area */}
-            <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-              <form onSubmit={handleSendReply}>
-                <div className="relative">
-                  <textarea
-                    value={replyMessage}
-                    onChange={(e) => setReplyMessage(e.target.value)}
-                    placeholder="Type your reply here..."
-                    rows={3}
-                    className="w-full p-4 pr-12 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 dark:text-white placeholder-gray-500"
-                  />
-                  <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                    <PremiumButton
-                      type="submit"
-                      disabled={isResponding || !replyMessage.trim()}
-                      label={isResponding ? "Sending..." : "Send"}
-                      icon={Send}
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-                <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-1">
-                  <span>Formatting is handled automatically</span>
-                  <span>{replyMessage.length}/5000</span>
-                </div>
-              </form>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
 
 // Main Page Component
 const SupportTickets = () => {
@@ -312,8 +69,8 @@ const SupportTickets = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [activeTicket, setActiveTicket] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const navigate = useNavigate();
 
   // Debounce search
   useEffect(() => {
@@ -324,14 +81,14 @@ const SupportTickets = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data: ticketsData, isLoading: isLoadingTickets, refetch } = useGetSupportTicketsQuery({
+  const { data: ticketsData, isLoading: isLoadingTickets, refetch } = useGetAdminSupportTicketsQuery({
     page,
     limit: 10,
     search: debouncedSearch,
     status: statusFilter
   });
 
-  const { data: statsData } = useGetSupportStatsQuery();
+  const { data: statsData } = useGetAdminSupportStatsQuery();
 
   const [deleteTicket] = useDeleteSupportTicketMutation();
 
@@ -340,15 +97,15 @@ const SupportTickets = () => {
   const stats = statsData?.data || {};
 
   const handleOpenTicket = (ticket) => {
-    setActiveTicket(ticket);
-    setIsModalOpen(true);
+    navigate(`/admin/support/tickets/${ticket._id}`);
   };
 
-  const handleDeleteTicket = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this ticket? This cannot be undone.')) return;
+  const handleDeleteTicket = async () => {
+    if (!deleteId) return;
     try {
-      await deleteTicket(id).unwrap();
+      await deleteTicket(deleteId).unwrap();
       toast.success('Ticket deleted successfully');
+      setDeleteId(null);
     } catch (error) {
       toast.error('Failed to delete ticket');
     }
@@ -447,6 +204,7 @@ const SupportTickets = () => {
               { value: 'closed', label: 'Closed' }
             ]}
             className="w-56"
+            buttonClassName="bg-white/50 dark:bg-gray-800/50 border-none rounded-xl text-gray-900 dark:text-white"
           />
         </div>
       </div>
@@ -549,7 +307,7 @@ const SupportTickets = () => {
                           <Eye size={18} />
                         </button>
                         <button
-                          onClick={() => handleDeleteTicket(ticket._id)}
+                          onClick={() => setDeleteId(ticket._id)}
                           className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Delete Ticket"
                         >
@@ -590,13 +348,13 @@ const SupportTickets = () => {
         )}
       </div>
 
-      <TicketDetailModal
-        ticket={activeTicket}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setActiveTicket(null);
-        }}
+      <PremiumConfirmModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteTicket}
+        title="Delete Ticket?"
+        message="Are you sure you want to delete this ticket? This action cannot be undone."
+        confirmLabel="Delete Ticket"
       />
     </div>
   );

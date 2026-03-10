@@ -1,16 +1,16 @@
 import { motion } from "framer-motion";
 import {
-  CheckCircle,
-  CreditCard,
-  Download,
-  Filter,
-  Flame,
-  Loader2,
-  Mail,
-  Rocket,
-  Search,
-  ShoppingCart,
-  Star,
+    CheckCircle,
+    CreditCard,
+    Download,
+    Filter,
+    Flame,
+    Loader2,
+    Mail,
+    Rocket,
+    Search,
+    ShoppingCart,
+    Star,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -19,7 +19,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
-import PremiumDropdown from "../../../../shared/components/PremiumDropdown.jsx";
+import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
 import { useAddToCartMutation } from "../../../../store/cart/cartApi";
 import FAQ from "../../common/components/FAQ";
 import Testimonials from "../../common/components/Testimonials";
@@ -27,8 +27,8 @@ import WhyChooseUs from "../../common/components/WhyChooseUs";
 import EmptyState from "../../common/components/ui/EmptyState";
 import { useCurrency } from "../../context/CurrencyContext";
 import {
-  useGetProductsQuery,
-  useSubscribeMutation,
+    useGetProductsQuery,
+    useSubscribeMutation,
 } from "../../store/api/marketplaceApi";
 import { selectIsAuthenticated } from "../../store/auth/authSlice";
 import { addToCart } from "../../store/cart/cartSlice";
@@ -362,16 +362,15 @@ const DigitalProducts = ({ category: propCategory }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category
                 </label>
-                <PremiumDropdown
+                <MarketplaceDropdown
                   value={selectedCategory}
                   onChange={setSelectedCategory}
                   options={categories.map((c) => ({
                     value: c.id,
                     label: c.name,
                   }))}
-                  variant="marketplace"
                   placeholder="All Categories"
-                  buttonClassName="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm flex items-center justify-between"
+                  className="w-full"
                 />
               </div>
 
@@ -380,16 +379,15 @@ const DigitalProducts = ({ category: propCategory }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Price Range
                 </label>
-                <PremiumDropdown
+                <MarketplaceDropdown
                   value={priceRange}
                   onChange={setPriceRange}
                   options={priceRanges.map((p) => ({
                     value: p.id,
                     label: p.name,
                   }))}
-                  variant="marketplace"
                   placeholder="All Prices"
-                  buttonClassName="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm flex items-center justify-between"
+                  className="w-full"
                 />
               </div>
 

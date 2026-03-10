@@ -500,7 +500,7 @@ const adminUISlice = createSlice({
     // Messages data
     builder
       .addMatcher(
-        adminApiSlice.endpoints.getContactMessages.matchFulfilled,
+        adminApiSlice.endpoints.getAdminContactMessages.matchFulfilled,
         (state, action) => {
           state.apiData.messages.list = action.payload.data.messages || action.payload.data;
           state.apiData.messages.totalCount = action.payload.data.totalCount || action.payload.data.length;
@@ -511,7 +511,7 @@ const adminUISlice = createSlice({
         }
       )
       .addMatcher(
-        adminApiSlice.endpoints.markMessageAsRead.matchFulfilled,
+        adminApiSlice.endpoints.markAdminMessageAsRead.matchFulfilled,
         (state, action) => {
           const messageId = action.meta.arg.originalArgs;
           const index = state.apiData.messages.list.findIndex(m => m.id === messageId);
@@ -525,7 +525,7 @@ const adminUISlice = createSlice({
     // Settings data
     builder
       .addMatcher(
-        adminApiSlice.endpoints.getGeneralSettings.matchFulfilled,
+        adminApiSlice.endpoints.getAdminGeneralSettings.matchFulfilled,
         (state, action) => {
           state.apiData.settings.general = action.payload.data;
           state.apiData.settings.lastUpdated = new Date().toISOString();
@@ -533,7 +533,7 @@ const adminUISlice = createSlice({
         }
       )
       .addMatcher(
-        adminApiSlice.endpoints.getSeoSettings.matchFulfilled,
+        adminApiSlice.endpoints.getAdminSeoSettings.matchFulfilled,
         (state, action) => {
           state.apiData.settings.seo = action.payload.data;
           state.apiData.settings.lastUpdated = new Date().toISOString();

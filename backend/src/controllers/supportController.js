@@ -2,6 +2,7 @@ const SupportTicket = require('../models/SupportTicket');
 const SystemSetting = require('../models/SystemSetting');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const notificationService = require('../services/notificationService');
 
 /**
  * @desc    Submit a support ticket (public)
@@ -25,6 +26,12 @@ exports.submitTicket = catchAsync(async (req, res, next) => {
     message,
     orderId: orderId || undefined,
     user: req.user?._id || undefined
+  });
+
+  // Notify admins about new ticket
+  const submitter = req.user || { firstName: name, lastName: '' };
+  notificationService.sendNewTicketNotification(submitter, ticket).catch(err => {
+    console.error('Failed to send ticket notification:', err);
   });
 
   res.status(201).json({
@@ -286,6 +293,13 @@ exports.respondToTicket = catchAsync(async (req, res, next) => {
 
   ticket.status = 'awaiting-response';
   await ticket.save();
+
+  // Notify user about response if they are registered
+  if (ticket.user) {
+    notificationService.sendTicketResponseNotification(ticket.user, ticket).catch(err => {
+      console.error('Failed to send ticket response notification:', err);
+    });
+  }
 
   res.status(200).json({
     status: 'success',

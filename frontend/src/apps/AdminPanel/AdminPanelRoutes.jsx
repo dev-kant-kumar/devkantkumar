@@ -38,6 +38,7 @@ const AdminReferrals = React.lazy(() => import("./pages/Referrals/AdminReferrals
 const AdminProjects = React.lazy(() => import("./pages/Marketplace/Projects/AdminProjects.jsx"));
 const AdminProjectWorkspace = React.lazy(() => import("./pages/Marketplace/Projects/AdminProjectWorkspace.jsx"));
 const SupportTickets = React.lazy(() => import("./pages/Support/SupportTickets.jsx"));
+const TicketDetail = React.lazy(() => import("./pages/Support/TicketDetail.jsx"));
 const AdminNotifications = React.lazy(() => import("./pages/Notifications/AdminNotifications.jsx"));
 
 const AdminPanelRoutes = () => {
@@ -79,7 +80,10 @@ const AdminPanelRoutes = () => {
           </Route>
 
           {/* Support */}
-          <Route path="support/tickets" element={<SupportTickets />} />
+          <Route path="support/tickets">
+            <Route index element={<SupportTickets />} />
+            <Route path=":id" element={<TicketDetail />} />
+          </Route>
 
           {/* Notifications */}
           <Route path="notifications" element={<AdminNotifications />} />

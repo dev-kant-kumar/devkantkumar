@@ -18,14 +18,14 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import PremiumButton from '../../common/components/PremiumButton';
 import {
-    useGetGeneralSettingsQuery,
+    useGetAdminGeneralSettingsQuery,
     useUpdateGeneralSettingsMutation
 } from '../../store/api/adminApiSlice';
 
 
 
 const Announcements = () => {
-    const { data: settings, isLoading, refetch } = useGetGeneralSettingsQuery();
+    const { data: settings, isLoading, refetch } = useGetAdminGeneralSettingsQuery();
     const [updateSettings, { isLoading: isUpdating }] = useUpdateGeneralSettingsMutation();
 
     const [announcementData, setAnnouncementData] = useState({

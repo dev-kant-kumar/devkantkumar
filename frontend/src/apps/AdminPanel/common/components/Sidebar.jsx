@@ -24,10 +24,10 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useGetPortfolioStatsQuery } from "../../store/api/adminApiSlice";
+import { useGetAdminPortfolioStatsQuery } from "../../store/api/adminApiSlice";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed }) => {
-  const { data: statsData } = useGetPortfolioStatsQuery(undefined, {
+  const { data: statsData } = useGetAdminPortfolioStatsQuery(undefined, {
     pollingInterval: 30000, // Poll every 30 seconds for new messages
   });
 

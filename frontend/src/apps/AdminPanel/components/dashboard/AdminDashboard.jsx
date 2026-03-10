@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // RTK Query hooks
 import {
-    useGetContactMessagesQuery,
+    useGetAdminContactMessagesQuery,
     useGetDashboardAnalyticsQuery,
     useGetDashboardOverviewQuery,
     useGetDashboardStatsQuery,
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
     data: messagesData,
     isLoading: isMessagesLoading,
     error: messagesError,
-  } = useGetContactMessagesQuery({
+  } = useGetAdminContactMessagesQuery({
     page: 1,
     limit: 5,
     unreadOnly: true,

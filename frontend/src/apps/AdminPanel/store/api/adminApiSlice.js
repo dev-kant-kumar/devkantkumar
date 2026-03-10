@@ -36,7 +36,6 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Auth', 'Admin', 'User'],
     }),
 
-
     refreshToken: builder.mutation({
       query: (refreshToken) => ({
         url: API_ENDPOINTS.AUTH.REFRESH_TOKEN,
@@ -46,38 +45,35 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Auth'],
     }),
 
-    verify2FALogin: builder.mutation({
-      query: (data) => ({
-        url: API_ENDPOINTS.AUTH.LOGIN_2FA,
+    verifyAdmin2FALogin: builder.mutation({
+      query: (credentials) => ({
+        url: '/admin/verify-2fa',
         method: 'POST',
-        body: data,
+        body: credentials,
       }),
-      invalidatesTags: ['Auth', 'Admin'],
     }),
 
-    setup2FA: builder.mutation({
+    setupAdmin2FA: builder.mutation({
       query: () => ({
-        url: API_ENDPOINTS.AUTH.SETUP_2FA,
+        url: '/admin/setup-2fa',
         method: 'POST',
       }),
     }),
 
-    verify2FASetup: builder.mutation({
+    verifyAdmin2FASetup: builder.mutation({
       query: (data) => ({
-        url: API_ENDPOINTS.AUTH.VERIFY_2FA,
+        url: '/admin/verify-2fa-setup',
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['User'],
     }),
 
-    disable2FA: builder.mutation({
+    disableAdmin2FA: builder.mutation({
       query: (data) => ({
-        url: API_ENDPOINTS.AUTH.DISABLE_2FA,
+        url: '/admin/disable-2fa',
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['User'],
     }),
 
     verifyToken: builder.query({
@@ -139,6 +135,22 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Admin', 'User'],
     }),
 
+    initiatePasswordChange: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.INITIATE_PASSWORD_CHANGE,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    verifyPasswordChangeOTP: builder.mutation({
+      query: (data) => ({
+        url: API_ENDPOINTS.ADMIN.VERIFY_PASSWORD_CHANGE,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
     // ===================
     // DASHBOARD ENDPOINTS
     // ===================
@@ -152,7 +164,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: ['Analytics'],
     }),
 
-    getPortfolioStats: builder.query({
+    getAdminPortfolioStats: builder.query({
       query: () => '/portfolio/stats',
       providesTags: ['Project', 'Skill', 'Message'],
     }),
@@ -341,12 +353,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     // CONTACT & MESSAGES
     // ===================
-    getContactMessages: builder.query({
+    getAdminContactMessages: builder.query({
       query: () => API_ENDPOINTS.ADMIN.MESSAGES,
       providesTags: ['Message'],
     }),
 
-    markMessageAsRead: builder.mutation({
+    markAdminMessageAsRead: builder.mutation({
       query: (messageId) => ({
         url: `${API_ENDPOINTS.ADMIN.MARK_MESSAGE_READ}/${messageId}/read`,
         method: 'PATCH',
@@ -354,7 +366,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['Message'],
     }),
 
-    deleteMessage: builder.mutation({
+    deleteAdminMessage: builder.mutation({
       query: (messageId) => ({
         url: `${API_ENDPOINTS.ADMIN.MESSAGES}/${messageId}`,
         method: 'DELETE',
@@ -365,12 +377,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     // SETTINGS ENDPOINTS
     // ===================
-    getGeneralSettings: builder.query({
+    getAdminGeneralSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
       providesTags: ['AdminSettings'],
     }),
 
-    updateGeneralSettings: builder.mutation({
+    updateAdminGeneralSettings: builder.mutation({
       query: (settingsData) => ({
         url: API_ENDPOINTS.ADMIN.GENERAL_SETTINGS,
         method: 'PUT',
@@ -379,12 +391,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['AdminSettings'],
     }),
 
-    getSeoSettings: builder.query({
+    getAdminSeoSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.SEO_SETTINGS,
       providesTags: ['AdminSettings'],
     }),
 
-    updateSeoSettings: builder.mutation({
+    updateAdminSeoSettings: builder.mutation({
       query: (seoData) => ({
         url: API_ENDPOINTS.ADMIN.SEO_SETTINGS,
         method: 'PUT',
@@ -393,12 +405,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['AdminSettings'],
     }),
 
-    getSettings: builder.query({
+    getAdminSettings: builder.query({
       query: () => API_ENDPOINTS.ADMIN.SETTINGS,
       providesTags: ['AdminSettings'],
     }),
 
-    updateSettings: builder.mutation({
+    updateAdminSettings: builder.mutation({
       query: (data) => ({
         url: API_ENDPOINTS.ADMIN.SETTINGS,
         method: 'PUT',
@@ -535,7 +547,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     // Add milestone to order
-    addMilestone: builder.mutation({
+    addAdminMilestone: builder.mutation({
       query: ({ id, ...milestoneData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/milestones`,
         method: 'POST',
@@ -545,7 +557,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     // Update milestone
-    updateMilestone: builder.mutation({
+    updateAdminMilestone: builder.mutation({
       query: ({ orderId, milestoneId, ...data }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${orderId}/milestones/${milestoneId}`,
         method: 'PUT',
@@ -565,7 +577,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     // Mark order as delivered
-    markOrderDelivered: builder.mutation({
+    markAdminOrderDelivered: builder.mutation({
       query: ({ id, ...deliveryData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/deliver`,
         method: 'POST',
@@ -575,7 +587,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     // Complete SDLC Phase
-    completePhase: builder.mutation({
+    completeAdminPhase: builder.mutation({
       query: ({ id, phase, ...phaseData }) => ({
         url: `${API_ENDPOINTS.ADMIN.MARKETPLACE.ORDERS}/${id}/phases/${phase}/complete`,
         method: 'POST',
@@ -584,13 +596,13 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [{ type: 'Order', id }, 'Order'],
     }),
 
-    getMarketplaceStats: builder.query({
+    getAdminMarketplaceStats: builder.query({
       query: () => '/admin/marketplace/stats',
       providesTags: ['Order', 'Product', 'Service'],
     }),
 
     // Customers
-    getCustomers: builder.query({
+    getAdminCustomers: builder.query({
       query: (params) => ({
         url: '/admin/customers',
         params,
@@ -598,25 +610,9 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: ['Customer'],
     }),
 
-    getCustomerById: builder.query({
+    getAdminCustomerById: builder.query({
       query: (id) => `/admin/customers/${id}`,
       providesTags: (result, error, id) => [{ type: 'Customer', id }],
-    }),
-
-    initiatePasswordChange: builder.mutation({
-      query: (data) => ({
-        url: API_ENDPOINTS.ADMIN.INITIATE_PASSWORD_CHANGE,
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    verifyPasswordChangeOTP: builder.mutation({
-      query: (data) => ({
-        url: API_ENDPOINTS.ADMIN.VERIFY_PASSWORD_CHANGE,
-        method: "POST",
-        body: data,
-      }),
     }),
 
     // Quote Requests
@@ -633,7 +629,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: 'Quote', id }],
     }),
 
-    getQuoteStats: builder.query({
+    getAdminQuoteStats: builder.query({
       query: () => '/admin/marketplace/quotes/stats',
       providesTags: ['Quote'],
     }),
@@ -656,7 +652,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     // Support Tickets
-    getSupportTickets: builder.query({
+    getAdminSupportTickets: builder.query({
       query: (params) => ({
         url: '/admin/support/tickets',
         params,
@@ -664,7 +660,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: ['SupportTicket'],
     }),
 
-    getSupportTicketById: builder.query({
+    getAdminSupportTicketById: builder.query({
       query: (id) => `/admin/support/tickets/${id}`,
       providesTags: (result, error, id) => [{ type: 'SupportTicket', id }],
     }),
@@ -695,7 +691,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ['SupportTicket'],
     }),
 
-    getSupportStats: builder.query({
+    getAdminSupportStats: builder.query({
       query: () => '/admin/support/stats',
       providesTags: ['SupportTicket'],
     }),
@@ -703,7 +699,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // ===================
     // COUPON ENDPOINTS
     // ===================
-    getCoupons: builder.query({
+    getAdminCoupons: builder.query({
       query: (params) => ({
         url: '/coupons',
         params,
@@ -711,7 +707,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       providesTags: ['Coupon'],
     }),
 
-    getCouponStats: builder.query({
+    getAdminCouponStats: builder.query({
       query: () => '/coupons/stats/overview',
       providesTags: ['Coupon'],
     }),
@@ -743,7 +739,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     // --- Email Templates ---
-    getEmailTemplates: builder.query({
+    getAdminEmailTemplates: builder.query({
       query: () => '/admin/email-templates',
       keepUnusedDataFor: 300,
     }),
@@ -766,16 +762,18 @@ export const {
   useVerifyTokenQuery,
 
   // 2FA
-  useVerify2FALoginMutation,
-  useSetup2FAMutation,
-  useVerify2FASetupMutation,
-  useDisable2FAMutation,
+  useVerifyAdmin2FALoginMutation,
+  useSetupAdmin2FAMutation,
+  useVerifyAdmin2FASetupMutation,
+  useDisableAdmin2FAMutation,
 
   // Profile
   useGetAdminProfileQuery,
   useUpdateAdminProfileMutation,
   useChangeAdminPasswordMutation,
   useUploadAdminAvatarMutation,
+
+  // Email/Password Change Flow
   useInitiateEmailChangeMutation,
   useVerifyEmailChangeOTPMutation,
   useInitiatePasswordChangeMutation,
@@ -785,7 +783,7 @@ export const {
   useGetAdminDashboardQuery,
   useGetDashboardStatsQuery,
   useGetDashboardAnalyticsQuery,
-  useGetPortfolioStatsQuery,
+  useGetAdminPortfolioStatsQuery,
 
   // Projects
   useGetAdminProjectsQuery,
@@ -819,17 +817,17 @@ export const {
   useUploadProjectImageMutation,
 
   // Messages
-  useGetContactMessagesQuery,
-  useMarkMessageAsReadMutation,
-  useDeleteMessageMutation,
+  useGetAdminContactMessagesQuery,
+  useMarkAdminMessageAsReadMutation,
+  useDeleteAdminMessageMutation,
 
   // Settings
-  useGetGeneralSettingsQuery,
-  useUpdateGeneralSettingsMutation,
-  useGetSeoSettingsQuery,
-  useUpdateSeoSettingsMutation,
-  useGetSettingsQuery,
-  useUpdateSettingsMutation,
+  useGetAdminGeneralSettingsQuery,
+  useUpdateAdminGeneralSettingsMutation,
+  useGetAdminSeoSettingsQuery,
+  useUpdateAdminSeoSettingsMutation,
+  useGetAdminSettingsQuery,
+  useUpdateAdminSettingsMutation,
 
   // Marketplace
   useGetAdminProductsQuery,
@@ -847,38 +845,38 @@ export const {
   useApproveRequirementsMutation,
   useRequestRequirementsChangesMutation,
   useGetAdminOrderByIdQuery,
-  useAddMilestoneMutation,
-  useUpdateMilestoneMutation,
+  useAddAdminMilestoneMutation,
+  useUpdateAdminMilestoneMutation,
   useAddAdminMessageMutation,
-  useMarkOrderDeliveredMutation,
-  useCompletePhaseMutation,
-  useGetMarketplaceStatsQuery,
-  useGetCustomersQuery,
-  useGetCustomerByIdQuery,
+  useMarkAdminOrderDeliveredMutation,
+  useCompleteAdminPhaseMutation,
+  useGetAdminMarketplaceStatsQuery,
+  useGetAdminCustomersQuery,
+  useGetAdminCustomerByIdQuery,
 
   // Quote Requests
   useGetAdminQuotesQuery,
   useGetAdminQuoteByIdQuery,
-  useGetQuoteStatsQuery,
+  useGetAdminQuoteStatsQuery,
   useUpdateAdminQuoteMutation,
   useDeleteAdminQuoteMutation,
 
   // Support Tickets
-  useGetSupportTicketsQuery,
-  useGetSupportTicketByIdQuery,
+  useGetAdminSupportTicketsQuery,
+  useGetAdminSupportTicketByIdQuery,
   useUpdateSupportTicketMutation,
   useRespondToSupportTicketMutation,
   useDeleteSupportTicketMutation,
-  useGetSupportStatsQuery,
+  useGetAdminSupportStatsQuery,
 
   // Coupons
-  useGetCouponsQuery,
-  useGetCouponStatsQuery,
+  useGetAdminCouponsQuery,
+  useGetAdminCouponStatsQuery,
   useCreateCouponMutation,
   useUpdateCouponMutation,
   useDeleteCouponMutation,
 
   // Email Templates
-  useGetEmailTemplatesQuery,
+  useGetAdminEmailTemplatesQuery,
   usePreviewEmailTemplateMutation,
 } = adminApiSlice;

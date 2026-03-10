@@ -1,18 +1,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  AlertCircle,
-  ArrowLeft,
-  Eye,
-  FileText,
-  Image as ImageIcon,
-  Layout,
-  Loader,
-  Plus,
-  Save,
-  Settings,
-  Tag as TagIcon,
-  Trash2,
-  X
+    AlertCircle,
+    ArrowLeft,
+    Eye,
+    FileText,
+    Image as ImageIcon,
+    Layout,
+    Loader,
+    Plus,
+    Save,
+    Settings,
+    Tag as TagIcon,
+    Trash2,
+    X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -21,10 +21,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import remarkGfm from 'remark-gfm';
 import PremiumButton from "../../common/components/PremiumButton";
 import {
-  useCreateBlogPostMutation,
-  useGetAdminBlogPostBySlugQuery,
-  useUpdateBlogPostMutation,
-  useUploadImageMutation
+    useCreateBlogPostMutation,
+    useGetAdminBlogPostBySlugQuery,
+    useUpdateBlogPostMutation,
+    useUploadImageMutation
 } from "../../store/api/adminApiSlice";
 
 const BlogPost = () => {

@@ -23,6 +23,7 @@ import {
     useGetAdminQuotesQuery,
     useUpdateAdminQuoteMutation
 } from '../../store/api/adminApiSlice';
+import PremiumConfirmModal from '../../common/components/PremiumConfirmModal';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Quotes', icon: '📋', color: 'gray' },
@@ -107,6 +108,7 @@ const QuoteDetailModal = ({ quote, isOpen, onClose, onUpdate, onDelete }) => {
   const [status, setStatus] = useState(quote?.status || 'pending');
   const [priority, setPriority] = useState(quote?.priority || 'medium');
   const [adminNotes, setAdminNotes] = useState(quote?.adminNotes || '');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [updateQuote, { isLoading: isUpdating }] = useUpdateAdminQuoteMutation();
   const [deleteQuote, { isLoading: isDeleting }] = useDeleteAdminQuoteMutation();
 
@@ -129,10 +131,10 @@ const QuoteDetailModal = ({ quote, isOpen, onClose, onUpdate, onDelete }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this quote request?')) return;
     try {
       await deleteQuote(quote._id).unwrap();
       toast.success('Quote deleted successfully');
+      setShowDeleteConfirm(false);
       onClose();
       onDelete();
     } catch (error) {
@@ -292,7 +294,7 @@ const QuoteDetailModal = ({ quote, isOpen, onClose, onUpdate, onDelete }) => {
             {/* Footer */}
             <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
               <button
-                onClick={handleDelete}
+                onClick={() => setShowDeleteConfirm(true)}
                 disabled={isDeleting}
                 className="flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
               >
@@ -323,6 +325,16 @@ const QuoteDetailModal = ({ quote, isOpen, onClose, onUpdate, onDelete }) => {
           </motion.div>
         </motion.div>
       )}
+
+      <PremiumConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        title="Delete Quote Request?"
+        message="Are you sure you want to delete this quote request? This action cannot be undone."
+        confirmLabel="Delete Quote"
+      />
     </AnimatePresence>
   );
 };

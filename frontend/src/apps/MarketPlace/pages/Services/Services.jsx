@@ -1,21 +1,21 @@
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
-  Award,
-  CheckCircle,
-  Clock,
-  Code,
-  Database,
-  Globe,
-  Loader2,
-  Palette,
-  Search,
-  Shield,
-  ShieldCheck,
-  Smartphone,
-  Star,
-  User,
-  Zap,
+    ArrowRight,
+    Award,
+    CheckCircle,
+    Clock,
+    Code,
+    Database,
+    Globe,
+    Loader2,
+    Palette,
+    Search,
+    Shield,
+    ShieldCheck,
+    Smartphone,
+    Star,
+    User,
+    Zap,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -24,7 +24,7 @@ import { Link } from "react-router-dom";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
-import PremiumDropdown from "../../../../shared/components/PremiumDropdown.jsx";
+import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
 import FAQ from "../../common/components/FAQ";
 import Testimonials from "../../common/components/Testimonials";
 import WhyChooseUs from "../../common/components/WhyChooseUs";
@@ -274,7 +274,7 @@ const Services = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Price Range
                 </label>
-                <PremiumDropdown
+                <MarketplaceDropdown
                   value={priceRange}
                   onChange={setPriceRange}
                   options={[
@@ -283,9 +283,8 @@ const Services = () => {
                     { value: "medium", label: "$1,000 - $2,000" },
                     { value: "high", label: "$2,000+" },
                   ]}
-                  variant="marketplace"
                   placeholder="All Prices"
-                  buttonClassName="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm flex items-center justify-between"
+                  className="w-full"
                 />
               </div>
             </div>

@@ -3,7 +3,7 @@ import { AlertCircle, ChevronRight, Download, Loader2, Package, RefreshCw, Searc
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
+import MarketplaceDropdown from '../../common/components/ui/MarketplaceDropdown.jsx';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
 import { useGetUserOrdersQuery } from '../../store/orders/ordersApi';
 const Orders = () => {
@@ -129,13 +129,12 @@ const Orders = () => {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
           <div className="min-w-[180px]">
-            <PremiumDropdown
+            <MarketplaceDropdown
               value={statusFilter}
               onChange={setStatusFilter}
               options={statusOptions}
-              variant="marketplace"
               placeholder="All Status"
-              buttonClassName="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50 transition-all font-medium flex items-center justify-between"
+              className="w-full"
             />
           </div>
         </div>

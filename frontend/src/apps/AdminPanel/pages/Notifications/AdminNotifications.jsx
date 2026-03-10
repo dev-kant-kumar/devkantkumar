@@ -18,11 +18,13 @@ import {
     useMarkAsReadMutation,
 } from '../../../../store/notification/notificationApi';
 import PremiumButton from '../../common/components/PremiumButton';
+import PremiumConfirmModal from '../../common/components/PremiumConfirmModal';
 
 const AdminNotifications = () => {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const { data, isLoading, isFetching, refetch } = useGetNotificationsQuery({
     page,
@@ -120,10 +122,10 @@ const AdminNotifications = () => {
   };
 
   const handleClearAll = async () => {
-    if (!window.confirm('Clear all notifications? This cannot be undone.')) return;
     try {
       await clearAllNotifications().unwrap();
       toast.success('All notifications cleared');
+      setShowClearConfirm(false);
     } catch (err) {
       toast.error(err?.data?.message || 'Failed to clear notifications');
     }
@@ -188,7 +190,7 @@ const AdminNotifications = () => {
 
             {notifications.length > 0 && (
             <button
-                onClick={handleClearAll}
+                onClick={() => setShowClearConfirm(true)}
                 disabled={isClearing}
                 className="px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white/60 dark:bg-gray-800/40 backdrop-blur-md border border-red-200/50 dark:border-red-800/30 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm"
             >
@@ -386,6 +388,16 @@ const AdminNotifications = () => {
           </div>
         )}
       </motion.div>
+
+      <PremiumConfirmModal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleClearAll}
+        isLoading={isClearing}
+        title="Clear All Notifications?"
+        message="Are you sure you want to clear all your notifications? This action cannot be undone."
+        confirmLabel="Clear All"
+      />
     </div>
   );
 };

@@ -21,18 +21,18 @@ import { toast } from "react-hot-toast";
 import PremiumButton from "../../common/components/PremiumButton";
 import {
     useChangeAdminPasswordMutation,
-    useDisable2FAMutation,
+    useDisableAdmin2FAMutation,
     useGetAdminProfileQuery,
-    useGetGeneralSettingsQuery,
-    useGetSeoSettingsQuery,
+    useGetAdminGeneralSettingsQuery,
+    useGetAdminSeoSettingsQuery,
     useInitiateEmailChangeMutation,
     useInitiatePasswordChangeMutation,
-    useSetup2FAMutation,
+    useSetupAdmin2FAMutation,
     useUpdateAdminProfileMutation,
     useUpdateGeneralSettingsMutation,
     useUpdateSeoSettingsMutation,
     useUploadAdminAvatarMutation,
-    useVerify2FASetupMutation,
+    useVerifyAdmin2FASetupMutation,
     useVerifyEmailChangeOTPMutation,
     useVerifyPasswordChangeOTPMutation
 } from "../../store/api/adminApiSlice";
@@ -62,8 +62,8 @@ const Settings = () => {
   const { data: profile, isLoading, refetch } = useGetAdminProfileQuery();
 
   // Settings hooks
-  const { data: genSettings, isLoading: isLoadingGen } = useGetGeneralSettingsQuery();
-  const { data: seoSettings, isLoading: isLoadingSeo } = useGetSeoSettingsQuery();
+  const { data: genSettings, isLoading: isLoadingGen } = useGetAdminGeneralSettingsQuery();
+  const { data: seoSettings, isLoading: isLoadingSeo } = useGetAdminSeoSettingsQuery();
   const [updateGen] = useUpdateGeneralSettingsMutation();
   const [updateSeo] = useUpdateSeoSettingsMutation();
 
@@ -131,9 +131,9 @@ const Settings = () => {
   const [verifyPasswordChangeOTP, { isLoading: isVerifyingPasswordChange }] = useVerifyPasswordChangeOTPMutation();
 
   // 2FA Hooks
-  const [setup2FA, { isLoading: isSettingUp2FA }] = useSetup2FAMutation();
-  const [verify2FASetup, { isLoading: isVerifying2FA }] = useVerify2FASetupMutation();
-  const [disable2FA, { isLoading: isDisabling2FA }] = useDisable2FAMutation();
+  const [setup2FA, { isLoading: isSettingUp2FA }] = useSetupAdmin2FAMutation();
+  const [verify2FASetup, { isLoading: isVerifying2FA }] = useVerifyAdmin2FASetupMutation();
+  const [disable2FA, { isLoading: isDisabling2FA }] = useDisableAdmin2FAMutation();
 
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [twoFactorSecret, setTwoFactorSecret] = useState(null);

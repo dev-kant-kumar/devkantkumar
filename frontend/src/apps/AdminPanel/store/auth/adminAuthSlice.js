@@ -185,7 +185,7 @@ const adminAuthSlice = createSlice({
         }
       )
       .addMatcher(
-        adminApiSlice.endpoints.verify2FALogin.matchFulfilled,
+        adminApiSlice.endpoints.verifyAdmin2FALogin.matchFulfilled,
         (state, action) => {
           state.isLoading = false;
           state.isAuthenticated = true;

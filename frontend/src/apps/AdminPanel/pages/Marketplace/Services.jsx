@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { useNavigate , Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from '../../common/components/DeleteConfirmationModal';
 import PremiumButton from '../../common/components/PremiumButton';
 import {

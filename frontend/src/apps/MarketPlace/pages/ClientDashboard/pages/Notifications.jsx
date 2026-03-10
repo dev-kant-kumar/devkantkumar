@@ -1,27 +1,28 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Bell,
-  Check,
-  CreditCard,
-  FileText,
-  Info,
-  Loader2,
-  MessageSquare,
-  Package,
-  Ticket,
-  Trash2,
-  UserPlus,
+    Bell,
+    Check,
+    CreditCard,
+    FileText,
+    Info,
+    Loader2,
+    MessageSquare,
+    Package,
+    Ticket,
+    Trash2,
+    UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import MarketplaceDropdown from "../../../common/components/ui/MarketplaceDropdown.jsx";
 import { Link } from "react-router-dom";
 import {
-  useClearAllNotificationsMutation,
-  useDeleteNotificationMutation,
-  useGetNotificationsQuery,
-  useGetUnreadCountQuery,
-  useMarkAllAsReadMutation,
-  useMarkAsReadMutation,
+    useClearAllNotificationsMutation,
+    useDeleteNotificationMutation,
+    useGetNotificationsQuery,
+    useGetUnreadCountQuery,
+    useMarkAllAsReadMutation,
+    useMarkAsReadMutation,
 } from "../../../../../store/notification/notificationApi";
 
 const Notifications = () => {
@@ -210,17 +211,13 @@ const Notifications = () => {
           </button>
         </div>
 
-        <select
-          value={typeFilter || ""}
-          onChange={(e) => setTypeFilter(e.target.value || null)}
-          className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
-        >
-          {typeOptions.map((option) => (
-            <option key={option.value || "all"} value={option.value || ""}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <MarketplaceDropdown
+          value={typeFilter}
+          onChange={setTypeFilter}
+          options={typeOptions}
+          placeholder="All Types"
+          className="min-w-[150px]"
+        />
       </div>
 
       {/* Notifications List */}

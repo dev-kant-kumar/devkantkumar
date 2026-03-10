@@ -14,7 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useAdminLoginMutation, useVerify2FALoginMutation } from "../../store/api/adminApiSlice";
+import { useAdminLoginMutation, useVerifyAdmin2FALoginMutation } from "../../store/api/adminApiSlice";
 import {
   clearError,
   loginSuccess,
@@ -32,7 +32,7 @@ const AdminLogin = () => {
   const authError = useSelector(selectAuthError);
 
   // 2FA State
-  const [verify2FALogin, { isLoading: isVerifying2FA }] = useVerify2FALoginMutation();
+  const [verify2FALogin, { isLoading: isVerifying2FA }] = useVerifyAdmin2FALoginMutation();
   const [authFlow, setAuthFlow] = useState({
     show2FA: false,
     tempToken: null

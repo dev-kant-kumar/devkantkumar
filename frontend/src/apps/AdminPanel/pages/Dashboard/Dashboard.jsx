@@ -19,7 +19,7 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import { useGetDashboardAnalyticsQuery, useGetPortfolioStatsQuery } from "../../store/api/adminApiSlice";
+import { useGetDashboardAnalyticsQuery, useGetAdminPortfolioStatsQuery } from "../../store/api/adminApiSlice";
 
 const SkeletonStat = () => (
     <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl h-32 animate-pulse" />
@@ -30,7 +30,7 @@ const SkeletonChart = () => (
 );
 
 const Dashboard = () => {
-    const { data: portfolioData, isLoading: isLoadingStats } = useGetPortfolioStatsQuery();
+    const { data: portfolioData, isLoading: isLoadingStats } = useGetAdminPortfolioStatsQuery();
     const { data: analyticsDataResponse, isLoading: isLoadingAnalytics } = useGetDashboardAnalyticsQuery();
 
     const statsData = portfolioData?.data?.stats || {

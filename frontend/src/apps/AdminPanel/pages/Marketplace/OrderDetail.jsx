@@ -31,10 +31,10 @@ import { Link, useParams } from 'react-router-dom';
 import PremiumButton from '../../common/components/PremiumButton';
 import {
     useAddAdminMessageMutation,
-    useAddMilestoneMutation,
+    useAddAdminMilestoneMutation,
     useApproveRequirementsMutation,
     useGetAdminOrderByIdQuery,
-    useMarkOrderDeliveredMutation,
+    useMarkAdminOrderDeliveredMutation,
     useUpdateAdminOrderStatusMutation
 } from '../../store/api/adminApiSlice';
 
@@ -75,9 +75,9 @@ const OrderDetail = () => {
 
   // Mutations
   const [updateStatus, { isLoading: isUpdatingStatus }] = useUpdateAdminOrderStatusMutation();
-  const [addMilestone, { isLoading: isAddingMilestone }] = useAddMilestoneMutation();
+  const [addMilestone, { isLoading: isAddingMilestone }] = useAddAdminMilestoneMutation();
   const [addMessage, { isLoading: isSendingMessage }] = useAddAdminMessageMutation();
-  const [markDelivered, { isLoading: isDelivering }] = useMarkOrderDeliveredMutation();
+  const [markDelivered, { isLoading: isDelivering }] = useMarkAdminOrderDeliveredMutation();
   const [approveRequirements, { isLoading: isApproving }] = useApproveRequirementsMutation();
 
   const order = orderData?.data || orderData;

@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import PremiumButton from '../../common/components/PremiumButton';
-import { useGetCustomerByIdQuery } from '../../store/api/adminApiSlice';
+import { useGetAdminCustomerByIdQuery } from '../../store/api/adminApiSlice';
 
 const CustomerDetail = () => {
   const { id } = useParams();
-  const { data, isLoading } = useGetCustomerByIdQuery(id);
+  const { data, isLoading } = useGetAdminCustomerByIdQuery(id);
 
   const customer = data?.customer;
   const orders = data?.orders || [];

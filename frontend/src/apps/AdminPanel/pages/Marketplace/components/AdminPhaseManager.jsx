@@ -1,7 +1,7 @@
 import { AlertCircle, CheckCircle, Link as LinkIcon, Loader2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { useCompletePhaseMutation } from '../../../store/api/adminApiSlice';
+import { useCompleteAdminPhaseMutation } from '../../../store/api/adminApiSlice';
 
 const PHASE_DELIVERABLES = {
   requirements_gathering: {
@@ -69,7 +69,7 @@ const PHASE_DELIVERABLES = {
 };
 
 const AdminPhaseManager = ({ order }) => {
-  const [completePhase, { isLoading }] = useCompletePhaseMutation();
+  const [completePhase, { isLoading }] = useCompleteAdminPhaseMutation();
   const [adminNotes, setAdminNotes] = useState('');
   const [fileUrl, setFileUrl] = useState('');
   const [externalLink, setExternalLink] = useState('');
