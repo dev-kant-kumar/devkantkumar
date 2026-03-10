@@ -184,6 +184,354 @@ const PHASE_CHECKLISTS = {
   }
 };
 
+// --- Phase-specific Data ---
+
+const PHASE_DETAILS = {
+  legal_documentation: {
+    description: 'Establishes the legal foundation of the project. Both parties review and sign all necessary agreements including NDA and Statement of Work before active development begins.',
+    inputs: [
+      { label: 'Non-Disclosure Agreement (NDA)', detail: 'Protects confidential project information shared by both parties.' },
+      { label: 'Statement of Work (SOW)', detail: 'Formally defines project scope, deliverables, timeline, and payment terms.' },
+      { label: 'Project Contract', detail: 'Legally binding agreement outlining all terms and conditions.' },
+    ],
+    adminActions: ['Send NDA via DocuSign/email', 'Share SOW for client review', 'Confirm all signatures received'],
+    color: 'indigo',
+  },
+  planning_scoping: {
+    description: 'Defines the detailed project plan including scope, milestones, architecture decisions, and resource allocation. Provides a clear roadmap for the entire project execution.',
+    inputs: [
+      { label: 'Detailed Scope of Work Document', detail: 'Granular breakdown of all features and deliverables.' },
+      { label: 'Project Timeline & Milestones', detail: 'Phased delivery schedule with key checkpoints.' },
+      { label: 'Technical Architecture Plan', detail: 'Technology choices, system design, and infrastructure setup.' },
+    ],
+    adminActions: ['Draft scope document from requirements', 'Define milestone dates', 'Share plan with client for sign-off'],
+    color: 'blue',
+  },
+  design: {
+    description: 'Creates the complete visual identity and user experience of the project. Iterative design process from wireframes to high-fidelity mockups with client approval at each stage.',
+    inputs: [
+      { label: 'Brand Guidelines & Style Guide', detail: 'Colors, typography, logo usage, and visual identity rules.' },
+      { label: 'Wireframes & Site Map', detail: 'Low-fidelity structural layouts of all pages/screens.' },
+      { label: 'Reference & Inspiration Links', detail: 'Client-provided design references and competitor examples.' },
+    ],
+    adminActions: ['Create wireframes in Figma', 'Develop high-fidelity mockups', 'Share design link for client approval'],
+    color: 'pink',
+  },
+  development: {
+    description: 'Core build phase where the project is developed based on approved designs and specifications. Includes frontend, backend, database, and third-party integrations.',
+    inputs: [
+      { label: 'Approved Design Files (Figma)', detail: 'Finalized, client-approved UI/UX designs for implementation.' },
+      { label: 'Technical Specifications', detail: 'API requirements, integrations, and feature acceptance criteria.' },
+      { label: 'Access & Credentials', detail: 'Hosting, domain, third-party service credentials from client.' },
+    ],
+    adminActions: ['Set up staging environment', 'Develop features per spec', 'Share staging link with client'],
+    color: 'cyan',
+  },
+  testing_qa: {
+    description: 'Comprehensive quality assurance to ensure the project meets all requirements, performs optimally, and is free of critical bugs before delivery.',
+    inputs: [
+      { label: 'Test Plan & Test Cases', detail: 'Documented scenarios covering all functional and edge cases.' },
+      { label: 'Acceptance Criteria', detail: 'Client-defined success benchmarks from the requirements phase.' },
+      { label: 'Bug Report Template', detail: 'Standardized format for tracking and prioritizing issues.' },
+    ],
+    adminActions: ['Run functional test suite', 'Perform cross-browser/device testing', 'Fix all critical and high bugs', 'Upload final QA report'],
+    color: 'yellow',
+  },
+  delivery: {
+    description: 'Official handover of the completed project. Includes final deployment to production, source code transfer, documentation handover, and client walkthrough.',
+    inputs: [
+      { label: 'Production Deployment Checklist', detail: 'Step-by-step verification of live environment setup.' },
+      { label: 'Source Code & Asset Package', detail: 'Complete codebase, design files, and project assets.' },
+      { label: 'Handover Documentation', detail: 'Admin credentials, user manuals, and maintenance guides.' },
+    ],
+    adminActions: ['Deploy to production environment', 'Upload final delivery package', 'Share live URL with client', 'Conduct client walkthrough session'],
+    color: 'emerald',
+  },
+  revision_window: {
+    description: 'Dedicated time window for client feedback and iterative refinements. Changes are scoped to what is defined in the original project agreement.',
+    inputs: [
+      { label: 'Client Feedback & Change Requests', detail: 'Specific revision requests submitted by the client.' },
+      { label: 'Revision Scope Agreement', detail: 'Confirmation of which changes fall within the agreed scope.' },
+      { label: 'Updated Staging Link', detail: 'Revised version of the project for client review.' },
+    ],
+    adminActions: ['Collect revision requests from client', 'Implement approved changes', 'Update staging/production', 'Get client sign-off on revisions'],
+    color: 'amber',
+  },
+  support_window: {
+    description: 'Post-launch support and maintenance period. Covers bug fixes, minor adjustments, and technical assistance as defined in the project package.',
+    inputs: [
+      { label: 'Support Ticket Log', detail: 'Documented list of all reported issues and requests.' },
+      { label: 'Bug Fix & Patch Reports', detail: 'Documentation of all fixes applied post-launch.' },
+      { label: 'Performance Monitoring Data', detail: 'Uptime, speed, and error tracking reports.' },
+    ],
+    adminActions: ['Monitor for reported issues', 'Resolve critical bugs within SLA', 'Document all support actions', 'Close resolved tickets with client confirmation'],
+    color: 'purple',
+  },
+};
+
+const PhaseInputContent = ({ phaseId, isCurrentPhase, phaseEvents, currentPhaseIndex, activePhaseIndex }) => {
+  const details = PHASE_DETAILS[phaseId];
+  if (!details) return null;
+
+  const isCompleted = currentPhaseIndex < activePhaseIndex;
+  const isUpcoming = currentPhaseIndex > activePhaseIndex;
+
+  const colorMap = {
+    indigo: { bg: 'bg-indigo-50 dark:bg-indigo-900/20', border: 'border-indigo-100 dark:border-indigo-800/40', icon: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400', tag: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
+    blue: { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/40', icon: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400', tag: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
+    pink: { bg: 'bg-pink-50 dark:bg-pink-900/20', border: 'border-pink-100 dark:border-pink-800/40', icon: 'bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400', tag: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300' },
+    cyan: { bg: 'bg-cyan-50 dark:bg-cyan-900/20', border: 'border-cyan-100 dark:border-cyan-800/40', icon: 'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400', tag: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' },
+    yellow: { bg: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-100 dark:border-yellow-800/40', icon: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400', tag: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' },
+    emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/40', icon: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400', tag: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' },
+    amber: { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/40', icon: 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400', tag: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
+    purple: { bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-100 dark:border-purple-800/40', icon: 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400', tag: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+  };
+  const c = colorMap[details.color] || colorMap.blue;
+
+  return (
+    <div className="space-y-6">
+      {/* Status banner */}
+      {isCompleted && (
+        <div className="flex items-center gap-3 px-5 py-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/40 rounded-2xl">
+          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+          <p className="text-xs font-bold text-green-700 dark:text-green-300">This phase has been completed. All inputs were processed and outputs delivered.</p>
+        </div>
+      )}
+      {isUpcoming && (
+        <div className="flex items-center gap-3 px-5 py-3 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700/50 rounded-2xl">
+          <Clock className="h-4 w-4 text-gray-400 shrink-0" />
+          <p className="text-xs font-bold text-gray-500 dark:text-gray-400">This phase will begin after all preceding phases are completed.</p>
+        </div>
+      )}
+
+      {/* Phase purpose */}
+      <div className={`${c.bg} ${c.border} border rounded-2xl p-5`}>
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">Phase Purpose</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{details.description}</p>
+      </div>
+
+      {/* Required inputs */}
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-3">Required Inputs</p>
+        <div className="space-y-3">
+          {details.inputs.map((input, idx) => (
+            <div key={idx} className="flex items-start gap-4 p-4 bg-white dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800/60 rounded-2xl">
+              <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${c.icon}`}>
+                {isCompleted ? <CheckCircle className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{input.label}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{input.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Admin action checklist */}
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-3">Admin Action Checklist</p>
+        <div className="space-y-2">
+          {details.adminActions.map((action, idx) => (
+            <div key={idx} className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800/60 rounded-xl">
+              <div className={`h-5 w-5 rounded-md flex items-center justify-center shrink-0 ${isCompleted ? 'bg-green-500' : c.icon}`}>
+                {isCompleted ? <Check className="h-3 w-3 text-white" /> : <span className="text-[10px] font-black">{idx + 1}</span>}
+              </div>
+              <p className={`text-xs font-semibold ${isCompleted ? 'line-through text-gray-400 dark:text-gray-600' : 'text-gray-700 dark:text-gray-300'}`}>{action}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Phase deliverables from timeline (if any already logged) */}
+      {phaseEvents.length > 0 && (
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-3">Logged Activity</p>
+          <div className="space-y-3">
+            {phaseEvents.map((entry, idx) => (
+              <div key={idx} className="flex items-start gap-4 p-4 bg-white dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800/60 rounded-2xl">
+                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">{entry.message}</p>
+                    <span className="text-[10px] font-bold text-gray-400 shrink-0">{new Date(entry.timestamp).toLocaleDateString()}</span>
+                  </div>
+                  {entry.notes && <p className="text-xs text-gray-500 italic">{entry.notes}</p>}
+                  {entry.deliverableUrl && <a href={entry.deliverableUrl} target="_blank" rel="noreferrer" aria-label={`View deliverable: ${entry.message}`} className="text-[10px] font-black text-blue-600 hover:underline mt-1 inline-block">VIEW FILE →</a>}
+                  {entry.externalLink && <a href={entry.externalLink} target="_blank" rel="noreferrer" aria-label={`Open resource link for: ${entry.message}`} className="text-[10px] font-black text-indigo-600 hover:underline mt-1 ml-4 inline-block">OPEN LINK →</a>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PhaseOutputContent = ({ phaseId, phaseEvents, isCurrentPhase, currentPhaseConfig, fileUrl, externalLink, adminNotes, isUploading, isCompleting, onFileUpload, onClearFile, onExternalLinkChange, onAdminNotesChange, onCompletePhase, requirementsStatus }) => {
+  const PHASE_OUTPUT_INFO = {
+    legal_documentation: { title: 'Signed Legal Documents', description: 'Fully executed NDA, SOW, and project contract with signatures from both parties.', deliverables: ['Signed NDA', 'Executed Statement of Work', 'Signed Project Contract'] },
+    planning_scoping: { title: 'Project Plan & Scope', description: 'Detailed project roadmap with milestones, timelines, and approved scope of work document.', deliverables: ['Scope of Work Document (PDF)', 'Project Timeline (Gantt/Milestones)', 'Technical Architecture Document'] },
+    design: { title: 'Approved Design Assets', description: 'Final, client-approved design files including all mockups and exported assets.', deliverables: ['Figma Design File (View Link)', 'Exported Asset Package (ZIP)', 'Style Guide & Brand Kit'] },
+    development: { title: 'Staging Build', description: 'Complete working build deployed to staging environment for client review.', deliverables: ['Staging Environment URL', 'GitHub/Bitbucket Repository Link', 'Build Notes & Feature List'] },
+    testing_qa: { title: 'QA Report & Bug Sign-off', description: 'Comprehensive test report confirming all features function as expected with zero critical bugs.', deliverables: ['QA Test Report (PDF)', 'Bug Fix Log', 'Performance Benchmark Results'] },
+    delivery: { title: 'Final Delivery Package', description: 'Production deployment with live URL, complete source code, and full handover documentation.', deliverables: ['Live Production URL', 'Final Source Code Package (ZIP)', 'User Manual & Admin Documentation'] },
+    revision_window: { title: 'Revised Deliverables', description: 'Updated project files reflecting all approved client revisions.', deliverables: ['Updated Live/Staging URL', 'Change Log Document', 'Client Revision Sign-off'] },
+    support_window: { title: 'Support Closure Report', description: 'Summary of all support activities, issues resolved, and final project health status.', deliverables: ['Support Activity Log', 'Resolved Ticket Summary', 'Final Project Health Report'] },
+  };
+
+  const outputInfo = PHASE_OUTPUT_INFO[phaseId];
+
+  return (
+    <div className="space-y-8">
+      {/* What this phase produces */}
+      {outputInfo && (
+        <div className="bg-slate-50 dark:bg-gray-800/40 border border-slate-100 dark:border-gray-800 rounded-2xl p-5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">{outputInfo.title}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">{outputInfo.description}</p>
+          <div className="space-y-2">
+            {outputInfo.deliverables.map((d, idx) => (
+              <div key={idx} className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />{d}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Logged phase events */}
+      {phaseEvents.length > 0 && (
+        <div className="space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">Delivered Outputs</p>
+          {phaseEvents.map((entry, idx) => (
+            <div key={idx} className="relative pl-8">
+              {idx !== phaseEvents.length - 1 && <div className="absolute left-[0.2rem] top-6 w-px h-full bg-gray-100 dark:bg-gray-800" />}
+              <div className="absolute left-0 top-1 h-2 w-2 rounded-full bg-blue-600" />
+              <div className="flex justify-between text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+                <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
+                <div className="flex gap-3">
+                  {entry.deliverableUrl && <a href={entry.deliverableUrl} target="_blank" rel="noreferrer" aria-label={`View deliverable: ${entry.message}`} className="text-blue-500 hover:text-blue-400 font-black">VIEW FILE</a>}
+                  {entry.externalLink && <a href={entry.externalLink} target="_blank" rel="noreferrer" aria-label={`Open resource link for: ${entry.message}`} className="text-indigo-500 hover:text-indigo-400 font-black">OPEN LINK</a>}
+                </div>
+              </div>
+              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{entry.message}</p>
+              {entry.notes && <p className="text-xs text-gray-600 dark:text-gray-400 italic mt-2 bg-gray-50 dark:bg-gray-800/60 p-3 rounded-xl">"{entry.notes}"</p>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Phase completion form - shown only for current active phase */}
+      {isCurrentPhase && requirementsStatus === 'approved' && (
+        <div className="mt-2 pt-8 border-t border-gray-100 dark:border-gray-800 space-y-6">
+          <div className="bg-blue-50/50 dark:bg-blue-900/40 rounded-3xl p-6 border border-blue-100 dark:border-blue-800/60 shadow-inner">
+            <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase mb-5 tracking-widest">FINALIZE {currentPhaseConfig?.title} — Mark Complete</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {currentPhaseConfig?.requiresUpload && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-wider">{currentPhaseConfig.uploadLabel}</label>
+                  <div className="relative group">
+                    <input type="file" id="file-upload" className="hidden" onChange={onFileUpload} accept=".pdf,.doc,.docx,.zip,.png,.jpg,.fig" />
+                    {!fileUrl ? (
+                      <label htmlFor="file-upload" className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all ${isUploading ? 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700/60 hover:border-blue-400 dark:hover:border-blue-600'}`}>
+                        {isUploading ? <RefreshCw className="h-6 w-6 text-blue-500 animate-spin" /> : (<><Upload className="h-6 w-6 text-gray-400 group-hover:text-blue-500 mb-2" /><span className="text-[10px] font-bold text-gray-500 uppercase">Click to upload file</span></>)}
+                      </label>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4 w-full p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0"><FileText className="h-4 w-4 text-blue-600" /></div>
+                          <span className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">File Uploaded ✓</span>
+                        </div>
+                        <button onClick={onClearFile} className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><X className="h-4 w-4" /></button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {currentPhaseConfig?.requiresLink && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-wider">Resource / Live Link</label>
+                  <input className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500" value={externalLink} onChange={onExternalLinkChange} placeholder="https://..." />
+                </div>
+              )}
+            </div>
+            <textarea className="w-full h-24 mt-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500" value={adminNotes} onChange={onAdminNotesChange} placeholder="Internal notes for this phase completion..." />
+            <button onClick={onCompletePhase} disabled={isCompleting || isUploading} className="mt-6 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-[0.98] uppercase disabled:opacity-50 disabled:cursor-not-allowed">
+              {isCompleting ? 'Completing...' : `COMPLETE PHASE & ADVANCE PROJECT`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {phaseEvents.length === 0 && !isCurrentPhase && (
+        <div className="text-center py-12 text-gray-400 dark:text-gray-600">
+          <Clock className="h-10 w-10 mx-auto mb-3 opacity-30" />
+          <p className="text-xs font-bold uppercase tracking-widest">No outputs logged for this phase yet</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PhaseImpactCard = ({ phase, activeSubPhaseIndex, currentPhaseIndex, totalPhases, completedWeight }) => {
+  if (!phase) return null;
+  const isCompleted = activeSubPhaseIndex < currentPhaseIndex;
+  const isCurrent = activeSubPhaseIndex === currentPhaseIndex;
+  const readiness = isCompleted ? 100 : isCurrent ? Math.round((completedWeight / 100) * 100) : 0;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+        <Activity className="absolute -top-10 -right-10 h-40 w-40 opacity-10" />
+        <h4 className="text-[10px] font-black uppercase opacity-70 tracking-widest mb-4">Phase Impact</h4>
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-black">{phase.weight}%</span>
+          <span className="text-sm opacity-70">Weight</span>
+        </div>
+        <p className="text-xs opacity-60 mt-3 leading-relaxed">Completing this phase advances the overall project by {phase.weight} percentage points.</p>
+        <div className="mt-6 pt-6 border-t border-white/20 space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-[10px] font-black uppercase opacity-60 tracking-widest">Phase Progress</span>
+            <span className="text-xs font-black">{isCompleted ? '100%' : isCurrent ? 'In Progress' : 'Pending'}</span>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-white h-full rounded-full transition-all duration-700" style={{ width: isCompleted ? '100%' : isCurrent ? '60%' : '0%' }} />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-900/60 rounded-[2rem] border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-sm">
+        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">Overall Progress</h4>
+        <div className="flex items-baseline gap-2 mb-3">
+          <span className="text-2xl font-black text-gray-900 dark:text-white">{completedWeight}%</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">of 100% complete</span>
+        </div>
+        <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${completedWeight}%` }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full"
+          />
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="bg-gray-50 dark:bg-gray-800/40 rounded-xl p-3 text-center">
+            <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phase</p>
+            <p className="text-sm font-black text-gray-900 dark:text-gray-100 mt-1">{activeSubPhaseIndex + 1} / {totalPhases}</p>
+          </div>
+          <div className={`rounded-xl p-3 text-center ${isCompleted ? 'bg-green-50 dark:bg-green-900/20' : isCurrent ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-gray-800/40'}`}>
+            <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</p>
+            <p className={`text-xs font-black mt-1 ${isCompleted ? 'text-green-600 dark:text-green-400' : isCurrent ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`}>
+              {isCompleted ? 'Done' : isCurrent ? 'Active' : 'Upcoming'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- Minor Components ---
 
 const LoadingSkeleton = () => (
@@ -659,105 +1007,45 @@ const AdminPhaseActivity = ({ order, refetch }) => {
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12 opacity-60 dark:opacity-40">
-                     <Layout className="h-20 w-20 mx-auto mb-4 text-gray-400" />
-                     <p className="text-sm font-black uppercase tracking-widest">Phase Documentation & Scoping</p>
-                  </div>
-                )
-              ) : (
-                <div className="space-y-8">
-                  <div className="space-y-6">
-                    {phaseEvents.map((entry, idx) => (
-                      <div key={idx} className="relative pl-8">
-                        <div className="absolute left-0 top-1 h-2 w-2 rounded-full bg-blue-600" />
-                        <div className="flex justify-between text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1">
-                          <span>{new Date(entry.timestamp).toLocaleDateString()}</span>
-                          {entry.deliverableUrl && <a href={entry.deliverableUrl} target="_blank" className="text-blue-500 hover:text-blue-400 font-black">VIEW ASSET</a>}
-                        </div>
-                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{entry.message}</p>
-                        {entry.notes && <p className="text-xs text-gray-600 dark:text-gray-400 italic mt-2">{entry.notes}</p>}
-                      </div>
-                    ))}
-                    {isCurrentlyActivePhase && status === 'approved' && (
-                      <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800 space-y-6">
-                        <div className="bg-blue-50/50 dark:bg-blue-900/40 rounded-3xl p-6 border border-blue-100 dark:border-blue-800/60 shadow-inner">
-                          <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase mb-4 tracking-widest">FINALIZE {currentPhaseConfig?.title}</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                             {currentPhaseConfig?.requiresUpload && (
-                               <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-wider">{currentPhaseConfig.uploadLabel}</label>
-                                 <div className="relative group">
-                                   <input
-                                      type="file"
-                                      id="file-upload"
-                                      className="hidden"
-                                      onChange={handleFileUpload}
-                                      accept=".pdf,.doc,.docx,.zip"
-                                   />
-                                   {!fileUrl ? (
-                                     <label
-                                       htmlFor="file-upload"
-                                       className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all
-                                         ${isUploading ? 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700/60 hover:border-blue-400 dark:hover:border-blue-600'}
-                                       `}
-                                     >
-                                       {isUploading ? (
-                                         <RefreshCw className="h-6 w-6 text-blue-500 animate-spin" />
-                                       ) : (
-                                         <>
-                                           <Upload className="h-6 w-6 text-gray-400 group-hover:text-blue-500 mb-2" />
-                                           <span className="text-[10px] font-bold text-gray-500 uppercase">Click to upload file</span>
-                                         </>
-                                       )}
-                                     </label>
-                                   ) : (
-                                     <div className="flex items-center justify-between gap-4 w-full p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl">
-                                       <div className="flex items-center gap-3 overflow-hidden">
-                                         <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center shrink-0">
-                                            <FileText className="h-4 w-4 text-blue-600" />
-                                         </div>
-                                         <span className="text-xs font-bold text-gray-900 dark:text-gray-100 truncate">Delivery File Uploaded</span>
-                                       </div>
-                                       <button onClick={clearFile} className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
-                                         <X className="h-4 w-4" />
-                                       </button>
-                                     </div>
-                                   )}
-                                 </div>
-                               </div>
-                             )}
-                             {currentPhaseConfig?.requiresLink && (
-                               <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-gray-500 dark:text-gray-300 uppercase tracking-wider">Resource Link</label>
-                                 <input className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500" value={externalLink} onChange={(e) => setExternalLink(e.target.value)} placeholder="https://..." />
-                               </div>
-                             )}
-                          </div>
-                           <textarea className="w-full h-24 mt-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500/20 outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500" value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} placeholder="Client notes..." />
-                           <button onClick={handleCompletePhase} disabled={isCompleting || isUploading} className="mt-6 w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-[0.98] uppercase">COMPLETE PHASE</button>
-                        </div>
-                      </div>
-                    )}
-                    {phaseEvents.length === 0 && !isCurrentlyActivePhase && <p className="text-center py-12 text-gray-400 text-xs">No logs for this phase</p>}
-                  </div>
-                </div>
-              )}
+                   <PhaseInputContent
+                     phaseId={activeSubPhase}
+                     isCurrentPhase={isCurrentlyActivePhase}
+                     phaseEvents={phaseEvents}
+                     currentPhaseIndex={PHASES.findIndex(p => p.id === activeSubPhase)}
+                     activePhaseIndex={PHASES.findIndex(p => p.id === currentPhase)}
+                   />
+                 )
+               ) : (
+                 <PhaseOutputContent
+                   phaseId={activeSubPhase}
+                   phaseEvents={phaseEvents}
+                   isCurrentPhase={isCurrentlyActivePhase}
+                   currentPhaseConfig={currentPhaseConfig}
+                   fileUrl={fileUrl}
+                   externalLink={externalLink}
+                   adminNotes={adminNotes}
+                   isUploading={isUploading}
+                   isCompleting={isCompleting}
+                   onFileUpload={handleFileUpload}
+                   onClearFile={clearFile}
+                   onExternalLinkChange={(e) => setExternalLink(e.target.value)}
+                   onAdminNotesChange={(e) => setAdminNotes(e.target.value)}
+                   onCompletePhase={handleCompletePhase}
+                   requirementsStatus={status}
+                 />
+               )}
             </div>
           </div>
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
-             <Activity className="absolute -top-10 -right-10 h-40 w-40 opacity-10" />
-             <h4 className="text-[10px] font-black uppercase opacity-70 tracking-widest mb-4">Phase Impact</h4>
-             <div className="flex items-baseline gap-2">
-               <span className="text-4xl font-black">{PHASES.find(p => p.id === activeSubPhase)?.weight}%</span>
-               <span className="text-sm opacity-70">Weight</span>
-             </div>
-             <div className="mt-8 pt-8 border-t border-white/20">
-               <div className="w-full bg-white/10 rounded-full h-1"><div className="bg-white h-1 rounded-full" style={{ width: PHASES.findIndex(p => p.id === activeSubPhase) <= PHASES.findIndex(p => p.id === currentPhase) ? '100%' : '0%' }} /></div>
-             </div>
-          </div>
+          <PhaseImpactCard
+            phase={PHASES.find(p => p.id === activeSubPhase)}
+            activeSubPhaseIndex={PHASES.findIndex(p => p.id === activeSubPhase)}
+            currentPhaseIndex={PHASES.findIndex(p => p.id === currentPhase)}
+            totalPhases={PHASES.length}
+            completedWeight={PHASES.slice(0, PHASES.findIndex(p => p.id === currentPhase)).reduce((sum, p) => sum + p.weight, 0)}
+          />
         </div>
       </div>
     </motion.div>
