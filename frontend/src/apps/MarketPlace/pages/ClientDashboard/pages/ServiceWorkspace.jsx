@@ -1,10 +1,18 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, CheckCircle, Clock, FileText, MessageSquare, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, Clock, Edit, FileText, Loader2, MessageSquare, RefreshCw, Star, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { calculateProjectProgress } from '../../../../../shared/utils/serviceUtils';
-import { useGetServiceByIdQuery } from '../../../store/api/marketplaceApi';
+import {
+    useCreateReviewMutation,
+    useDeleteReviewMutation,
+    useGetServiceByIdQuery,
+    useGetServiceReviewsQuery,
+    useUpdateReviewMutation
+} from '../../../store/api/marketplaceApi';
+import { selectCurrentUser } from '../../../store/auth/authSlice';
 import { useApproveDeliveryMutation, useGetOrderByIdQuery, useRequestRevisionMutation } from '../../../store/orders/ordersApi';
 
 
@@ -139,6 +147,12 @@ const ServiceWorkspace = () => {
   const [isSubmittingRevision, setIsSubmittingRevision] = useState(false);
   const [showApproveConfirm, setShowApproveConfirm] = useState(false);
 
+  // Review state
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewHovered, setReviewHovered] = useState(0);
+  const [isEditingReview, setIsEditingReview] = useState(false);
+
   const [requestRevision] = useRequestRevisionMutation();
   const [approveDelivery] = useApproveDeliveryMutation();
   const [isApprovingDelivery, setIsApprovingDelivery] = useState(false);
@@ -158,6 +172,28 @@ const ServiceWorkspace = () => {
   const { data: liveService } = useGetServiceByIdQuery(serviceIdToFetch, {
     skip: !serviceIdToFetch,
   });
+
+  // Review hooks
+  const { data: serviceReviewsData } = useGetServiceReviewsQuery(serviceIdToFetch, {
+    skip: !serviceIdToFetch,
+  });
+  const serviceReviews = serviceReviewsData?.data?.reviews || [];
+  const [createReview, { isLoading: isReviewSubmitting }] = useCreateReviewMutation();
+  const [updateReview, { isLoading: isUpdateSubmitting }] = useUpdateReviewMutation();
+  const [deleteReview, { isLoading: isDeleteSubmitting }] = useDeleteReviewMutation();
+
+  const currentUser = useSelector(selectCurrentUser);
+  const userServiceReview = serviceReviews.find(r =>
+    (r.user?._id && r.user._id === currentUser?._id) || (r.user === currentUser?._id)
+  );
+
+  // Pre-fill review form when editing
+  useEffect(() => {
+    if (userServiceReview) {
+      setReviewRating(userServiceReview.rating);
+      setReviewComment(userServiceReview.comment);
+    }
+  }, [userServiceReview]);
 
   // Find the specific package from live data (case-insensitive)
   const livePackage = liveService?.packages?.find(p =>
@@ -292,6 +328,53 @@ const ServiceWorkspace = () => {
       toast.error(err?.data?.message || 'Failed to request revision');
     } finally {
       setIsSubmittingRevision(false);
+    }
+  };
+
+  // Handle service review submit
+  const handleSubmitServiceReview = async (e) => {
+    e.preventDefault();
+    if (!reviewComment.trim()) {
+      toast.error('Please write a comment');
+      return;
+    }
+    if (!serviceIdToFetch) {
+      toast.error('Unable to identify service');
+      return;
+    }
+    try {
+      if (isEditingReview && userServiceReview) {
+        await updateReview({
+          reviewId: userServiceReview._id,
+          serviceId: serviceIdToFetch,
+          rating: reviewRating,
+          comment: reviewComment,
+        }).unwrap();
+        toast.success('Review updated!');
+        setIsEditingReview(false);
+      } else {
+        await createReview({
+          serviceId: serviceIdToFetch,
+          rating: reviewRating,
+          comment: reviewComment,
+        }).unwrap();
+        toast.success('Review submitted!');
+      }
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to save review');
+    }
+  };
+
+  const handleDeleteServiceReview = async () => {
+    if (!window.confirm('Are you sure you want to delete your review?')) return;
+    try {
+      await deleteReview({ reviewId: userServiceReview._id, serviceId: serviceIdToFetch }).unwrap();
+      toast.success('Review deleted');
+      setReviewRating(5);
+      setReviewComment('');
+      setIsEditingReview(false);
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to delete review');
     }
   };
 
@@ -457,6 +540,26 @@ const ServiceWorkspace = () => {
             <CheckCircle className="h-4 w-4" />
             Phase Activity
           </button>
+          {(order.status === 'completed' || order.status === 'delivered') && (
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`
+                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
+                ${activeTab === 'reviews'
+                  ? 'border-green-500 text-green-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }
+              `}
+            >
+              <Star className="h-4 w-4" />
+              Reviews
+              {serviceReviews.length > 0 && (
+                <span className="bg-yellow-100 text-yellow-700 text-xs px-1.5 py-0.5 rounded-full">
+                  {serviceReviews.length}
+                </span>
+              )}
+            </button>
+          )}
         </nav>
       </div>
 
@@ -797,6 +900,145 @@ const ServiceWorkspace = () => {
         {activeTab === 'messages' && <ServiceChat orderId={serviceId} />}
         {activeTab === 'files' && <ServiceFiles orderId={serviceId} order={order} />}
         {activeTab === 'activity' && <ServicePhaseActivity order={order} liveService={liveService} />}
+        {activeTab === 'reviews' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 py-6"
+          >
+            <h2 className="text-lg font-bold text-gray-900">
+              {userServiceReview && !isEditingReview ? 'Your Review' : isEditingReview ? 'Update Review' : 'Write a Review'}
+            </h2>
+
+            {/* Review Form / Display */}
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              {!isEditingReview && userServiceReview ? (
+                <div>
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <Star key={s} className={`h-5 w-5 ${s <= userServiceReview.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setIsEditingReview(true)}
+                        className="p-2 text-gray-500 hover:text-green-600 hover:bg-white rounded-lg transition-all"
+                        title="Edit Review"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={handleDeleteServiceReview}
+                        disabled={isDeleteSubmitting}
+                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-white rounded-lg transition-all"
+                        title="Delete Review"
+                      >
+                        {isDeleteSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 whitespace-pre-wrap">{userServiceReview.comment}</p>
+                  <p className="text-xs text-gray-400 mt-4">
+                    Posted on {new Date(userServiceReview.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmitServiceReview}>
+                  <div className="mb-4">
+                    <div className="flex justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">Your Rating</label>
+                      {isEditingReview && (
+                        <button
+                          type="button"
+                          onClick={() => setIsEditingReview(false)}
+                          className="text-xs text-gray-500 hover:text-gray-700"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                          key={star}
+                          type="button"
+                          onMouseEnter={() => setReviewHovered(star)}
+                          onMouseLeave={() => setReviewHovered(0)}
+                          onClick={() => setReviewRating(star)}
+                          className="focus:outline-none transition-transform hover:scale-110"
+                        >
+                          <Star className={`h-8 w-8 transition-colors ${star <= (reviewHovered || reviewRating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                    <textarea
+                      value={reviewComment}
+                      onChange={e => setReviewComment(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none text-sm"
+                      placeholder="Share your experience with this service..."
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isReviewSubmitting || isUpdateSubmitting}
+                    className="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {(isReviewSubmitting || isUpdateSubmitting) && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isEditingReview ? 'Update Review' : 'Submit Review'}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* All Public Reviews */}
+            {serviceReviews.length > 0 && (
+              <div>
+                <h3 className="text-base font-semibold text-gray-800 mb-3">
+                  All Reviews ({serviceReviews.length})
+                </h3>
+                <div className="space-y-4">
+                  {serviceReviews.filter(r => r._id !== userServiceReview?._id).map(review => {
+                    const reviewer = review.user;
+                    const name = reviewer?.firstName
+                      ? `${reviewer.firstName} ${reviewer.lastName || ''}`.trim()
+                      : reviewer?.name || 'Anonymous';
+                    return (
+                      <div key={review._id} className="bg-white rounded-xl p-5 border border-gray-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">
+                              {name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">{name}</p>
+                              {review.isVerifiedPurchase && (
+                                <span className="text-xs text-green-600 font-medium">✓ Verified Purchase</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-0.5 flex-shrink-0">
+                            {[1, 2, 3, 4, 5].map(s => (
+                              <Star key={s} className={`h-4 w-4 ${s <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                        <p className="text-xs text-gray-400 mt-2">
+                          {new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
 
       {/* Approve & Complete Confirmation Modal */}

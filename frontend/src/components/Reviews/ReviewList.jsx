@@ -22,15 +22,20 @@ const ReviewList = ({ productId, serviceId }) => {
     <div className="space-y-6">
       <h3 className="text-2xl font-bold text-gray-800">Customer Reviews ({reviews.length})</h3>
       <div className="space-y-4">
-        {reviews.map((review) => (
-          <div key={review.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        {reviews.map((review) => {
+          const reviewer = review.user;
+          const name = reviewer?.firstName
+            ? `${reviewer.firstName} ${reviewer.lastName || ''}`.trim()
+            : reviewer?.name || 'Anonymous';
+          return (
+          <div key={review.id || review._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                  {review.user?.name?.charAt(0) || 'U'}
+                  {name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">{review.user?.name || 'Anonymous'}</h4>
+                  <h4 className="font-semibold text-gray-900">{name}</h4>
                   <div className="flex items-center gap-2">
                     <StarRating rating={review.rating} readOnly size={14} />
                     <span className="text-xs text-gray-500">
@@ -47,7 +52,8 @@ const ReviewList = ({ productId, serviceId }) => {
             </div>
             <p className="text-gray-700 leading-relaxed">{review.comment}</p>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
