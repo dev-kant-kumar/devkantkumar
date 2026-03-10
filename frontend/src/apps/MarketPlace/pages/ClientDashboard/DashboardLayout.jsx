@@ -1,7 +1,9 @@
 import {
+    Bell,
     Box,
     CreditCard,
     Download,
+    Gift,
     LayoutDashboard,
     LogOut,
     MessageSquare,
@@ -63,9 +65,11 @@ const DashboardLayout = () => {
 
   const navigation = [
     { name: 'Overview', href: '/marketplace/dashboard', icon: LayoutDashboard, exact: true },
+    { name: 'Notifications', href: '/marketplace/dashboard/notifications', icon: Bell, exact: false },
     { name: 'My Orders', href: '/marketplace/dashboard/orders', icon: ShoppingBag, exact: false },
     { name: 'My Services', href: '/marketplace/dashboard/services', icon: Box, exact: false },
     { name: 'My Products', href: '/marketplace/dashboard/products', icon: Download, exact: false },
+    { name: 'Referral Program', href: '/marketplace/dashboard/referral', icon: Gift, exact: false },
     { name: 'Billing & Plans', href: '/marketplace/dashboard/billing', icon: CreditCard, exact: false },
     { name: 'Support Tickets', href: '/marketplace/dashboard/support', icon: MessageSquare, exact: false },
     { name: 'Settings', href: '/marketplace/dashboard/settings', icon: Settings, exact: false },

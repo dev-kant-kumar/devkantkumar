@@ -6,6 +6,7 @@ import {
     Package, RefreshCw, Ticket, Trash2, UserPlus
 } from 'lucide-react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import PremiumDropdown from '../../../../shared/components/PremiumDropdown.jsx';
 import {
@@ -118,6 +119,16 @@ const AdminNotifications = () => {
     await deleteNotification(notificationId);
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm('Clear all notifications? This cannot be undone.')) return;
+    try {
+      await clearAllNotifications().unwrap();
+      toast.success('All notifications cleared');
+    } catch (err) {
+      toast.error(err?.data?.message || 'Failed to clear notifications');
+    }
+  };
+
   const typeOptions = [
     { value: null, label: 'All Types' },
     { value: 'order_created', label: 'New Orders' },
@@ -177,7 +188,7 @@ const AdminNotifications = () => {
 
             {notifications.length > 0 && (
             <button
-                onClick={() => clearAllNotifications()}
+                onClick={handleClearAll}
                 disabled={isClearing}
                 className="px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white/60 dark:bg-gray-800/40 backdrop-blur-md border border-red-200/50 dark:border-red-800/30 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shadow-sm"
             >

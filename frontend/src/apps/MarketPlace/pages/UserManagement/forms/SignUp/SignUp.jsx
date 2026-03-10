@@ -1,7 +1,7 @@
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { validate } from '../../../../../../utils/formValidation';
 import InputField from '../../../../common/components/ui/InputField';
 import { useRegisterMutation, useResendVerificationMutation } from '../../../../store/auth/authApi';
@@ -10,8 +10,12 @@ import { selectIsAuthenticated } from '../../../../store/auth/authSlice';
 const SignUp = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // Capture referral code from URL query param (?ref=REF-XXXXXX)
+  const referralCode = searchParams.get('ref') || '';
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -78,7 +82,8 @@ const SignUp = () => {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          ...(referralCode && { referralCode })
         }).unwrap();
 
         setIsSuccess(true);
@@ -180,6 +185,15 @@ const SignUp = () => {
           Already have an account? <Link to="/marketplace/auth/signin" className="font-medium text-blue-600 hover:text-blue-500">Sign in</Link>
         </p>
       </div>
+
+      {referralCode && (
+        <div className="mb-4 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-lg">
+          <span className="text-green-600 text-lg">🎁</span>
+          <p className="text-sm text-green-700">
+            You were referred! Sign up using code <span className="font-mono font-bold">{referralCode}</span>.
+          </p>
+        </div>
+      )}
 
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4">

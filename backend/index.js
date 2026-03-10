@@ -16,7 +16,7 @@ const { initializeSocket } = require('./src/config/socket');
 require('dotenv').config();
 
 // Validate required environment variables
-const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
@@ -43,6 +43,7 @@ const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const youtubeRoutes = require('./src/routes/youtubeRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const couponRoutes = require('./src/routes/couponRoutes');
+const referralRoutes = require('./src/routes/referralRoutes');
 
 // Import middleware
 const errorHandler = require('./src/middlewares/errorHandler');
@@ -129,6 +130,9 @@ app.use(cors({
 app.use('/api/', limiter);
 
 // Body parsing middleware
+// NOTE: The verify callback intentionally sets req.rawBody as a Buffer.
+// This is required for Razorpay webhook signature verification (crypto.createHmac).
+// Do NOT remove the verify callback.
 app.use(express.json({
   limit: '100mb',
   verify: (req, res, buf) => {
@@ -202,13 +206,13 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/portfolio', portfolioRoutes);
 app.use('/api/v1/marketplace', marketplaceRoutes);
 app.use('/api/v1/coupons', couponRoutes);
+app.use('/api/v1/referral', referralRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/pdf', pdfRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/subscribers', subscriberRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
-app.use('/api/v1/youtube', youtubeRoutes);
 app.use('/api/v1/youtube', youtubeRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/reviews', require('./src/routes/reviewRoutes'));

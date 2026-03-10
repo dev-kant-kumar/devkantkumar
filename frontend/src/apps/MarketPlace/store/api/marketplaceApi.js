@@ -112,6 +112,23 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
       }),
     }),
 
+    // Categories
+    getCategories: builder.query({
+      query: () => `/marketplace/categories`,
+      providesTags: [{ type: 'Category', id: 'LIST' }],
+    }),
+
+    // Search
+    searchMarketplace: builder.query({
+      query: ({ q, type } = {}) => {
+        const params = new URLSearchParams();
+        if (q) params.append('q', q);
+        if (type) params.append('type', type);
+        return `/marketplace/search?${params.toString()}`;
+      },
+      providesTags: () => [{ type: 'Product', id: 'SEARCH' }, { type: 'Service', id: 'SEARCH' }],
+    }),
+
     // Coupons
     validateCoupon: builder.mutation({
       query: (data) => ({

@@ -26,7 +26,7 @@
     "@sparticuz/chromium": "^141.0.0",
     "@tailwindcss/vite": "^4.1.13",
     "async-mutex": "^0.5.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.2",
     "framer-motion": "^12.23.22",
@@ -67,6 +67,17 @@
     "vite": "npm:rolldown-vite@7.1.12"
   },
   "overrides": {
-    "vite": "npm:rolldown-vite@7.1.12"
+    "vite": "npm:rolldown-vite@7.1.12",
+    "rollup": "^2.80.0",
+    "tar": "^7.5.10",
+    "minimatch": "^3.1.4",
+    "basic-ftp": "^5.2.0",
+    "serialize-javascript": "^7.0.3",
+    "filelist": {
+      "minimatch": "^5.1.8"
+    },
+    "glob": {
+      "minimatch": "^10.2.3"
+    }
   }
 }

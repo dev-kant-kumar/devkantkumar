@@ -25,6 +25,7 @@ const Invoice = React.lazy(() => import('./pages/Invoice/Invoice'));
 const Notifications = React.lazy(() => import('./pages/ClientDashboard/pages/Notifications'));
 const SupportTickets = React.lazy(() => import('./pages/ClientDashboard/pages/SupportTickets'));
 const Billing = React.lazy(() => import('./pages/ClientDashboard/pages/Billing'));
+const Referral = React.lazy(() => import('./pages/ClientDashboard/pages/Referral'));
 const Terms = React.lazy(() => import('./pages/Terms/Terms'));
 const Privacy = React.lazy(() => import('./pages/Privacy/Privacy'));
 const Refunds = React.lazy(() => import('./pages/Refunds/Refunds'));
@@ -91,6 +92,7 @@ const MarketPlaceRoutes = () => {
               <Route path="notifications" element={<Notifications />} />
               <Route path="support" element={<SupportTickets />} />
               <Route path="billing" element={<Billing />} />
+              <Route path="referral" element={<Referral />} />
               <Route path="settings" element={<Settings />} />
             </Route>
 

@@ -210,6 +210,19 @@ const userSchema = new mongoose.Schema({
     favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     favoriteServices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }],
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }]
+  },
+
+  // --- Referral ---
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  referredByCode: {
+    type: String,
+    trim: true,
+    uppercase: true,
+    default: null
   }
 }, {
   timestamps: true,

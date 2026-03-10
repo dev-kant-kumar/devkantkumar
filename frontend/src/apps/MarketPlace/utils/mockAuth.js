@@ -1,7 +1,17 @@
 /**
  * Mock Authentication Service using LocalStorage
  * Simulates a backend database for users.
+ *
+ * WARNING: This module is for LOCAL DEVELOPMENT ONLY.
+ * It uses btoa() (base64) — this is NOT cryptographic security.
+ * It must never be used in production. Delete this file once fully migrated
+ * to real backend authentication.
  */
+
+// Hard-fail in production builds so this code never runs outside development
+if (import.meta.env.PROD) {
+  throw new Error('[mockAuth] FATAL: mockAuth.js must not be used in production. Switch to real backend auth.');
+}
 
 const USERS_KEY = 'marketPlace_users';
 const DELAY_MS = 1000; // Simulate network delay
