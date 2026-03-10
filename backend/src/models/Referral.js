@@ -160,19 +160,22 @@ referralSchema.index({ 'conversions.status': 1 });
 // Generate a unique referral code for a user
 referralSchema.statics.generateCode = async function(userId) {
   const base = userId.toString().slice(-6).toUpperCase();
-  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  let code = `REF-${base}${suffix}`;
+  const maxAttempts = 10;
 
-  // Ensure uniqueness
-  let existing = await this.findOne({ code });
-  let attempts = 0;
-  while (existing && attempts < 10) {
-    const newSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-    code = `REF-${base}${newSuffix}`;
-    existing = await this.findOne({ code });
-    attempts++;
+  for (let i = 0; i < maxAttempts; i++) {
+    const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const code = `REF-${base}${suffix}`;
+    const existing = await this.findOne({ code });
+    if (!existing) return code;
   }
-  return code;
+
+  // Fallback: use a longer random segment to virtually guarantee uniqueness
+  const fallback = `REF-${Date.now().toString(36).toUpperCase().slice(-8)}`;
+  const exists = await this.findOne({ code: fallback });
+  if (exists) {
+    throw new Error('Could not generate a unique referral code. Please try again.');
+  }
+  return fallback;
 };
 
 module.exports = mongoose.model('Referral', referralSchema);

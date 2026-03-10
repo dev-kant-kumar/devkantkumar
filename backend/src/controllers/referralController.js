@@ -42,7 +42,9 @@ exports.getProgramInfo = async (req, res) => {
  */
 exports.getMyReferral = async (req, res) => {
   try {
-    let referral = await Referral.findOne({ referrer: req.user._id }).lean();
+    let referral = await Referral.findOne({ referrer: req.user._id })
+      .select('code commissionRate totalReferrals totalConversions totalEarned totalPaid pendingBalance availableBalance conversions payoutRequests isActive createdAt')
+      .lean();
 
     if (!referral) {
       const code = await Referral.generateCode(req.user._id);
@@ -251,7 +253,7 @@ exports.awardCommission = async (order) => {
       referral.totalConversions += 1;
       referral.totalEarned += commissionAmount;
       referral.pendingBalance += commissionAmount;
-      // Make it available after a short hold (immediate for simplicity)
+      // Commission is made immediately available for withdrawal
       referral.availableBalance += commissionAmount;
 
       await referral.save();

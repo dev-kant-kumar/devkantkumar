@@ -19,7 +19,7 @@ import {
   useAdminGetAllReferralsQuery,
   useAdminGetPendingPayoutsQuery,
   useAdminProcessPayoutMutation,
-} from '../../store/referral/referralApi';
+} from '../../../MarketPlace/store/referral/referralApi';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
