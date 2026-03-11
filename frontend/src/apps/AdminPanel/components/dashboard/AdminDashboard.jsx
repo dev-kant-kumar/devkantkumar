@@ -10,15 +10,16 @@ import {
     TrendingUp
 } from 'lucide-react';
 import { useEffect } from 'react';
+import PremiumButton from '../../common/components/PremiumButton';
 import { useDispatch, useSelector } from 'react-redux';
 
 // RTK Query hooks
 import {
     useGetAdminContactMessagesQuery,
     useGetDashboardAnalyticsQuery,
-    useGetDashboardOverviewQuery,
+    useGetAdminDashboardQuery,
     useGetDashboardStatsQuery,
-    useGetProjectsQuery,
+    useGetAdminProjectsQuery,
 } from '../../store/api/adminApiSlice';
 
 // UI slice selectors and actions
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
     isLoading: isOverviewLoading,
     error: overviewError,
     refetch: refetchOverview,
-  } = useGetDashboardOverviewQuery(undefined, {
+  } = useGetAdminDashboardQuery(undefined, {
     pollingInterval: 300000, // Poll every 5 minutes
     refetchOnMountOrArgChange: true,
   });
@@ -69,7 +70,7 @@ const AdminDashboard = () => {
     data: projectsData,
     isLoading: isProjectsLoading,
     error: projectsError,
-  } = useGetProjectsQuery({
+  } = useGetAdminProjectsQuery({
     page: 1,
     limit: 5,
     status: 'published',
