@@ -4,6 +4,7 @@ const Service = require("../models/Service");
 const Order = require("../models/Order");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const mongoose = require("mongoose");
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
   let filter = {};
@@ -39,16 +40,27 @@ exports.createReview = catchAsync(async (req, res, next) => {
     );
   }
 
+  // Validate IDs are proper MongoDB ObjectIds before using in queries
+  if (product && !mongoose.Types.ObjectId.isValid(product)) {
+    return next(new AppError("Invalid product ID.", 400));
+  }
+  if (service && !mongoose.Types.ObjectId.isValid(service)) {
+    return next(new AppError("Invalid service ID.", 400));
+  }
+  if (!mongoose.Types.ObjectId.isValid(user)) {
+    return next(new AppError("Invalid user ID.", 400));
+  }
+
   // 1. Check if user actually purchased the product/service
   // Order items structure: [{ itemType: 'product', itemId: ObjectId, ... }]
   // Also check if order is completed
   const orders = await Order.find({
-    user: user,
+    user: new mongoose.Types.ObjectId(user),
     "payment.status": "completed", // Or whatever status means "paid/acquired"
     // We need to match at least one item in the items array
     items: {
       $elemMatch: {
-        itemId: product || service,
+        itemId: new mongoose.Types.ObjectId(product || service),
         itemType: product ? "product" : "service",
       },
     },
@@ -64,9 +76,9 @@ exports.createReview = catchAsync(async (req, res, next) => {
   }
 
   // 2. Check for duplicate review
-  const reviewFilter = { user };
-  if (product) reviewFilter.product = product;
-  else if (service) reviewFilter.service = service;
+  const reviewFilter = { user: new mongoose.Types.ObjectId(user) };
+  if (product) reviewFilter.product = new mongoose.Types.ObjectId(product);
+  else if (service) reviewFilter.service = new mongoose.Types.ObjectId(service);
 
   const existingReview = await Review.findOne(reviewFilter);
 
@@ -87,7 +99,10 @@ exports.createReview = catchAsync(async (req, res, next) => {
 });
 
 exports.updateReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid review ID", 400));
+  }
+  const review = await Review.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
@@ -115,7 +130,10 @@ exports.updateReview = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid review ID", 400));
+  }
+  const review = await Review.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
@@ -127,7 +145,7 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
     );
   }
 
-  await Review.findByIdAndDelete(req.params.id);
+  await Review.findByIdAndDelete(new mongoose.Types.ObjectId(req.params.id));
   // We need to trigger stats update. findByIdAndDelete triggers findOneAndDelete middleware if defined.
   // I defined hook on /^findOneAnd/ in Review.js, so it should catch this if it translates to findOneAndDelete
 

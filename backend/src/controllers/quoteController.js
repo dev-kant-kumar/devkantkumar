@@ -1,6 +1,7 @@
 const QuoteRequest = require('../models/QuoteRequest');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const mongoose = require('mongoose');
 
 // Escape special regex metacharacters to prevent ReDoS attacks.
 const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -110,7 +111,10 @@ exports.getAllQuotes = catchAsync(async (req, res, next) => {
  * @access  Admin
  */
 exports.getQuoteById = catchAsync(async (req, res, next) => {
-  const quote = await QuoteRequest.findById(req.params.id);
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError('Invalid quote request ID', 400));
+  }
+  const quote = await QuoteRequest.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!quote) {
     return next(new AppError('Quote request not found', 404));
@@ -130,7 +134,10 @@ exports.getQuoteById = catchAsync(async (req, res, next) => {
 exports.updateQuote = catchAsync(async (req, res, next) => {
   const { status, priority, adminNotes, estimatedValue } = req.body;
 
-  const quote = await QuoteRequest.findById(req.params.id);
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError('Invalid quote request ID', 400));
+  }
+  const quote = await QuoteRequest.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!quote) {
     return next(new AppError('Quote request not found', 404));
@@ -168,7 +175,10 @@ exports.updateQuote = catchAsync(async (req, res, next) => {
  * @access  Admin
  */
 exports.deleteQuote = catchAsync(async (req, res, next) => {
-  const quote = await QuoteRequest.findById(req.params.id);
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError('Invalid quote request ID', 400));
+  }
+  const quote = await QuoteRequest.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!quote) {
     return next(new AppError('Quote request not found', 404));

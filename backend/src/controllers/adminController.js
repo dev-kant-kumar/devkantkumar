@@ -11,6 +11,7 @@ const emailService = require('../services/emailService');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 // @desc    Get admin dashboard data
 // @route   GET /api/v1/admin/dashboard
@@ -214,8 +215,12 @@ const updateUserStatus = async (req, res) => {
     const { id } = req.params;
     const { isActive } = req.body;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+
     const user = await User.findByIdAndUpdate(
-      id,
+      new mongoose.Types.ObjectId(id),
       { isActive },
       { new: true, runValidators: true }
     ).select('-password');
@@ -250,7 +255,11 @@ const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+
+    const user = await User.findById(new mongoose.Types.ObjectId(id));
 
     if (!user) {
       return res.status(404).json({
@@ -267,7 +276,7 @@ const deleteUser = async (req, res) => {
       });
     }
 
-    await User.findByIdAndDelete(id);
+    await User.findByIdAndDelete(new mongoose.Types.ObjectId(id));
 
     logger.info(`User ${user.email} deleted by admin ${req.user.email}`);
 

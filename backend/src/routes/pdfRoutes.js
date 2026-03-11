@@ -1,10 +1,19 @@
 const express = require("express");
 const puppeteer = require("puppeteer");
+const path = require("path");
 
 const router = express.Router();
 
+// Allowlist of permitted hostnames for PDF generation (prevents SSRF)
+const ALLOWED_PDF_HOSTNAMES = process.env.PDF_ALLOWED_HOSTNAMES
+  ? process.env.PDF_ALLOWED_HOSTNAMES.split(",").map((h) => h.trim().toLowerCase())
+  : ["devkantkumar.com", "www.devkantkumar.com", "localhost", "127.0.0.1"];
+
 router.get("/", async (req, res) => {
-  const { url, filename = "git-guide.pdf" } = req.query;
+  const { url } = req.query;
+  // Sanitize the filename: strip path separators and limit characters
+  const rawFilename = typeof req.query.filename === "string" ? req.query.filename : "git-guide.pdf";
+  const filename = path.basename(rawFilename).replace(/[^a-zA-Z0-9._\-]/g, "_") || "git-guide.pdf";
 
   if (!url) {
     return res
@@ -12,30 +21,24 @@ router.get("/", async (req, res) => {
       .json({ message: "Missing required query param: url" });
   }
 
-  // Basic URL validation to prevent SSRF
+  // Strict URL validation using an allowlist to prevent SSRF
+  let safeUrl;
   try {
     const parsedUrl = new URL(url);
     if (!["http:", "https:"].includes(parsedUrl.protocol)) {
       return res.status(400).json({ message: "Invalid URL scheme" });
     }
     const hostname = parsedUrl.hostname.toLowerCase();
-    // Check for private / local IPs to mitigate SSRF
-    if (
-      ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(hostname) ||
-      hostname.startsWith("192.168.") ||
-      hostname.startsWith("10.") ||
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
-      hostname.endsWith(".internal") ||
-      hostname.endsWith(".local") ||
-      parsedUrl.protocol === "file:"
-    ) {
+
+    // Only allow requests to explicitly permitted hostnames
+    if (!ALLOWED_PDF_HOSTNAMES.includes(hostname)) {
       return res
         .status(400)
-        .json({ message: "Local/private URLs are not permitted" });
+        .json({ message: "URL hostname is not permitted" });
     }
 
-    // Instead of using the raw user input, capture the verified URL
-    req.safeUrl = parsedUrl.href;
+    // Use the reconstructed URL from the parsed object, not raw user input
+    safeUrl = parsedUrl.href;
   } catch (e) {
     return res.status(400).json({ message: "Invalid URL format" });
   }
@@ -50,15 +53,12 @@ router.get("/", async (req, res) => {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 1 });
 
-    console.log("Attempting to navigate to:", req.safeUrl);
-
     // Avoid waiting forever on dev-server websockets; wait for content instead
-    await page.goto(req.safeUrl, {
+    await page.goto(safeUrl, {
       waitUntil: "domcontentloaded",
       timeout: 60000,
     });
 
-    console.log("Page loaded, waiting for #git-guide selector...");
     await page.waitForSelector("#git-guide", { timeout: 20000 });
     await page.emulateMediaType("screen");
 

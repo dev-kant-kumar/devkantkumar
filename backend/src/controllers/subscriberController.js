@@ -85,7 +85,12 @@ const getSubscribers = async (req, res) => {
 const unsubscribe = async (req, res) => {
     const { email } = req.body;
     try {
-        const subscriber = await Subscriber.findOne({ email });
+        // Sanitize email to ensure it's a string before using in query
+        const safeEmail = typeof email === 'string' ? email.trim().toLowerCase() : null;
+        if (!safeEmail) {
+            return res.status(400).json({ success: false, message: 'Valid email is required' });
+        }
+        const subscriber = await Subscriber.findOne({ email: safeEmail });
         if (!subscriber) {
              return res.status(404).json({ success: false, message: 'Subscriber not found' });
         }

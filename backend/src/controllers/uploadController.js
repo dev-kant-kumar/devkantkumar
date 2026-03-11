@@ -3,11 +3,22 @@ const logger = require('../utils/logger');
 const path = require('path');
 const fs = require('fs');
 
+// Resolve the absolute path of the expected temp upload directory so that we
+// can verify any file path before touching it (prevents path-traversal attacks).
+const UPLOAD_DIR = path.resolve('uploads/temp');
+
 // Helper to cleanup temp file
 const cleanupFile = (filePath) => {
   try {
-    if (filePath && fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (!filePath) return;
+    // Normalize the path and confirm it stays within the upload directory
+    const resolvedPath = path.resolve(filePath);
+    if (!resolvedPath.startsWith(UPLOAD_DIR + path.sep) && resolvedPath !== UPLOAD_DIR) {
+      logger.warn(`Refusing to delete file outside upload directory: ${resolvedPath}`);
+      return;
+    }
+    if (fs.existsSync(resolvedPath)) {
+      fs.unlinkSync(resolvedPath);
     }
   } catch (err) {
     logger.error(`Failed to cleanup file ${filePath}:`, err);

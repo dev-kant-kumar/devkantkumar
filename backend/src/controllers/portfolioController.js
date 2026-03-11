@@ -6,6 +6,7 @@ const BlogPost = require('../models/BlogPost');
 const ContactMessage = require('../models/ContactMessage');
 const Visit = require('../models/Visit');
 const { getGAOverview } = require('../services/googleAnalytics');
+const mongoose = require('mongoose');
 
 // @desc    Get all projects
 // @route   GET /api/v1/portfolio/projects
@@ -32,7 +33,10 @@ const getProjects = async (req, res) => {
 // @access  Public
 const getProjectById = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    const project = await Project.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!project) {
       return res.status(404).json({
@@ -285,7 +289,10 @@ const createProject = async (req, res) => {
 // @access  Admin
 const updateProject = async (req, res) => {
   try {
-    let project = await Project.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    let project = await Project.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!project) {
       return res.status(404).json({
@@ -294,7 +301,7 @@ const updateProject = async (req, res) => {
       });
     }
 
-    project = await Project.findByIdAndUpdate(req.params.id, req.body, {
+    project = await Project.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, {
       new: true,
       runValidators: true
     });
@@ -318,7 +325,10 @@ const updateProject = async (req, res) => {
 // @access  Admin
 const deleteProject = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    const project = await Project.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!project) {
       return res.status(404).json({
@@ -371,7 +381,10 @@ const createBlogPost = async (req, res) => {
 // @access  Admin
 const updateBlogPost = async (req, res) => {
   try {
-    let blogPost = await BlogPost.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    let blogPost = await BlogPost.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!blogPost) {
       return res.status(404).json({
@@ -380,7 +393,7 @@ const updateBlogPost = async (req, res) => {
       });
     }
 
-    blogPost = await BlogPost.findByIdAndUpdate(req.params.id, req.body, {
+    blogPost = await BlogPost.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, {
       new: true,
       runValidators: true
     });
@@ -404,7 +417,10 @@ const updateBlogPost = async (req, res) => {
 // @access  Admin
 const deleteBlogPost = async (req, res) => {
   try {
-    const blogPost = await BlogPost.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    const blogPost = await BlogPost.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!blogPost) {
       return res.status(404).json({
@@ -454,7 +470,10 @@ const createSkill = async (req, res) => {
 // @access  Admin
 const updateSkill = async (req, res) => {
   try {
-    let skill = await Skill.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    let skill = await Skill.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!skill) {
       return res.status(404).json({
@@ -463,7 +482,7 @@ const updateSkill = async (req, res) => {
       });
     }
 
-    skill = await Skill.findByIdAndUpdate(req.params.id, req.body, {
+    skill = await Skill.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, {
       new: true,
       runValidators: true
     });
@@ -487,7 +506,10 @@ const updateSkill = async (req, res) => {
 // @access  Admin
 const deleteSkill = async (req, res) => {
   try {
-    const skill = await Skill.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    const skill = await Skill.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!skill) {
       return res.status(404).json({
@@ -536,7 +558,10 @@ const getContactMessages = async (req, res) => {
 // @access  Admin
 const markMessageAsRead = async (req, res) => {
   try {
-    const message = await ContactMessage.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    const message = await ContactMessage.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!message) {
       return res.status(404).json({
@@ -567,7 +592,10 @@ const markMessageAsRead = async (req, res) => {
 // @access  Admin
 const deleteMessage = async (req, res) => {
   try {
-    const message = await ContactMessage.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+    const message = await ContactMessage.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!message) {
       return res.status(404).json({

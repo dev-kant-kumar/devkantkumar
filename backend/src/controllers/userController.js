@@ -2,12 +2,16 @@ const User = require('../models/User');
 const Order = require('../models/Order');
 const logger = require('../utils/logger');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 // Get user profile (public)
 const getUserProfile = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
     // Exclude all sensitive / internal fields from the public profile response
-    const user = await User.findById(req.params.userId).select(
+    const user = await User.findById(new mongoose.Types.ObjectId(req.params.userId)).select(
       '-password -refreshToken -emailVerificationToken -emailVerificationExpires ' +
       '-passwordResetToken -passwordResetExpires -twoFactorSecret ' +
       '-emailChangeOTP -emailChangeOTPExpires -tempNewEmail ' +
@@ -238,8 +242,12 @@ const updateUserStatus = async (req, res) => {
     const { userId } = req.params;
     const { status } = req.body;
 
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
     const user = await User.findByIdAndUpdate(
-      userId,
+      new mongoose.Types.ObjectId(userId),
       { status },
       { new: true }
     ).select('-password -refreshToken');
