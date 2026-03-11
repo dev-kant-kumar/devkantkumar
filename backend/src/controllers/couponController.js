@@ -1,8 +1,8 @@
-const Coupon = require('../models/Coupon');
-const Order = require('../models/Order');
-const Product = require('../models/Product');
-const Service = require('../models/Service');
-const logger = require('../utils/logger');
+const Coupon = require("../models/Coupon");
+const Order = require("../models/Order");
+const Product = require("../models/Product");
+const Service = require("../models/Service");
+const logger = require("../utils/logger");
 
 /**
  * Validate coupon code and calculate discount
@@ -16,7 +16,7 @@ const validateCoupon = async (req, res) => {
     if (!code || !orderTotal) {
       return res.status(400).json({
         valid: false,
-        message: 'Code and order total are required'
+        message: "Code and order total are required",
       });
     }
 
@@ -26,7 +26,7 @@ const validateCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(404).json({
         valid: false,
-        message: 'Coupon code not found'
+        message: "Coupon code not found",
       });
     }
 
@@ -39,18 +39,18 @@ const validateCoupon = async (req, res) => {
     // Check if coupon is applicable to specified items
     if (!coupon.applicableToAll && itemIds.length > 0) {
       const applicableIds = [
-        ...coupon.applicableProductIds.map(id => id.toString()),
-        ...coupon.applicableServiceIds.map(id => id.toString())
+        ...coupon.applicableProductIds.map((id) => id.toString()),
+        ...coupon.applicableServiceIds.map((id) => id.toString()),
       ];
 
-      const hasApplicableItem = itemIds.some(id =>
-        applicableIds.includes(id.toString())
+      const hasApplicableItem = itemIds.some((id) =>
+        applicableIds.includes(id.toString()),
       );
 
       if (!hasApplicableItem) {
         return res.status(400).json({
           valid: false,
-          message: 'This coupon is not applicable to your selected items'
+          message: "This coupon is not applicable to your selected items",
         });
       }
     }
@@ -67,12 +67,12 @@ const validateCoupon = async (req, res) => {
         discountType: coupon.discountType,
         discountValue: coupon.discountValue,
         discountAmount: Math.round(discountAmount * 100) / 100,
-        finalTotal: Math.round(finalTotal * 100) / 100
-      }
+        finalTotal: Math.round(finalTotal * 100) / 100,
+      },
     });
   } catch (error) {
-    logger.error('Validate coupon error:', error);
-    res.status(500).json({ message: 'Server error validating coupon' });
+    logger.error("Validate coupon error:", error);
+    res.status(500).json({ message: "Server error validating coupon" });
   }
 };
 
@@ -86,13 +86,13 @@ const getActiveCoupons = async (req, res) => {
     const coupons = await Coupon.find({
       isActive: true,
       validFrom: { $lte: now },
-      validUntil: { $gte: now }
-    }).select('code description discountType discountValue minOrderAmount');
+      validUntil: { $gte: now },
+    }).select("code description discountType discountValue minOrderAmount");
 
     res.json({ coupons });
   } catch (error) {
-    logger.error('Get active coupons error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get active coupons error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -101,32 +101,49 @@ const getActiveCoupons = async (req, res) => {
  */
 const createCoupon = async (req, res) => {
   try {
-    const { code, discountType, discountValue, validFrom, validUntil, ...rest } = req.body;
+    const {
+      code,
+      discountType,
+      discountValue,
+      validFrom,
+      validUntil,
+      ...rest
+    } = req.body;
 
     // Validate required fields
-    if (!code || !discountType || discountValue === undefined || !validFrom || !validUntil) {
+    if (
+      !code ||
+      !discountType ||
+      discountValue === undefined ||
+      !validFrom ||
+      !validUntil
+    ) {
       return res.status(400).json({
-        message: 'Missing required fields: code, discountType, discountValue, validFrom, validUntil'
+        message:
+          "Missing required fields: code, discountType, discountValue, validFrom, validUntil",
       });
     }
 
     // Check if coupon already exists
     const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
     if (existingCoupon) {
-      return res.status(400).json({ message: 'Coupon code already exists' });
+      return res.status(400).json({ message: "Coupon code already exists" });
     }
 
     // Validate date range
     if (new Date(validUntil) <= new Date(validFrom)) {
       return res.status(400).json({
-        message: 'Valid until date must be after valid from date'
+        message: "Valid until date must be after valid from date",
       });
     }
 
     // Validate percentage
-    if (discountType === 'percentage' && (discountValue < 0 || discountValue > 100)) {
+    if (
+      discountType === "percentage" &&
+      (discountValue < 0 || discountValue > 100)
+    ) {
       return res.status(400).json({
-        message: 'Percentage discount must be between 0 and 100'
+        message: "Percentage discount must be between 0 and 100",
       });
     }
 
@@ -137,19 +154,19 @@ const createCoupon = async (req, res) => {
       validFrom: new Date(validFrom),
       validUntil: new Date(validUntil),
       createdBy: req.user.id,
-      ...rest
+      ...rest,
     });
 
     await coupon.save();
 
     logger.info(`Coupon created: ${coupon.code} by user ${req.user.id}`);
     res.status(201).json({
-      message: 'Coupon created successfully',
-      coupon
+      message: "Coupon created successfully",
+      coupon,
     });
   } catch (error) {
-    logger.error('Create coupon error:', error);
-    res.status(500).json({ message: 'Error creating coupon' });
+    logger.error("Create coupon error:", error);
+    res.status(500).json({ message: "Error creating coupon" });
   }
 };
 
@@ -163,13 +180,13 @@ const getCoupons = async (req, res) => {
     let query = {};
 
     if (isActive !== undefined) {
-      query.isActive = isActive === 'true';
+      query.isActive = isActive === "true";
     }
 
     if (search) {
       query.$or = [
-        { code: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { code: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -181,9 +198,9 @@ const getCoupons = async (req, res) => {
       .skip(skip)
       .limit(limitNum)
       .sort({ createdAt: -1 })
-      .populate('createdBy', 'email firstName lastName')
-      .populate('applicableProductIds', 'title')
-      .populate('applicableServiceIds', 'title');
+      .populate("createdBy", "email firstName lastName")
+      .populate("applicableProductIds", "title")
+      .populate("applicableServiceIds", "title");
 
     const total = await Coupon.countDocuments(query);
 
@@ -193,12 +210,12 @@ const getCoupons = async (req, res) => {
         page: pageNum,
         limit: limitNum,
         total,
-        pages: Math.ceil(total / limitNum)
-      }
+        pages: Math.ceil(total / limitNum),
+      },
     });
   } catch (error) {
-    logger.error('Get coupons error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get coupons error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -210,20 +227,20 @@ const getCoupon = async (req, res) => {
     const { id } = req.params;
 
     const coupon = await Coupon.findById(id)
-      .populate('createdBy', 'email firstName lastName')
-      .populate('applicableProductIds', 'title price')
-      .populate('applicableServiceIds', 'title')
-      .populate('usedByUsers.userId', 'email firstName lastName')
-      .populate('usedByUsers.orderId', 'orderNumber createdAt');
+      .populate("createdBy", "email firstName lastName")
+      .populate("applicableProductIds", "title price")
+      .populate("applicableServiceIds", "title")
+      .populate("usedByUsers.userId", "email firstName lastName")
+      .populate("usedByUsers.orderId", "orderNumber createdAt");
 
     if (!coupon) {
-      return res.status(404).json({ message: 'Coupon not found' });
+      return res.status(404).json({ message: "Coupon not found" });
     }
 
     res.json(coupon);
   } catch (error) {
-    logger.error('Get coupon error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get coupon error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -237,36 +254,36 @@ const updateCoupon = async (req, res) => {
 
     // Don't allow updating code
     if (updates.code) {
-      return res.status(400).json({ message: 'Cannot update coupon code' });
+      return res.status(400).json({ message: "Cannot update coupon code" });
     }
 
     // Validate date range if updating dates
     if (updates.validFrom && updates.validUntil) {
       if (new Date(updates.validUntil) <= new Date(updates.validFrom)) {
         return res.status(400).json({
-          message: 'Valid until date must be after valid from date'
+          message: "Valid until date must be after valid from date",
         });
       }
     }
 
     const coupon = await Coupon.findByIdAndUpdate(
-      id,
-      { ...updates, updatedAt: Date.now() },
-      { new: true, runValidators: true }
+      String(id),
+      { $set: updates, updatedAt: Date.now() },
+      { new: true, runValidators: true },
     );
 
     if (!coupon) {
-      return res.status(404).json({ message: 'Coupon not found' });
+      return res.status(404).json({ message: "Coupon not found" });
     }
 
     logger.info(`Coupon updated: ${coupon.code} by user ${req.user.id}`);
     res.json({
-      message: 'Coupon updated successfully',
-      coupon
+      message: "Coupon updated successfully",
+      coupon,
     });
   } catch (error) {
-    logger.error('Update coupon error:', error);
-    res.status(500).json({ message: 'Error updating coupon' });
+    logger.error("Update coupon error:", error);
+    res.status(500).json({ message: "Error updating coupon" });
   }
 };
 
@@ -280,14 +297,14 @@ const deleteCoupon = async (req, res) => {
     const coupon = await Coupon.findByIdAndDelete(id);
 
     if (!coupon) {
-      return res.status(404).json({ message: 'Coupon not found' });
+      return res.status(404).json({ message: "Coupon not found" });
     }
 
     logger.info(`Coupon deleted: ${coupon.code} by user ${req.user.id}`);
-    res.json({ message: 'Coupon deleted successfully' });
+    res.json({ message: "Coupon deleted successfully" });
   } catch (error) {
-    logger.error('Delete coupon error:', error);
-    res.status(500).json({ message: 'Error deleting coupon' });
+    logger.error("Delete coupon error:", error);
+    res.status(500).json({ message: "Error deleting coupon" });
   }
 };
 
@@ -299,42 +316,44 @@ const getCouponStats = async (req, res) => {
     const stats = await Coupon.aggregate([
       {
         $facet: {
-          totalCoupons: [{ $count: 'count' }],
+          totalCoupons: [{ $count: "count" }],
           activeCoupons: [
             {
               $match: {
                 isActive: true,
                 validUntil: { $gte: new Date() },
-                validFrom: { $lte: new Date() }
-              }
+                validFrom: { $lte: new Date() },
+              },
             },
-            { $count: 'count' }
+            { $count: "count" },
           ],
           expiredCoupons: [
             {
               $match: {
-                validUntil: { $lt: new Date() }
-              }
+                validUntil: { $lt: new Date() },
+              },
             },
-            { $count: 'count' }
+            { $count: "count" },
           ],
           totalUsage: [
             {
               $group: {
                 _id: null,
-                totalUsed: { $sum: '$usedCount' },
-                totalRevenueSaved: { $sum: { $sum: '$usedByUsers.discountApplied' } }
-              }
-            }
-          ]
-        }
-      }
+                totalUsed: { $sum: "$usedCount" },
+                totalRevenueSaved: {
+                  $sum: { $sum: "$usedByUsers.discountApplied" },
+                },
+              },
+            },
+          ],
+        },
+      },
     ]);
 
     res.json(stats[0]);
   } catch (error) {
-    logger.error('Get coupon stats error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get coupon stats error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -346,5 +365,5 @@ module.exports = {
   getCoupon,
   updateCoupon,
   deleteCoupon,
-  getCouponStats
+  getCouponStats,
 };

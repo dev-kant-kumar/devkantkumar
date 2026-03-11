@@ -514,7 +514,7 @@ const Settings = () => {
                       <img
                         src={
                           previewImage ||
-                          `https://ui-avatars.com/api/?name=${formData.firstName}+${formData.lastName}&background=0D8ABC&color=fff`
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.firstName)}+${encodeURIComponent(formData.lastName)}&background=0D8ABC&color=fff`
                         }
                         alt="Profile"
                         className="w-full h-full object-cover"

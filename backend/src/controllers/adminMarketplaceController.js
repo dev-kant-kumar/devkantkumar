@@ -119,17 +119,23 @@ exports.createProduct = async (req, res) => {
       try {
         const subscribers = await Subscriber.find({ isActive: true });
         if (subscribers.length > 0) {
-          logger.info(`Sending product notifications to ${subscribers.length} subscribers`);
+          logger.info(
+            `Sending product notifications to ${subscribers.length} subscribers`,
+          );
           // Send in batches or individually (queue handles concurrency)
           for (const sub of subscribers) {
-            emailService.sendProductNotificationEmail(sub.email, {
-              name: product.title,
-              description: product.description,
-              price: product.price,
-              imageUrl: product.images?.[0]?.url,
-              url: `/marketplace/products/${product.slug || product._id}`,
-              isService: false
-            }).catch(err => logger.error(`Failed to notify ${sub.email}`, err));
+            emailService
+              .sendProductNotificationEmail(sub.email, {
+                name: product.title,
+                description: product.description,
+                price: product.price,
+                imageUrl: product.images?.[0]?.url,
+                url: `/marketplace/products/${product.slug || product._id}`,
+                isService: false,
+              })
+              .catch((err) =>
+                logger.error(`Failed to notify ${sub.email}`, err),
+              );
 
             // Increment email count
             sub.emailsSentCount = (sub.emailsSentCount || 0) + 1;
@@ -145,19 +151,23 @@ exports.createProduct = async (req, res) => {
     // Notify registered users in-app (Async)
     (async () => {
       try {
-        const users = await User.find({ isActive: true, role: 'user' }).select('_id');
+        const users = await User.find({ isActive: true, role: "user" }).select(
+          "_id",
+        );
         if (users.length > 0) {
-          const notifications = users.map(user => ({
+          const notifications = users.map((user) => ({
             recipient: user._id,
-            type: 'product_update',
+            type: "product_update",
             title: `New Arrival: ${product.title}`,
             message: `Check out our new ${product.title}! ${product.description.substring(0, 60)}...`,
             link: `/marketplace/products/${product.slug || product._id}`,
-            data: { productId: product._id, type: 'product' },
-            priority: 'normal'
+            data: { productId: product._id, type: "product" },
+            priority: "normal",
           }));
           await Notification.insertMany(notifications);
-          logger.info(`Created ${notifications.length} in-app notifications for new product`);
+          logger.info(
+            `Created ${notifications.length} in-app notifications for new product`,
+          );
         }
       } catch (err) {
         logger.error("Failed to create in-app notifications", err);
@@ -189,10 +199,14 @@ exports.updateProduct = async (req, res) => {
       updateData.regionalPricing = calculateRegionalPricing(updateData.price);
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    const product = await Product.findByIdAndUpdate(
+      String(req.params.id),
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -223,10 +237,13 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     // Check if product has been purchased
-    const existingOrders = await Order.exists({ 'items.itemId': req.params.id });
+    const existingOrders = await Order.exists({
+      "items.itemId": req.params.id,
+    });
     if (existingOrders) {
       return res.status(400).json({
-        message: "Cannot delete this product as it has been purchased by users. Please deactivate it instead to preserve user history."
+        message:
+          "Cannot delete this product as it has been purchased by users. Please deactivate it instead to preserve user history.",
       });
     }
 
@@ -362,14 +379,14 @@ exports.getCustomerById = async (req, res) => {
     const stats = {
       totalSpent: orders.reduce(
         (acc, order) => acc + (order.payment?.amount?.total || 0),
-        0
+        0,
       ),
       totalOrders: orders.length,
       averageOrderValue:
         orders.length > 0
           ? orders.reduce(
               (acc, order) => acc + (order.payment?.amount?.total || 0),
-              0
+              0,
             ) / orders.length
           : 0,
       lastOrderDate: orders.length > 0 ? orders[0].createdAt : null,
@@ -495,16 +512,22 @@ exports.createService = async (req, res) => {
       try {
         const subscribers = await Subscriber.find({ isActive: true });
         if (subscribers.length > 0) {
-          logger.info(`Sending service notifications to ${subscribers.length} subscribers`);
+          logger.info(
+            `Sending service notifications to ${subscribers.length} subscribers`,
+          );
           for (const sub of subscribers) {
-            emailService.sendProductNotificationEmail(sub.email, {
-              name: service.title,
-              description: service.description,
-              price: service.packages?.[0]?.price || 0,
-              imageUrl: service.images?.[0]?.url,
-              url: `/marketplace/services/${service.slug || service._id}`,
-              isService: true
-            }).catch(err => logger.error(`Failed to notify ${sub.email}`, err));
+            emailService
+              .sendProductNotificationEmail(sub.email, {
+                name: service.title,
+                description: service.description,
+                price: service.packages?.[0]?.price || 0,
+                imageUrl: service.images?.[0]?.url,
+                url: `/marketplace/services/${service.slug || service._id}`,
+                isService: true,
+              })
+              .catch((err) =>
+                logger.error(`Failed to notify ${sub.email}`, err),
+              );
 
             // Increment email count
             sub.emailsSentCount = (sub.emailsSentCount || 0) + 1;
@@ -520,19 +543,23 @@ exports.createService = async (req, res) => {
     // Notify registered users in-app (Async)
     (async () => {
       try {
-        const users = await User.find({ isActive: true, role: 'user' }).select('_id');
+        const users = await User.find({ isActive: true, role: "user" }).select(
+          "_id",
+        );
         if (users.length > 0) {
-          const notifications = users.map(user => ({
+          const notifications = users.map((user) => ({
             recipient: user._id,
-            type: 'service_update',
+            type: "service_update",
             title: `New Service: ${service.title}`,
             message: `Check out our new service ${service.title}! ${service.description.substring(0, 60)}...`,
             link: `/marketplace/services/${service.slug || service._id}`,
-            data: { serviceId: service._id, type: 'service' },
-            priority: 'normal'
+            data: { serviceId: service._id, type: "service" },
+            priority: "normal",
           }));
           await Notification.insertMany(notifications);
-          logger.info(`Created ${notifications.length} in-app notifications for new service`);
+          logger.info(
+            `Created ${notifications.length} in-app notifications for new service`,
+          );
         }
       } catch (err) {
         logger.error("Failed to create in-app notifications", err);
@@ -557,10 +584,14 @@ exports.createService = async (req, res) => {
 // @access  Admin
 exports.updateService = async (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const service = await Service.findByIdAndUpdate(
+      String(req.params.id),
+      { $set: req.body },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
@@ -591,10 +622,13 @@ exports.updateService = async (req, res) => {
 exports.deleteService = async (req, res) => {
   try {
     // Check if service has been purchased
-    const existingOrders = await Order.exists({ 'items.itemId': req.params.id });
+    const existingOrders = await Order.exists({
+      "items.itemId": String(req.params.id),
+    });
     if (existingOrders) {
       return res.status(400).json({
-        message: "Cannot delete this service as it has been purchased by users. Please deactivate it instead to preserve user history."
+        message:
+          "Cannot delete this service as it has been purchased by users. Please deactivate it instead to preserve user history.",
       });
     }
 
@@ -695,7 +729,7 @@ exports.updateAdminOrderStatus = async (req, res) => {
         if (item.itemType === "service" && item.selectedPackage?.deliveryTime) {
           maxDeliveryDays = Math.max(
             maxDeliveryDays,
-            item.selectedPackage.deliveryTime
+            item.selectedPackage.deliveryTime,
           );
         }
       });
@@ -731,10 +765,13 @@ exports.updateAdminOrderStatus = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate("user", "firstName lastName email profile avatar createdAt marketplace")
+      .populate(
+        "user",
+        "firstName lastName email profile avatar createdAt marketplace",
+      )
       .populate(
         "communication.messages.sender",
-        "firstName lastName email avatar role"
+        "firstName lastName email avatar role",
       )
       .populate({
         path: "items.itemId",
@@ -877,7 +914,7 @@ exports.addAdminMessage = async (req, res) => {
         name: att.name,
         url: att.url,
         size: att.size || 0,
-        mimetype: att.mimetype || '',
+        mimetype: att.mimetype || "",
       })),
     };
 
@@ -936,7 +973,7 @@ exports.markDelivered = async (req, res) => {
     if (downloadLinks.length > 0) {
       for (const link of downloadLinks) {
         const item = order.items.find(
-          (i) => i.itemId.toString() === link.itemId
+          (i) => i.itemId.toString() === link.itemId,
         );
         if (item) {
           item.downloadLinks = item.downloadLinks || [];
@@ -961,7 +998,6 @@ exports.markDelivered = async (req, res) => {
     order.calculateDynamicDeadlines(order.fulfillment.deliveredAt);
 
     await order.save();
-
 
     logger.info(`Order ${req.params.id} marked as delivered`);
 
@@ -999,9 +1035,9 @@ exports.getStats = async (req, res) => {
       const c = Number(cur) || 0;
       const p = Number(prev) || 0;
       if (p === 0 && c === 0) return null; // no data in either window
-      if (p === 0) return 100;             // previous period had no data; treat as 100% growth
+      if (p === 0) return 100; // previous period had no data; treat as 100% growth
       const pct = ((c - p) / p) * 100;
-      return Math.round(pct * 10) / 10;   // one decimal place, as a number
+      return Math.round(pct * 10) / 10; // one decimal place, as a number
     };
 
     const [totalProducts, totalServices, totalOrders] = await Promise.all([
@@ -1029,9 +1065,7 @@ exports.getStats = async (req, res) => {
     ]);
 
     const totalRevenue =
-      revenueAggregation.length > 0
-        ? revenueAggregation[0].totalRevenue
-        : 0;
+      revenueAggregation.length > 0 ? revenueAggregation[0].totalRevenue : 0;
 
     // Period windows for trend comparison
     const now = new Date();
@@ -1098,9 +1132,7 @@ exports.getStats = async (req, res) => {
         },
         { $sort: { _id: 1 } },
       ]),
-      Order.aggregate([
-        { $group: { _id: "$status", count: { $sum: 1 } } },
-      ]),
+      Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
     ]);
 
     res.json({
@@ -1138,23 +1170,26 @@ exports.approveRequirements = async (req, res) => {
       });
     }
 
-    if (!order.requirementsData || !['submitted', 'resubmitted'].includes(order.requirementsData.status)) {
+    if (
+      !order.requirementsData ||
+      !["submitted", "resubmitted"].includes(order.requirementsData.status)
+    ) {
       return res.status(400).json({
         success: false,
         message: "Requirements are not in a reviewable state",
       });
     }
 
-    order.requirementsData.status = 'approved';
+    order.requirementsData.status = "approved";
     order.requirementsData.approvedAt = new Date();
-    order.requirementsData.adminFeedback = '';
+    order.requirementsData.adminFeedback = "";
 
     // Move to next phase
-    order.currentPhase = 'legal_documentation';
+    order.currentPhase = "legal_documentation";
 
     // If order was waiting on requirements, move it to in_progress status
-    if (['confirmed', 'awaiting_requirements'].includes(order.status)) {
-      order.status = 'in_progress';
+    if (["confirmed", "awaiting_requirements"].includes(order.status)) {
+      order.status = "in_progress";
 
       // Update pipeline entry
       order.timeline.push({
@@ -1185,7 +1220,7 @@ exports.approveRequirements = async (req, res) => {
     res.json({
       success: true,
       data: order,
-      message: "Requirements approved successfully"
+      message: "Requirements approved successfully",
     });
   } catch (error) {
     logger.error("Approve requirements error:", error);
@@ -1204,19 +1239,21 @@ exports.completePhase = async (req, res) => {
     const order = await Order.findById(id);
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     const phaseOrder = [
-      'requirements_gathering',
-      'legal_documentation',
-      'planning_scoping',
-      'design',
-      'development',
-      'testing_qa',
-      'delivery',
-      'revision_window',
-      'support_window',
+      "requirements_gathering",
+      "legal_documentation",
+      "planning_scoping",
+      "design",
+      "development",
+      "testing_qa",
+      "delivery",
+      "revision_window",
+      "support_window",
     ];
 
     const currentIndex = phaseOrder.indexOf(phaseKey);
@@ -1224,30 +1261,30 @@ exports.completePhase = async (req, res) => {
     if (currentIndex === -1) {
       return res.status(400).json({
         success: false,
-        message: `Unknown phase key: ${phaseKey}. Must be one of: ${phaseOrder.join(', ')}`,
+        message: `Unknown phase key: ${phaseKey}. Must be one of: ${phaseOrder.join(", ")}`,
       });
     }
 
     const isLastPhase = currentIndex === phaseOrder.length - 1;
-    const nextPhase = isLastPhase ? 'completed' : phaseOrder[currentIndex + 1];
+    const nextPhase = isLastPhase ? "completed" : phaseOrder[currentIndex + 1];
 
     // Always record the COMPLETED phase as the timeline status so that
     // calculateProjectProgress can detect it correctly on the frontend.
     order.timeline.push({
       status: phaseKey,
-      message: `Phase ${phaseKey.replace(/_/g, ' ')} marked complete by Admin.`,
+      message: `Phase ${phaseKey.replace(/_/g, " ")} marked complete by Admin.`,
       timestamp: new Date(),
       updatedBy: req.user._id,
-      notes: notes || '',
-      deliverableUrl: deliverableUrl || '',
-      externalLink: externalLink || '',
+      notes: notes || "",
+      deliverableUrl: deliverableUrl || "",
+      externalLink: externalLink || "",
     });
 
     order.currentPhase = nextPhase;
 
     // When the final phase (support_window) is completed, mark the order as done.
     if (isLastPhase) {
-      order.status = 'completed';
+      order.status = "completed";
       order.actualDelivery = order.actualDelivery || new Date();
     }
 
@@ -1258,7 +1295,6 @@ exports.completePhase = async (req, res) => {
       message: `Phase ${phaseKey} completed successfully. Moved to ${nextPhase}.`,
       data: order,
     });
-
   } catch (error) {
     logger.error("Complete phase error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -1275,13 +1311,15 @@ exports.markApproval = async (req, res) => {
 
     const order = await Order.findById(id);
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     // Add timeline entry
     order.timeline.push({
-      status: status === 'approved' ? 'in_progress' : 'message',
-      message: `${approval_type.replace('_', ' ')} marked as ${status} by Admin. ${notes || ''}`,
+      status: status === "approved" ? "in_progress" : "message",
+      message: `${approval_type.replace("_", " ")} marked as ${status} by Admin. ${notes || ""}`,
       timestamp: new Date(),
       updatedBy: req.user._id,
     });
@@ -1293,7 +1331,6 @@ exports.markApproval = async (req, res) => {
       message: `Approval recorded successfully.`,
       data: order,
     });
-
   } catch (error) {
     logger.error("Mark approval error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -1323,7 +1360,10 @@ exports.requestRequirementsChanges = async (req, res) => {
       });
     }
 
-    if (!order.requirementsData || !['submitted', 'resubmitted'].includes(order.requirementsData.status)) {
+    if (
+      !order.requirementsData ||
+      !["submitted", "resubmitted"].includes(order.requirementsData.status)
+    ) {
       return res.status(400).json({
         success: false,
         message: "Requirements are not in a reviewable state",
@@ -1331,7 +1371,7 @@ exports.requestRequirementsChanges = async (req, res) => {
     }
 
     // Update requirements data
-    order.requirementsData.status = 'changes_requested';
+    order.requirementsData.status = "changes_requested";
     order.requirementsData.adminFeedback = feedback.trim();
 
     // Add to feedback history
@@ -1345,14 +1385,14 @@ exports.requestRequirementsChanges = async (req, res) => {
     });
 
     // Update order status
-    if (order.status !== 'awaiting_requirements') {
-      order.status = 'awaiting_requirements';
+    if (order.status !== "awaiting_requirements") {
+      order.status = "awaiting_requirements";
     }
 
     // Add timeline entry
     order.timeline.push({
       status: "message",
-      message: `Admin requested changes to requirements: "${feedback.trim().substring(0, 100)}${feedback.length > 100 ? '...' : ''}"`,
+      message: `Admin requested changes to requirements: "${feedback.trim().substring(0, 100)}${feedback.length > 100 ? "..." : ""}"`,
       timestamp: new Date(),
       updatedBy: req.user._id,
     });
@@ -1420,7 +1460,7 @@ exports.getMarketplaceAnalytics = async (req, res) => {
     const now = new Date();
     const periodStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
     const prevPeriodStart = new Date(
-      now.getTime() - days * 2 * 24 * 60 * 60 * 1000
+      now.getTime() - days * 2 * 24 * 60 * 60 * 1000,
     );
 
     const paidMatch = {
@@ -1809,7 +1849,12 @@ exports.getProductAnalytics = async (req, res) => {
     ] = await Promise.all([
       // All-time totals
       Order.aggregate([
-        { $match: { status: { $in: PAID_STATUSES }, "payment.status": "completed" } },
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+          },
+        },
         { $unwind: "$items" },
         { $match: { "items.itemId": objId, "items.itemType": "product" } },
         {
@@ -1924,7 +1969,9 @@ exports.getProductAnalytics = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .limit(10)
-        .select("orderNumber billing.email createdAt payment.amount.total status")
+        .select(
+          "orderNumber billing.email createdAt payment.amount.total status",
+        )
         .lean(),
     ]);
 
@@ -2002,14 +2049,24 @@ exports.getServiceAnalytics = async (req, res) => {
     ] = await Promise.all([
       // All-time totals
       Order.aggregate([
-        { $match: { status: { $in: PAID_STATUSES }, "payment.status": "completed" } },
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+          },
+        },
         { $unwind: "$items" },
         { $match: { "items.itemId": objId, "items.itemType": "service" } },
         {
           $group: {
             _id: null,
             revenue: {
-              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
             },
             orders: { $sum: 1 },
           },
@@ -2031,7 +2088,12 @@ exports.getServiceAnalytics = async (req, res) => {
           $group: {
             _id: null,
             revenue: {
-              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
             },
             orders: { $sum: 1 },
           },
@@ -2053,7 +2115,12 @@ exports.getServiceAnalytics = async (req, res) => {
           $group: {
             _id: null,
             revenue: {
-              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
             },
             orders: { $sum: 1 },
           },
@@ -2066,7 +2133,9 @@ exports.getServiceAnalytics = async (req, res) => {
           $match: {
             status: { $in: PAID_STATUSES },
             "payment.status": "completed",
-            createdAt: { $gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000) },
+            createdAt: {
+              $gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000),
+            },
           },
         },
         { $unwind: "$items" },
@@ -2075,7 +2144,12 @@ exports.getServiceAnalytics = async (req, res) => {
           $group: {
             _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
             revenue: {
-              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
             },
             orders: { $sum: 1 },
           },
@@ -2085,7 +2159,12 @@ exports.getServiceAnalytics = async (req, res) => {
 
       // Package tier breakdown
       Order.aggregate([
-        { $match: { status: { $in: PAID_STATUSES }, "payment.status": "completed" } },
+        {
+          $match: {
+            status: { $in: PAID_STATUSES },
+            "payment.status": "completed",
+          },
+        },
         { $unwind: "$items" },
         { $match: { "items.itemId": objId, "items.itemType": "service" } },
         {
@@ -2093,7 +2172,12 @@ exports.getServiceAnalytics = async (req, res) => {
             _id: { $ifNull: ["$items.selectedPackage.name", "unknown"] },
             count: { $sum: 1 },
             revenue: {
-              $sum: { $multiply: [{ $ifNull: ["$items.price", 0] }, { $ifNull: ["$items.quantity", 1] }] },
+              $sum: {
+                $multiply: [
+                  { $ifNull: ["$items.price", 0] },
+                  { $ifNull: ["$items.quantity", 1] },
+                ],
+              },
             },
           },
         },
@@ -2102,7 +2186,14 @@ exports.getServiceAnalytics = async (req, res) => {
 
       // Active orders count (in progress)
       Order.countDocuments({
-        status: { $in: ["confirmed", "awaiting_requirements", "in_progress", "revising"] },
+        status: {
+          $in: [
+            "confirmed",
+            "awaiting_requirements",
+            "in_progress",
+            "revising",
+          ],
+        },
         "items.itemId": objId,
         "items.itemType": "service",
       }),
@@ -2116,7 +2207,9 @@ exports.getServiceAnalytics = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .limit(10)
-        .select("orderNumber billing.email createdAt payment.amount.total status items.selectedPackage")
+        .select(
+          "orderNumber billing.email createdAt payment.amount.total status items.selectedPackage",
+        )
         .lean(),
     ]);
 

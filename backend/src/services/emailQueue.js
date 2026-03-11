@@ -1,14 +1,16 @@
-const { Queue, Worker } = require('bullmq');
-const nodemailer = require('nodemailer');
-const logger = require('../utils/logger');
-const { emailQueueName, connection } = require('../db/redis');
-const IORedis = require('ioredis');
-const emailConfig = require('../config/emailConfig');
-const EmailLog = require('../models/EmailLog');
-const SibApiV3Sdk = require('sib-api-v3-sdk');
+const { Queue, Worker } = require("bullmq");
+const nodemailer = require("nodemailer");
+const logger = require("../utils/logger");
+const { emailQueueName, connection } = require("../db/redis");
+const IORedis = require("ioredis");
+const emailConfig = require("../config/emailConfig");
+const EmailLog = require("../models/EmailLog");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 // --- Configuration ---
-const REDIS_HOST = process.env.REDIS_HOST || 'redis-18949.c267.us-east-1-4.ec2.redns.redis-cloud.com';
+const REDIS_HOST =
+  process.env.REDIS_HOST ||
+  "redis-18949.c267.us-east-1-4.ec2.redns.redis-cloud.com";
 const REDIS_PORT = parseInt(process.env.REDIS_PORT) || 18949;
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
@@ -26,23 +28,23 @@ if (process.env.REDIS_USERNAME) {
 }
 
 // Create the Queue
-const emailQueue = new Queue('email-queue', {
+const emailQueue = new Queue("email-queue", {
   connection: redisOptions,
   defaultJobOptions: {
     attempts: 3,
     backoff: {
-      type: 'exponential',
+      type: "exponential",
       delay: 1000,
     },
     removeOnComplete: true,
-    removeOnFail: 100
-  }
+    removeOnFail: 100,
+  },
 });
 
 // --- Helper for Brevo API ---
 const sendViaBrevoApi = async (to, subject, html, text, fromAddressString) => {
   const defaultClient = SibApiV3Sdk.ApiClient.instance;
-  const apiKey = defaultClient.authentications['api-key'];
+  const apiKey = defaultClient.authentications["api-key"];
   apiKey.apiKey = process.env.BREVO_API_KEY;
 
   const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
@@ -54,9 +56,9 @@ const sendViaBrevoApi = async (to, subject, html, text, fromAddressString) => {
   sendSmtpEmail.to = [{ email: to }];
 
   // Parse "Name <email>" from emailConfig
-  const match = fromAddressString.match(/(.*) <(.*)>/);
+  const match = fromAddressString.match(/^([^<]+)<([^>]+)>$/);
   if (match) {
-    sendSmtpEmail.sender = { name: match[1], email: match[2] };
+    sendSmtpEmail.sender = { name: match[1].trim(), email: match[2].trim() };
   } else {
     sendSmtpEmail.sender = { email: fromAddressString };
   }
@@ -72,8 +74,8 @@ const verifyConnection = async () => {
     // If using Brevo API, we usually don't verify connection on startup the same way,
     // but check if API key is present.
     if (process.env.BREVO_API_KEY) {
-       logger.info('✅ Brevo API Key configured');
-       return true;
+      logger.info("✅ Brevo API Key configured");
+      return true;
     }
   } catch (e) {
     // ignore
@@ -81,32 +83,34 @@ const verifyConnection = async () => {
 
   const transporter = createTransporter();
   if (!transporter) {
-    logger.error('Email transporter not configured - emails will not be sent');
+    logger.error("Email transporter not configured - emails will not be sent");
     return false;
   }
 
   try {
     await transporter.verify();
-    logger.info('✅ Email SMTP connection verified successfully');
+    logger.info("✅ Email SMTP connection verified successfully");
     return true;
   } catch (error) {
     logger.error(`❌ Email SMTP connection failed: ${error.message}`);
-    logger.error(`   Error code: ${error.code || 'N/A'}`);
-    logger.error(`   This could be due to: blocked ports, invalid credentials, or network issues`);
+    logger.error(`   Error code: ${error.code || "N/A"}`);
+    logger.error(
+      `   This could be due to: blocked ports, invalid credentials, or network issues`,
+    );
     return false;
   }
 };
 
 // Email Transporter Configuration
 const createTransporter = () => {
-  const emailService = process.env.EMAIL_SERVICE || 'gmail';
+  const emailService = process.env.EMAIL_SERVICE || "gmail";
 
   // Brevo SMTP
-  if (emailService === 'brevo') {
+  if (emailService === "brevo") {
     // Check for Brevo credentials
     if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_SMTP_PASS) {
       if (!process.env.BREVO_API_KEY) {
-         logger.error('Brevo SMTP credentials missing');
+        logger.error("Brevo SMTP credentials missing");
       }
       return null;
     }
@@ -116,20 +120,22 @@ const createTransporter = () => {
     const port = parseInt(process.env.BREVO_SMTP_PORT || 587);
     const secure = port === 465; // SSL for 465, STARTTLS for 587
 
-    logger.info(`Creating Brevo transporter: host=smtp-relay.brevo.com, port=${port}, secure=${secure}`);
+    logger.info(
+      `Creating Brevo transporter: host=smtp-relay.brevo.com, port=${port}, secure=${secure}`,
+    );
 
     return nodemailer.createTransport({
-      host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+      host: process.env.BREVO_SMTP_HOST || "smtp-relay.brevo.com",
       port: port,
       secure: secure,
       auth: {
         user: process.env.BREVO_SMTP_USER,
-        pass: process.env.BREVO_SMTP_PASS
+        pass: process.env.BREVO_SMTP_PASS,
       },
       // Robust TLS settings for cloud environments
       tls: {
         // Use modern ciphers (SSLv3 is deprecated and often rejected)
-        minVersion: 'TLSv1.2',
+        minVersion: "TLSv1.2",
         rejectUnauthorized: false, // Allow self-signed certs if any
       },
       // Connection pooling for better reliability
@@ -138,8 +144,8 @@ const createTransporter = () => {
       maxMessages: 100,
       // Generous timeouts for cloud network latency
       connectionTimeout: 60000, // 60s for initial connection
-      greetingTimeout: 30000,   // 30s for SMTP greeting
-      socketTimeout: 60000,     // 60s for socket operations
+      greetingTimeout: 30000, // 30s for SMTP greeting
+      socketTimeout: 60000, // 60s for socket operations
       // DNS resolution timeout
       dnsTimeout: 30000,
     });
@@ -149,11 +155,11 @@ const createTransporter = () => {
   const hasGmailConfig = process.env.SMTP_USER && process.env.SMTP_PASS;
   if (hasGmailConfig) {
     return nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
+        pass: process.env.SMTP_PASS,
+      },
     });
   }
 
@@ -166,7 +172,7 @@ const updateEmailLogStatus = async (jobId, status, extra = {}) => {
     await EmailLog.findOneAndUpdate(
       { jobId: jobId.toString() },
       { status, ...extra },
-      { new: true }
+      { new: true },
     );
   } catch (err) {
     logger.error(`Failed to update email log status: ${err.message}`);
@@ -174,97 +180,113 @@ const updateEmailLogStatus = async (jobId, status, extra = {}) => {
 };
 
 // Worker Processor
-const worker = new Worker('email-queue', async (job) => {
-  logger.info(`Processing email job ${job.id} - Type: ${job.name}`);
-  const { to, subject, html, text } = job.data;
+const worker = new Worker(
+  "email-queue",
+  async (job) => {
+    logger.info(`Processing email job ${job.id} - Type: ${job.name}`);
+    const { to, subject, html, text } = job.data;
 
-  // Update status to processing
-  await updateEmailLogStatus(job.id, 'processing', { processedAt: new Date() });
-
-  // Get the appropriate sender based on email type
-  const fromAddress = emailConfig.getFromAddress(job.name);
-
-  // 1. Try Brevo API if Key is configured (Preferred method for Render)
-  if (process.env.BREVO_API_KEY) {
-    try {
-      logger.info(`Sending email via Brevo API...`);
-      const data = await sendViaBrevoApi(to, subject, html, text, fromAddress);
-
-      logger.info(`Email sent successfully via Brevo API to ${to} (Job ${job.id})`);
-
-      // Update log with success
-      await updateEmailLogStatus(job.id, 'sent', {
-        sentAt: new Date(),
-        serverResponse: {
-          messageId: data.messageId,
-          response: 'Sent via Brevo API'
-        }
-      });
-
-      return data;
-    } catch (error) {
-      logger.error(`Failed to send via Brevo API: ${error.message}`);
-      // Only throw if we have no fallback.
-      // If we also have SMTP configured, we could fall through, but typically we want to fail if configured API fails.
-      throw error;
-    }
-  }
-
-  // 2. Fallback to Nodemailer SMTP
-  const transporter = createTransporter();
-  if (!transporter) {
-    throw new Error('Email transporter not configured. Cannot process job.');
-  }
-
-  const mailOptions = {
-    from: fromAddress,
-    to,
-    subject,
-    html,
-    text
-  };
-
-  try {
-    const result = await transporter.sendMail(mailOptions);
-    logger.info(`Email sent successfully to ${to} for job ${job.id}`);
-
-    // Update log with success
-    await updateEmailLogStatus(job.id, 'sent', {
-      sentAt: new Date(),
-      serverResponse: {
-        messageId: result.messageId,
-        response: result.response
-      }
+    // Update status to processing
+    await updateEmailLogStatus(job.id, "processing", {
+      processedAt: new Date(),
     });
 
-    return result;
-  } catch (error) {
-    logger.error(`Failed to send email to ${to} (Job ${job.id}): ${error.message}`);
-    throw error; // Let BullMQ handle retry
-  }
-}, { connection: redisOptions });
+    // Get the appropriate sender based on email type
+    const fromAddress = emailConfig.getFromAddress(job.name);
+
+    // 1. Try Brevo API if Key is configured (Preferred method for Render)
+    if (process.env.BREVO_API_KEY) {
+      try {
+        logger.info(`Sending email via Brevo API...`);
+        const data = await sendViaBrevoApi(
+          to,
+          subject,
+          html,
+          text,
+          fromAddress,
+        );
+
+        logger.info(
+          `Email sent successfully via Brevo API to ${to} (Job ${job.id})`,
+        );
+
+        // Update log with success
+        await updateEmailLogStatus(job.id, "sent", {
+          sentAt: new Date(),
+          serverResponse: {
+            messageId: data.messageId,
+            response: "Sent via Brevo API",
+          },
+        });
+
+        return data;
+      } catch (error) {
+        logger.error(`Failed to send via Brevo API: ${error.message}`);
+        // Only throw if we have no fallback.
+        // If we also have SMTP configured, we could fall through, but typically we want to fail if configured API fails.
+        throw error;
+      }
+    }
+
+    // 2. Fallback to Nodemailer SMTP
+    const transporter = createTransporter();
+    if (!transporter) {
+      throw new Error("Email transporter not configured. Cannot process job.");
+    }
+
+    const mailOptions = {
+      from: fromAddress,
+      to,
+      subject,
+      html,
+      text,
+    };
+
+    try {
+      const result = await transporter.sendMail(mailOptions);
+      logger.info(`Email sent successfully to ${to} for job ${job.id}`);
+
+      // Update log with success
+      await updateEmailLogStatus(job.id, "sent", {
+        sentAt: new Date(),
+        serverResponse: {
+          messageId: result.messageId,
+          response: result.response,
+        },
+      });
+
+      return result;
+    } catch (error) {
+      logger.error(
+        `Failed to send email to ${to} (Job ${job.id}): ${error.message}`,
+      );
+      throw error; // Let BullMQ handle retry
+    }
+  },
+  { connection: redisOptions },
+);
 
 // Worker Events
-worker.on('completed', (job) => {
+worker.on("completed", (job) => {
   logger.info(`Email job ${job.id} completed successfully`);
 });
 
-worker.on('failed', async (job, err) => {
+worker.on("failed", async (job, err) => {
   logger.error(`Email job ${job.id} failed: ${err.message}`);
 
   // Update log with failure
-  await updateEmailLogStatus(job.id, 'failed', {
+  await updateEmailLogStatus(job.id, "failed", {
     failedAt: new Date(),
     attempts: job.attemptsMade,
     error: {
       message: err.message,
       code: err.code,
-      stack: err.stack
-    }
+      stack: err.stack,
+    },
   });
 });
 
-worker.on('error', (err) => {
+worker.on("error", (err) => {
   logger.error(`Worker error: ${err.message}`);
 });
 
@@ -276,7 +298,7 @@ worker.on('error', (err) => {
  */
 const addEmailToQueue = async (options) => {
   try {
-    const jobName = options.type || 'generic-email';
+    const jobName = options.type || "generic-email";
     const fromAddress = emailConfig.getFromAddress(jobName);
 
     // Add to BullMQ queue
@@ -290,11 +312,11 @@ const addEmailToQueue = async (options) => {
         from: fromAddress,
         subject: options.subject,
         type: jobName,
-        status: 'pending',
+        status: "pending",
         jobId: job.id.toString(),
         queuedAt: new Date(),
-        htmlPreview: options.html ? options.html.substring(0, 500) : '',
-        metadata: options.metadata || {}
+        htmlPreview: options.html ? options.html.substring(0, 500) : "",
+        metadata: options.metadata || {},
       });
     } catch (logError) {
       logger.error(`Failed to create email log: ${logError.message}`);
@@ -312,5 +334,5 @@ module.exports = {
   addEmailToQueue,
   emailQueue,
   worker,
-  verifyConnection
+  verifyConnection,
 };

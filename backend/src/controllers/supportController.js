@@ -79,12 +79,13 @@ exports.submitTicket = catchAsync(async (req, res, next) => {
  */
 exports.getMyTickets = catchAsync(async (req, res, next) => {
   const { status, page = 1, limit = 20 } = req.query;
+  const safeStatus = typeof status === "string" ? status : undefined;
 
   // Match by user ID or by email (for tickets created before user linking)
   const query = {
     $or: [{ user: req.user._id }, { email: req.user.email }],
   };
-  if (status && status !== "all") query.status = status;
+  if (safeStatus && safeStatus !== "all") query.status = safeStatus;
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -153,7 +154,7 @@ exports.getMyTickets = catchAsync(async (req, res, next) => {
  */
 exports.getMyTicketById = catchAsync(async (req, res, next) => {
   const ticket = await SupportTicket.findOne({
-    _id: req.params.id,
+    _id: String(req.params.id),
     $or: [{ user: req.user._id }, { email: req.user.email }],
   }).populate("orderId", "orderNumber status");
 
@@ -189,7 +190,7 @@ exports.replyToTicket = catchAsync(async (req, res, next) => {
   }
 
   const ticket = await SupportTicket.findOne({
-    _id: req.params.id,
+    _id: String(req.params.id),
     $or: [{ user: req.user._id }, { email: req.user.email }],
   });
 
@@ -387,24 +388,30 @@ exports.getAllTickets = catchAsync(async (req, res, next) => {
 
   const query = {};
 
-  if (status && status !== "all") query.status = status;
-  if (category && category !== "all") query.category = category;
-  if (priority && priority !== "all") query.priority = priority;
+  const safeStatus = typeof status === "string" ? status : undefined;
+  const safeCategory = typeof category === "string" ? category : undefined;
+  const safePriority = typeof priority === "string" ? priority : undefined;
+  const safeSearch = typeof search === "string" ? search : undefined;
 
-  if (search) {
+  if (safeStatus && safeStatus !== "all") query.status = safeStatus;
+  if (safeCategory && safeCategory !== "all") query.category = safeCategory;
+  if (safePriority && safePriority !== "all") query.priority = safePriority;
+
+  if (safeSearch) {
     query.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { email: { $regex: search, $options: "i" } },
-      { subject: { $regex: search, $options: "i" } },
-      { ticketNumber: { $regex: search, $options: "i" } },
+      { name: { $regex: safeSearch, $options: "i" } },
+      { email: { $regex: safeSearch, $options: "i" } },
+      { subject: { $regex: safeSearch, $options: "i" } },
+      { ticketNumber: { $regex: safeSearch, $options: "i" } },
     ];
   }
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
+  const safeSort = typeof sort === "string" ? sort : "-createdAt";
   const [tickets, total] = await Promise.all([
     SupportTicket.find(query)
-      .sort(sort)
+      .sort(safeSort)
       .skip(skip)
       .limit(parseInt(limit))
       .populate("user", "firstName lastName email"),
@@ -440,7 +447,7 @@ exports.getAllTickets = catchAsync(async (req, res, next) => {
  * @access  Admin
  */
 exports.getTicketById = catchAsync(async (req, res, next) => {
-  const ticket = await SupportTicket.findById(req.params.id)
+  const ticket = await SupportTicket.findById(String(req.params.id))
     .populate("user", "firstName lastName email")
     .populate("orderId", "orderNumber status");
 
@@ -471,7 +478,7 @@ exports.getTicketById = catchAsync(async (req, res, next) => {
 exports.updateTicket = catchAsync(async (req, res, next) => {
   const { status, priority, adminNotes, assignedTo } = req.body;
 
-  const ticket = await SupportTicket.findById(req.params.id);
+  const ticket = await SupportTicket.findById(String(req.params.id));
 
   if (!ticket) {
     return next(new AppError("Ticket not found", 404));
@@ -509,7 +516,7 @@ exports.respondToTicket = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide a response message", 400));
   }
 
-  const ticket = await SupportTicket.findById(req.params.id);
+  const ticket = await SupportTicket.findById(String(req.params.id));
 
   if (!ticket) {
     return next(new AppError("Ticket not found", 404));
@@ -586,7 +593,7 @@ exports.respondToTicket = catchAsync(async (req, res, next) => {
  * @access  Admin
  */
 exports.deleteTicket = catchAsync(async (req, res, next) => {
-  const ticket = await SupportTicket.findById(req.params.id);
+  const ticket = await SupportTicket.findById(String(req.params.id));
 
   if (!ticket) {
     return next(new AppError("Ticket not found", 404));

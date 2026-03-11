@@ -18,7 +18,7 @@ const referralController = require("./referralController");
 // Initialize Razorpay — crash early if credentials are missing
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
   throw new Error(
-    "FATAL: Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET env vars."
+    "FATAL: Missing Razorpay credentials. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET env vars.",
   );
 }
 const razorpay = new Razorpay({
@@ -76,7 +76,7 @@ const getServices = async (req, res) => {
 // Get service by ID
 const getServiceById = async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
+    const service = await Service.findById(String(req.params.id));
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -137,7 +137,7 @@ const getProducts = async (req, res) => {
 // Get product by ID
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(String(req.params.id));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -360,20 +360,22 @@ const createOrder = async (req, res) => {
         quantity: item.quantity,
         licenseType: item.type === "product" ? "standard" : undefined,
         selectedPackage:
-          item.type === "service" && item.packageName && productOrService.packages
+          item.type === "service" &&
+          item.packageName &&
+          productOrService.packages
             ? {
                 name: item.packageName,
                 deliveryTime: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.deliveryTime,
                 features: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.features,
                 revisions: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.revisions,
                 revisionWindow: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.revisionWindow,
               }
             : undefined,
@@ -381,7 +383,10 @@ const createOrder = async (req, res) => {
     }
 
     if (orderItems.length === 0) {
-      return res.status(400).json({ message: "No valid items in cart. Some products may no longer be available." });
+      return res.status(400).json({
+        message:
+          "No valid items in cart. Some products may no longer be available.",
+      });
     }
 
     // Calculate base tax
@@ -617,20 +622,22 @@ const createRazorpayOrder = async (req, res) => {
         quantity: item.quantity,
         licenseType: item.type === "product" ? "standard" : undefined,
         selectedPackage:
-          item.type === "service" && item.packageName && productOrService.packages
+          item.type === "service" &&
+          item.packageName &&
+          productOrService.packages
             ? {
                 name: item.packageName,
                 deliveryTime: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.deliveryTime,
                 features: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.features,
                 revisions: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.revisions,
                 revisionWindow: productOrService.packages.find(
-                  (p) => p.name === item.packageName
+                  (p) => p.name === item.packageName,
                 )?.revisionWindow,
               }
             : undefined,
@@ -638,7 +645,10 @@ const createRazorpayOrder = async (req, res) => {
     }
 
     if (orderItems.length === 0) {
-      return res.status(400).json({ message: "No valid items in cart. Some products may no longer be available." });
+      return res.status(400).json({
+        message:
+          "No valid items in cart. Some products may no longer be available.",
+      });
     }
 
     const tax = subtotal * (taxRate / 100);
@@ -728,7 +738,10 @@ const verifyRazorpayPayment = async (req, res) => {
 
     if (expectedSignature === razorpay_signature) {
       // Payment Verified - Fetch the order
-      const order = await Order.findOne({ _id: orderId, user: req.user.id });
+      const order = await Order.findOne({
+        _id: String(orderId),
+        user: req.user.id,
+      });
 
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
@@ -860,9 +873,9 @@ const verifyRazorpayPayment = async (req, res) => {
       }
 
       // Award referral commission (fire and forget)
-      referralController.awardCommission(order).catch(err =>
-        logger.error('Referral awardCommission failed:', err)
-      );
+      referralController
+        .awardCommission(order)
+        .catch((err) => logger.error("Referral awardCommission failed:", err));
 
       logger.info(`Payment verified for order ${orderId}`);
 
@@ -979,7 +992,20 @@ const downloadPurchasedItem = async (req, res) => {
 
     // === CLOUDINARY URL HANDLING ===
     // Cloudinary URLs come in various formats, we need to handle them all
-    if (downloadUrl.includes("cloudinary.com")) {
+    let isCloudinary = false;
+    try {
+      const parsedUrl = new URL(downloadUrl);
+      const isCloudinaryHost =
+        parsedUrl.hostname === "cloudinary.com" ||
+        /\.cloudinary\.com$/.test(parsedUrl.hostname);
+      if (isCloudinaryHost) {
+        isCloudinary = true;
+      }
+    } catch (e) {
+      // Ignore invalid URL errors here
+    }
+
+    if (isCloudinary) {
       downloadUrl = await generateCloudinaryDownloadUrl(downloadUrl, link.name);
     }
 
@@ -1009,7 +1035,9 @@ const downloadPurchasedItem = async (req, res) => {
 
       // Increment the global product downloads counter (non-critical)
       try {
-        await Product.findByIdAndUpdate(item.itemId, { $inc: { downloads: 1 } });
+        await Product.findByIdAndUpdate(item.itemId, {
+          $inc: { downloads: 1 },
+        });
       } catch (dlErr) {
         logger.warn(`Failed to increment product downloads: ${dlErr.message}`);
       }
@@ -1364,7 +1392,7 @@ const addOrderMessage = async (req, res) => {
         name: att.name,
         url: att.url,
         size: att.size || 0,
-        mimetype: att.mimetype || '',
+        mimetype: att.mimetype || "",
       })),
     };
 
@@ -1450,50 +1478,63 @@ const getOrderMessages = async (req, res) => {
 const requestRevision = async (req, res) => {
   try {
     const { message } = req.body;
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(String(req.params.id));
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     // Check if user is the owner
     const userId = req.user._id || req.user.id;
-    if (order.user.toString() !== userId.toString() && req.user.role !== "admin") {
-      return res.status(403).json({ success: false, message: "Not authorized" });
+    if (
+      order.user.toString() !== userId.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
     }
 
     if (order.status !== "delivered") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Order must be in delivered status to request a revision" });
+      return res.status(400).json({
+        success: false,
+        message: "Order must be in delivered status to request a revision",
+      });
     }
 
     // Check if revision deadline has passed
     if (order.revisionDeadline && new Date() > order.revisionDeadline) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Revision request window has expired" });
+      return res.status(400).json({
+        success: false,
+        message: "Revision request window has expired",
+      });
     }
 
     const serviceItem = order.items.find((i) => i.itemType === "service");
     if (!serviceItem) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No service item found in this order" });
+      return res.status(400).json({
+        success: false,
+        message: "No service item found in this order",
+      });
     }
 
-    const totalRevisions = parseInt(serviceItem.selectedPackage?.revisions) || 0;
+    const totalRevisions =
+      parseInt(serviceItem.selectedPackage?.revisions) || 0;
     const revisionsUsed = order.revisionsUsed || 0;
 
     // Check for unlimited revisions (-1 or 'unlimited')
     const isUnlimited =
       serviceItem.selectedPackage?.revisions === -1 ||
-      serviceItem.selectedPackage?.revisions?.toString().toLowerCase() === "unlimited";
+      serviceItem.selectedPackage?.revisions?.toString().toLowerCase() ===
+        "unlimited";
 
     if (!isUnlimited && revisionsUsed >= totalRevisions) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No revisions remaining in your package" });
+      return res.status(400).json({
+        success: false,
+        message: "No revisions remaining in your package",
+      });
     }
 
     // Increment revisions
@@ -1531,23 +1572,29 @@ const requestRevision = async (req, res) => {
     });
   } catch (error) {
     logger.error("Request revision error:", error);
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
 // Approve delivery and mark order as completed (client action)
 const approveDelivery = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(String(req.params.id));
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     // Verify ownership
     const userId = req.user._id || req.user.id;
     if (order.user.toString() !== userId.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized" });
     }
 
     if (order.status !== "delivered") {
@@ -1574,7 +1621,8 @@ const approveDelivery = async (req, res) => {
       await createNotification({
         user: null,
         title: `Delivery Approved: ${order.orderNumber}`,
-        message: "Client has approved the delivery and marked the project as complete.",
+        message:
+          "Client has approved the delivery and marked the project as complete.",
         type: "order",
         relatedId: order._id,
         priority: "normal",
@@ -1590,7 +1638,9 @@ const approveDelivery = async (req, res) => {
     });
   } catch (error) {
     logger.error("Approve delivery error:", error);
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -1862,7 +1912,6 @@ const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-
 // @desc    Submit project requirements
 // @route   POST /api/v1/marketplace/orders/:id/requirements
 // @access  Private
@@ -1874,7 +1923,7 @@ const submitRequirements = async (req, res) => {
     if (!responses || !Array.isArray(responses)) {
       return res.status(400).json({
         success: false,
-        message: "Responses must be an array"
+        message: "Responses must be an array",
       });
     }
 
@@ -1887,7 +1936,7 @@ const submitRequirements = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found"
+        message: "Order not found",
       });
     }
 
@@ -1898,23 +1947,23 @@ const submitRequirements = async (req, res) => {
 
     // Can only submit if pending, changes_requested, or resubmitting
     const currentStatus = order.requirementsData.status;
-    if (currentStatus === 'approved') {
+    if (currentStatus === "approved") {
       return res.status(400).json({
         success: false,
-        message: "Requirements have already been approved"
+        message: "Requirements have already been approved",
       });
     }
 
-    if (currentStatus === 'submitted' || currentStatus === 'resubmitted') {
+    if (currentStatus === "submitted" || currentStatus === "resubmitted") {
       return res.status(400).json({
         success: false,
-        message: "Requirements are already under review"
+        message: "Requirements are already under review",
       });
     }
 
     // Determine the new status based on current state
-    const isResubmission = currentStatus === 'changes_requested';
-    const newStatus = isResubmission ? 'resubmitted' : 'submitted';
+    const isResubmission = currentStatus === "changes_requested";
+    const newStatus = isResubmission ? "resubmitted" : "submitted";
 
     order.requirementsData.responses = responses;
     order.requirementsData.status = newStatus;
@@ -1922,18 +1971,19 @@ const submitRequirements = async (req, res) => {
 
     // Handle attachments
     if (attachments.length > 0) {
-      order.requirementsData.attachments = attachments.map(att => ({
+      order.requirementsData.attachments = attachments.map((att) => ({
         name: att.name,
         url: att.url,
         size: att.size || 0,
-        mimetype: att.mimetype || '',
-        uploadedAt: new Date()
+        mimetype: att.mimetype || "",
+        uploadedAt: new Date(),
       }));
     }
 
     // Track revision count
     if (isResubmission) {
-      order.requirementsData.revision = (order.requirementsData.revision || 0) + 1;
+      order.requirementsData.revision =
+        (order.requirementsData.revision || 0) + 1;
     }
 
     // Add timeline entry
@@ -1952,8 +2002,10 @@ const submitRequirements = async (req, res) => {
     try {
       await createNotification({
         user: null,
-        title: isResubmission ? `Requirements Resubmitted: ${order.orderNumber}` : `New Requirements: ${order.orderNumber}`,
-        message: `Client ${isResubmission ? 'resubmitted' : 'submitted'} project requirements for ${order.items?.[0]?.title || 'a service'}`,
+        title: isResubmission
+          ? `Requirements Resubmitted: ${order.orderNumber}`
+          : `New Requirements: ${order.orderNumber}`,
+        message: `Client ${isResubmission ? "resubmitted" : "submitted"} project requirements for ${order.items?.[0]?.title || "a service"}`,
         type: "order",
         relatedId: order._id,
         priority: "high",
@@ -1965,20 +2017,21 @@ const submitRequirements = async (req, res) => {
     res.status(200).json({
       success: true,
       data: order,
-      message: isResubmission ? "Requirements resubmitted successfully" : "Requirements submitted successfully"
+      message: isResubmission
+        ? "Requirements resubmitted successfully"
+        : "Requirements submitted successfully",
     });
   } catch (error) {
     logger.error(`Submit requirements error: ${error.message}`);
     res.status(500).json({
       success: false,
       message: "Error submitting requirements",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-
-const invoiceService = require('../services/invoiceService');
+const invoiceService = require("../services/invoiceService");
 
 // --- INVOICE GENERATION ---
 
@@ -1992,21 +2045,21 @@ const downloadInvoice = async (req, res) => {
     // Verify the order belongs to this user
     const order = await Order.findOne({ _id: orderId, user: req.user.id });
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     const { buffer } = await invoiceService.generateInvoicePDF(orderId);
 
-    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
-      'Content-Disposition',
+      "Content-Disposition",
       `attachment; filename="invoice-${order.orderNumber}.pdf"`,
     );
-    res.setHeader('Content-Length', buffer.length);
+    res.setHeader("Content-Length", buffer.length);
     res.end(buffer);
   } catch (error) {
-    logger.error('Download invoice error:', error);
-    res.status(500).json({ message: 'Failed to generate invoice PDF' });
+    logger.error("Download invoice error:", error);
+    res.status(500).json({ message: "Failed to generate invoice PDF" });
   }
 };
 
@@ -2020,18 +2073,20 @@ const sendInvoiceByEmail = async (req, res) => {
   try {
     const order = await Order.findOne({ _id: orderId, user: req.user.id });
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
     const recipientEmail = req.body.email || order.billing?.email;
     if (!recipientEmail) {
-      return res.status(400).json({ message: 'No email address available for this order' });
+      return res
+        .status(400)
+        .json({ message: "No email address available for this order" });
     }
 
     await emailService.sendInvoiceEmail(
       recipientEmail,
       order,
-      order.billing?.firstName || 'Customer',
+      order.billing?.firstName || "Customer",
     );
 
     res.json({
@@ -2039,11 +2094,10 @@ const sendInvoiceByEmail = async (req, res) => {
       message: `Invoice emailed to ${recipientEmail}`,
     });
   } catch (error) {
-    logger.error('Send invoice email error:', error);
-    res.status(500).json({ message: 'Failed to send invoice email' });
+    logger.error("Send invoice email error:", error);
+    res.status(500).json({ message: "Failed to send invoice email" });
   }
 };
-
 
 module.exports = {
   getProducts,

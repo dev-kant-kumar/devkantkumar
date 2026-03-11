@@ -19,10 +19,7 @@ const supportTicketSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide your email"],
       lowercase: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        "Please provide a valid email",
-      ],
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please provide a valid email"],
     },
 
     // Ticket content
