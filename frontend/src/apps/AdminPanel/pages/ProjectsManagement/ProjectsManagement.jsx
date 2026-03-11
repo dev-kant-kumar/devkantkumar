@@ -11,21 +11,46 @@ import {
   Trash2
 } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import PremiumButton from "../../common/components/PremiumButton";
 import {
+  useDeleteProjectMutation,
   useGetAdminProjectsQuery
 } from "../../store/api/adminApiSlice";
-
-
-const projects = [];
-const filteredProjects=[]
 
 const ProjectsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { data, isLoading } = useGetAdminProjectsQuery();
-  // ... existing code ...
+  const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
+
+  const projects = Array.isArray(data)
+    ? data
+    : data?.data?.projects || data?.data || data?.projects || [];
+
+  const filteredProjects = projects.filter((project) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    return [project?.title, project?.description, ...(project?.technologies || [])]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+  });
+
+  const handleDelete = async (projectId) => {
+    if (!projectId || isDeleting) return;
+
+    const confirmed = window.confirm("Delete this project permanently?");
+    if (!confirmed) return;
+
+    try {
+      await deleteProject(projectId).unwrap();
+      toast.success("Project deleted successfully");
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete project");
+    }
+  };
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
@@ -149,14 +174,14 @@ const ProjectsManagement = () => {
 
                   {/* Tech Stack */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies.slice(0, 4).map((tech, i) => (
+                    {(project.technologies || []).slice(0, 4).map((tech, i) => (
                       <span key={i} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-medium rounded-md border border-gray-200/50 dark:border-gray-700/50">
                         {tech}
                       </span>
                     ))}
-                    {project.technologies.length > 4 && (
+                    {(project.technologies || []).length > 4 && (
                       <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-medium rounded-md">
-                        +{project.technologies.length - 4}
+                        +{(project.technologies || []).length - 4}
                       </span>
                     )}
                   </div>
