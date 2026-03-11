@@ -41,6 +41,7 @@ const forgotPasswordLimiter = createLimiter({
 });
 
 module.exports = {
+  createLimiter,
   loginLimiter,
   registerLimiter,
   forgotPasswordLimiter

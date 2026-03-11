@@ -168,6 +168,12 @@ const getCategories = async (req, res) => {
 const search = async (req, res) => {
   try {
     const { q, type } = req.query;
+
+    // Guard: q is required; without it $regex would be undefined and crash MongoDB
+    if (!q || !q.trim()) {
+      return res.status(400).json({ message: "Search query (q) is required" });
+    }
+
     const searchQuery = {
       $or: [
         { title: { $regex: q, $options: "i" } },
@@ -292,7 +298,7 @@ const createOrder = async (req, res) => {
       .populate("cart.items.product")
       .populate("cart.items.service");
 
-    if (!user.cart.items || user.cart.items.length === 0) {
+    if (!user.cart || !user.cart.items || user.cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
@@ -400,7 +406,7 @@ const createOrder = async (req, res) => {
         });
       }
 
-      // Validate coupon
+      // Validate coupon (checks expiry, isActive, per-user limit, min amount)
       const validation = coupon.isValid(req.user.id, subtotal);
       if (!validation.valid) {
         return res.status(400).json({
@@ -553,7 +559,7 @@ const createRazorpayOrder = async (req, res) => {
       .populate("cart.items.product")
       .populate("cart.items.service");
 
-    if (!user.cart.items || user.cart.items.length === 0) {
+    if (!user.cart || !user.cart.items || user.cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
@@ -653,11 +659,11 @@ const createRazorpayOrder = async (req, res) => {
     };
 
     const razorpayOrder = await razorpay.orders.create(options);
-    console.log("Razorpay Order Created:", razorpayOrder.id);
+    logger.info(`Razorpay Order Created: ${razorpayOrder.id}`);
 
     // 4. Create MongoDB Order (Pending)
     const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    console.log("Creating order with orderNumber:", orderNumber);
+    logger.info(`Creating order with orderNumber: ${orderNumber}`);
     const newOrder = new Order({
       orderNumber: orderNumber,
       user: req.user.id,
@@ -692,7 +698,7 @@ const createRazorpayOrder = async (req, res) => {
     });
 
     await newOrder.save();
-    console.log("MongoDB Order Created:", newOrder._id);
+    logger.info(`MongoDB Order Created: ${newOrder._id}`);
 
     res.json({
       id: razorpayOrder.id,
@@ -701,7 +707,7 @@ const createRazorpayOrder = async (req, res) => {
       orderId: newOrder._id,
     });
   } catch (error) {
-    console.error("FULL RAZORPAY ERROR:", JSON.stringify(error, null, 2));
+    logger.error("FULL RAZORPAY ERROR:", error);
     logger.error("Create Razorpay order error:", error);
     res.status(500).json({
       message: "Payment initiation error",
@@ -791,9 +797,17 @@ const verifyRazorpayPayment = async (req, res) => {
 
       await order.save();
 
-      // Mark coupon as used now that payment is confirmed
+      // Mark coupon as used — use atomic findOneAndUpdate with a usedCount guard
+      // to prevent multiple payments from exceeding maxUses (race-condition safe).
       if (order.couponApplied) {
-        await Coupon.findByIdAndUpdate(order.couponApplied, {
+        const couponFilter = {
+          _id: order.couponApplied,
+          $or: [
+            { maxUses: null },
+            { $expr: { $lt: ["$usedCount", "$maxUses"] } },
+          ],
+        };
+        await Coupon.findOneAndUpdate(couponFilter, {
           $push: {
             usedByUsers: {
               userId: req.user.id,

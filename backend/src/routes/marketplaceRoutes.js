@@ -3,10 +3,18 @@ const marketplaceController = require("../controllers/marketplaceController");
 const quoteController = require("../controllers/quoteController");
 const supportController = require("../controllers/supportController");
 const { protect, optionalAuth } = require("../middlewares/auth");
+const { createLimiter } = require("../middlewares/rateLimiter");
 
 const reviewRouter = require("./reviewRoutes");
 
 const router = express.Router();
+
+// Dedicated rate limiter for payment endpoints: 10 attempts per 15 minutes per IP
+const paymentLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many payment requests, please try again after 15 minutes",
+});
 
 // Mount review routes
 router.use("/products/:productId/reviews", reviewRouter);
@@ -63,8 +71,8 @@ router.get("/orders/:orderId/messages", marketplaceController.getOrderMessages);
 router.post("/orders/:orderId/messages", marketplaceController.addOrderMessage);
 
 // Payment routes
-router.post("/payment/create-order", marketplaceController.createRazorpayOrder);
-router.post("/payment/verify", marketplaceController.verifyRazorpayPayment);
+router.post("/payment/create-order", paymentLimiter, marketplaceController.createRazorpayOrder);
+router.post("/payment/verify", paymentLimiter, marketplaceController.verifyRazorpayPayment);
 
 // Download routes
 router.get(

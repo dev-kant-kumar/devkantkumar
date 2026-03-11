@@ -95,29 +95,21 @@ const limiter = rateLimit({
 
 app.use(cors({
   origin: function (origin, callback) {
-    console.log('=== CORS Debug ===');
-    console.log('Request Origin:', origin);
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('Origin in allowed list?', allowedOrigins.indexOf(origin) !== -1);
-
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
-      console.log('✓ No origin - allowing');
       return callback(null, true);
     }
 
     if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log('✓ Origin in allowed list - allowing');
       return callback(null, true);
     }
 
     // In development mode, allow ANY origin to prevent CORS headaches
     if (process.env.NODE_ENV === 'development') {
-      console.log('✓ Development mode - allowing');
       return callback(null, true);
     }
 
-    console.log('✗ Blocked by CORS:', origin);
+    logger.warn(`CORS blocked request from origin: ${origin}`);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
