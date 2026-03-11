@@ -5,6 +5,9 @@ const Service = require("../models/Service");
 const logger = require("../utils/logger");
 const mongoose = require("mongoose");
 
+// Escape special regex metacharacters to prevent ReDoS when using user input in regex queries
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /**
  * Validate coupon code and calculate discount
  * Public endpoint - no authentication required
@@ -189,9 +192,10 @@ const getCoupons = async (req, res) => {
     }
 
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { code: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+        { code: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -231,7 +235,11 @@ const getCoupon = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const coupon = await Coupon.findById(id)
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid coupon ID" });
+    }
+
+    const coupon = await Coupon.findById(new mongoose.Types.ObjectId(id))
       .populate("createdBy", "email firstName lastName")
       .populate("applicableProductIds", "title price")
       .populate("applicableServiceIds", "title")
@@ -303,7 +311,11 @@ const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const coupon = await Coupon.findByIdAndDelete(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid coupon ID" });
+    }
+
+    const coupon = await Coupon.findByIdAndDelete(new mongoose.Types.ObjectId(id));
 
     if (!coupon) {
       return res.status(404).json({ message: "Coupon not found" });

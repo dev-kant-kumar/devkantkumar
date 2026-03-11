@@ -5,6 +5,7 @@ const AppError = require("../utils/appError");
 const notificationService = require("../services/notificationService");
 const emailService = require("../services/emailService");
 const { emitToUser, emitToAdmins } = require("../config/socket");
+const mongoose = require("mongoose");
 
 // Escape special regex metacharacters so user-supplied search strings are
 // treated as plain substrings and cannot trigger catastrophic backtracking.
@@ -448,7 +449,10 @@ exports.getAllTickets = catchAsync(async (req, res, next) => {
  * @access  Admin
  */
 exports.getTicketById = catchAsync(async (req, res, next) => {
-  const ticket = await SupportTicket.findById(String(req.params.id))
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid ID", 400));
+  }
+  const ticket = await SupportTicket.findById(new mongoose.Types.ObjectId(req.params.id))
     .populate("user", "firstName lastName email")
     .populate("orderId", "orderNumber status");
 
@@ -479,7 +483,10 @@ exports.getTicketById = catchAsync(async (req, res, next) => {
 exports.updateTicket = catchAsync(async (req, res, next) => {
   const { status, priority, adminNotes, assignedTo } = req.body;
 
-  const ticket = await SupportTicket.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid ID", 400));
+  }
+  const ticket = await SupportTicket.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!ticket) {
     return next(new AppError("Ticket not found", 404));
@@ -517,7 +524,10 @@ exports.respondToTicket = catchAsync(async (req, res, next) => {
     return next(new AppError("Please provide a response message", 400));
   }
 
-  const ticket = await SupportTicket.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid ID", 400));
+  }
+  const ticket = await SupportTicket.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!ticket) {
     return next(new AppError("Ticket not found", 404));
@@ -594,7 +604,10 @@ exports.respondToTicket = catchAsync(async (req, res, next) => {
  * @access  Admin
  */
 exports.deleteTicket = catchAsync(async (req, res, next) => {
-  const ticket = await SupportTicket.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid ID", 400));
+  }
+  const ticket = await SupportTicket.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!ticket) {
     return next(new AppError("Ticket not found", 404));

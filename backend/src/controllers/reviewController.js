@@ -99,7 +99,10 @@ exports.createReview = catchAsync(async (req, res, next) => {
 });
 
 exports.updateReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid review ID", 400));
+  }
+  const review = await Review.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
@@ -127,7 +130,10 @@ exports.updateReview = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteReview = catchAsync(async (req, res, next) => {
-  const review = await Review.findById(String(req.params.id));
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return next(new AppError("Invalid review ID", 400));
+  }
+  const review = await Review.findById(new mongoose.Types.ObjectId(req.params.id));
 
   if (!review) {
     return next(new AppError("No review found with that ID", 404));
@@ -139,7 +145,7 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
     );
   }
 
-  await Review.findByIdAndDelete(req.params.id);
+  await Review.findByIdAndDelete(new mongoose.Types.ObjectId(req.params.id));
   // We need to trigger stats update. findByIdAndDelete triggers findOneAndDelete middleware if defined.
   // I defined hook on /^findOneAnd/ in Review.js, so it should catch this if it translates to findOneAndDelete
 

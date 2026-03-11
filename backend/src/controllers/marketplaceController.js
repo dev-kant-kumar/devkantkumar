@@ -44,10 +44,11 @@ const getServices = async (req, res) => {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
+        { tags: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -76,7 +77,10 @@ const getServices = async (req, res) => {
 // Get service by ID
 const getServiceById = async (req, res) => {
   try {
-    const service = await Service.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+    const service = await Service.findById(new mongoose.Types.ObjectId(req.params.id));
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -105,10 +109,11 @@ const getProducts = async (req, res) => {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
+        { tags: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -137,7 +142,10 @@ const getProducts = async (req, res) => {
 // Get product by ID
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(req.params.id));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1325,8 +1333,12 @@ const regenerateDownloadLinks = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+
     const order = await Order.findOne({
-      _id: orderId,
+      _id: new mongoose.Types.ObjectId(orderId),
       user: req.user.id,
       status: { $in: ["confirmed", "completed"] },
     });
@@ -1348,7 +1360,10 @@ const regenerateDownloadLinks = async (req, res) => {
     }
 
     // Fetch product for fresh download links
-    const product = await Product.findById(itemId);
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).json({ success: false, message: "Invalid item ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(itemId));
     if (
       !product ||
       !product.downloadFiles ||
@@ -1402,7 +1417,10 @@ const addOrderMessage = async (req, res) => {
         .json({ success: false, message: "Message or attachment is required" });
     }
 
-    const order = await Order.findById(orderId);
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(orderId));
 
     if (!order) {
       return res
@@ -1468,7 +1486,10 @@ const getOrderMessages = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.user.id;
 
-    const order = await Order.findById(orderId)
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(orderId))
       .populate(
         "communication.messages.sender",
         "firstName lastName email avatar role",
@@ -1515,7 +1536,10 @@ const getOrderMessages = async (req, res) => {
 const requestRevision = async (req, res) => {
   try {
     const { message } = req.body;
-    const order = await Order.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -1618,7 +1642,10 @@ const requestRevision = async (req, res) => {
 // Approve delivery and mark order as completed (client action)
 const approveDelivery = async (req, res) => {
   try {
-    const order = await Order.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -1687,10 +1714,14 @@ const createReview = async (req, res) => {
     const productId = req.params.id;
     const userId = req.user._id;
 
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
     // 1. Check if user purchased the product
     const hasPurchased = await Order.findOne({
       user: userId,
-      "items.itemId": productId,
+      "items.itemId": new mongoose.Types.ObjectId(productId),
       "items.itemType": "product",
       "payment.status": "completed", // Ensure payment is completed
     });
@@ -1701,7 +1732,7 @@ const createReview = async (req, res) => {
         .json({ message: "You must purchase this product to review it." });
     }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1748,7 +1779,10 @@ const createReview = async (req, res) => {
 const getReviews = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await Product.findById(productId);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -1767,7 +1801,10 @@ const updateReview = async (req, res) => {
     const productId = req.params.id;
     const userId = req.user._id;
 
-    const product = await Product.findById(productId);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1809,7 +1846,10 @@ const deleteReview = async (req, res) => {
     const productId = req.params.id;
     const userId = req.user._id;
 
-    const product = await Product.findById(productId);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1870,8 +1910,15 @@ const handleRazorpayWebhook = async (req, res) => {
         return res.status(200).json({ status: "ok" });
       }
 
+      // Sanitize the razorpayOrderId to prevent NoSQL injection - it must be a non-empty string
+      const safeRazorpayOrderId = String(razorpayOrderId).replace(/[^a-zA-Z0-9_\-]/g, "");
+      if (!safeRazorpayOrderId) {
+        logger.warn("Webhook received with invalid razorpayOrderId format");
+        return res.status(200).json({ status: "ok" });
+      }
+
       const order = await Order.findOne({
-        "payment.razorpayOrderId": razorpayOrderId,
+        "payment.razorpayOrderId": safeRazorpayOrderId,
       });
 
       if (!order) {

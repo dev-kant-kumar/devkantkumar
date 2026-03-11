@@ -1,6 +1,10 @@
 const EmailLog = require('../models/EmailLog');
 const { addEmailToQueue } = require('../services/emailQueue');
 const logger = require('../utils/logger');
+const mongoose = require('mongoose');
+
+// Escape special regex metacharacters to prevent ReDoS when using user input in regex queries
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * Email Tracking Controller
@@ -54,10 +58,11 @@ exports.getEmailLogs = async (req, res) => {
     if (type) query.type = type;
 
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { to: { $regex: search, $options: 'i' } },
-        { subject: { $regex: search, $options: 'i' } },
-        { from: { $regex: search, $options: 'i' } }
+        { to: { $regex: safeSearch, $options: 'i' } },
+        { subject: { $regex: safeSearch, $options: 'i' } },
+        { from: { $regex: safeSearch, $options: 'i' } }
       ];
     }
 
@@ -109,7 +114,11 @@ exports.getEmailById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const email = await EmailLog.findById(id).lean();
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid email log ID' });
+    }
+
+    const email = await EmailLog.findById(new mongoose.Types.ObjectId(id)).lean();
 
     if (!email) {
       return res.status(404).json({
@@ -137,7 +146,11 @@ exports.retryEmail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const email = await EmailLog.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid email log ID' });
+    }
+
+    const email = await EmailLog.findById(new mongoose.Types.ObjectId(id));
 
     if (!email) {
       return res.status(404).json({
