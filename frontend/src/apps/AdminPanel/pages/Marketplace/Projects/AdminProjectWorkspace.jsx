@@ -1810,7 +1810,7 @@ const AdminProjectWorkspace = () => {
     order?.customerId,
     { skip: !order?.customerId }
   );
-  const customerData = customerDataResponse?.data || {};
+  const customerData = customerDataResponse || {};
 
   const progress = calculateProgress(order);
 
