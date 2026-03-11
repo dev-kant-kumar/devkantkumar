@@ -649,17 +649,6 @@ export const portfolioData = {
       image: "https://avatars.githubusercontent.com/u/101362859?v=4",
       author: "Dev Kant Kumar",
     },
-    analytics: {
-      googleSiteVerification: "1R7-ajqFcl9Qoi6f1TmmrJvhRyWjxRmGORdmYQyrnfw",
-      pinterestVerification: "", // Add if available
-    },
-    social: {
-      twitter: "@dev_kant_kumar",
-    },
-    site: {
-      url: "https://devkantkumar.com",
-      domain: "devkantkumar.com",
-    },
   },
 
   metadata: {
@@ -694,7 +683,6 @@ export const getAchievements = () => portfolioData.achievements;
 // Stats calculations
 export const getPortfolioStats = () => {
   const projects = portfolioData.projects;
-  const experience = portfolioData.workExperience;
   const skills = portfolioData.technicalSkills;
 
   return {
