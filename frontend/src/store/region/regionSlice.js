@@ -1,25 +1,22 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { API_URL } from '../../config/api';
 
-// Async thunk to fetch user location
+// Async thunk to fetch user location from own backend geo endpoint.
+// The backend reads the Cloudflare CF-IPCountry header (set when behind Cloudflare)
+// and returns countryCode, currency, and countryName without any external HTTP calls.
 export const fetchUserLocation = createAsyncThunk(
   'region/fetchUserLocation',
   async (_, { rejectWithValue }) => {
     try {
-      // Using ip-api.com - free, no API key, reliable
-      const response = await fetch('http://ip-api.com/json/?fields=countryCode,country,currency');
+      const response = await fetch(`${API_URL}/geo`);
       if (!response.ok) {
         throw new Error('Failed to fetch location');
       }
       const data = await response.json();
-      // ip-api doesn't return currency, map common countries
-      const currencyMap = {
-        'US': 'USD', 'GB': 'GBP', 'EU': 'EUR', 'IN': 'INR',
-        'AU': 'AUD', 'CA': 'CAD', 'JP': 'JPY', 'CN': 'CNY'
-      };
       return {
         countryCode: data.countryCode || 'IN',
-        currency: currencyMap[data.countryCode] || 'INR',
-        countryName: data.country || 'India'
+        currency: data.currency || 'INR',
+        countryName: data.countryName || 'India',
       };
     } catch (error) {
       return rejectWithValue(error.message);
