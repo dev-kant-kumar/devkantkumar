@@ -11,7 +11,7 @@ const UPLOAD_DIR = path.resolve('uploads/temp');
 const cleanupFile = (filePath) => {
   try {
     if (!filePath) return;
-    // Normalise the path and confirm it stays within the upload directory
+    // Normalize the path and confirm it stays within the upload directory
     const resolvedPath = path.resolve(filePath);
     if (!resolvedPath.startsWith(UPLOAD_DIR + path.sep) && resolvedPath !== UPLOAD_DIR) {
       logger.warn(`Refusing to delete file outside upload directory: ${resolvedPath}`);

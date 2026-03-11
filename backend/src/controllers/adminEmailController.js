@@ -158,7 +158,8 @@ const adminEmailController = {
 
 // Helper: Attempt to extract title/subject from the generated HTML
 function extractSubject(html) {
-  const match = html.match(/<title>([^<]*)<\/title>/);  return match ? match[1] : 'Preview';
+  const match = html.match(/<title>([^<]*)<\/title>/);
+  return match ? match[1] : 'Preview';
 }
 
 module.exports = adminEmailController;
