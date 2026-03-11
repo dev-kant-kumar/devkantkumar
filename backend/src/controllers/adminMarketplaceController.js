@@ -557,7 +557,22 @@ exports.createService = async (req, res) => {
 // @access  Admin
 exports.updateService = async (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
+    let updateData = { ...req.body };
+
+    // If packages are being updated, recalculate regional pricing for each
+    // package that doesn't already carry explicit regionalPricing — mirrors the
+    // behaviour of updateProduct which recalculates when price changes.
+    if (Array.isArray(updateData.packages) && updateData.packages.length > 0) {
+      updateData.packages = updateData.packages.map((pkg) => ({
+        ...pkg,
+        regionalPricing:
+          pkg.regionalPricing && pkg.regionalPricing.length > 0
+            ? pkg.regionalPricing
+            : calculateRegionalPricing(pkg.price),
+      }));
+    }
+
+    const service = await Service.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });

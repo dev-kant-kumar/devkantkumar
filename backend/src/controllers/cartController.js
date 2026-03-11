@@ -99,6 +99,15 @@ exports.addToCart = async (req, res, next) => {
         });
     }
 
+    // Validate quantity is a positive integer
+    const parsedQty = Number(quantity);
+    if (!Number.isInteger(parsedQty) || parsedQty < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be a positive integer'
+      });
+    }
+
     const user = await User.findById(req.user.id);
 
     // Check if item already exists in cart
@@ -158,6 +167,15 @@ exports.updateCartItem = async (req, res, next) => {
     const { quantity } = req.body;
     const { itemId } = req.params; // This is the unique _id of the cart item
     const countryCode = req.headers['x-country-code'] || 'IN';
+
+    // Validate quantity: must be a non-negative integer (0 = remove item)
+    const parsedQty = Number(quantity);
+    if (!Number.isInteger(parsedQty) || parsedQty < 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be a non-negative integer'
+      });
+    }
 
     const user = await User.findById(req.user.id);
 

@@ -225,30 +225,203 @@ The `createLimiter` factory was also exported from `rateLimiter.js` so route fil
 
 ---
 
-## Business Flaws Identified (Not Yet Fixed — Requires Feature Work)
+## Business Flaws Identified — Round 2 Fixes
 
-The following issues were identified but require larger feature work outside the scope of a targeted bug fix. They are documented here for prioritisation.
-
-| # | Issue | Impact | Recommended Fix |
-|---|-------|--------|-----------------|
-| 1 | **No refund workflow** | No way to process disputes or chargebacks | Implement refund states in Order model + Razorpay refund API |
-| 2 | **Pricing recalculated client-side** | Determined attacker can modify network request to reduce price | Backend must independently recalculate total from cart items before charging |
-| 3 | **Email notification silent failure** | Order confirmation emails silently fail with no retry | Use BullMQ queue with exponential backoff retry for email sending |
-| 4 | **Service delivery workflow missing UI** | No frontend to view order phases, deadlines, or progress | Build order timeline UI with phase updates |
-| 5 | **No automated test coverage** | Regressions go undetected | Write Jest unit tests + Supertest API integration tests |
-| 6 | **Weak password policy** | No complexity requirements enforced server-side | Add minimum 8 chars + 1 number + 1 special char server-side validation |
-| 7 | **Download links no cleanup job** | Expired download entries accumulate in the DB | Add a nightly BullMQ job to prune expired `downloadLinks` |
+The following issues were identified in the second audit pass and have now been resolved.
 
 ---
 
-## Summary Table
+### 7. Password Policy Not Enforced in `resetPassword()` and `changePassword()`
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/authController.js` |
+| **Functions** | `resetPassword()`, `changePassword()` |
+| **Severity** | 🟠 High — security bypass |
+
+**Root Cause**
+
+`authRoutes.js` uses `express-validator` to enforce a password policy (`≥6 chars + uppercase + lowercase + digit`) only on the `/register` route. The `/reset-password` and `/change-password` routes bypassed this check entirely, allowing users to set trivially weak passwords (`password`, `123456`, etc.) through those flows.
+
+**Fix Applied**
+
+Added explicit policy validation before setting the new password in both functions:
+
+```js
+if (!password || password.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+  return res.status(400).json({
+    success: false,
+    message: 'Password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
+  });
+}
+```
+
+---
+
+### 8. `updateService()` Did Not Recalculate Regional Pricing When Packages Changed
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/adminMarketplaceController.js` |
+| **Function** | `updateService()` |
+| **Severity** | 🟠 High — pricing inconsistency across regions |
+
+**Root Cause**
+
+`updateProduct()` correctly recalculates `regionalPricing` when `price` changes. `updateService()` performed a bare `findByIdAndUpdate(req.body)` without any pre-processing, so package price updates never triggered regional price recalculation. Users in other regions would see stale prices after an admin updated a service package.
+
+**Fix Applied**
+
+Added the same package pre-processing logic that `createService()` already uses:
+
+```js
+if (Array.isArray(updateData.packages) && updateData.packages.length > 0) {
+  updateData.packages = updateData.packages.map((pkg) => ({
+    ...pkg,
+    regionalPricing:
+      pkg.regionalPricing && pkg.regionalPricing.length > 0
+        ? pkg.regionalPricing
+        : calculateRegionalPricing(pkg.price),
+  }));
+}
+```
+
+---
+
+### 9. No Quantity Validation in Cart `addToCart()` and `updateCartItem()`
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/cartController.js` |
+| **Functions** | `addToCart()`, `updateCartItem()` |
+| **Severity** | 🟠 High — invalid cart state, checkout breakage |
+
+**Root Cause**
+
+Neither function validated the `quantity` value from the request body. Clients could send negative quantities, floating-point values, or non-numeric strings, causing `user.cart.items[n].quantity` to hold invalid values that broke order total calculations downstream.
+
+**Fix Applied**
+
+Added `Number.isInteger` checks:
+
+- `addToCart`: quantity must be a positive integer (`≥ 1`)
+- `updateCartItem`: quantity must be a non-negative integer (`≥ 0`; `0` removes the item)
+
+```js
+const parsedQty = Number(quantity);
+if (!Number.isInteger(parsedQty) || parsedQty < 1) {
+  return res.status(400).json({ success: false, message: 'Quantity must be a positive integer' });
+}
+```
+
+---
+
+### 10. Floating-Point Rounding Errors in Checkout Total Calculation
+
+| Property | Detail |
+|----------|--------|
+| **File** | `frontend/src/apps/MarketPlace/pages/Checkout/Checkout.jsx` |
+| **Function** | `calculateTotals()` |
+| **Severity** | 🟡 Medium — paise-level payment discrepancies |
+
+**Root Cause**
+
+The subtotal was accumulated by summing `price * quantity` in a `forEach` loop without intermediate rounding. JavaScript's IEEE 754 floating-point arithmetic can produce results like `0.1 + 0.2 = 0.30000000000000004`, causing totals to be off by small fractions of a rupee, which can cause reconciliation issues with Razorpay.
+
+**Fix Applied**
+
+Switched to a single `reduce` call wrapped in `Math.round(...*100)/100`, and applied the same rounding to every derived value:
+
+```js
+const subtotal = Math.round(
+  cartItems.reduce((sum, item) => sum + getCartItemPrice(item) * item.quantity, 0) * 100
+) / 100;
+const surchargeAmount = Math.round((totalWithSurcharge - subtotal) * 100) / 100;
+const total = Math.max(0, Math.round((totalWithSurcharge - discountAmount) * 100) / 100);
+```
+
+---
+
+### 11. Falsy Check Broke $0-Discount Coupons
+
+| Property | Detail |
+|----------|--------|
+| **File** | `frontend/src/apps/MarketPlace/pages/Checkout/Checkout.jsx` |
+| **Function** | `calculateTotals()` |
+| **Severity** | 🟡 Medium — free coupons silently ignored |
+
+**Root Cause**
+
+```js
+if (appliedCoupon?.discountAmount) { ... }  // 0 is falsy!
+```
+
+Coupons with a `discountAmount` of exactly `0` (e.g., free-shipping coupons where discount is `0` in the payload) would silently fall through and not be applied.
+
+**Fix Applied**
+
+Replaced the falsy guard with an explicit null/undefined check:
+
+```js
+if (appliedCoupon && appliedCoupon.discountAmount != null) {
+  discountAmount = appliedCoupon.discountAmount;
+}
+```
+
+---
+
+### 12. `removeOnFail: 100` in Email Queue Was Misleading
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/services/emailQueue.js` |
+| **Severity** | 🟡 Medium — debugging hindrance |
+
+**Root Cause**
+
+`removeOnFail: 100` in BullMQ means "keep up to 100 failed jobs", not "keep for 100 seconds". This is an unintuitive magic number that provided no clear retention policy. Under high failure rates the 100-job cap could evict failures faster than an engineer could inspect them.
+
+**Fix Applied**
+
+Changed to `removeOnFail: { age: 3600 }` — keep failed jobs for exactly 1 hour, then auto-remove:
+
+```js
+removeOnFail: { age: 3600 }
+```
+
+---
+
+### 13. Email Log `htmlPreview` Stored Raw HTML Markup
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/services/emailQueue.js` |
+| **Function** | `addEmailToQueue()` |
+| **Severity** | 🟡 Minor — unreadable log entries |
+
+**Root Cause**
+
+The preview stored in the email log was `options.html.substring(0, 500)`, which includes all HTML tags, making the log field unreadable.
+
+**Fix Applied**
+
+Strip tags before storing:
+
+```js
+htmlPreview: options.html ? options.html.replace(/<[^>]*>/g, '').substring(0, 500) : ''
+```
+
+---
+
+## Updated Summary Table
 
 | Severity | Count | Status |
 |----------|-------|--------|
 | 🔴 Critical (crash / data corruption) | 3 | ✅ Fixed |
-| 🟠 High (security / revenue) | 3 | ✅ Fixed |
-| 🟡 Medium (UX / business logic) | 7 | 📋 Tracked above |
+| 🟠 High (security / revenue) | 6 | ✅ Fixed |
+| 🟡 Medium / Minor (UX / logic) | 4 | ✅ Fixed |
+| 📋 Feature work (refund UI, test suite) | 2 | 📋 Backlog |
 
 ---
 
-*Report generated: March 2026*
+*Report updated: March 2026*

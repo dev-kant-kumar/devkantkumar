@@ -621,6 +621,14 @@ const resetPassword = async (req, res, next) => {
     const { token } = req.params;
     const { password } = req.body;
 
+    // Enforce the same password policy as registration: 6+ chars, upper, lower, digit
+    if (!password || password.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
+      });
+    }
+
     // Hash the token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -783,6 +791,14 @@ const changePassword = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Current password is incorrect'
+      });
+    }
+
+    // Enforce the same password policy as registration: 6+ chars, upper, lower, digit
+    if (newPassword.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
       });
     }
 

@@ -35,7 +35,9 @@ const emailQueue = new Queue('email-queue', {
       delay: 1000,
     },
     removeOnComplete: true,
-    removeOnFail: 100
+    // Keep failed jobs for 1 hour so they can be inspected for debugging,
+    // then auto-remove to avoid unbounded queue growth.
+    removeOnFail: { age: 3600 }
   }
 });
 
@@ -293,7 +295,10 @@ const addEmailToQueue = async (options) => {
         status: 'pending',
         jobId: job.id.toString(),
         queuedAt: new Date(),
-        htmlPreview: options.html ? options.html.substring(0, 500) : '',
+        // Use the plain-text version of the email body as the preview.
+        // Prefer options.text (always safe); only fall back to a raw HTML
+        // snippet when no text version is provided.
+        htmlPreview: (options.text || options.html || '').substring(0, 500),
         metadata: options.metadata || {}
       });
     } catch (logError) {
