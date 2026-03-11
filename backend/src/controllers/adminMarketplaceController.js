@@ -713,7 +713,7 @@ exports.getAllOrders = async (req, res) => {
       // Check if search term looks like an ObjectID
       const isObjectId = /^[0-9a-fA-F]{24}$/.test(search);
 
-      if (isObjectId) {
+      if (isObjectId && mongoose.Types.ObjectId.isValid(search)) {
         query._id = new mongoose.Types.ObjectId(search);
       } else {
         query.$or = [

@@ -301,9 +301,6 @@ const updateProject = async (req, res) => {
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid ID" });
-    }
     project = await Project.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, {
       new: true,
       runValidators: true
@@ -396,9 +393,6 @@ const updateBlogPost = async (req, res) => {
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid ID" });
-    }
     blogPost = await BlogPost.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, {
       new: true,
       runValidators: true
@@ -488,9 +482,6 @@ const updateSkill = async (req, res) => {
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid ID" });
-    }
     skill = await Skill.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), req.body, {
       new: true,
       runValidators: true
