@@ -181,7 +181,7 @@ const login = async (req, res, next) => {
       logger.warn(`Login failed - User not found: ${email}`);
       return res.status(401).json({
         success: false,
-        message: 'User not found'
+        message: 'Invalid email or password'
       });
     }
 

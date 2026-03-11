@@ -764,13 +764,193 @@ if (!Number.isInteger(parsedQty) || parsedQty < 1 || parsedQty > MAX_ITEM_QUANTI
 
 ---
 
+## Business Flaws Identified — Round 5 Fixes
+
+The following issues were identified in the fifth audit pass and have now been resolved.
+
+---
+
+### 24. ReDoS in Admin Search Endpoints
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/adminMarketplaceController.js` |
+| **Functions** | `getAllProducts()`, `getAdminServices()`, `getCustomers()`, `getAllOrders()` |
+| **Severity** | 🟠 High — Denial of Service (admin-initiated) |
+
+**Root Cause**
+
+All four admin-side listing endpoints embedded raw user-supplied query parameters directly into MongoDB `$regex` operators, identical to the Round-3 ReDoS already fixed in the public `search()` endpoint:
+
+```js
+// BEFORE — unsafe in all four functions
+{ title: { $regex: search, $options: "i" } }
+```
+
+An admin who knows the issue (or a compromised admin account) could supply a catastrophic-backtracking pattern (e.g., `(a+)+$`) to hang the MongoDB query engine and cause a Denial of Service.
+
+**Fix Applied**
+
+Added a module-level `escapeRegExp` helper (same as the public search helper) and applied it to every admin `$regex` use:
+
+```js
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// getAllProducts
+const safeSearch = escapeRegExp(search);
+query.$or = [
+  { title: { $regex: safeSearch, $options: "i" } },
+  { description: { $regex: safeSearch, $options: "i" } },
+];
+
+// getCustomers
+{ firstName: { $regex: escapeRegExp(search), $options: "i" } }
+
+// getAdminServices
+query.title = { $regex: escapeRegExp(req.query.search), $options: "i" };
+
+// getAllOrders
+{ orderNumber: { $regex: escapeRegExp(search), $options: "i" } }
+```
+
+---
+
+### 25. `validateCoupon` Accepted `userId` from Request Body
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/couponController.js`, `backend/src/routes/couponRoutes.js` |
+| **Function** | `validateCoupon()` |
+| **Severity** | 🟠 High — per-user coupon limit bypass |
+
+**Root Cause**
+
+The `/coupons/validate` endpoint was public (no authentication) and read `userId` directly from the request body:
+
+```js
+// BEFORE — any caller can supply anyone else's userId
+const { code, orderTotal, userId, itemIds = [] } = req.body;
+```
+
+The `userId` value was then passed to `coupon.isValid(userId, orderTotal)` to check per-user usage limits. Because the field came from the request body, any unauthenticated caller could pass a different user's MongoDB ObjectId to make the check return "valid" — bypassing the per-customer coupon limit.
+
+**Fix Applied**
+
+Applied `optionalAuth` middleware to the route so the server populates `req.user` when a valid token is present. The controller now reads the user ID from the authenticated session instead of the request body:
+
+```js
+// couponRoutes.js — add optionalAuth
+router.post('/validate', optionalAuth, couponController.validateCoupon);
+
+// couponController.js — use authenticated user ID
+const { code, orderTotal, itemIds = [] } = req.body;
+const userId = req.user?.id || req.user?._id; // populated by optionalAuth
+```
+
+---
+
+### 26. Login Email Enumeration
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/authController.js` |
+| **Function** | `login()` |
+| **Severity** | 🟡 Medium — information disclosure |
+
+**Root Cause**
+
+When no account matched the supplied email, the login endpoint returned `"User not found"`:
+
+```js
+// BEFORE — reveals whether email is registered
+return res.status(401).json({ message: 'User not found' });
+```
+
+An attacker can enumerate registered email addresses by submitting candidate addresses and observing `"User not found"` vs. `"Invalid password"`.
+
+**Fix Applied**
+
+Changed to a generic, non-revealing message:
+
+```js
+return res.status(401).json({ message: 'Invalid email or password' });
+```
+
+---
+
+### 27. No Rating Validation in `createReview` / `updateReview`
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/marketplaceController.js` |
+| **Functions** | `createReview()`, `updateReview()` |
+| **Severity** | 🟡 Medium — data integrity |
+
+**Root Cause**
+
+Both functions cast the user-supplied `rating` field directly to `Number` without any bounds check:
+
+```js
+// BEFORE — accepts any value: 0, -5, 9999, NaN
+rating: Number(rating),
+```
+
+A user who submits a `rating` outside the valid 1–5 range corrupts the product's `rating.average` field, producing incorrect averages displayed to all users.
+
+**Fix Applied**
+
+Added an integer bounds check before saving:
+
+```js
+const parsedRating = Number(rating);
+if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+  return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+}
+review.rating = parsedRating;
+```
+
+---
+
+### 28. `sendInvoiceByEmail` Accepted Unvalidated Email Address
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/marketplaceController.js` |
+| **Function** | `sendInvoiceByEmail()` |
+| **Severity** | 🟡 Medium — input validation |
+
+**Root Cause**
+
+The override email supplied in the request body was forwarded directly to the email service with no format validation:
+
+```js
+// BEFORE — no format check
+const recipientEmail = req.body.email || order.billing?.email;
+// passed directly to emailService.sendInvoiceEmail(recipientEmail, ...)
+```
+
+A malformed or injected address could cause the SMTP transport to behave unexpectedly or generate transport errors that are swallowed.
+
+**Fix Applied**
+
+Added a basic regex format check before proceeding:
+
+```js
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!EMAIL_RE.test(recipientEmail)) {
+  return res.status(400).json({ message: 'Invalid email address' });
+}
+```
+
+---
+
 ## Updated Summary Table
 
 | Severity | Count | Status |
 |----------|-------|--------|
 | 🔴 Critical (crash / data corruption) | 3 | ✅ Fixed |
-| 🟠 High (security / revenue) | 11 | ✅ Fixed |
-| 🟡 Medium / Minor (performance / hardening) | 9 | ✅ Fixed |
+| 🟠 High (security / revenue) | 13 | ✅ Fixed |
+| 🟡 Medium / Minor (performance / hardening) | 12 | ✅ Fixed |
 | 📋 Feature work (refund UI, test suite) | 2 | 📋 Backlog |
 
 ---

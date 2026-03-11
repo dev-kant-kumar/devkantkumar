@@ -1665,11 +1665,16 @@ const createReview = async (req, res) => {
       return res.status(400).json({ message: "Product already reviewed" });
     }
 
-    // 3. Add Review
+    // 3. Validate and add Review
+    const parsedRating = Number(rating);
+    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+    }
+
     const review = {
       user: userId,
       name: req.user.fullName || `${req.user.firstName} ${req.user.lastName}`,
-      rating: Number(rating),
+      rating: parsedRating,
       comment,
     };
 
@@ -1725,7 +1730,12 @@ const updateReview = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    review.rating = Number(rating);
+    const parsedRating = Number(rating);
+    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+    }
+
+    review.rating = parsedRating;
     review.comment = comment;
     review.name =
       req.user.fullName || `${req.user.firstName} ${req.user.lastName}`;
@@ -2079,6 +2089,12 @@ const sendInvoiceByEmail = async (req, res) => {
     const recipientEmail = req.body.email || order.billing?.email;
     if (!recipientEmail) {
       return res.status(400).json({ message: 'No email address available for this order' });
+    }
+
+    // Validate that the supplied address is a syntactically correct email
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_RE.test(recipientEmail)) {
+      return res.status(400).json({ message: 'Invalid email address' });
     }
 
     await emailService.sendInvoiceEmail(

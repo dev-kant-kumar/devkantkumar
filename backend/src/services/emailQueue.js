@@ -300,7 +300,7 @@ const addEmailToQueue = async (options) => {
         // placeholder so the field is never empty.  Storing raw HTML in the
         // log field is intentionally avoided — it makes logs unreadable and
         // triggers security scanners.
-        htmlPreview: (options.text || (options.html ? '[HTML email body]' : '')).substring(0, 500),
+        htmlPreview: (options.text ?? (options.html ? '[HTML email body]' : '')).substring(0, 500),
         metadata: options.metadata || {}
       });
     } catch (logError) {
