@@ -509,10 +509,12 @@ const resendVerification = async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    // Always return the same response whether the email exists or not to prevent
+    // email enumeration attacks.
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'No user found with this email'
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email and is unverified, a verification link has been sent'
       });
     }
 
@@ -567,10 +569,12 @@ const forgotPassword = async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    // Always return the same response whether the email exists or not to prevent
+    // email enumeration attacks. The email is sent only when the account exists.
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'No user found with this email'
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent'
       });
     }
 
@@ -582,20 +586,12 @@ const forgotPassword = async (req, res, next) => {
 
     // Send reset email
     try {
-      const emailResult = await emailService.sendPasswordResetEmail(user.email, resetToken, user.firstName);
+      await emailService.sendPasswordResetEmail(user.email, resetToken, user.firstName);
 
-      if (emailResult.info === 'Email service not configured') {
-        res.status(200).json({
-          success: true,
-          message: 'Password reset token generated. Email service is currently unavailable.',
-          resetToken: resetToken // Only for development - remove in production
-        });
-      } else {
-        res.status(200).json({
-          success: true,
-          message: 'Password reset email sent'
-        });
-      }
+      res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent'
+      });
     } catch (emailError) {
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;

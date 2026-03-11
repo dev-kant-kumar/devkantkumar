@@ -25,9 +25,9 @@ router.post('/login', loginLimiter, loginValidation, authController.login);
 router.post('/logout', authController.logout);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/forgot-password', forgotPasswordLimiter, authController.forgotPassword);
-router.put('/reset-password/:token', authController.resetPassword);
-router.post('/verify-email/:token', authController.verifyEmail);
-router.post('/resend-verification', authController.resendVerification);
+router.put('/reset-password/:token', forgotPasswordLimiter, authController.resetPassword);
+router.post('/verify-email/:token', forgotPasswordLimiter, authController.verifyEmail);
+router.post('/resend-verification', forgotPasswordLimiter, authController.resendVerification);
 router.post('/login/verify-2fa', authController.verify2FALogin);
 
 // Protected routes

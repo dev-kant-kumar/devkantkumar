@@ -550,13 +550,227 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 ---
 
+## Business Flaws Identified — Round 4 Fixes
+
+The following issues were identified in the fourth audit pass and have now been resolved.
+
+---
+
+### 18. Email Enumeration in `forgotPassword()` and `resendVerification()`
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/authController.js` |
+| **Functions** | `forgotPassword()`, `resendVerification()` |
+| **Severity** | 🟠 High — information disclosure |
+
+**Root Cause**
+
+Both endpoints returned `HTTP 404 "No user found with this email"` when no account matched the supplied address:
+
+```js
+// BEFORE — reveals which emails are registered
+if (!user) {
+  return res.status(404).json({ message: 'No user found with this email' });
+}
+```
+
+An attacker could enumerate registered email addresses by submitting candidate emails and observing whether a 404 or 200 was returned.
+
+**Fix Applied**
+
+Always return `HTTP 200` with a neutral message that does not reveal account existence. The email (reset link or verification link) is sent only when the account actually exists.
+
+```js
+if (!user) {
+  return res.status(200).json({
+    success: true,
+    message: 'If an account exists with this email, a password reset link has been sent'
+  });
+}
+// ... token generation and email sending only happens below
+```
+
+---
+
+### 19. Password Reset Token Exposed in API Response
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/authController.js` |
+| **Function** | `forgotPassword()` |
+| **Severity** | 🟠 High — token leakage |
+
+**Root Cause**
+
+When the email service was unavailable, the controller returned the raw plaintext reset token in the JSON response body:
+
+```js
+// BEFORE — token returned in response
+if (emailResult.info === 'Email service not configured') {
+  res.status(200).json({
+    success: true,
+    message: '...',
+    resetToken: resetToken  // ← plaintext token in API response
+  });
+}
+```
+
+This token grants immediate password-reset access. Returning it in a response that may be logged, cached, or stored by a proxy is equivalent to skipping the reset flow entirely.
+
+**Fix Applied**
+
+Removed the `resetToken` from the response entirely. The single neutral message is now returned regardless of whether the email was sent, removing the conditional branch that exposed the token.
+
+---
+
+### 20. No Rate Limiting on Password Reset, Email Verification, and Resend Endpoints
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/routes/authRoutes.js` |
+| **Routes** | `PUT /reset-password/:token`, `POST /verify-email/:token`, `POST /resend-verification` |
+| **Severity** | 🟠 High — token brute-force, spam |
+
+**Root Cause**
+
+The `forgot-password` endpoint had rate limiting (`forgotPasswordLimiter`) but the three related endpoints were unprotected:
+
+```js
+// BEFORE — only forgot-password had a limiter
+router.post('/forgot-password',     forgotPasswordLimiter, authController.forgotPassword);
+router.put('/reset-password/:token',                       authController.resetPassword);  // ← bare
+router.post('/verify-email/:token',                        authController.verifyEmail);    // ← bare
+router.post('/resend-verification',                        authController.resendVerification); // ← bare
+```
+
+Without rate limiting on `reset-password/:token` an attacker could brute-force the 64-hex-character token. Without limiting on `resend-verification` an attacker could flood a victim's inbox.
+
+**Fix Applied**
+
+Applied the existing `forgotPasswordLimiter` (3 requests / hour / IP) to all four related routes:
+
+```js
+router.post('/forgot-password',     forgotPasswordLimiter, authController.forgotPassword);
+router.put('/reset-password/:token', forgotPasswordLimiter, authController.resetPassword);
+router.post('/verify-email/:token',  forgotPasswordLimiter, authController.verifyEmail);
+router.post('/resend-verification',  forgotPasswordLimiter, authController.resendVerification);
+```
+
+---
+
+### 21. `passwordResetToken` Not Cleared When Password Is Changed via Other Flows
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/models/User.js` |
+| **Hook** | `userSchema.pre('save')` |
+| **Severity** | 🟡 Medium — stale reset tokens |
+
+**Root Cause**
+
+The `resetPassword()` controller explicitly clears `passwordResetToken` and `passwordResetExpires` after use. However, the `changePassword()` endpoint (while the user is logged in) does not. If a user had an outstanding reset link and then changed their password via the authenticated flow, the reset link remained technically valid until its 10-minute TTL elapsed.
+
+**Fix Applied**
+
+Added token clearance inside the `pre('save')` hook so it triggers automatically whenever the `password` field is modified, regardless of which code path initiated the save:
+
+```js
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+
+  // Clear any pending reset tokens so existing links are invalidated immediately
+  this.passwordResetToken = undefined;
+  this.passwordResetExpires = undefined;
+
+  const salt = await bcrypt.genSalt(...);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+```
+
+---
+
+### 22. `addToCart` Added Items Without Verifying They Exist
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/cartController.js` |
+| **Function** | `addToCart()` |
+| **Severity** | 🟠 High — invalid cart state, order failure |
+
+**Root Cause**
+
+Items were pushed into the cart using only the supplied ID, without checking that the corresponding Product or Service document existed and was active:
+
+```js
+// BEFORE — no existence check
+const user = await User.findById(req.user.id);
+const existingItemIndex = user.cart.items.findIndex(...);
+// ... blindly push itemId to cart
+```
+
+A deleted or deactivated product could remain in the cart, causing `createOrder()` to silently skip the item (`continue`) and produce an order with a different subtotal than the user saw during checkout.
+
+**Fix Applied**
+
+Added an existence + active check immediately after quantity validation:
+
+```js
+// Verify the product/service exists and is active before adding to cart
+let dbItem;
+if (type === 'product') {
+  dbItem = await Product.findOne({ _id: itemId, isActive: true }).select('_id');
+} else {
+  dbItem = await Service.findOne({ _id: itemId, isActive: true }).select('_id');
+}
+
+if (!dbItem) {
+  return res.status(404).json({
+    success: false,
+    message: `${type === 'product' ? 'Product' : 'Service'} not found or is no longer available`
+  });
+}
+```
+
+---
+
+### 23. No Upper Bound on Cart Item Quantity
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/cartController.js` |
+| **Functions** | `addToCart()`, `updateCartItem()` |
+| **Severity** | 🟡 Medium — data integrity, DoS |
+
+**Root Cause**
+
+Both functions validated a lower bound (`>= 1` / `>= 0`) on quantity but applied no upper bound. A client could set a quantity of 2,147,483,647 (or larger), causing integer overflow in price calculations and unusably large order totals.
+
+**Fix Applied**
+
+Added `MAX_ITEM_QUANTITY = 999` enforcement in both functions:
+
+```js
+const MAX_ITEM_QUANTITY = 999;
+const parsedQty = Number(quantity);
+if (!Number.isInteger(parsedQty) || parsedQty < 1 || parsedQty > MAX_ITEM_QUANTITY) {
+  return res.status(400).json({
+    success: false,
+    message: `Quantity must be a positive integer between 1 and ${MAX_ITEM_QUANTITY}`
+  });
+}
+```
+
+---
+
 ## Updated Summary Table
 
 | Severity | Count | Status |
 |----------|-------|--------|
 | 🔴 Critical (crash / data corruption) | 3 | ✅ Fixed |
-| 🟠 High (security / revenue) | 7 | ✅ Fixed |
-| 🟡 Medium / Minor (performance / hardening) | 7 | ✅ Fixed |
+| 🟠 High (security / revenue) | 11 | ✅ Fixed |
+| 🟡 Medium / Minor (performance / hardening) | 9 | ✅ Fixed |
 | 📋 Feature work (refund UI, test suite) | 2 | 📋 Backlog |
 
 ---

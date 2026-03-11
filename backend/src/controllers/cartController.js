@@ -99,12 +99,28 @@ exports.addToCart = async (req, res, next) => {
         });
     }
 
-    // Validate quantity is a positive integer
+    // Validate quantity is a positive integer within a sensible range
+    const MAX_ITEM_QUANTITY = 999;
     const parsedQty = Number(quantity);
-    if (!Number.isInteger(parsedQty) || parsedQty < 1) {
+    if (!Number.isInteger(parsedQty) || parsedQty < 1 || parsedQty > MAX_ITEM_QUANTITY) {
       return res.status(400).json({
         success: false,
-        message: 'Quantity must be a positive integer'
+        message: `Quantity must be a positive integer between 1 and ${MAX_ITEM_QUANTITY}`
+      });
+    }
+
+    // Verify the product/service exists and is active before adding to cart
+    let dbItem;
+    if (type === 'product') {
+      dbItem = await Product.findOne({ _id: itemId, isActive: true }).select('_id');
+    } else {
+      dbItem = await Service.findOne({ _id: itemId, isActive: true }).select('_id');
+    }
+
+    if (!dbItem) {
+      return res.status(404).json({
+        success: false,
+        message: `${type === 'product' ? 'Product' : 'Service'} not found or is no longer available`
       });
     }
 
@@ -168,12 +184,13 @@ exports.updateCartItem = async (req, res, next) => {
     const { itemId } = req.params; // This is the unique _id of the cart item
     const countryCode = req.headers['x-country-code'] || 'IN';
 
-    // Validate quantity: must be a non-negative integer (0 = remove item)
+    // Validate quantity: must be a non-negative integer (0 = remove item) within a sensible range
+    const MAX_ITEM_QUANTITY = 999;
     const parsedQty = Number(quantity);
-    if (!Number.isInteger(parsedQty) || parsedQty < 0) {
+    if (!Number.isInteger(parsedQty) || parsedQty < 0 || parsedQty > MAX_ITEM_QUANTITY) {
       return res.status(400).json({
         success: false,
-        message: 'Quantity must be a non-negative integer'
+        message: `Quantity must be a non-negative integer up to ${MAX_ITEM_QUANTITY}`
       });
     }
 
