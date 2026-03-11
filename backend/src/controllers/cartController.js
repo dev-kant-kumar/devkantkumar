@@ -136,13 +136,13 @@ exports.addToCart = async (req, res, next) => {
     });
 
     if (existingItemIndex > -1) {
-      // Update quantity
-      user.cart.items[existingItemIndex].quantity += quantity;
+      // Update quantity using the validated integer value
+      user.cart.items[existingItemIndex].quantity += parsedQty;
     } else {
       // Add new item
       const newItem = {
           type,
-          quantity,
+          quantity: parsedQty,
           [type]: itemId, // dynamic key: product or service
           packageName // Store package name for services
       };
@@ -207,8 +207,8 @@ exports.updateCartItem = async (req, res, next) => {
       });
     }
 
-    if (quantity > 0) {
-      user.cart.items[itemIndex].quantity = quantity;
+    if (parsedQty > 0) {
+      user.cart.items[itemIndex].quantity = parsedQty;
     } else {
       // Remove item if quantity is 0
       user.cart.items.splice(itemIndex, 1);

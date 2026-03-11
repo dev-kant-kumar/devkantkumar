@@ -944,13 +944,161 @@ if (!EMAIL_RE.test(recipientEmail)) {
 
 ---
 
+## Business Flaws Identified — Round 6 Fixes
+
+---
+
+### 29. ReDoS in Admin Support Ticket Search
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/supportController.js` |
+| **Function** | `getAllTickets()` |
+| **Severity** | 🟠 High — Denial of Service |
+
+**Root Cause**
+
+The admin ticket listing endpoint built `$regex` queries directly from the raw `search` query parameter, identical to the issue fixed in rounds 3 and 5 for other controllers.
+
+**Fix Applied**
+
+Added `escapeRegExp` helper at the top of the file and applied it to all four search fields.
+
+---
+
+### 30. ReDoS in Admin Quote Search
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/quoteController.js` |
+| **Function** | `getAllQuotes()` |
+| **Severity** | 🟠 High — Denial of Service |
+
+**Root Cause**
+
+Same pattern — raw user input used directly in MongoDB `$regex` for the admin quote listing.
+
+**Fix Applied**
+
+Added `escapeRegExp` helper and applied it to all three search fields (name, email, company).
+
+---
+
+### 31. Login Still Revealed Email Existence via "Invalid password" Message
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/authController.js` |
+| **Function** | `login()` |
+| **Severity** | 🟡 Medium — information disclosure |
+
+**Root Cause**
+
+Round 5 fixed `"User not found"` → `"Invalid email or password"`, but when the email *was* found and the password was wrong, the response still said `"Invalid password"`. An attacker could distinguish registered from unregistered addresses by comparing the two response messages.
+
+**Fix Applied**
+
+Changed `"Invalid password"` → `"Invalid email or password"` so both branches return an identical message.
+
+---
+
+### 32. Admin `changePassword` and `initiatePasswordChange` Lacked New-Password Policy
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/adminController.js` |
+| **Functions** | `changePassword()`, `initiatePasswordChange()` |
+| **Severity** | 🟠 High — weak admin credentials |
+
+**Root Cause**
+
+The admin-specific `changePassword` endpoint accepted any string as the new password with no length or complexity check. `initiatePasswordChange` hashed and stashed the new password before validating it, meaning an admin could permanently set a trivially weak password (`a`, `1`, etc.) that would pass through undetected until the OTP step.
+
+**Fix Applied**
+
+Added the same password policy check used in user `changePassword` and `resetPassword` to both functions:
+
+```js
+if (!newPassword || newPassword.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+  return res.status(400).json({ message: '...' });
+}
+```
+
+---
+
+### 33. `cartController.addToCart` Used Raw `quantity` Instead of `parsedQty`
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/cartController.js` |
+| **Functions** | `addToCart()`, `updateCartItem()` |
+| **Severity** | 🟡 Medium — data integrity |
+
+**Root Cause**
+
+After validating the quantity into `parsedQty`, both functions still used the original `quantity` (from `req.body`) when writing to the database:
+
+```js
+// addToCart — BEFORE
+user.cart.items[existingItemIndex].quantity += quantity;   // raw input
+const newItem = { ..., quantity, ... };                   // raw input
+
+// updateCartItem — BEFORE
+if (quantity > 0) { user.cart.items[itemIndex].quantity = quantity; }  // raw
+```
+
+If `quantity` was sent as a float string (e.g. `"1.5"`) `Number("1.5")` is not an integer so the guard correctly rejected it, but if the guard were ever relaxed the raw value would propagate. More critically, `quantity += quantity` with a non-coerced type could produce `NaN` or string concatenation in edge cases.
+
+**Fix Applied**
+
+Replaced every use of `quantity` after the validation block with the validated integer `parsedQty`.
+
+---
+
+### 34. `getUserProfile` Exposed Sensitive Internal Fields
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/userController.js` |
+| **Function** | `getUserProfile()` |
+| **Severity** | 🟠 High — token/OTP exposure |
+
+**Root Cause**
+
+The public profile endpoint (`GET /api/v1/users/profile/:userId`) only excluded `-password -refreshToken` from the Mongoose select projection. The following sensitive fields were returned to any caller who knew a user's MongoDB ObjectId:
+
+- `emailVerificationToken` / `emailVerificationExpires`
+- `passwordResetToken` / `passwordResetExpires`
+- `twoFactorSecret`
+- `emailChangeOTP` / `emailChangeOTPExpires` / `tempNewEmail`
+- `passwordChangeOTP` / `passwordChangeOTPExpires` / `tempNewPassword`
+- `loginAttempts` / `lockUntil`
+
+An attacker who obtained a raw verification or reset token from this response could use it to verify the victim's email, complete a password reset, or change the email address without user interaction.
+
+**Fix Applied**
+
+Extended the exclusion list to cover all sensitive fields:
+
+```js
+User.findById(req.params.userId).select(
+  '-password -refreshToken -emailVerificationToken -emailVerificationExpires ' +
+  '-passwordResetToken -passwordResetExpires -twoFactorSecret ' +
+  '-emailChangeOTP -emailChangeOTPExpires -tempNewEmail ' +
+  '-passwordChangeOTP -passwordChangeOTPExpires -tempNewPassword ' +
+  '-loginAttempts -lockUntil'
+)
+```
+
+---
+
 ## Updated Summary Table
 
 | Severity | Count | Status |
 |----------|-------|--------|
 | 🔴 Critical (crash / data corruption) | 3 | ✅ Fixed |
-| 🟠 High (security / revenue) | 13 | ✅ Fixed |
-| 🟡 Medium / Minor (performance / hardening) | 12 | ✅ Fixed |
+| 🟠 High (security / revenue) | 17 | ✅ Fixed |
+| 🟡 Medium / Minor (performance / hardening) | 14 | ✅ Fixed |
 | 📋 Feature work (refund UI, test suite) | 2 | 📋 Backlog |
 
 ---
