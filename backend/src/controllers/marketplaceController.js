@@ -2147,7 +2147,7 @@ const sendInvoiceByEmail = async (req, res) => {
     }
 
     // Validate that the supplied address is a syntactically correct email
-    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     if (!EMAIL_RE.test(recipientEmail)) {
       return res.status(400).json({ message: 'Invalid email address' });
     }

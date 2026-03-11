@@ -3,6 +3,7 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Service = require("../models/Service");
 const logger = require("../utils/logger");
+const mongoose = require("mongoose");
 
 /**
  * Validate coupon code and calculate discount
@@ -256,6 +257,10 @@ const updateCoupon = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid coupon ID" });
+    }
+
     // Don't allow updating code
     if (updates.code) {
       return res.status(400).json({ message: "Cannot update coupon code" });
@@ -271,7 +276,7 @@ const updateCoupon = async (req, res) => {
     }
 
     const coupon = await Coupon.findByIdAndUpdate(
-      String(id),
+      new mongoose.Types.ObjectId(id),
       { $set: updates, updatedAt: Date.now() },
       { new: true, runValidators: true },
     );

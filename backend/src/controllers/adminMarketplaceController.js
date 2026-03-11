@@ -7,6 +7,7 @@ const { calculateRegionalPricing } = require("../utils/currencyConverter");
 const Subscriber = require("../models/Subscriber");
 const emailService = require("../services/emailService");
 const Notification = require("../models/Notification");
+const mongoose = require("mongoose");
 
 // Escape all special regex metacharacters in a user-supplied string so it is
 // treated as a plain substring search. Prevents ReDoS attacks where a crafted
@@ -198,6 +199,10 @@ exports.createProduct = async (req, res) => {
 // @access  Admin
 exports.updateProduct = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
     let updateData = { ...req.body };
 
     // If price is being updated, recalculate regional pricing if not explicitly provided
@@ -206,7 +211,7 @@ exports.updateProduct = async (req, res) => {
     }
 
     const product = await Product.findByIdAndUpdate(
-      String(req.params.id),
+      new mongoose.Types.ObjectId(req.params.id),
       updateData,
       {
         new: true,
@@ -590,6 +595,10 @@ exports.createService = async (req, res) => {
 // @access  Admin
 exports.updateService = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+
     let updateData = { ...req.body };
 
     // If packages are being updated, recalculate regional pricing for each
@@ -605,7 +614,7 @@ exports.updateService = async (req, res) => {
       }));
     }
 
-    const service = await Service.findByIdAndUpdate(req.params.id, updateData, {
+    const service = await Service.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), updateData, {
       new: true,
       runValidators: true,
     });
