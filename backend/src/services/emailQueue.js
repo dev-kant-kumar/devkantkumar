@@ -35,7 +35,9 @@ const emailQueue = new Queue('email-queue', {
       delay: 1000,
     },
     removeOnComplete: true,
-    removeOnFail: 100
+    // Keep failed jobs for 1 hour so they can be inspected for debugging,
+    // then auto-remove to avoid unbounded queue growth.
+    removeOnFail: { age: 3600 }
   }
 });
 
@@ -285,6 +287,17 @@ const addEmailToQueue = async (options) => {
 
     // Create email log entry
     try {
+      // Build a readable plain-text preview for the log.
+      // Prefer the explicit plain-text body; when only HTML is available, strip
+      // all tags so the preview is human-readable without exposing raw markup.
+      // Uses ?? so an explicit empty-string options.text is preserved rather
+      // than falling through to the HTML branch.
+      const rawPreview = options.text ?? (
+        options.html
+          ? options.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+          : ''
+      );
+
       await EmailLog.create({
         to: options.to,
         from: fromAddress,
@@ -293,7 +306,7 @@ const addEmailToQueue = async (options) => {
         status: 'pending',
         jobId: job.id.toString(),
         queuedAt: new Date(),
-        htmlPreview: options.html ? options.html.substring(0, 500) : '',
+        htmlPreview: rawPreview.substring(0, 500),
         metadata: options.metadata || {}
       });
     } catch (logError) {

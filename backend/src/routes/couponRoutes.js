@@ -1,6 +1,6 @@
 const express = require('express');
 const couponController = require('../controllers/couponController');
-const { protect } = require('../middlewares/auth');
+const { protect, optionalAuth } = require('../middlewares/auth');
 const adminAuth = require('../middlewares/adminAuth');
 
 const router = express.Router();
@@ -9,8 +9,8 @@ const router = express.Router();
 // PUBLIC ROUTES (No authentication)
 // =======================================
 
-// Validate coupon code and calculate discount
-router.post('/validate', couponController.validateCoupon);
+// Validate coupon code and calculate discount (optionalAuth populates req.user when logged in)
+router.post('/validate', optionalAuth, couponController.validateCoupon);
 
 // Get all active coupons
 router.get('/active', couponController.getActiveCoupons);

@@ -324,8 +324,12 @@ orderSchema.index({ estimatedDelivery: 1 });
 // Pre-save middleware to generate order number
 orderSchema.pre('save', async function(next) {
   if (this.isNew) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `ORD-${String(count + 1).padStart(6, '0')}`;
+    // Use timestamp + random suffix for collision-safe, non-sequential order numbers.
+    // This avoids the race condition of countDocuments() + 1 which can produce
+    // duplicate values under concurrent requests.
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 90000) + 10000; // 5-digit random
+    this.orderNumber = `ORD-${timestamp}-${random}`;
 
     // Add initial timeline entry
     this.timeline.push({

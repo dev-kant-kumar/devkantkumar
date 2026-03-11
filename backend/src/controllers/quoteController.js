@@ -2,6 +2,9 @@ const QuoteRequest = require('../models/QuoteRequest');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
+// Escape special regex metacharacters to prevent ReDoS attacks.
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /**
  * @desc    Submit a new quote request (public)
  * @route   POST /api/v1/marketplace/quote-request
@@ -59,10 +62,11 @@ exports.getAllQuotes = catchAsync(async (req, res, next) => {
   }
 
   if (search) {
+    const safeSearch = escapeRegExp(search);
     query.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
-      { company: { $regex: search, $options: 'i' } }
+      { name: { $regex: safeSearch, $options: 'i' } },
+      { email: { $regex: safeSearch, $options: 'i' } },
+      { company: { $regex: safeSearch, $options: 'i' } }
     ];
   }
 

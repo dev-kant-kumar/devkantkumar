@@ -255,6 +255,13 @@ userSchema.index({ createdAt: -1 });
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
 
+  // Clear any pending password reset tokens when the password is changed.
+  // This prevents a previously issued reset link from being used after the
+  // user has already updated their password through another flow (e.g., the
+  // change-password endpoint while logged in).
+  this.passwordResetToken = undefined;
+  this.passwordResetExpires = undefined;
+
   try {
     const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12);
     this.password = await bcrypt.hash(this.password, salt);

@@ -181,7 +181,7 @@ const login = async (req, res, next) => {
       logger.warn(`Login failed - User not found: ${email}`);
       return res.status(401).json({
         success: false,
-        message: 'User not found'
+        message: 'Invalid email or password'
       });
     }
 
@@ -248,7 +248,7 @@ const login = async (req, res, next) => {
 
       return res.status(401).json({
         success: false,
-        message: 'Invalid password'
+        message: 'Invalid email or password'
       });
     }
 
@@ -509,10 +509,12 @@ const resendVerification = async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    // Always return the same response whether the email exists or not to prevent
+    // email enumeration attacks.
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'No user found with this email'
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email and is unverified, a verification link has been sent'
       });
     }
 
@@ -567,10 +569,12 @@ const forgotPassword = async (req, res, next) => {
 
     const user = await User.findOne({ email: email.toLowerCase() });
 
+    // Always return the same response whether the email exists or not to prevent
+    // email enumeration attacks. The email is sent only when the account exists.
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'No user found with this email'
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent'
       });
     }
 
@@ -582,20 +586,12 @@ const forgotPassword = async (req, res, next) => {
 
     // Send reset email
     try {
-      const emailResult = await emailService.sendPasswordResetEmail(user.email, resetToken, user.firstName);
+      await emailService.sendPasswordResetEmail(user.email, resetToken, user.firstName);
 
-      if (emailResult.info === 'Email service not configured') {
-        res.status(200).json({
-          success: true,
-          message: 'Password reset token generated. Email service is currently unavailable.',
-          resetToken: resetToken // Only for development - remove in production
-        });
-      } else {
-        res.status(200).json({
-          success: true,
-          message: 'Password reset email sent'
-        });
-      }
+      res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent'
+      });
     } catch (emailError) {
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
@@ -620,6 +616,14 @@ const resetPassword = async (req, res, next) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
+
+    // Enforce the same password policy as registration: 6+ chars, upper, lower, digit
+    if (!password || password.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
+      });
+    }
 
     // Hash the token
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
@@ -783,6 +787,14 @@ const changePassword = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Current password is incorrect'
+      });
+    }
+
+    // Enforce the same password policy as registration: 6+ chars, upper, lower, digit
+    if (newPassword.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
       });
     }
 

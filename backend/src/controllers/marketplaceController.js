@@ -164,15 +164,30 @@ const getCategories = async (req, res) => {
   }
 };
 
+// Escape all special regex metacharacters in a user-supplied string so it is
+// treated as a plain substring search. This prevents ReDoS attacks where a
+// crafted pattern like `(a+)+$` causes catastrophic backtracking in the
+// MongoDB query engine.
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Search products and services
 const search = async (req, res) => {
   try {
     const { q, type } = req.query;
+
+    // Guard: q is required; without it $regex would be undefined and crash MongoDB
+    if (!q || !q.trim()) {
+      return res.status(400).json({ message: "Search query (q) is required" });
+    }
+
+    // Escape user input before embedding in a regex to prevent ReDoS
+    const safeQ = escapeRegExp(q.trim());
+
     const searchQuery = {
       $or: [
-        { title: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
-        { tags: { $regex: q, $options: "i" } },
+        { title: { $regex: safeQ, $options: "i" } },
+        { description: { $regex: safeQ, $options: "i" } },
+        { tags: { $regex: safeQ, $options: "i" } },
       ],
       isActive: true,
     };
@@ -292,7 +307,7 @@ const createOrder = async (req, res) => {
       .populate("cart.items.product")
       .populate("cart.items.service");
 
-    if (!user.cart.items || user.cart.items.length === 0) {
+    if (!user.cart || !user.cart.items || user.cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
@@ -400,7 +415,7 @@ const createOrder = async (req, res) => {
         });
       }
 
-      // Validate coupon
+      // Validate coupon (checks expiry, isActive, per-user limit, min amount)
       const validation = coupon.isValid(req.user.id, subtotal);
       if (!validation.valid) {
         return res.status(400).json({
@@ -439,7 +454,10 @@ const createOrder = async (req, res) => {
     const total = Math.max(0, subtotal + tax - discountAmount);
 
     const order = new Order({
-      orderNumber: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      // orderNumber is intentionally omitted — the Order pre-save hook generates
+      // a collision-safe value (ORD-<timestamp>-<5-digit random>) for every new
+      // document, so duplicating that logic here would be redundant and risks
+      // using a weaker random range.
       user: req.user.id,
       items: orderItems,
       billing: {
@@ -553,7 +571,7 @@ const createRazorpayOrder = async (req, res) => {
       .populate("cart.items.product")
       .populate("cart.items.service");
 
-    if (!user.cart.items || user.cart.items.length === 0) {
+    if (!user.cart || !user.cart.items || user.cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
@@ -653,13 +671,12 @@ const createRazorpayOrder = async (req, res) => {
     };
 
     const razorpayOrder = await razorpay.orders.create(options);
-    console.log("Razorpay Order Created:", razorpayOrder.id);
+    logger.info(`Razorpay Order Created: ${razorpayOrder.id}`);
 
     // 4. Create MongoDB Order (Pending)
-    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    console.log("Creating order with orderNumber:", orderNumber);
+    // orderNumber is intentionally omitted — the Order pre-save hook generates
+    // a collision-safe value for every new document.
     const newOrder = new Order({
-      orderNumber: orderNumber,
       user: req.user.id,
       items: orderItems,
       billing: {
@@ -692,7 +709,7 @@ const createRazorpayOrder = async (req, res) => {
     });
 
     await newOrder.save();
-    console.log("MongoDB Order Created:", newOrder._id);
+    logger.info(`MongoDB Order Created: ${newOrder._id}`);
 
     res.json({
       id: razorpayOrder.id,
@@ -701,7 +718,7 @@ const createRazorpayOrder = async (req, res) => {
       orderId: newOrder._id,
     });
   } catch (error) {
-    console.error("FULL RAZORPAY ERROR:", JSON.stringify(error, null, 2));
+    logger.error("FULL RAZORPAY ERROR:", error);
     logger.error("Create Razorpay order error:", error);
     res.status(500).json({
       message: "Payment initiation error",
@@ -734,10 +751,22 @@ const verifyRazorpayPayment = async (req, res) => {
         return res.status(404).json({ message: "Order not found" });
       }
 
-      // Generate SECURE download links for product items
+      // Generate SECURE download links for product items.
+      // Batch-fetch all required products in a single query to avoid N+1 DB
+      // round-trips (one query per item in the loop).
+      const productIds = order.items
+        .filter((item) => item.itemType === "product")
+        .map((item) => item.itemId);
+
+      const productsById = new Map();
+      if (productIds.length > 0) {
+        const products = await Product.find({ _id: { $in: productIds } });
+        products.forEach((p) => productsById.set(p._id.toString(), p));
+      }
+
       for (const item of order.items) {
         if (item.itemType === "product") {
-          const product = await Product.findById(item.itemId);
+          const product = productsById.get(item.itemId.toString());
           if (
             product &&
             product.downloadFiles &&
@@ -791,9 +820,17 @@ const verifyRazorpayPayment = async (req, res) => {
 
       await order.save();
 
-      // Mark coupon as used now that payment is confirmed
+      // Mark coupon as used — use atomic findOneAndUpdate with a usedCount guard
+      // to prevent multiple payments from exceeding maxUses (race-condition safe).
       if (order.couponApplied) {
-        await Coupon.findByIdAndUpdate(order.couponApplied, {
+        const couponFilter = {
+          _id: order.couponApplied,
+          $or: [
+            { maxUses: null },
+            { $expr: { $lt: ["$usedCount", "$maxUses"] } },
+          ],
+        };
+        await Coupon.findOneAndUpdate(couponFilter, {
           $push: {
             usedByUsers: {
               userId: req.user.id,
@@ -1628,11 +1665,16 @@ const createReview = async (req, res) => {
       return res.status(400).json({ message: "Product already reviewed" });
     }
 
-    // 3. Add Review
+    // 3. Validate and add Review
+    const parsedRating = Number(rating);
+    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+    }
+
     const review = {
       user: userId,
       name: req.user.fullName || `${req.user.firstName} ${req.user.lastName}`,
-      rating: Number(rating),
+      rating: parsedRating,
       comment,
     };
 
@@ -1688,7 +1730,12 @@ const updateReview = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    review.rating = Number(rating);
+    const parsedRating = Number(rating);
+    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+    }
+
+    review.rating = parsedRating;
     review.comment = comment;
     review.name =
       req.user.fullName || `${req.user.firstName} ${req.user.lastName}`;
@@ -1793,10 +1840,26 @@ const handleRazorpayWebhook = async (req, res) => {
         return res.status(200).json({ status: "ok" });
       }
 
-      // Generate download links for product items
+      // Generate download links for product items.
+      // Batch-fetch all required products in a single query to avoid N+1 DB
+      // round-trips (one query per item in the loop).
+      const webhookProductIds = order.items
+        .filter((item) => item.itemType === "product")
+        .map((item) => item.itemId);
+
+      const webhookProductsById = new Map();
+      if (webhookProductIds.length > 0) {
+        const webhookProducts = await Product.find({
+          _id: { $in: webhookProductIds },
+        });
+        webhookProducts.forEach((p) =>
+          webhookProductsById.set(p._id.toString(), p),
+        );
+      }
+
       for (const item of order.items) {
         if (item.itemType === "product") {
-          const product = await Product.findById(item.itemId);
+          const product = webhookProductsById.get(item.itemId.toString());
           if (
             product &&
             product.downloadFiles &&
@@ -2026,6 +2089,12 @@ const sendInvoiceByEmail = async (req, res) => {
     const recipientEmail = req.body.email || order.billing?.email;
     if (!recipientEmail) {
       return res.status(400).json({ message: 'No email address available for this order' });
+    }
+
+    // Validate that the supplied address is a syntactically correct email
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_RE.test(recipientEmail)) {
+      return res.status(400).json({ message: 'Invalid email address' });
     }
 
     await emailService.sendInvoiceEmail(
