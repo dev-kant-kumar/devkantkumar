@@ -413,13 +413,150 @@ htmlPreview: options.html ? options.html.replace(/<[^>]*>/g, '').substring(0, 50
 
 ---
 
+## Business Flaws Identified — Round 3 Fixes
+
+The following issues were identified in the third audit pass and have now been resolved.
+
+---
+
+### 14. ReDoS Vulnerability in Search Endpoint
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/marketplaceController.js` |
+| **Function** | `search()` |
+| **Severity** | 🟠 High — Denial of Service |
+
+**Root Cause**
+
+The user-supplied query parameter `q` was embedded directly into a MongoDB `$regex` operator without escaping special regex metacharacters:
+
+```js
+// BEFORE — unsafe: q could be "(a+)+$" triggering catastrophic backtracking
+{ title: { $regex: q, $options: "i" } }
+```
+
+An attacker could supply a crafted pattern (e.g., `(a+)+$`) that causes catastrophic backtracking in MongoDB's regex engine, effectively hanging the query and creating a denial-of-service condition.
+
+**Fix Applied**
+
+Added an `escapeRegExp` helper that escapes all regex metacharacters before the string is used in `$regex`:
+
+```js
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const safeQ = escapeRegExp(q.trim());
+// safeQ is now a safe literal substring pattern
+```
+
+---
+
+### 15. N+1 Database Queries in Payment Verification
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/marketplaceController.js` |
+| **Functions** | `verifyRazorpayPayment()`, `handleRazorpayWebhook()` |
+| **Severity** | 🟡 Medium — performance degradation |
+
+**Root Cause**
+
+After payment was verified, download links were generated for product items by fetching each product individually inside a `for` loop:
+
+```js
+// BEFORE — N+1 pattern: 1 query per order item
+for (const item of order.items) {
+  if (item.itemType === "product") {
+    const product = await Product.findById(item.itemId); // N queries
+    ...
+  }
+}
+```
+
+For an order with 5 products this executes 5 sequential queries. This slows down the payment confirmation step and scales poorly.
+
+**Fix Applied**
+
+Replaced the per-item fetch with a single batch query, then used a `Map` for O(1) lookup:
+
+```js
+// AFTER — single query regardless of item count
+const productIds = order.items
+  .filter((item) => item.itemType === "product")
+  .map((item) => item.itemId);
+
+const productsById = new Map();
+if (productIds.length > 0) {
+  const products = await Product.find({ _id: { $in: productIds } });
+  products.forEach((p) => productsById.set(p._id.toString(), p));
+}
+
+for (const item of order.items) {
+  if (item.itemType === "product") {
+    const product = productsById.get(item.itemId.toString()); // O(1) lookup
+    ...
+  }
+}
+```
+
+Applied the same pattern to `handleRazorpayWebhook`.
+
+---
+
+### 16. Redundant Order Number Generation in Controllers
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/src/controllers/marketplaceController.js` |
+| **Functions** | `createOrder()`, `createRazorpayOrder()` |
+| **Severity** | 🟡 Medium — weaker entropy, code confusion |
+
+**Root Cause**
+
+Both controller functions generated an `orderNumber` using only a 3-digit random suffix (`Math.floor(Math.random() * 1000)` → range 0–999), while the `Order` model's pre-save hook generates a stronger 5-digit suffix (10000–99999) and is always executed for new documents. The controller-supplied value was silently overwritten by the hook every time, making it dead code — but confusing and misleading.
+
+**Fix Applied**
+
+Removed the redundant `orderNumber` field from both `new Order({...})` calls, documenting that the pre-save hook is the single source of truth.
+
+---
+
+### 17. Oversized HTTP Request Body Limit
+
+| Property | Detail |
+|----------|--------|
+| **File** | `backend/index.js` |
+| **Lines** | 130, 135 |
+| **Severity** | 🟡 Medium — DoS via large payloads |
+
+**Root Cause**
+
+The Express JSON and URL-encoded body parsers were configured with a `100mb` limit:
+
+```js
+app.use(express.json({ limit: '100mb', ... }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+```
+
+An attacker could repeatedly send 100 MB payloads to exhaust server memory and cause an out-of-memory crash.
+
+**Fix Applied**
+
+Reduced to `10mb`, which is more than sufficient for all legitimate API payloads:
+
+```js
+app.use(express.json({ limit: '10mb', ... }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+```
+
+---
+
 ## Updated Summary Table
 
 | Severity | Count | Status |
 |----------|-------|--------|
 | 🔴 Critical (crash / data corruption) | 3 | ✅ Fixed |
-| 🟠 High (security / revenue) | 6 | ✅ Fixed |
-| 🟡 Medium / Minor (UX / logic) | 4 | ✅ Fixed |
+| 🟠 High (security / revenue) | 7 | ✅ Fixed |
+| 🟡 Medium / Minor (performance / hardening) | 7 | ✅ Fixed |
 | 📋 Feature work (refund UI, test suite) | 2 | 📋 Backlog |
 
 ---

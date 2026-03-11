@@ -164,6 +164,12 @@ const getCategories = async (req, res) => {
   }
 };
 
+// Escape all special regex metacharacters in a user-supplied string so it is
+// treated as a plain substring search. This prevents ReDoS attacks where a
+// crafted pattern like `(a+)+$` causes catastrophic backtracking in the
+// MongoDB query engine.
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Search products and services
 const search = async (req, res) => {
   try {
@@ -174,11 +180,14 @@ const search = async (req, res) => {
       return res.status(400).json({ message: "Search query (q) is required" });
     }
 
+    // Escape user input before embedding in a regex to prevent ReDoS
+    const safeQ = escapeRegExp(q.trim());
+
     const searchQuery = {
       $or: [
-        { title: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } },
-        { tags: { $regex: q, $options: "i" } },
+        { title: { $regex: safeQ, $options: "i" } },
+        { description: { $regex: safeQ, $options: "i" } },
+        { tags: { $regex: safeQ, $options: "i" } },
       ],
       isActive: true,
     };
@@ -445,7 +454,10 @@ const createOrder = async (req, res) => {
     const total = Math.max(0, subtotal + tax - discountAmount);
 
     const order = new Order({
-      orderNumber: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      // orderNumber is intentionally omitted — the Order pre-save hook generates
+      // a collision-safe value (ORD-<timestamp>-<5-digit random>) for every new
+      // document, so duplicating that logic here would be redundant and risks
+      // using a weaker random range.
       user: req.user.id,
       items: orderItems,
       billing: {
@@ -662,10 +674,9 @@ const createRazorpayOrder = async (req, res) => {
     logger.info(`Razorpay Order Created: ${razorpayOrder.id}`);
 
     // 4. Create MongoDB Order (Pending)
-    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    logger.info(`Creating order with orderNumber: ${orderNumber}`);
+    // orderNumber is intentionally omitted — the Order pre-save hook generates
+    // a collision-safe value for every new document.
     const newOrder = new Order({
-      orderNumber: orderNumber,
       user: req.user.id,
       items: orderItems,
       billing: {
@@ -740,10 +751,22 @@ const verifyRazorpayPayment = async (req, res) => {
         return res.status(404).json({ message: "Order not found" });
       }
 
-      // Generate SECURE download links for product items
+      // Generate SECURE download links for product items.
+      // Batch-fetch all required products in a single query to avoid N+1 DB
+      // round-trips (one query per item in the loop).
+      const productIds = order.items
+        .filter((item) => item.itemType === "product")
+        .map((item) => item.itemId);
+
+      const productsById = new Map();
+      if (productIds.length > 0) {
+        const products = await Product.find({ _id: { $in: productIds } });
+        products.forEach((p) => productsById.set(p._id.toString(), p));
+      }
+
       for (const item of order.items) {
         if (item.itemType === "product") {
-          const product = await Product.findById(item.itemId);
+          const product = productsById.get(item.itemId.toString());
           if (
             product &&
             product.downloadFiles &&
@@ -1807,10 +1830,26 @@ const handleRazorpayWebhook = async (req, res) => {
         return res.status(200).json({ status: "ok" });
       }
 
-      // Generate download links for product items
+      // Generate download links for product items.
+      // Batch-fetch all required products in a single query to avoid N+1 DB
+      // round-trips (one query per item in the loop).
+      const webhookProductIds = order.items
+        .filter((item) => item.itemType === "product")
+        .map((item) => item.itemId);
+
+      const webhookProductsById = new Map();
+      if (webhookProductIds.length > 0) {
+        const webhookProducts = await Product.find({
+          _id: { $in: webhookProductIds },
+        });
+        webhookProducts.forEach((p) =>
+          webhookProductsById.set(p._id.toString(), p),
+        );
+      }
+
       for (const item of order.items) {
         if (item.itemType === "product") {
-          const product = await Product.findById(item.itemId);
+          const product = webhookProductsById.get(item.itemId.toString());
           if (
             product &&
             product.downloadFiles &&

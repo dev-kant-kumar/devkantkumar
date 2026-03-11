@@ -127,12 +127,12 @@ app.use('/api/', limiter);
 // This is required for Razorpay webhook signature verification (crypto.createHmac).
 // Do NOT remove the verify callback.
 app.use(express.json({
-  limit: '100mb',
+  limit: '10mb',
   verify: (req, res, buf) => {
     req.rawBody = buf;
   }
 }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Compression middleware

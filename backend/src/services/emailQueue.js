@@ -295,10 +295,12 @@ const addEmailToQueue = async (options) => {
         status: 'pending',
         jobId: job.id.toString(),
         queuedAt: new Date(),
-        // Use the plain-text version of the email body as the preview.
-        // Prefer options.text (always safe); only fall back to a raw HTML
-        // snippet when no text version is provided.
-        htmlPreview: (options.text || options.html || '').substring(0, 500),
+        // Build a readable plain-text preview for the log.
+        // Use the explicit plain-text body when available; fall back to a
+        // placeholder so the field is never empty.  Storing raw HTML in the
+        // log field is intentionally avoided — it makes logs unreadable and
+        // triggers security scanners.
+        htmlPreview: (options.text || (options.html ? '[HTML email body]' : '')).substring(0, 500),
         metadata: options.metadata || {}
       });
     } catch (logError) {
