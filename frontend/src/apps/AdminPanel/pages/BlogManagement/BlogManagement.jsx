@@ -11,20 +11,45 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import PremiumButton from "../../common/components/PremiumButton";
 import {
+  useDeleteBlogPostMutation,
   useGetAdminBlogPostsQuery
 } from "../../store/api/adminApiSlice";
-
-
-const  posts = [];
-const filteredPosts = [];
 
 const BlogManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { data, isLoading } = useGetAdminBlogPostsQuery();
-  // ... existing code ...
+  const [deleteBlogPost, { isLoading: isDeleting }] = useDeleteBlogPostMutation();
+
+  const posts = Array.isArray(data)
+    ? data
+    : data?.data?.posts || data?.data || data?.posts || [];
+
+  const filteredPosts = posts.filter((post) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    return [post?.title, post?.category, ...(post?.tags || [])]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+  });
+
+  const handleDelete = async (postId) => {
+    if (!postId || isDeleting) return;
+    const confirmed = window.confirm("Delete this post permanently?");
+    if (!confirmed) return;
+
+    try {
+      await deleteBlogPost(postId).unwrap();
+      toast.success("Post deleted successfully");
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to delete post");
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
