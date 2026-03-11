@@ -23,15 +23,11 @@ export const CurrencyProvider = ({ children }) => {
     useEffect(() => {
         // API returns: { success: true, data: { marketplace: { surchargeRate: X } } }
         if (settingsData) {
-            console.log('[CurrencyContext] Raw settings data:', settingsData);
             const marketplace = settingsData?.data?.marketplace;
             if (marketplace) {
                 // "surchargeRate" or "taxRate" - handling both just in case, preferring new schema
                 const rate = marketplace.surchargeRate ?? marketplace.taxRate ?? 0;
-                console.log('[CurrencyContext] Loaded surcharge rate from settings:', rate);
                 setSurchargeRate(rate);
-            } else {
-                console.warn('[CurrencyContext] No marketplace settings found in response');
             }
         }
     }, [settingsData]);

@@ -94,26 +94,29 @@ const Checkout = () => {
 
   // Calculate totals
   const calculateTotals = () => {
-    let subtotal = 0;
-    cartItems.forEach((item) => {
-      const price = getCartItemPrice(item);
-      subtotal += price * item.quantity;
-    });
+    // Use reduce with rounding to avoid floating-point accumulation errors
+    const subtotal =
+      Math.round(
+        cartItems.reduce((sum, item) => {
+          return sum + getCartItemPrice(item) * item.quantity;
+        }, 0) * 100
+      ) / 100;
 
     // Apply surcharge using the helper from context which handles the math
     const totalWithSurcharge = getFinalPrice(subtotal);
 
-    // Surcharge Amount for display
-    const surchargeAmount = totalWithSurcharge - subtotal;
+    // Surcharge Amount for display (rounded to 2 decimal places)
+    const surchargeAmount = Math.round((totalWithSurcharge - subtotal) * 100) / 100;
 
-    // Apply coupon discount if exist
+    // Apply coupon discount if present — use explicit null/undefined check so
+    // that a legitimate $0 discount coupon still works
     let discountAmount = 0;
-    if (appliedCoupon?.discountAmount) {
+    if (appliedCoupon && appliedCoupon.discountAmount != null) {
       discountAmount = appliedCoupon.discountAmount;
     }
 
-    // Final total after discount
-    const total = totalWithSurcharge - discountAmount;
+    // Final total after discount (floor at 0)
+    const total = Math.max(0, Math.round((totalWithSurcharge - discountAmount) * 100) / 100);
 
     return { subtotal, surchargeAmount, discountAmount, total };
   };

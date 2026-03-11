@@ -6,6 +6,10 @@ const notificationService = require("../services/notificationService");
 const emailService = require("../services/emailService");
 const { emitToUser, emitToAdmins } = require("../config/socket");
 
+// Escape special regex metacharacters so user-supplied search strings are
+// treated as plain substrings and cannot trigger catastrophic backtracking.
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 /**
  * @desc    Submit a support ticket (public — guest or logged-in)
  * @route   POST /api/v1/marketplace/support
@@ -393,11 +397,8 @@ exports.getAllTickets = catchAsync(async (req, res, next) => {
   const safePriority = typeof priority === "string" ? priority : undefined;
   const safeSearch = typeof search === "string" ? search : undefined;
 
-  if (safeStatus && safeStatus !== "all") query.status = safeStatus;
-  if (safeCategory && safeCategory !== "all") query.category = safeCategory;
-  if (safePriority && safePriority !== "all") query.priority = safePriority;
-
-  if (safeSearch) {
+  if (search) {
+    const safeSearch = escapeRegExp(search);
     query.$or = [
       { name: { $regex: safeSearch, $options: "i" } },
       { email: { $regex: safeSearch, $options: "i" } },

@@ -579,6 +579,14 @@ const changePassword = async (req, res) => {
       });
     }
 
+    // Enforce the same password policy as registration: 6+ chars, upper, lower, digit
+    if (!newPassword || newPassword.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
+      });
+    }
+
     user.password = newPassword;
     await user.save();
 
@@ -761,7 +769,15 @@ const initiatePasswordChange = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid current password' });
         }
 
-        // 2. Hash new password and stash it
+        // 2. Enforce password policy before hashing
+        if (!newPassword || newPassword.length < 6 || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                message: 'New password must be at least 6 characters and include at least one uppercase letter, one lowercase letter, and one number'
+            });
+        }
+
+        // 3. Hash new password and stash it
         const salt = await bcrypt.genSalt(10);
         const duplicateCheck = await bcrypt.compare(newPassword, user.password);
         if (duplicateCheck) {
@@ -770,7 +786,7 @@ const initiatePasswordChange = async (req, res) => {
 
         user.tempNewPassword = await bcrypt.hash(newPassword, salt);
 
-        // 3. Generate and send OTP
+        // 4. Generate and send OTP
         const otp = crypto.randomInt(100000, 999999).toString();
         const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
 

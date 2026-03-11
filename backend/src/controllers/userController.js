@@ -6,7 +6,14 @@ const { validationResult } = require('express-validator');
 // Get user profile (public)
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select('-password -refreshToken');
+    // Exclude all sensitive / internal fields from the public profile response
+    const user = await User.findById(req.params.userId).select(
+      '-password -refreshToken -emailVerificationToken -emailVerificationExpires ' +
+      '-passwordResetToken -passwordResetExpires -twoFactorSecret ' +
+      '-emailChangeOTP -emailChangeOTPExpires -tempNewEmail ' +
+      '-passwordChangeOTP -passwordChangeOTPExpires -tempNewPassword ' +
+      '-loginAttempts -lockUntil'
+    );
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

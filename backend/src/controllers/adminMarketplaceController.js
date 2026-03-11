@@ -8,6 +8,11 @@ const Subscriber = require("../models/Subscriber");
 const emailService = require("../services/emailService");
 const Notification = require("../models/Notification");
 
+// Escape all special regex metacharacters in a user-supplied string so it is
+// treated as a plain substring search. Prevents ReDoS attacks where a crafted
+// pattern causes catastrophic backtracking in the MongoDB regex engine.
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Helper to format Mongoose validation errors
 const formatValidationErrors = (error) => {
   if (error.name === "ValidationError") {
@@ -36,9 +41,10 @@ exports.getAllProducts = async (req, res) => {
     if (category) query.category = category;
 
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -285,9 +291,9 @@ exports.getCustomers = async (req, res) => {
           ...(search
             ? {
                 $or: [
-                  { firstName: { $regex: search, $options: "i" } },
-                  { lastName: { $regex: search, $options: "i" } },
-                  { email: { $regex: search, $options: "i" } },
+                  { firstName: { $regex: escapeRegExp(search), $options: "i" } },
+                  { lastName: { $regex: escapeRegExp(search), $options: "i" } },
+                  { email: { $regex: escapeRegExp(search), $options: "i" } },
                 ],
               }
             : {}),
@@ -424,7 +430,7 @@ exports.getAdminServices = async (req, res) => {
 
     // Search by title
     if (req.query.search) {
-      query.title = { $regex: req.query.search, $options: "i" };
+      query.title = { $regex: escapeRegExp(req.query.search), $options: "i" };
     }
 
     const services = await Service.find(query)
@@ -584,14 +590,25 @@ exports.createService = async (req, res) => {
 // @access  Admin
 exports.updateService = async (req, res) => {
   try {
-    const service = await Service.findByIdAndUpdate(
-      String(req.params.id),
-      { $set: req.body },
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+    let updateData = { ...req.body };
+
+    // If packages are being updated, recalculate regional pricing for each
+    // package that doesn't already carry explicit regionalPricing — mirrors the
+    // behaviour of updateProduct which recalculates when price changes.
+    if (Array.isArray(updateData.packages) && updateData.packages.length > 0) {
+      updateData.packages = updateData.packages.map((pkg) => ({
+        ...pkg,
+        regionalPricing:
+          pkg.regionalPricing && pkg.regionalPricing.length > 0
+            ? pkg.regionalPricing
+            : calculateRegionalPricing(pkg.price),
+      }));
+    }
+
+    const service = await Service.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
@@ -674,7 +691,7 @@ exports.getAllOrders = async (req, res) => {
         query._id = search;
       } else {
         query.$or = [
-          { orderNumber: { $regex: search, $options: "i" } },
+          { orderNumber: { $regex: escapeRegExp(search), $options: "i" } },
           // Note: Advanced search on populated fields requires aggregation
           // For now, we support searching by Order Number or ID
         ];

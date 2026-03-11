@@ -10,7 +10,11 @@ const logger = require("../utils/logger");
  */
 const validateCoupon = async (req, res) => {
   try {
-    const { code, orderTotal, userId, itemIds = [] } = req.body;
+    const { code, orderTotal, itemIds = [] } = req.body;
+    // Use the authenticated user's ID (populated by optionalAuth) rather than
+    // accepting userId from the request body. Accepting an arbitrary userId
+    // would let any caller pass someone else's ID to bypass per-user limits.
+    const userId = req.user?.id || req.user?._id;
 
     // Validate input
     if (!code || !orderTotal) {
