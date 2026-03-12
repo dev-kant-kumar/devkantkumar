@@ -651,8 +651,8 @@ export default function AIToolsDirectory() {
                 title="AI Tools Directory 2026 – Best AI Tools for Every Use Case"
                 description="Discover 200+ best AI tools for writing, coding, image generation, productivity, and more. Compare free vs premium AI tools across 20+ categories."
                 keywords={["AI tools", "best AI tools 2026", "free AI tools", "AI tools directory", "ChatGPT alternatives", "AI writing tools", "AI coding tools", "generative AI"]}
-                url="https://devkantkumar.com/ai-tools"
-                canonical="https://devkantkumar.com/ai-tools"
+                url="https://www.devkantkumar.com/ai-tools"
+                canonical="https://www.devkantkumar.com/ai-tools"
             />
             <div className="max-w-[1800px] mx-auto px-4 py-8">
                 {/* Hero */}

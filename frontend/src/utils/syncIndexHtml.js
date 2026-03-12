@@ -38,7 +38,7 @@ export const syncIndexHtml = () => {
     <meta name="author" content="${personalInfo.name}" />
     <meta name="robots" content="index, follow" />
     <meta name="keywords" content="${personalInfo.name}, Full Stack Developer, MERN Stack, React, Node.js, MongoDB, JavaScript, Tailwind CSS, Portfolio, Web Developer, Frontend, Backend" />
-    <link rel="canonical" href="https://devkantkumar.com/" />
+    <link rel="canonical" href="https://www.devkantkumar.com/" />
 
     <!-- Open Graph defaults -->
     <meta property="og:site_name" content="${personalInfo.name} Portfolio" />

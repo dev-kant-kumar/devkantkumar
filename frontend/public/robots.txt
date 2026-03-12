@@ -206,7 +206,7 @@ Disallow: /
 # ============================================
 # Sitemap location
 # ============================================
-Sitemap: https://devkantkumar.com/sitemap.xml
-Sitemap: https://devkantkumar.com/sitemap-blog.xml
-Sitemap: https://devkantkumar.com/sitemap-marketplace.xml
+Sitemap: https://www.devkantkumar.com/sitemap.xml
+Sitemap: https://www.devkantkumar.com/sitemap-blog.xml
+Sitemap: https://www.devkantkumar.com/sitemap-marketplace.xml
 

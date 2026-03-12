@@ -409,7 +409,7 @@ export const portfolioData = {
     professional: {
       github: "https://github.com/dev-kant-kumar",
       linkedin: "https://linkedin.com/in/devkantkumar",
-      portfolio: "https://devkantkumar.com",
+      portfolio: "https://www.devkantkumar.com",
       youtube: "https://www.youtube.com/@dev-code-space",
     },
     social: {
