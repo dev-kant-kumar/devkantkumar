@@ -135,6 +135,32 @@ app.use(express.json({
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// CSRF protection: for state-changing requests, validate that the Origin/Referer
+// header matches an allowed origin (Verifying Origin With Standard Headers - OWASP).
+// This protects cookie-authenticated endpoints from cross-site request forgery.
+const csrfProtection = (req, res, next) => {
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  if (safeMethods.includes(req.method)) return next();
+
+  const origin = req.get('Origin') || req.get('Referer');
+
+  // Permit requests that carry no origin (e.g. mobile apps, server-to-server calls)
+  // only in non-production environments to keep dev/testing friction low.
+  if (!origin) {
+    if (process.env.NODE_ENV !== 'production') return next();
+    return res.status(403).json({ error: 'CSRF check failed: missing Origin header' });
+  }
+
+  const isAllowed = allowedOrigins.some((allowed) => origin.startsWith(allowed));
+  if (!isAllowed) {
+    logger.warn(`CSRF check failed for origin: ${origin}`);
+    return res.status(403).json({ error: 'CSRF check failed: origin not allowed' });
+  }
+
+  next();
+};
+app.use(csrfProtection);
+
 // Compression middleware
 app.use(compression());
 

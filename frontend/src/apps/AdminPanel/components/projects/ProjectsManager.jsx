@@ -18,7 +18,7 @@ import PremiumConfirmModal from '../../common/components/PremiumConfirmModal';
 import {
     useCreateProjectMutation,
     useDeleteProjectMutation,
-    useGetProjectsQuery,
+    useGetAdminProjectsQuery,
     useUpdateProjectMutation,
     useUploadProjectImageMutation,
 } from '../../store/api/adminApiSlice';
@@ -49,19 +49,22 @@ const ProjectsManager = () => {
   const [itemsPerPage] = useState(10);
   const [projectToDelete, setProjectToDelete] = useState(null);
 
+  const filter = useSelector(selectProjectFilter);
+  const sorting = useSelector(selectSorting);
+
   // RTK Query hooks
   const {
     data: projectsData,
     isLoading,
     error,
     refetch,
-  } = useGetProjectsQuery({
+  } = useGetAdminProjectsQuery({
     page: currentPage,
     limit: itemsPerPage,
     search: searchTerm,
-    status: useSelector(selectProjectFilter),
-    sortBy: useSelector(selectSorting).sortBy,
-    sortOrder: useSelector(selectSorting).sortOrder,
+    status: filter,
+    sortBy: sorting.sortBy,
+    sortOrder: sorting.sortOrder,
   });
 
   // Mutations
@@ -72,9 +75,7 @@ const ProjectsManager = () => {
 
   // Selectors
   const cachedProjects = useSelector(selectProjectsList);
-  const filter = useSelector(selectProjectFilter);
   const tableView = useSelector(selectTableView);
-  const sorting = useSelector(selectSorting);
   const isModalOpen = useSelector(selectIsModalOpen);
   const modalType = useSelector(selectModalType);
   const selectedItem = useSelector(selectSelectedItem);

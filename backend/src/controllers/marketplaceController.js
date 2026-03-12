@@ -44,10 +44,11 @@ const getServices = async (req, res) => {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
+        { tags: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -76,7 +77,10 @@ const getServices = async (req, res) => {
 // Get service by ID
 const getServiceById = async (req, res) => {
   try {
-    const service = await Service.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+    const service = await Service.findById(new mongoose.Types.ObjectId(req.params.id));
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -105,10 +109,11 @@ const getProducts = async (req, res) => {
       if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
     if (search) {
+      const safeSearch = escapeRegExp(search);
       query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
+        { tags: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -137,7 +142,10 @@ const getProducts = async (req, res) => {
 // Get product by ID
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(req.params.id));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1325,8 +1333,12 @@ const regenerateDownloadLinks = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+
     const order = await Order.findOne({
-      _id: orderId,
+      _id: new mongoose.Types.ObjectId(orderId),
       user: req.user.id,
       status: { $in: ["confirmed", "completed"] },
     });
@@ -1348,7 +1360,10 @@ const regenerateDownloadLinks = async (req, res) => {
     }
 
     // Fetch product for fresh download links
-    const product = await Product.findById(itemId);
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).json({ success: false, message: "Invalid item ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(itemId));
     if (
       !product ||
       !product.downloadFiles ||
@@ -1402,7 +1417,10 @@ const addOrderMessage = async (req, res) => {
         .json({ success: false, message: "Message or attachment is required" });
     }
 
-    const order = await Order.findById(orderId);
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(orderId));
 
     if (!order) {
       return res
@@ -1468,7 +1486,10 @@ const getOrderMessages = async (req, res) => {
     const { orderId } = req.params;
     const userId = req.user.id;
 
-    const order = await Order.findById(orderId)
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(orderId))
       .populate(
         "communication.messages.sender",
         "firstName lastName email avatar role",
@@ -1515,7 +1536,10 @@ const getOrderMessages = async (req, res) => {
 const requestRevision = async (req, res) => {
   try {
     const { message } = req.body;
-    const order = await Order.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -1618,7 +1642,10 @@ const requestRevision = async (req, res) => {
 // Approve delivery and mark order as completed (client action)
 const approveDelivery = async (req, res) => {
   try {
-    const order = await Order.findById(String(req.params.id));
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -1687,10 +1714,14 @@ const createReview = async (req, res) => {
     const productId = req.params.id;
     const userId = req.user._id;
 
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
     // 1. Check if user purchased the product
     const hasPurchased = await Order.findOne({
       user: userId,
-      "items.itemId": productId,
+      "items.itemId": new mongoose.Types.ObjectId(productId),
       "items.itemType": "product",
       "payment.status": "completed", // Ensure payment is completed
     });
@@ -1701,7 +1732,7 @@ const createReview = async (req, res) => {
         .json({ message: "You must purchase this product to review it." });
     }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1748,7 +1779,10 @@ const createReview = async (req, res) => {
 const getReviews = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await Product.findById(productId);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -1767,7 +1801,10 @@ const updateReview = async (req, res) => {
     const productId = req.params.id;
     const userId = req.user._id;
 
-    const product = await Product.findById(productId);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1809,7 +1846,10 @@ const deleteReview = async (req, res) => {
     const productId = req.params.id;
     const userId = req.user._id;
 
-    const product = await Product.findById(productId);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1870,8 +1910,15 @@ const handleRazorpayWebhook = async (req, res) => {
         return res.status(200).json({ status: "ok" });
       }
 
+      // Sanitize the razorpayOrderId to prevent NoSQL injection - it must be a non-empty string
+      const safeRazorpayOrderId = String(razorpayOrderId).replace(/[^a-zA-Z0-9_\-]/g, "");
+      if (!safeRazorpayOrderId) {
+        logger.warn("Webhook received with invalid razorpayOrderId format");
+        return res.status(200).json({ status: "ok" });
+      }
+
       const order = await Order.findOne({
-        "payment.razorpayOrderId": razorpayOrderId,
+        "payment.razorpayOrderId": safeRazorpayOrderId,
       });
 
       if (!order) {
@@ -2147,7 +2194,7 @@ const sendInvoiceByEmail = async (req, res) => {
     }
 
     // Validate that the supplied address is a syntactically correct email
-    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     if (!EMAIL_RE.test(recipientEmail)) {
       return res.status(400).json({ message: 'Invalid email address' });
     }
@@ -2165,6 +2212,267 @@ const sendInvoiceByEmail = async (req, res) => {
   } catch (error) {
     logger.error("Send invoice email error:", error);
     res.status(500).json({ message: "Failed to send invoice email" });
+  }
+};
+
+// ─────────────────────────────── Recommendation System ───────────────────────────────
+
+// Shared aggregation pipeline stages for composite trend scoring.
+// score = views×0.3 + activity×0.4 + rating.average×2 + rating.count×0.1
+// The `activityField` is "downloads" for products or "totalOrders" for services.
+const trendScorePipeline = (activityField, limit) => [
+  {
+    $addFields: {
+      _trendScore: {
+        $add: [
+          { $multiply: [{ $ifNull: ["$views", 0] }, 0.3] },
+          { $multiply: [{ $ifNull: [`$${activityField}`, 0] }, 0.4] },
+          { $multiply: [{ $ifNull: ["$rating.average", 0] }, 2] },
+          { $multiply: [{ $ifNull: ["$rating.count", 0] }, 0.1] },
+        ],
+      },
+    },
+  },
+  { $sort: { _trendScore: -1, _id: 1 } },  // _id as deterministic tiebreaker
+  { $limit: limit },
+  { $project: { _trendScore: 0 } },         // strip internal scoring field
+];
+
+/**
+ * GET /marketplace/products/:id/related
+ * Returns active products in the same category as the given product, ranked by
+ * tag overlap with the source product (primary), then by composite trend score
+ * (secondary), then by _id for a deterministic tiebreaker.
+ */
+const getRelatedProducts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const source = await Product.findById(id).select("category tags").lean();
+    if (!source) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const sourceTags = Array.isArray(source.tags) ? source.tags : [];
+
+    // Cap at 200 candidates to avoid loading the entire catalogue into memory
+    const candidates = await Product.find({
+      _id: { $ne: new mongoose.Types.ObjectId(id) },
+      category: source.category,
+      isActive: true,
+    })
+      .select("_id title slug description price originalPrice discount images rating downloads views tags category isFeatured")
+      .sort({ "rating.average": -1, downloads: -1 })
+      .limit(200)
+      .lean();
+
+    // Score by tag overlap; use trend score as deterministic tiebreaker
+    const scored = candidates
+      .map((p) => {
+        const overlap = (Array.isArray(p.tags) ? p.tags : []).filter((t) => sourceTags.includes(t)).length;
+        const trendScore =
+          (p.views || 0) * 0.3 +
+          (p.downloads || 0) * 0.4 +
+          (p.rating?.average || 0) * 2 +
+          (p.rating?.count || 0) * 0.1;
+        const id = p._id.toString();  // cache to avoid repeated conversion inside sort
+        return { p, overlap, trendScore, id };
+      })
+      .sort((a, b) => b.overlap - a.overlap || b.trendScore - a.trendScore || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .slice(0, limit)
+      .map(({ p }) => p);                    // return plain product objects, no internal fields
+
+    res.json({ related: scored });
+  } catch (error) {
+    logger.error("Get related products error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Allowed values for the `type` query parameter in getTrending
+const VALID_TRENDING_TYPES = new Set(["products", "services"]);
+
+/**
+ * GET /marketplace/recommendations/trending
+ * Returns the top trending products and/or services using a composite score:
+ *   score = views×0.3 + downloads/totalOrders×0.4 + rating.average×2 + rating.count×0.1
+ * Scoring and limiting are done inside MongoDB via an aggregation pipeline to avoid
+ * loading the full catalogue into application memory.
+ *
+ * Query params:
+ *   type  – "products" | "services" | omit for both
+ *   limit – number of items per type (default 6, max 20)
+ */
+const getTrending = async (req, res) => {
+  try {
+    const { type } = req.query;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
+
+    // Reject unknown type values early
+    if (type && !VALID_TRENDING_TYPES.has(type)) {
+      return res.status(400).json({
+        message: `Invalid type "${type}". Must be "products", "services", or omitted.`,
+      });
+    }
+
+    const results = {};
+
+    if (!type || type === "products") {
+      results.products = await Product.aggregate([
+        { $match: { isActive: true } },
+        ...trendScorePipeline("downloads", limit),
+        {
+          $project: {
+            _id: 1, title: 1, slug: 1, description: 1, price: 1,
+            originalPrice: 1, discount: 1, images: 1, rating: 1,
+            downloads: 1, views: 1, tags: 1, category: 1, isFeatured: 1,
+          },
+        },
+      ]);
+    }
+
+    if (!type || type === "services") {
+      results.services = await Service.aggregate([
+        { $match: { isActive: true } },
+        ...trendScorePipeline("totalOrders", limit),
+        {
+          $project: {
+            _id: 1, title: 1, slug: 1, description: 1, packages: 1,
+            images: 1, rating: 1, totalOrders: 1, views: 1,
+            tags: 1, category: 1, isFeatured: 1,
+          },
+        },
+      ]);
+    }
+
+    res.json(results);
+  } catch (error) {
+    logger.error("Get trending recommendations error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * GET /marketplace/recommendations/personalized  (protected – requires auth)
+ * Returns personalized recommendations based on the authenticated user's:
+ *   1. Purchased product/service categories (from orders)
+ *   2. Wishlist categories (favoriteProducts / favoriteServices)
+ * Falls back to site-wide trending items when the user has no history.
+ *
+ * Query params:
+ *   limit – number of items per type (default 6, max 20)
+ */
+const getPersonalizedRecommendations = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
+
+    // 1. Gather purchased item IDs to exclude already-owned items
+    const orders = await Order.find({ user: userId })
+      .select("items.itemId items.itemType")
+      .limit(500)           // cap to last 500 orders to avoid loading all history
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const purchasedProductIds = new Set();
+    const purchasedServiceIds = new Set();
+    const purchasedProductCategories = new Set();
+    const purchasedServiceCategories = new Set();
+
+    // Filter out any null/undefined item IDs before querying
+    const productItemIds = orders
+      .flatMap((o) => o.items || [])
+      .filter((i) => i.itemType === "product" && i.itemId)
+      .map((i) => i.itemId.toString());
+
+    const serviceItemIds = orders
+      .flatMap((o) => o.items || [])
+      .filter((i) => i.itemType === "service" && i.itemId)
+      .map((i) => i.itemId.toString());
+
+    const uniqueProductIds = [...new Set(productItemIds)];
+    const uniqueServiceIds = [...new Set(serviceItemIds)];
+
+    if (uniqueProductIds.length > 0 || uniqueServiceIds.length > 0) {
+      const [boughtProducts, boughtServices] = await Promise.all([
+        uniqueProductIds.length > 0
+          ? Product.find({ _id: { $in: uniqueProductIds } }).select("_id category").lean()
+          : Promise.resolve([]),
+        uniqueServiceIds.length > 0
+          ? Service.find({ _id: { $in: uniqueServiceIds } }).select("_id category").lean()
+          : Promise.resolve([]),
+      ]);
+      boughtProducts.forEach((p) => {
+        purchasedProductIds.add(p._id.toString());
+        if (p.category) purchasedProductCategories.add(p.category);
+      });
+      boughtServices.forEach((s) => {
+        purchasedServiceIds.add(s._id.toString());
+        if (s.category) purchasedServiceCategories.add(s.category);
+      });
+    }
+
+    // 2. Add categories from wishlist
+    const user = await User.findById(userId)
+      .select("favoriteProducts favoriteServices")
+      .populate("favoriteProducts", "category")
+      .populate("favoriteServices", "category")
+      .lean();
+
+    (user?.favoriteProducts || []).forEach((p) => {
+      if (p.category) purchasedProductCategories.add(p.category);
+    });
+    (user?.favoriteServices || []).forEach((s) => {
+      if (s.category) purchasedServiceCategories.add(s.category);
+    });
+
+    // 3. Build aggregation pipeline filtering by preferred categories and excluding purchased items
+    const buildPersonalizedPipeline = (activityField, excludeIds, categories, projectionFields) => {
+      const matchStage = { isActive: true };
+      if (categories.size > 0) matchStage.category = { $in: [...categories] };
+      if (excludeIds.size > 0) {
+        matchStage._id = { $nin: [...excludeIds].map((id) => new mongoose.Types.ObjectId(id)) };
+      }
+      return [
+        { $match: matchStage },
+        ...trendScorePipeline(activityField, limit),
+        { $project: projectionFields },
+      ];
+    };
+
+    const productProjection = {
+      _id: 1, title: 1, slug: 1, description: 1, price: 1,
+      originalPrice: 1, discount: 1, images: 1, rating: 1,
+      downloads: 1, views: 1, tags: 1, category: 1, isFeatured: 1,
+    };
+    const serviceProjection = {
+      _id: 1, title: 1, slug: 1, description: 1, packages: 1,
+      images: 1, rating: 1, totalOrders: 1, views: 1,
+      tags: 1, category: 1, isFeatured: 1,
+    };
+
+    const [products, services] = await Promise.all([
+      Product.aggregate(
+        buildPersonalizedPipeline("downloads", purchasedProductIds, purchasedProductCategories, productProjection)
+      ),
+      Service.aggregate(
+        buildPersonalizedPipeline("totalOrders", purchasedServiceIds, purchasedServiceCategories, serviceProjection)
+      ),
+    ]);
+
+    res.json({
+      products,
+      services,
+      isPersonalized: purchasedProductCategories.size > 0 || purchasedServiceCategories.size > 0,
+    });
+  } catch (error) {
+    logger.error("Get personalized recommendations error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -2199,4 +2507,7 @@ module.exports = {
   submitRequirements,
   downloadInvoice,
   sendInvoiceByEmail,
+  getRelatedProducts,
+  getTrending,
+  getPersonalizedRecommendations,
 };

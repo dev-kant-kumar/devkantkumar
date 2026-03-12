@@ -25,8 +25,10 @@ router.get("/services", marketplaceController.getServices);
 router.get("/services/:id", marketplaceController.getServiceById);
 router.get("/products", marketplaceController.getProducts);
 router.get("/products/:id", marketplaceController.getProductById);
+router.get("/products/:id/related", marketplaceController.getRelatedProducts);
 router.get("/categories", marketplaceController.getCategories);
 router.get("/search", marketplaceController.search);
+router.get("/recommendations/trending", marketplaceController.getTrending);
 router.post("/payment/webhook", marketplaceController.handleRazorpayWebhook);
 
 // Quote request (public - no auth required)
@@ -38,6 +40,9 @@ router.post("/support", optionalAuth, supportController.submitTicket);
 
 // Protected routes
 router.use(protect);
+
+// Personalized recommendations (auth required)
+router.get("/recommendations/personalized", marketplaceController.getPersonalizedRecommendations);
 
 // User support tickets (authenticated — chat system)
 router.get("/support/my-tickets", supportController.getMyTickets);

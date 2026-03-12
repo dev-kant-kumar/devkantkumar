@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, CheckCircle, Mail, MessageSquare, Search, Trash2 } from 'lucide-react';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -20,7 +20,11 @@ const Messages = () => {
   const [selectedMsg, setSelectedMsg] = useState(null);
   const [msgToDelete, setMsgToDelete] = useState(null);
 
-  const messages = data?.data || [];
+  const messages = useMemo(() => (
+    Array.isArray(data)
+      ? data
+      : data?.data?.messages || data?.messages || data?.data || []
+  ), [data]);
 
   // Sync selected message with URL ID
   useEffect(() => {
@@ -36,7 +40,7 @@ const Messages = () => {
     try {
       await markRead(id).unwrap();
       toast.success("Marked as read");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update status");
     }
   };
@@ -51,16 +55,19 @@ const Messages = () => {
       toast.success("Message deleted");
       if (id === msgToDelete) navigate('/admin/messages');
       setMsgToDelete(null);
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete message");
     }
   };
 
-  const filteredMessages = messages.filter((msg) =>
-    msg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    msg.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    msg.message.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMessages = messages.filter((msg) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    return [msg?.name, msg?.subject, msg?.message]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+  });
 
   return (
     <div className="h-[calc(100vh-10rem)] w-full flex-1 flex flex-col space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">

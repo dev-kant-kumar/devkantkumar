@@ -7,6 +7,7 @@ const { calculateRegionalPricing } = require("../utils/currencyConverter");
 const Subscriber = require("../models/Subscriber");
 const emailService = require("../services/emailService");
 const Notification = require("../models/Notification");
+const mongoose = require("mongoose");
 
 // Escape all special regex metacharacters in a user-supplied string so it is
 // treated as a plain substring search. Prevents ReDoS attacks where a crafted
@@ -76,7 +77,10 @@ exports.getAllProducts = async (req, res) => {
 // @access  Admin
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(new mongoose.Types.ObjectId(req.params.id));
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -198,6 +202,10 @@ exports.createProduct = async (req, res) => {
 // @access  Admin
 exports.updateProduct = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
     let updateData = { ...req.body };
 
     // If price is being updated, recalculate regional pricing if not explicitly provided
@@ -206,7 +214,7 @@ exports.updateProduct = async (req, res) => {
     }
 
     const product = await Product.findByIdAndUpdate(
-      String(req.params.id),
+      new mongoose.Types.ObjectId(req.params.id),
       updateData,
       {
         new: true,
@@ -242,9 +250,13 @@ exports.updateProduct = async (req, res) => {
 // @access  Admin
 exports.deleteProduct = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const productObjectId = new mongoose.Types.ObjectId(req.params.id);
     // Check if product has been purchased
     const existingOrders = await Order.exists({
-      "items.itemId": req.params.id,
+      "items.itemId": productObjectId,
     });
     if (existingOrders) {
       return res.status(400).json({
@@ -253,7 +265,7 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findByIdAndDelete(productObjectId);
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -370,7 +382,10 @@ exports.getCustomers = async (req, res) => {
 // @access  Admin
 exports.getCustomerById = async (req, res) => {
   try {
-    const customer = await User.findById(req.params.id).select("-password");
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid customer ID" });
+    }
+    const customer = await User.findById(new mongoose.Types.ObjectId(req.params.id)).select("-password");
 
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
@@ -461,7 +476,10 @@ exports.getAdminServices = async (req, res) => {
 // @access  Admin
 exports.getAdminServiceById = async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+    const service = await Service.findById(new mongoose.Types.ObjectId(req.params.id));
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -590,6 +608,10 @@ exports.createService = async (req, res) => {
 // @access  Admin
 exports.updateService = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+
     let updateData = { ...req.body };
 
     // If packages are being updated, recalculate regional pricing for each
@@ -605,7 +627,7 @@ exports.updateService = async (req, res) => {
       }));
     }
 
-    const service = await Service.findByIdAndUpdate(req.params.id, updateData, {
+    const service = await Service.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), updateData, {
       new: true,
       runValidators: true,
     });
@@ -638,9 +660,13 @@ exports.updateService = async (req, res) => {
 // @access  Admin
 exports.deleteService = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid service ID" });
+    }
+    const serviceObjectId = new mongoose.Types.ObjectId(req.params.id);
     // Check if service has been purchased
     const existingOrders = await Order.exists({
-      "items.itemId": String(req.params.id),
+      "items.itemId": serviceObjectId,
     });
     if (existingOrders) {
       return res.status(400).json({
@@ -649,7 +675,7 @@ exports.deleteService = async (req, res) => {
       });
     }
 
-    const service = await Service.findByIdAndDelete(req.params.id);
+    const service = await Service.findByIdAndDelete(serviceObjectId);
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
@@ -687,8 +713,8 @@ exports.getAllOrders = async (req, res) => {
       // Check if search term looks like an ObjectID
       const isObjectId = /^[0-9a-fA-F]{24}$/.test(search);
 
-      if (isObjectId) {
-        query._id = search;
+      if (isObjectId && mongoose.Types.ObjectId.isValid(search)) {
+        query._id = new mongoose.Types.ObjectId(search);
       } else {
         query.$or = [
           { orderNumber: { $regex: escapeRegExp(search), $options: "i" } },
@@ -730,7 +756,10 @@ exports.updateAdminOrderStatus = async (req, res) => {
   try {
     const { status, paymentStatus } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -781,7 +810,10 @@ exports.updateAdminOrderStatus = async (req, res) => {
 // @access  Admin
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id)
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id))
       .populate(
         "user",
         "firstName lastName email profile avatar createdAt marketplace",
@@ -825,7 +857,10 @@ exports.addMilestone = async (req, res) => {
         .json({ success: false, message: "Status and message are required" });
     }
 
-    const order = await Order.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -866,7 +901,10 @@ exports.updateMilestone = async (req, res) => {
     const { id, milestoneId } = req.params;
     const { status, message } = req.body;
 
-    const order = await Order.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(id));
 
     if (!order) {
       return res
@@ -910,7 +948,10 @@ exports.addAdminMessage = async (req, res) => {
         .json({ success: false, message: "Message or attachment is required" });
     }
 
-    const order = await Order.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -971,7 +1012,10 @@ exports.markDelivered = async (req, res) => {
   try {
     const { deliveryNotes, downloadLinks = [] } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res
@@ -1178,7 +1222,10 @@ exports.getStats = async (req, res) => {
 // @access  Private/Admin
 exports.approveRequirements = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res.status(404).json({
@@ -1253,7 +1300,10 @@ exports.completePhase = async (req, res) => {
     const { id, phaseKey } = req.params;
     const { notes, deliverableUrl, externalLink } = req.body;
 
-    const order = await Order.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(id));
 
     if (!order) {
       return res
@@ -1326,7 +1376,10 @@ exports.markApproval = async (req, res) => {
     const { id } = req.params;
     const { approval_type, status, notes } = req.body; // e.g., 'design_approval', 'approved'
 
-    const order = await Order.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(id));
     if (!order) {
       return res
         .status(404)
@@ -1368,7 +1421,10 @@ exports.requestRequirementsChanges = async (req, res) => {
       });
     }
 
-    const order = await Order.findById(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
 
     if (!order) {
       return res.status(404).json({
