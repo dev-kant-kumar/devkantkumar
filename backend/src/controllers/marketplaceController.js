@@ -74,13 +74,25 @@ const getServices = async (req, res) => {
   }
 };
 
-// Get service by ID
+// Get service by ID or slug
 const getServiceById = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid service ID" });
+    const identifier = req.params.id;
+    let service = null;
+
+    // Try ObjectId lookup first if it looks like one
+    if (
+      mongoose.Types.ObjectId.isValid(identifier) &&
+      identifier.match(/^[0-9a-fA-F]{24}$/)
+    ) {
+      service = await Service.findById(identifier);
     }
-    const service = await Service.findById(new mongoose.Types.ObjectId(req.params.id));
+
+    // Fall back to slug lookup
+    if (!service) {
+      service = await Service.findOne({ slug: identifier });
+    }
+
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -139,13 +151,25 @@ const getProducts = async (req, res) => {
   }
 };
 
-// Get product by ID
+// Get product by ID or slug
 const getProductById = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ message: "Invalid product ID" });
+    const identifier = req.params.id;
+    let product = null;
+
+    // Try ObjectId lookup first if it looks like one
+    if (
+      mongoose.Types.ObjectId.isValid(identifier) &&
+      identifier.match(/^[0-9a-fA-F]{24}$/)
+    ) {
+      product = await Product.findById(identifier);
     }
-    const product = await Product.findById(new mongoose.Types.ObjectId(req.params.id));
+
+    // Fall back to slug lookup
+    if (!product) {
+      product = await Product.findOne({ slug: identifier });
+    }
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -520,10 +544,24 @@ const getUserOrders = async (req, res) => {
       .populate({
         path: "items.itemId",
         select:
-          "title slug description version demoUrl documentationUrl sourceCodeUrl downloadFiles images packages features technologies",
+          "title slug description version demoUrl documentationUrl sourceCodeUrl images packages features technologies",
       });
 
-    res.json(orders);
+    // Sanitize download links — never expose raw file URLs to client
+    const sanitizedOrders = orders.map((order) => {
+      const orderObj = order.toObject();
+      orderObj.items = orderObj.items.map((item) => {
+        if (item.downloadLinks) {
+          item.downloadLinks = downloadService.sanitizeDownloadLinks(
+            item.downloadLinks,
+          );
+        }
+        return item;
+      });
+      return orderObj;
+    });
+
+    res.json(sanitizedOrders);
   } catch (error) {
     logger.error("Get user orders error:", error);
     res.status(500).json({ message: "Server error" });
@@ -539,7 +577,7 @@ const getOrderById = async (req, res) => {
       .populate({
         path: "items.itemId",
         select:
-          "title price images description downloadFiles demoUrl sourceCodeUrl documentationUrl version packages requirements", // Select necessary fields for Products/Services
+          "title price images description demoUrl sourceCodeUrl documentationUrl version packages requirements", // Never expose downloadFiles raw URLs
       })
       .populate({
         path: "communication.messages.sender",
@@ -1334,7 +1372,9 @@ const regenerateDownloadLinks = async (req, res) => {
     const { orderId, itemId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
 
     const order = await Order.findOne({
@@ -1361,7 +1401,9 @@ const regenerateDownloadLinks = async (req, res) => {
 
     // Fetch product for fresh download links
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ success: false, message: "Invalid item ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid item ID" });
     }
     const product = await Product.findById(new mongoose.Types.ObjectId(itemId));
     if (
@@ -1418,7 +1460,9 @@ const addOrderMessage = async (req, res) => {
     }
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
     const order = await Order.findById(new mongoose.Types.ObjectId(orderId));
 
@@ -1487,7 +1531,9 @@ const getOrderMessages = async (req, res) => {
     const userId = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
     const order = await Order.findById(new mongoose.Types.ObjectId(orderId))
       .populate(
@@ -1537,9 +1583,13 @@ const requestRevision = async (req, res) => {
   try {
     const { message } = req.body;
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res
@@ -1643,9 +1693,13 @@ const requestRevision = async (req, res) => {
 const approveDelivery = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res
@@ -1732,7 +1786,9 @@ const createReview = async (req, res) => {
         .json({ message: "You must purchase this product to review it." });
     }
 
-    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
+    const product = await Product.findById(
+      new mongoose.Types.ObjectId(productId),
+    );
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1748,8 +1804,14 @@ const createReview = async (req, res) => {
 
     // 3. Validate and add Review
     const parsedRating = Number(rating);
-    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
-      return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+    if (
+      !Number.isInteger(parsedRating) ||
+      parsedRating < 1 ||
+      parsedRating > 5
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Rating must be a whole number between 1 and 5" });
     }
 
     const review = {
@@ -1782,7 +1844,9 @@ const getReviews = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
-    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
+    const product = await Product.findById(
+      new mongoose.Types.ObjectId(productId),
+    );
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
@@ -1804,7 +1868,9 @@ const updateReview = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
-    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
+    const product = await Product.findById(
+      new mongoose.Types.ObjectId(productId),
+    );
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1818,8 +1884,14 @@ const updateReview = async (req, res) => {
     }
 
     const parsedRating = Number(rating);
-    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
-      return res.status(400).json({ message: "Rating must be a whole number between 1 and 5" });
+    if (
+      !Number.isInteger(parsedRating) ||
+      parsedRating < 1 ||
+      parsedRating > 5
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Rating must be a whole number between 1 and 5" });
     }
 
     review.rating = parsedRating;
@@ -1849,7 +1921,9 @@ const deleteReview = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
-    const product = await Product.findById(new mongoose.Types.ObjectId(productId));
+    const product = await Product.findById(
+      new mongoose.Types.ObjectId(productId),
+    );
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -1911,7 +1985,10 @@ const handleRazorpayWebhook = async (req, res) => {
       }
 
       // Sanitize the razorpayOrderId to prevent NoSQL injection - it must be a non-empty string
-      const safeRazorpayOrderId = String(razorpayOrderId).replace(/[^a-zA-Z0-9_\-]/g, "");
+      const safeRazorpayOrderId = String(razorpayOrderId).replace(
+        /[^a-zA-Z0-9_\-]/g,
+        "",
+      );
       if (!safeRazorpayOrderId) {
         logger.warn("Webhook received with invalid razorpayOrderId format");
         return res.status(200).json({ status: "ok" });
@@ -2196,7 +2273,7 @@ const sendInvoiceByEmail = async (req, res) => {
     // Validate that the supplied address is a syntactically correct email
     const EMAIL_RE = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     if (!EMAIL_RE.test(recipientEmail)) {
-      return res.status(400).json({ message: 'Invalid email address' });
+      return res.status(400).json({ message: "Invalid email address" });
     }
 
     await emailService.sendInvoiceEmail(
@@ -2233,9 +2310,9 @@ const trendScorePipeline = (activityField, limit) => [
       },
     },
   },
-  { $sort: { _trendScore: -1, _id: 1 } },  // _id as deterministic tiebreaker
+  { $sort: { _trendScore: -1, _id: 1 } }, // _id as deterministic tiebreaker
   { $limit: limit },
-  { $project: { _trendScore: 0 } },         // strip internal scoring field
+  { $project: { _trendScore: 0 } }, // strip internal scoring field
 ];
 
 /**
@@ -2249,11 +2326,15 @@ const getRelatedProducts = async (req, res) => {
     const { id } = req.params;
     const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid product ID" });
+    let source = null;
+    if (mongoose.Types.ObjectId.isValid(id) && id.match(/^[0-9a-fA-F]{24}$/)) {
+      source = await Product.findById(id).select("category tags").lean();
     }
-
-    const source = await Product.findById(id).select("category tags").lean();
+    if (!source) {
+      source = await Product.findOne({ slug: id })
+        .select("_id category tags")
+        .lean();
+    }
     if (!source) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -2262,11 +2343,13 @@ const getRelatedProducts = async (req, res) => {
 
     // Cap at 200 candidates to avoid loading the entire catalogue into memory
     const candidates = await Product.find({
-      _id: { $ne: new mongoose.Types.ObjectId(id) },
+      _id: { $ne: source._id },
       category: source.category,
       isActive: true,
     })
-      .select("_id title slug description price originalPrice discount images rating downloads views tags category isFeatured")
+      .select(
+        "_id title slug description price originalPrice discount images rating downloads views tags category isFeatured",
+      )
       .sort({ "rating.average": -1, downloads: -1 })
       .limit(200)
       .lean();
@@ -2274,18 +2357,25 @@ const getRelatedProducts = async (req, res) => {
     // Score by tag overlap; use trend score as deterministic tiebreaker
     const scored = candidates
       .map((p) => {
-        const overlap = (Array.isArray(p.tags) ? p.tags : []).filter((t) => sourceTags.includes(t)).length;
+        const overlap = (Array.isArray(p.tags) ? p.tags : []).filter((t) =>
+          sourceTags.includes(t),
+        ).length;
         const trendScore =
           (p.views || 0) * 0.3 +
           (p.downloads || 0) * 0.4 +
           (p.rating?.average || 0) * 2 +
           (p.rating?.count || 0) * 0.1;
-        const id = p._id.toString();  // cache to avoid repeated conversion inside sort
+        const id = p._id.toString(); // cache to avoid repeated conversion inside sort
         return { p, overlap, trendScore, id };
       })
-      .sort((a, b) => b.overlap - a.overlap || b.trendScore - a.trendScore || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .sort(
+        (a, b) =>
+          b.overlap - a.overlap ||
+          b.trendScore - a.trendScore ||
+          (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+      )
       .slice(0, limit)
-      .map(({ p }) => p);                    // return plain product objects, no internal fields
+      .map(({ p }) => p); // return plain product objects, no internal fields
 
     res.json({ related: scored });
   } catch (error) {
@@ -2328,9 +2418,20 @@ const getTrending = async (req, res) => {
         ...trendScorePipeline("downloads", limit),
         {
           $project: {
-            _id: 1, title: 1, slug: 1, description: 1, price: 1,
-            originalPrice: 1, discount: 1, images: 1, rating: 1,
-            downloads: 1, views: 1, tags: 1, category: 1, isFeatured: 1,
+            _id: 1,
+            title: 1,
+            slug: 1,
+            description: 1,
+            price: 1,
+            originalPrice: 1,
+            discount: 1,
+            images: 1,
+            rating: 1,
+            downloads: 1,
+            views: 1,
+            tags: 1,
+            category: 1,
+            isFeatured: 1,
           },
         },
       ]);
@@ -2342,9 +2443,18 @@ const getTrending = async (req, res) => {
         ...trendScorePipeline("totalOrders", limit),
         {
           $project: {
-            _id: 1, title: 1, slug: 1, description: 1, packages: 1,
-            images: 1, rating: 1, totalOrders: 1, views: 1,
-            tags: 1, category: 1, isFeatured: 1,
+            _id: 1,
+            title: 1,
+            slug: 1,
+            description: 1,
+            packages: 1,
+            images: 1,
+            rating: 1,
+            totalOrders: 1,
+            views: 1,
+            tags: 1,
+            category: 1,
+            isFeatured: 1,
           },
         },
       ]);
@@ -2375,7 +2485,7 @@ const getPersonalizedRecommendations = async (req, res) => {
     // 1. Gather purchased item IDs to exclude already-owned items
     const orders = await Order.find({ user: userId })
       .select("items.itemId items.itemType")
-      .limit(500)           // cap to last 500 orders to avoid loading all history
+      .limit(500) // cap to last 500 orders to avoid loading all history
       .sort({ createdAt: -1 })
       .lean();
 
@@ -2401,10 +2511,14 @@ const getPersonalizedRecommendations = async (req, res) => {
     if (uniqueProductIds.length > 0 || uniqueServiceIds.length > 0) {
       const [boughtProducts, boughtServices] = await Promise.all([
         uniqueProductIds.length > 0
-          ? Product.find({ _id: { $in: uniqueProductIds } }).select("_id category").lean()
+          ? Product.find({ _id: { $in: uniqueProductIds } })
+              .select("_id category")
+              .lean()
           : Promise.resolve([]),
         uniqueServiceIds.length > 0
-          ? Service.find({ _id: { $in: uniqueServiceIds } }).select("_id category").lean()
+          ? Service.find({ _id: { $in: uniqueServiceIds } })
+              .select("_id category")
+              .lean()
           : Promise.resolve([]),
       ]);
       boughtProducts.forEach((p) => {
@@ -2432,11 +2546,18 @@ const getPersonalizedRecommendations = async (req, res) => {
     });
 
     // 3. Build aggregation pipeline filtering by preferred categories and excluding purchased items
-    const buildPersonalizedPipeline = (activityField, excludeIds, categories, projectionFields) => {
+    const buildPersonalizedPipeline = (
+      activityField,
+      excludeIds,
+      categories,
+      projectionFields,
+    ) => {
       const matchStage = { isActive: true };
       if (categories.size > 0) matchStage.category = { $in: [...categories] };
       if (excludeIds.size > 0) {
-        matchStage._id = { $nin: [...excludeIds].map((id) => new mongoose.Types.ObjectId(id)) };
+        matchStage._id = {
+          $nin: [...excludeIds].map((id) => new mongoose.Types.ObjectId(id)),
+        };
       }
       return [
         { $match: matchStage },
@@ -2446,29 +2567,61 @@ const getPersonalizedRecommendations = async (req, res) => {
     };
 
     const productProjection = {
-      _id: 1, title: 1, slug: 1, description: 1, price: 1,
-      originalPrice: 1, discount: 1, images: 1, rating: 1,
-      downloads: 1, views: 1, tags: 1, category: 1, isFeatured: 1,
+      _id: 1,
+      title: 1,
+      slug: 1,
+      description: 1,
+      price: 1,
+      originalPrice: 1,
+      discount: 1,
+      images: 1,
+      rating: 1,
+      downloads: 1,
+      views: 1,
+      tags: 1,
+      category: 1,
+      isFeatured: 1,
     };
     const serviceProjection = {
-      _id: 1, title: 1, slug: 1, description: 1, packages: 1,
-      images: 1, rating: 1, totalOrders: 1, views: 1,
-      tags: 1, category: 1, isFeatured: 1,
+      _id: 1,
+      title: 1,
+      slug: 1,
+      description: 1,
+      packages: 1,
+      images: 1,
+      rating: 1,
+      totalOrders: 1,
+      views: 1,
+      tags: 1,
+      category: 1,
+      isFeatured: 1,
     };
 
     const [products, services] = await Promise.all([
       Product.aggregate(
-        buildPersonalizedPipeline("downloads", purchasedProductIds, purchasedProductCategories, productProjection)
+        buildPersonalizedPipeline(
+          "downloads",
+          purchasedProductIds,
+          purchasedProductCategories,
+          productProjection,
+        ),
       ),
       Service.aggregate(
-        buildPersonalizedPipeline("totalOrders", purchasedServiceIds, purchasedServiceCategories, serviceProjection)
+        buildPersonalizedPipeline(
+          "totalOrders",
+          purchasedServiceIds,
+          purchasedServiceCategories,
+          serviceProjection,
+        ),
       ),
     ]);
 
     res.json({
       products,
       services,
-      isPersonalized: purchasedProductCategories.size > 0 || purchasedServiceCategories.size > 0,
+      isPersonalized:
+        purchasedProductCategories.size > 0 ||
+        purchasedServiceCategories.size > 0,
     });
   } catch (error) {
     logger.error("Get personalized recommendations error:", error);

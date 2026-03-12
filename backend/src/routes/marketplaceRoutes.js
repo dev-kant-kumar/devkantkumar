@@ -16,6 +16,13 @@ const paymentLimiter = createLimiter({
   message: "Too many payment requests, please try again after 15 minutes",
 });
 
+// Rate limiter for download endpoints: 30 downloads per 15 minutes per IP
+const downloadLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: "Too many download requests, please try again later",
+});
+
 // Mount review routes
 router.use("/products/:productId/reviews", reviewRouter);
 router.use("/services/:serviceId/reviews", reviewRouter);
@@ -42,7 +49,10 @@ router.post("/support", optionalAuth, supportController.submitTicket);
 router.use(protect);
 
 // Personalized recommendations (auth required)
-router.get("/recommendations/personalized", marketplaceController.getPersonalizedRecommendations);
+router.get(
+  "/recommendations/personalized",
+  marketplaceController.getPersonalizedRecommendations,
+);
 
 // User support tickets (authenticated — chat system)
 router.get("/support/my-tickets", supportController.getMyTickets);
@@ -76,16 +86,26 @@ router.get("/orders/:orderId/messages", marketplaceController.getOrderMessages);
 router.post("/orders/:orderId/messages", marketplaceController.addOrderMessage);
 
 // Payment routes
-router.post("/payment/create-order", paymentLimiter, marketplaceController.createRazorpayOrder);
-router.post("/payment/verify", paymentLimiter, marketplaceController.verifyRazorpayPayment);
+router.post(
+  "/payment/create-order",
+  paymentLimiter,
+  marketplaceController.createRazorpayOrder,
+);
+router.post(
+  "/payment/verify",
+  paymentLimiter,
+  marketplaceController.verifyRazorpayPayment,
+);
 
 // Download routes
 router.get(
   "/orders/:orderId/items/:itemId/download",
+  downloadLimiter,
   marketplaceController.downloadPurchasedItem,
 );
 router.post(
   "/orders/:orderId/regenerate/:itemId",
+  downloadLimiter,
   marketplaceController.regenerateDownloadLinks,
 );
 

@@ -126,7 +126,7 @@ class EmailService {
    */
   async sendOrderConfirmationEmail(email, order, firstName) {
     const clientUrl = this._getClientUrl();
-    const orderUrl = `${clientUrl}/marketplace/account/orders/${order._id}`;
+    const orderUrl = `${clientUrl}/marketplace/dashboard/orders`;
 
     const html = getOrderConfirmationTemplate({ firstName, order, orderUrl });
 

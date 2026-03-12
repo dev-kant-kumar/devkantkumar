@@ -1,35 +1,36 @@
 import { motion } from "framer-motion";
+import FormattedText from "../../../../components/FormattedText";
 import {
-    ArrowRight,
-    Award,
-    CheckCircle,
-    Clock,
-    Code,
-    Database,
-    Globe,
-    Loader2,
-    Palette,
-    Search,
-    Shield,
-    ShieldCheck,
-    Smartphone,
-    Star,
-    User,
-    Zap,
+  ArrowRight,
+  Award,
+  CheckCircle,
+  Clock,
+  Code,
+  Database,
+  Globe,
+  Loader2,
+  Palette,
+  Search,
+  Shield,
+  ShieldCheck,
+  Smartphone,
+  Star,
+  User,
+  Zap,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
-import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
 import FAQ from "../../common/components/FAQ";
 import Testimonials from "../../common/components/Testimonials";
 import WhyChooseUs from "../../common/components/WhyChooseUs";
 import WishlistButton from "../../common/components/WishlistButton";
 import EmptyState from "../../common/components/ui/EmptyState";
+import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
+import MarketPlaceSEO from "../../components/SEO/MarketPlaceSEO";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useGetServicesQuery } from "../../store/api/marketplaceApi";
 import { addToCart } from "../../store/cart/cartSlice";
@@ -347,9 +348,9 @@ const Services = () => {
                       <h3 className="text-xl font-bold text-gray-900 mb-2">
                         {service.title}
                       </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-2">
-                        {service.description}
-                      </p>
+                      <div className="text-gray-600 mb-4 line-clamp-2">
+                        <FormattedText text={service.description} variant="card" truncate={120} />
+                      </div>
 
                       {service.features && (
                         <div className="mb-4 space-y-1">
@@ -394,7 +395,7 @@ const Services = () => {
                         })()}
                         <div className="flex items-center gap-2">
                           <Link
-                            to={`/marketplace/services/${service._id}`}
+                            to={`/marketplace/services/${service.slug || service._id}`}
                             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center font-medium"
                           >
                             View Offer

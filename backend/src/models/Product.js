@@ -32,11 +32,11 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product description is required"],
       trim: true,
       minlength: [20, "Description must be at least 20 characters long"],
-      maxlength: [500, "Description cannot exceed 500 characters"],
+      maxlength: [5000, "Description cannot exceed 5000 characters"],
     },
     longDescription: {
       type: String,
-      maxlength: [2000, "Long description cannot exceed 2000 characters"],
+      maxlength: [10000, "Long description cannot exceed 10000 characters"],
     },
     category: {
       type: String,
@@ -215,14 +215,14 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 // Virtual populate for reviews
-productSchema.virtual('confirmReviews', {
-  ref: 'Review',
-  foreignField: 'product',
-  localField: '_id'
+productSchema.virtual("confirmReviews", {
+  ref: "Review",
+  foreignField: "product",
+  localField: "_id",
 });
 
 // Virtual for discounted price
@@ -245,7 +245,7 @@ productSchema.virtual("savings").get(function () {
 productSchema.virtual("savingsPercentage").get(function () {
   if (this.originalPrice && this.originalPrice > this.price) {
     return Math.round(
-      ((this.originalPrice - this.price) / this.originalPrice) * 100
+      ((this.originalPrice - this.price) / this.originalPrice) * 100,
     );
   }
   return 0;
@@ -261,10 +261,22 @@ productSchema.index({ createdAt: -1 });
 productSchema.index({ isFeatured: 1, isActive: 1 });
 productSchema.index({ title: "text", description: "text", tags: "text" });
 
-// Pre-save middleware to generate slug
-productSchema.pre("save", function (next) {
+// Pre-save middleware to generate unique slug
+productSchema.pre("save", async function (next) {
   if (this.isModified("title")) {
-    this.slug = generateSlug(this.title);
+    let baseSlug = generateSlug(this.title);
+    let slug = baseSlug;
+    let counter = 1;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const existing = await mongoose
+        .model("Product")
+        .findOne({ slug, _id: { $ne: this._id } });
+      if (!existing) break;
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    this.slug = slug;
   }
   next();
 });
@@ -273,7 +285,9 @@ productSchema.pre("save", function (next) {
 productSchema.pre("save", function (next) {
   // If both originalPrice and price are set, calculate discount percentage
   if (this.originalPrice && this.price && this.originalPrice > this.price) {
-    this.discount = Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+    this.discount = Math.round(
+      ((this.originalPrice - this.price) / this.originalPrice) * 100,
+    );
   }
   next();
 });

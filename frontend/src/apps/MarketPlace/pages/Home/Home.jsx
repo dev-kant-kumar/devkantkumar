@@ -1,24 +1,25 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+import FormattedText from "../../../../components/FormattedText";
 import {
-    ArrowRight,
-    CheckCircle,
-    Clock,
-    Download,
-    Headset,
-    Loader2,
-    ShieldCheck,
-    Star,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import PriceDisplay from '../../../../components/common/PriceDisplay';
-import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
-import { ItemListSchema } from '../../../../components/SEO/SchemaMarkup';
-import FAQ from '../../common/components/FAQ';
-import Testimonials from '../../common/components/Testimonials';
-import TrustSignals, { HowItWorks } from '../../common/components/TrustSignals';
-import WhyChooseUs from '../../common/components/WhyChooseUs';
-import EmptyState from '../../common/components/ui/EmptyState';
-import { useGetTrendingQuery } from '../../store/api/marketplaceApi';
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Download,
+  Headset,
+  Loader2,
+  ShieldCheck,
+  Star,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
+import PriceDisplay from "../../../../components/common/PriceDisplay";
+import FAQ from "../../common/components/FAQ";
+import Testimonials from "../../common/components/Testimonials";
+import TrustSignals, { HowItWorks } from "../../common/components/TrustSignals";
+import WhyChooseUs from "../../common/components/WhyChooseUs";
+import EmptyState from "../../common/components/ui/EmptyState";
+import MarketPlaceSEO from "../../components/SEO/MarketPlaceSEO";
+import { useGetTrendingQuery } from "../../store/api/marketplaceApi";
 
 const Home = () => {
   // Use the trending endpoint so the home page shows genuinely popular items
@@ -31,7 +32,7 @@ const Home = () => {
     { number: "Instant", label: "Digital Delivery", icon: Download },
     { number: "Secure", label: "Payments", icon: ShieldCheck },
     { number: "Quality", label: "Products", icon: Star },
-    { number: "Direct", label: "Developer Support", icon: Headset }
+    { number: "Direct", label: "Developer Support", icon: Headset },
   ];
 
   return (
@@ -39,13 +40,25 @@ const Home = () => {
       <MarketPlaceSEO
         title="Dev Kant Kumar Marketplace — Premium React Templates & Dev Services"
         description="Buy premium React templates, Next.js boilerplates, MERN stack kits, and hire a full-stack developer for web development, APIs, and SaaS. Instant digital download. Starting from ₹999."
-        keywords={["React templates", "Next.js boilerplate", "MERN stack kit", "hire full stack developer", "React admin dashboard", "web development services India", "buy React components", "SaaS starter kit"]}
+        keywords={[
+          "React templates",
+          "Next.js boilerplate",
+          "MERN stack kit",
+          "hire full stack developer",
+          "React admin dashboard",
+          "web development services India",
+          "buy React components",
+          "SaaS starter kit",
+        ]}
         url="https://www.devkantkumar.com/marketplace"
         canonical="https://www.devkantkumar.com/marketplace"
         type="website"
       />
       <ItemListSchema
-        items={[...featuredServices.map(s => ({ ...s, type: 'service' })), ...featuredProducts.map(p => ({ ...p, type: 'product' }))]}
+        items={[
+          ...featuredServices.map((s) => ({ ...s, type: "service" })),
+          ...featuredProducts.map((p) => ({ ...p, type: "product" })),
+        ]}
         listName="Dev Kant Kumar Marketplace — Featured Services & Products"
         listUrl="https://www.devkantkumar.com/marketplace"
       />
@@ -71,8 +84,9 @@ const Home = () => {
                 </span>
               </h1>
               <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Access top-tier development services and ready-to-use digital assets.
-                Accelerate your project timeline with verified experts and high-quality code.
+                Access top-tier development services and ready-to-use digital
+                assets. Accelerate your project timeline with verified experts
+                and high-quality code.
               </p>
             </motion.div>
 
@@ -101,8 +115,15 @@ const Home = () => {
 
         {/* Wave Divider */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="fill-gray-50">
-            <path fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 320"
+            className="fill-gray-50"
+          >
+            <path
+              fillOpacity="1"
+              d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            ></path>
           </svg>
         </div>
       </section>
@@ -180,20 +201,23 @@ const Home = () => {
                   <div className="h-48 overflow-hidden relative">
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
                     <img
-                      src={service.images?.[0]?.url || '/api/placeholder/400/250'}
+                      src={
+                        service.images?.[0]?.url || "/api/placeholder/400/250"
+                      }
                       alt={service.title}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 flex items-center shadow-sm">
                       <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                      {service.rating?.average || 0} ({service.rating?.count || 0})
+                      {service.rating?.average || 0} (
+                      {service.rating?.count || 0})
                     </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="flex items-center justify-between mb-3">
                       <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
-                        {service.category?.replace(/-/g, ' ') || 'Service'}
+                        {service.category?.replace(/-/g, " ") || "Service"}
                       </span>
                       <div className="flex items-center text-gray-500 text-xs">
                         <Clock className="h-3 w-3 mr-1" />
@@ -205,16 +229,21 @@ const Home = () => {
                       {service.title}
                     </h3>
 
-                    <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed flex-1">
-                      {service.description}
-                    </p>
+                    <div className="mb-6 line-clamp-2 leading-relaxed flex-1">
+                      <FormattedText text={service.description} variant="card" truncate={120} />
+                    </div>
 
                     {service.features && service.features.length > 0 && (
                       <div className="space-y-3 mb-6 border-t border-gray-100 pt-4">
                         {service.features.slice(0, 3).map((feature, idx) => (
-                          <div key={idx} className="flex items-center text-sm text-gray-500">
+                          <div
+                            key={idx}
+                            className="flex items-center text-sm text-gray-500"
+                          >
                             <CheckCircle className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
-                            {typeof feature === 'string' ? feature : feature.name}
+                            {typeof feature === "string"
+                              ? feature
+                              : feature.name}
                           </div>
                         ))}
                       </div>
@@ -222,15 +251,21 @@ const Home = () => {
 
                     <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
                       <div>
-                        <p className="text-xs text-gray-500 font-medium uppercase">Starting at</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase">
+                          Starting at
+                        </p>
                         <PriceDisplay
-                          price={service.packages?.[0]?.price || service.startingPrice || 0}
+                          price={
+                            service.packages?.[0]?.price ||
+                            service.startingPrice ||
+                            0
+                          }
                           className="text-2xl"
                           textClass="text-gray-900"
                         />
                       </div>
                       <Link
-                        to={`/marketplace/services/${service._id}`}
+                        to={`/marketplace/services/${service.slug || service._id}`}
                         className="px-4 py-2 bg-gray-50 text-gray-700 font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center"
                       >
                         View Details
@@ -263,7 +298,8 @@ const Home = () => {
                 Trending Digital Products
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl">
-                Save hundreds of hours with our premium templates and components.
+                Save hundreds of hours with our premium templates and
+                components.
               </p>
             </div>
             <Link
@@ -299,7 +335,9 @@ const Home = () => {
                   <div className="relative h-56 overflow-hidden">
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10"></div>
                     <img
-                      src={product.images?.[0]?.url || '/api/placeholder/400/250'}
+                      src={
+                        product.images?.[0]?.url || "/api/placeholder/400/250"
+                      }
                       alt={product.title}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                     />
@@ -314,9 +352,9 @@ const Home = () => {
                       <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors truncate">
                         {product.title}
                       </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {product.description}
-                      </p>
+                      <div className="text-sm line-clamp-2">
+                        <FormattedText text={product.description} variant="card" truncate={100} />
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -331,7 +369,7 @@ const Home = () => {
                         </span>
                       </div>
                       <Link
-                        to={`/marketplace/products/${product._id}`}
+                        to={`/marketplace/products/${product.slug || product._id}`}
                         className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-all"
                       >
                         View Details

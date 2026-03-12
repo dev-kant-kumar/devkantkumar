@@ -1,9 +1,9 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 // Create uploads directory if it doesn't exist
-const uploadDir = 'uploads/temp';
+const uploadDir = "uploads/temp";
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -14,22 +14,25 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname),
+    );
+  },
 });
 
 // File filter
 const fileFilter = (req, file, cb) => {
   // Allow all file types for now, but you can restrict based on requirements
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|ppt|pptx|txt|zip|rar|svg|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const allowedExts =
+    /\.(jpe?g|png|gif|svg|webp|pdf|docx?|pptx?|xlsx?|csv|txt|zip|rar|7z|tar|gz|json|xml|md|html?|css|js|ts|jsx|tsx|figma|sketch|ai|eps|psd)$/i;
+  const isAllowedExt = allowedExts.test(path.extname(file.originalname));
 
-  if (mimetype && extname) {
+  if (isAllowedExt) {
     return cb(null, true);
   } else {
-    cb(new Error('Invalid file type'));
+    cb(new Error(`File type not allowed: ${path.extname(file.originalname)}`));
   }
 };
 
@@ -38,7 +41,7 @@ const upload = multer({
   limits: {
     fileSize: 100 * 1024 * 1024, // 100MB limit
   },
-  fileFilter
+  fileFilter,
 });
 
 module.exports = upload;

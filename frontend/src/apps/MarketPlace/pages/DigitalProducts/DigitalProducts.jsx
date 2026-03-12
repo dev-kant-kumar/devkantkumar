@@ -1,35 +1,36 @@
 import { motion } from "framer-motion";
 import {
-    CheckCircle,
-    CreditCard,
-    Download,
-    Filter,
-    Flame,
-    Loader2,
-    Mail,
-    Rocket,
-    Search,
-    ShoppingCart,
-    Star,
+  CheckCircle,
+  CreditCard,
+  Download,
+  Filter,
+  Flame,
+  Loader2,
+  Mail,
+  Rocket,
+  Search,
+  ShoppingCart,
+  Star,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
+import FormattedText from "../../../../components/FormattedText";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
-import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
-import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
 import { useAddToCartMutation } from "../../../../store/cart/cartApi";
 import FAQ from "../../common/components/FAQ";
 import Testimonials from "../../common/components/Testimonials";
 import WhyChooseUs from "../../common/components/WhyChooseUs";
 import WishlistButton from "../../common/components/WishlistButton";
 import EmptyState from "../../common/components/ui/EmptyState";
+import MarketplaceDropdown from "../../common/components/ui/MarketplaceDropdown.jsx";
+import MarketPlaceSEO from "../../components/SEO/MarketPlaceSEO";
 import { useCurrency } from "../../context/CurrencyContext";
 import {
-    useGetProductsQuery,
-    useSubscribeMutation,
+  useGetProductsQuery,
+  useSubscribeMutation,
 } from "../../store/api/marketplaceApi";
 import { selectIsAuthenticated } from "../../store/auth/authSlice";
 import { addToCart } from "../../store/cart/cartSlice";
@@ -499,9 +500,9 @@ const DigitalProducts = ({ category: propCategory }) => {
                         <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
                           {product.title}
                         </h3>
-                        <p className="text-gray-600 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
-                          {product.description}
-                        </p>
+                        <div className="text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
+                          <FormattedText text={product.description} variant="card" truncate={120} />
+                        </div>
 
                         <div className="flex items-center justify-between text-xs text-gray-500 mb-6 pb-6 border-b border-gray-100">
                           <div className="flex items-center">
@@ -554,7 +555,7 @@ const DigitalProducts = ({ category: propCategory }) => {
 
                           <div className="flex items-stretch gap-2">
                             <Link
-                              to={`/marketplace/products/${product._id || product.slug}`}
+                              to={`/marketplace/products/${product.slug || product._id}`}
                               className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-center hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center justify-center"
                             >
                               View Details

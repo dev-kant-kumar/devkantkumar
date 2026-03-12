@@ -1,31 +1,32 @@
 import {
-    Check,
-    ChevronDown,
-    Coins,
-    Eye,
-    FileText,
-    Github,
-    Globe,
-    Image as ImageIcon,
-    Layers,
-    Link as LinkIcon,
-    ListChecks,
-    Loader,
-    Plus,
-    Save,
-    Tag,
-    Trash2,
-    Upload,
-    X,
+  Check,
+  ChevronDown,
+  Coins,
+  Eye,
+  FileText,
+  Github,
+  Globe,
+  Image as ImageIcon,
+  Layers,
+  Link as LinkIcon,
+  ListChecks,
+  Loader,
+  Plus,
+  Save,
+  Tag,
+  Trash2,
+  Upload,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import PremiumButton from "../../../common/components/PremiumButton";
+import DraftBanner from "../../../components/DraftBanner";
+import useAutosave from "../../../hooks/useAutosave";
 import {
-    useUploadFilesMutation,
-    useUploadImageMutation
+  useUploadFilesMutation,
+  useUploadImageMutation,
 } from "../../../store/api/adminApiSlice";
-
 
 const CATEGORIES = [
   { value: "templates", label: "Templates", icon: "📄" },
@@ -38,9 +39,9 @@ const CATEGORIES = [
   { value: "ebooks", label: "Ebooks", icon: "📖" },
 ];
 
-const MAX_DESC_CHARS = 1000;
+const MAX_DESC_CHARS = 5000;
 const MAX_TAGS = 10;
-const MAX_TAG_CHARS = 20;
+const MAX_TAG_CHARS = 50;
 
 const InputField = ({
   label,
@@ -196,6 +197,9 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
   const [uploadFiles, { isLoading: isUploadingFiles }] =
     useUploadFilesMutation();
 
+  const { hasDraft, draftTimestamp, restoreDraft, clearDraft, ignoreDraft } =
+    useAutosave("product-draft", formData, setFormData, initialData);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -267,17 +271,48 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     const MAX_SIZE_MB = 100;
     const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
     const ALLOWED_EXTS = [
+      // Archives
       ".zip",
       ".rar",
+      ".7z",
+      ".tar",
+      ".gz",
+      // Documents
       ".pdf",
+      ".doc",
       ".docx",
+      ".ppt",
       ".pptx",
       ".txt",
+      ".md",
+      // Spreadsheets
+      ".csv",
+      ".xls",
+      ".xlsx",
+      // Data
+      ".json",
+      ".xml",
+      // Images
       ".png",
       ".jpg",
       ".jpeg",
       ".svg",
       ".webp",
+      ".gif",
+      // Code / Web
+      ".html",
+      ".htm",
+      ".css",
+      ".js",
+      ".ts",
+      ".jsx",
+      ".tsx",
+      // Design
+      ".figma",
+      ".sketch",
+      ".ai",
+      ".eps",
+      ".psd",
     ];
 
     const validFiles = [];
@@ -336,9 +371,12 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "description" && value.length > MAX_DESC_CHARS) return;
+    const finalValue =
+      name === "description" && value.length > MAX_DESC_CHARS
+        ? value.slice(0, MAX_DESC_CHARS)
+        : value;
 
-    let newFormData = { ...formData, [name]: value };
+    let newFormData = { ...formData, [name]: finalValue };
 
     setFormData(newFormData);
     if (errors[name]) {
@@ -415,34 +453,56 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       })),
     };
     onSubmit(submissionData);
+    clearDraft();
+  };
+
+  const addTags = (input) => {
+    if (!input.trim()) return;
+
+    const newTags = input
+      .split(",")
+      .map((tag) => tag.trim().slice(0, MAX_TAG_CHARS))
+      .filter((tag) => tag.length > 0)
+      .filter((tag) => !formData.tags.includes(tag));
+
+    if (newTags.length === 0) {
+      setTagInput("");
+      return;
+    }
+
+    const allowed = MAX_TAGS - formData.tags.length;
+    if (allowed <= 0) {
+      toast.error(`Maximum ${MAX_TAGS} tags allowed`);
+      setTagInput("");
+      return;
+    }
+
+    const tagsToAdd = newTags.slice(0, allowed);
+    if (newTags.length > allowed) {
+      toast.error(
+        `Only ${allowed} more tag(s) allowed — extra tags were dropped`,
+      );
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      tags: [...prev.tags, ...tagsToAdd],
+    }));
+    setTagInput("");
   };
 
   const handleTagKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (!tagInput.trim()) return;
+      addTags(tagInput);
+    }
+  };
 
-      const newTags = tagInput
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
-        .filter((tag) => !formData.tags.includes(tag));
-
-      if (newTags.length === 0) {
-        setTagInput("");
-        return;
-      }
-
-      if (formData.tags.length + newTags.length > MAX_TAGS) {
-        toast.error(`Maximum ${MAX_TAGS} tags allowed`);
-        return;
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, ...newTags],
-      }));
-      setTagInput("");
+  const handleTagPaste = (e) => {
+    const pasted = e.clipboardData.getData("text");
+    if (pasted.includes(",")) {
+      e.preventDefault();
+      addTags(tagInput + pasted);
     }
   };
 
@@ -487,6 +547,15 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
+      {/* Autosave Draft Banner */}
+      {hasDraft && (
+        <DraftBanner
+          timestamp={draftTimestamp}
+          onRestore={restoreDraft}
+          onDiscard={ignoreDraft}
+        />
+      )}
+
       {/* 1. Basic Information */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
@@ -589,9 +658,10 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
+              onPaste={handleTagPaste}
               placeholder={
                 formData.tags.length < MAX_TAGS
-                  ? "Type tags separated by comma..."
+                  ? "Type or paste tags separated by comma..."
                   : "Max tags reached"
               }
               disabled={formData.tags.length >= MAX_TAGS}
@@ -599,7 +669,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
             />
           </div>
           <p className="text-xs text-gray-400 mt-1 ml-1">
-            Type tags separated by comma and press Enter
+            Type or paste tags separated by comma — they are added automatically
           </p>
         </div>
       </section>
@@ -709,7 +779,8 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                 value={requirementInput}
                 onChange={(e) => setRequirementInput(e.target.value)}
                 onKeyDown={(e) =>
-                  e.key === "Enter" && (e.preventDefault(), handleAddRequirement())
+                  e.key === "Enter" &&
+                  (e.preventDefault(), handleAddRequirement())
                 }
                 placeholder="Add a requirement (e.g. 'Node.js v14+')"
                 className="flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none text-gray-900 dark:text-white placeholder-gray-400"
@@ -1039,7 +1110,13 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         <PremiumButton
           type="submit"
           disabled={isLoading || isUploading || isUploadingFiles}
-          label={isLoading ? "Saving..." : initialData ? "Save Changes" : "Create Product"}
+          label={
+            isLoading
+              ? "Saving..."
+              : initialData
+                ? "Save Changes"
+                : "Create Product"
+          }
           icon={isLoading ? Loader : Save}
         />
       </div>

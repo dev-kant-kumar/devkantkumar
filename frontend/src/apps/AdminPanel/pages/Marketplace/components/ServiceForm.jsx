@@ -1,26 +1,26 @@
 import {
-    Briefcase,
-    Check,
-    ChevronDown,
-    Image as ImageIcon,
-    IndianRupee,
-    Layers,
-    Loader,
-    Package,
-    Plus,
-    Save,
-    Sparkles,
-    Star,
-    Trash2,
-    Upload,
-    X
+  Briefcase,
+  Check,
+  ChevronDown,
+  Image as ImageIcon,
+  IndianRupee,
+  Layers,
+  Loader,
+  Package,
+  Plus,
+  Save,
+  Sparkles,
+  Star,
+  Trash2,
+  Upload,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import PremiumButton from "../../../common/components/PremiumButton";
-import {
-    useUploadImageMutation
-} from "../../../store/api/adminApiSlice";
+import DraftBanner from "../../../components/DraftBanner";
+import useAutosave from "../../../hooks/useAutosave";
+import { useUploadImageMutation } from "../../../store/api/adminApiSlice";
 import { calculateRegionalPricing } from "../../../utils/currencyConverter";
 
 const CATEGORIES = [
@@ -88,7 +88,14 @@ const InputField = ({
 );
 
 // Premium Custom Dropdown Component
-const CustomDropdown = ({ value, onChange, options, icon: Icon, label, name = "category" }) => {
+const CustomDropdown = ({
+  value,
+  onChange,
+  options,
+  icon: Icon,
+  label,
+  name = "category",
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -186,7 +193,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       discount: 0,
       deliveryTime: "",
       revisions: "unlimited",
-      revisionWindow: { duration: 1, unit: 'years' },
+      revisionWindow: { duration: 1, unit: "years" },
       features: [""],
       isPopular: type === "standard",
       isPopular: type === "standard",
@@ -195,6 +202,9 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
   });
   const [errors, setErrors] = useState({});
   const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
+
+  const { hasDraft, draftTimestamp, restoreDraft, clearDraft, ignoreDraft } =
+    useAutosave("service-draft", formData, setFormData, initialData);
 
   const baseCurrency = "INR";
 
@@ -205,7 +215,10 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         return existing
           ? {
               ...existing,
-              revisionWindow: existing.revisionWindow || { duration: 1, unit: 'years' },
+              revisionWindow: existing.revisionWindow || {
+                duration: 1,
+                unit: "years",
+              },
               features: existing.features?.length ? existing.features : [""],
             }
           : {
@@ -217,7 +230,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
               discount: 0,
               deliveryTime: "",
               revisions: "unlimited",
-              revisionWindow: { duration: 1, unit: 'years' },
+              revisionWindow: { duration: 1, unit: "years" },
               features: [""],
               isPopular: type === "standard",
               regionalPricing: [],
@@ -226,7 +239,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       setFormData({
         ...initialData,
         packages: mergedPackages,
-        requirements: initialData.requirements || []
+        requirements: initialData.requirements || [],
       });
     }
   }, [initialData]);
@@ -286,7 +299,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
 
         if (!isNaN(price) && !isNaN(original) && original > price) {
           updatedPackage.discount = Math.round(
-            ((original - price) / original) * 100
+            ((original - price) / original) * 100,
           );
         } else {
           updatedPackage.discount = 0;
@@ -298,7 +311,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         const basePrice = parseFloat(value);
         if (!isNaN(basePrice)) {
           updatedPackage.regionalPricing = calculateRegionalPricing(
-            basePrice
+            basePrice,
           ).map((rp) => ({
             ...rp,
             discount: updatedPackage.discount || 0,
@@ -310,8 +323,6 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       return { ...prev, packages: newPackages };
     });
   };
-
-
 
   const handleFeatureChange = (pkgIndex, featureIndex, value) => {
     setFormData((prev) => {
@@ -335,7 +346,7 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     setFormData((prev) => {
       const newPackages = [...prev.packages];
       newPackages[pkgIndex].features = newPackages[pkgIndex].features.filter(
-        (_, i) => i !== featureIndex
+        (_, i) => i !== featureIndex,
       );
       return { ...prev, packages: newPackages };
     });
@@ -392,10 +403,20 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
       };
     });
     onSubmit({ ...formData, packages: validPackages });
+    clearDraft();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Autosave Draft Banner */}
+      {hasDraft && (
+        <DraftBanner
+          timestamp={draftTimestamp}
+          onRestore={restoreDraft}
+          onDiscard={ignoreDraft}
+        />
+      )}
+
       {/* 1. Basic Information */}
       <section className="space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-gray-800">
@@ -419,8 +440,8 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                   formData.title.length >= MAX_TITLE_CHARS
                     ? "text-red-500"
                     : formData.title.length >= MAX_TITLE_CHARS * 0.9
-                    ? "text-yellow-500"
-                    : "text-gray-400"
+                      ? "text-yellow-500"
+                      : "text-gray-400"
                 }`}
               >
                 {formData.title.length} / {MAX_TITLE_CHARS}
@@ -470,8 +491,8 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                 formData.description.length >= MAX_DESC_CHARS
                   ? "text-red-500"
                   : formData.description.length >= MAX_DESC_CHARS * 0.9
-                  ? "text-yellow-500"
-                  : "text-gray-400"
+                    ? "text-yellow-500"
+                    : "text-gray-400"
               }`}
             >
               {formData.description.length} / {MAX_DESC_CHARS}
@@ -595,8 +616,8 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                             pkg.isPopular
                               ? "border-blue-500 dark:border-blue-400 shadow-blue-500/10"
                               : errors.packages?.[index]
-                              ? "border-red-300 dark:border-red-800"
-                              : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600"
+                                ? "border-red-300 dark:border-red-800"
+                                : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600"
                           }`}
             >
               {pkg.isPopular && (
@@ -611,8 +632,8 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                     pkg.name === "basic"
                       ? "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
                       : pkg.name === "standard"
-                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                      : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                        : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
                   }`}
                 >
                   <Sparkles size={20} />
@@ -670,7 +691,11 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                       type="number"
                       value={pkg.deliveryTime}
                       onChange={(e) =>
-                        handlePackageChange(index, "deliveryTime", e.target.value)
+                        handlePackageChange(
+                          index,
+                          "deliveryTime",
+                          e.target.value,
+                        )
                       }
                       className={`w-full mt-1.5 px-3 py-2.5 text-sm rounded-lg border bg-gray-50 dark:bg-gray-700/50 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
                         errors.packages?.[index]?.deliveryTime
@@ -689,17 +714,19 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
                       type="number"
                       value={pkg.revisions === -1 ? "" : pkg.revisions}
                       onChange={(e) =>
-                         handlePackageChange(
+                        handlePackageChange(
                           index,
                           "revisions",
-                          e.target.value === "" ? -1 : Number(e.target.value)
+                          e.target.value === "" ? -1 : Number(e.target.value),
                         )
                       }
                       className="w-full mt-1.5 px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-900 dark:text-white"
                       min="-1"
                       placeholder="Optional"
                     />
-                    <p className="text-[10px] text-gray-400 mt-1">Empty = Unlimited</p>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      Empty = Unlimited
+                    </p>
                   </div>
                 </div>
 
@@ -824,7 +851,13 @@ const ServiceForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
         <PremiumButton
           type="submit"
           disabled={isLoading || isUploading}
-          label={isLoading ? "Saving..." : initialData ? "Save Changes" : "Create Service"}
+          label={
+            isLoading
+              ? "Saving..."
+              : initialData
+                ? "Save Changes"
+                : "Create Service"
+          }
           icon={isLoading ? Loader : Save}
         />
       </div>

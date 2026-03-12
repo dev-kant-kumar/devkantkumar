@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import {
   AlertCircle,
   Heart,
@@ -7,20 +7,20 @@ import {
   RefreshCw,
   ShoppingCart,
   Trash2,
-} from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import PriceDisplay from '../../../../components/common/PriceDisplay';
-import { useAddToCartMutation } from '../../../../store/cart/cartApi';
-import { useCurrency } from '../../context/CurrencyContext';
-import { selectIsAuthenticated } from '../../store/auth/authSlice';
-import { addToCart } from '../../store/cart/cartSlice';
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import PriceDisplay from "../../../../components/common/PriceDisplay";
+import { useAddToCartMutation } from "../../../../store/cart/cartApi";
+import RecommendationSection from "../../common/components/RecommendationSection";
+import { useCurrency } from "../../context/CurrencyContext";
+import { selectIsAuthenticated } from "../../store/auth/authSlice";
+import { addToCart } from "../../store/cart/cartSlice";
 import {
   useGetWishlistQuery,
   useRemoveFromWishlistMutation,
-} from '../../store/wishlist/wishlistApi';
-import RecommendationSection from '../../common/components/RecommendationSection';
+} from "../../store/wishlist/wishlistApi";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
@@ -46,9 +46,9 @@ const Wishlist = () => {
   const handleRemove = async (itemId, type) => {
     try {
       await removeFromWishlist({ itemId, type }).unwrap();
-      toast.success('Removed from wishlist');
+      toast.success("Removed from wishlist");
     } catch {
-      toast.error('Failed to remove item');
+      toast.error("Failed to remove item");
     }
   };
 
@@ -56,16 +56,16 @@ const Wishlist = () => {
     if (isAuthenticated) {
       try {
         await addToCartApi({ productId: product._id, quantity: 1 }).unwrap();
-        toast.success('Added to cart!');
+        toast.success("Added to cart!");
       } catch (err) {
-        toast.error(err?.data?.message || 'Failed to add to cart');
+        toast.error(err?.data?.message || "Failed to add to cart");
       }
     } else {
       dispatch(
         addToCart({
           id: product._id,
           itemId: product._id,
-          itemType: 'product',
+          itemType: "product",
           title: product.title,
           price: product.price,
           originalPrice: product.originalPrice,
@@ -73,9 +73,9 @@ const Wishlist = () => {
           regionalPricing: product.regionalPricing,
           image: product.images?.[0]?.url,
           quantity: 1,
-        })
+        }),
       );
-      toast.success('Added to cart!');
+      toast.success("Added to cart!");
     }
   };
 
@@ -90,16 +90,16 @@ const Wishlist = () => {
           quantity: 1,
           package: pkg.name,
         }).unwrap();
-        toast.success('Added to cart!');
+        toast.success("Added to cart!");
       } catch (err) {
-        toast.error(err?.data?.message || 'Failed to add to cart');
+        toast.error(err?.data?.message || "Failed to add to cart");
       }
     } else {
       dispatch(
         addToCart({
           id: `${service._id}-${pkg.name}`,
           itemId: service._id,
-          itemType: 'service',
+          itemType: "service",
           title: `${service.title} - ${pkg.name}`,
           price: pkg.price,
           originalPrice: pkg.originalPrice,
@@ -110,9 +110,9 @@ const Wishlist = () => {
           package: pkg.name,
           packageName: pkg.name,
           deliveryTime: pkg.deliveryTime,
-        })
+        }),
       );
-      toast.success('Added to cart!');
+      toast.success("Added to cart!");
     }
   };
 
@@ -211,7 +211,7 @@ const Wishlist = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Wishlist</h1>
           <p className="mt-1 text-sm text-gray-500">
-            {totalItems} saved item{totalItems !== 1 ? 's' : ''}
+            {totalItems} saved item{totalItems !== 1 ? "s" : ""}
           </p>
         </div>
       </div>
@@ -288,17 +288,16 @@ const WishlistCard = ({
   getPrice,
 }) => {
   const detailPath =
-    type === 'product'
-      ? `/marketplace/products/${item._id}`
-      : `/marketplace/services/${item._id}`;
+    type === "product"
+      ? `/marketplace/products/${item.slug || item._id}`
+      : `/marketplace/services/${item.slug || item._id}`;
 
   const image = item.images?.[0]?.url;
 
   // Get price for display
-  const priceData = getPrice(
-    type === 'service' ? item.packages?.[0] : item
-  );
-  const displayPrice = priceData?.convertedPrice ?? item.price ?? item.packages?.[0]?.price;
+  const priceData = getPrice(type === "service" ? item.packages?.[0] : item);
+  const displayPrice =
+    priceData?.convertedPrice ?? item.price ?? item.packages?.[0]?.price;
   const originalPrice =
     priceData?.convertedOriginalPrice ??
     item.originalPrice ??

@@ -97,23 +97,27 @@ const serviceSchema = new mongoose.Schema(
         },
         revisionWindow: {
           duration: { type: Number, default: 3 },
-          unit: { type: String, enum: ['days', 'weeks', 'months', 'years'], default: 'days' }
+          unit: {
+            type: String,
+            enum: ["days", "weeks", "months", "years"],
+            default: "days",
+          },
         },
         nda_required: {
           type: Boolean,
-          default: false
+          default: false,
         },
         sow_required: {
           type: Boolean,
-          default: false
+          default: false,
         },
         ip_transfer_required: {
           type: Boolean,
-          default: false
+          default: false,
         },
         legal_sign_required: {
           type: Boolean,
-          default: false
+          default: false,
         },
         features: [
           {
@@ -267,14 +271,14 @@ const serviceSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 // Virtual populate for reviews
-serviceSchema.virtual('confirmReviews', {
-  ref: 'Review',
-  foreignField: 'service',
-  localField: '_id'
+serviceSchema.virtual("confirmReviews", {
+  ref: "Review",
+  foreignField: "service",
+  localField: "_id",
 });
 
 // Virtual for starting price
@@ -301,10 +305,22 @@ serviceSchema.index({ createdAt: -1 });
 serviceSchema.index({ isFeatured: 1, isActive: 1 });
 serviceSchema.index({ title: "text", description: "text", tags: "text" });
 
-// Pre-save middleware to generate slug
-serviceSchema.pre("save", function (next) {
+// Pre-save middleware to generate unique slug
+serviceSchema.pre("save", async function (next) {
   if (this.isModified("title")) {
-    this.slug = generateSlug(this.title);
+    let baseSlug = generateSlug(this.title);
+    let slug = baseSlug;
+    let counter = 1;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const existing = await mongoose
+        .model("Service")
+        .findOne({ slug, _id: { $ne: this._id } });
+      if (!existing) break;
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    this.slug = slug;
   }
   next();
 });
@@ -312,10 +328,12 @@ serviceSchema.pre("save", function (next) {
 // Pre-save middleware to auto-calculate discount percentage for packages
 serviceSchema.pre("save", function (next) {
   if (this.packages && this.packages.length > 0) {
-    this.packages.forEach(pkg => {
+    this.packages.forEach((pkg) => {
       // If both originalPrice and price are set, calculate discount percentage
       if (pkg.originalPrice && pkg.price && pkg.originalPrice > pkg.price) {
-        pkg.discount = Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100);
+        pkg.discount = Math.round(
+          ((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100,
+        );
       }
     });
   }

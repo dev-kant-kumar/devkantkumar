@@ -1,37 +1,46 @@
-import { motion } from 'framer-motion';
-import { AlertCircle, Flame, Loader2, Package, ShoppingCart, Sparkles, Star, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useCurrency } from '../../context/CurrencyContext';
+import { motion } from "framer-motion";
+import {
+  AlertCircle,
+  Flame,
+  Loader2,
+  Package,
+  ShoppingCart,
+  Sparkles,
+  Star,
+  TrendingUp,
+} from "lucide-react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { useCurrency } from "../../context/CurrencyContext";
 import {
   useGetPersonalizedRecommendationsQuery,
   useGetRelatedProductsQuery,
   useGetTrendingQuery,
-} from '../../store/api/marketplaceApi';
-import { selectIsAuthenticated } from '../../store/auth/authSlice';
-import WishlistButton from './WishlistButton';
+} from "../../store/api/marketplaceApi";
+import { selectIsAuthenticated } from "../../store/auth/authSlice";
+import WishlistButton from "./WishlistButton";
 
 /**
  * Renders a single product/service card in the recommendations grid.
  */
-const RecommendationCard = ({ item, type = 'product' }) => {
+const RecommendationCard = ({ item, type = "product" }) => {
   const { formatPrice } = useCurrency();
 
   const href =
-    type === 'service'
-      ? `/marketplace/services/${item._id}`
-      : `/marketplace/products/${item._id}`;
+    type === "service"
+      ? `/marketplace/services/${item.slug || item._id}`
+      : `/marketplace/products/${item.slug || item._id}`;
 
   const displayPrice =
-    type === 'service'
-      ? item.packages?.[0]?.price ?? null
-      : item.price ?? null;
+    type === "service"
+      ? (item.packages?.[0]?.price ?? null)
+      : (item.price ?? null);
 
   const originalPrice =
-    type === 'service' ? item.packages?.[0]?.originalPrice : item.originalPrice;
+    type === "service" ? item.packages?.[0]?.originalPrice : item.originalPrice;
 
   const discount =
-    type === 'service' ? item.packages?.[0]?.discount : item.discount;
+    type === "service" ? item.packages?.[0]?.discount : item.discount;
 
   const image = item.images?.[0]?.url;
 
@@ -44,7 +53,10 @@ const RecommendationCard = ({ item, type = 'product' }) => {
       className="group relative bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
     >
       {/* Thumbnail */}
-      <Link to={href} className="block overflow-hidden aspect-video bg-gray-100">
+      <Link
+        to={href}
+        className="block overflow-hidden aspect-video bg-gray-100"
+      >
         {image ? (
           <img
             src={image}
@@ -88,7 +100,9 @@ const RecommendationCard = ({ item, type = 'product' }) => {
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             <span className="text-xs text-gray-600 font-medium">
               {item.rating.average.toFixed(1)}
-              <span className="text-gray-400 font-normal ml-0.5">({item.rating.count})</span>
+              <span className="text-gray-400 font-normal ml-0.5">
+                ({item.rating.count})
+              </span>
             </span>
           </div>
         )}
@@ -142,16 +156,17 @@ const SectionHeader = ({ icon: Icon, title, subtitle }) => (
  * @param {string}  [className]  - additional wrapper classes
  */
 const RecommendationSection = ({
-  mode = 'trending',
+  mode = "trending",
   productId,
   type,
   limit = 6,
-  className = '',
+  className = "",
 }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   // When mode="personalized" but user is not authenticated, fall through to trending
-  const effectiveMode = (mode === 'personalized' && !isAuthenticated) ? 'trending' : mode;
+  const effectiveMode =
+    mode === "personalized" && !isAuthenticated ? "trending" : mode;
 
   // ── Related ──────────────────────────────────────────────────────────────
   const {
@@ -160,7 +175,7 @@ const RecommendationSection = ({
     isError: relatedError,
   } = useGetRelatedProductsQuery(
     { productId, limit },
-    { skip: effectiveMode !== 'related' || !productId },
+    { skip: effectiveMode !== "related" || !productId },
   );
 
   // ── Trending ─────────────────────────────────────────────────────────────
@@ -170,7 +185,7 @@ const RecommendationSection = ({
     isError: trendingError,
   } = useGetTrendingQuery(
     { type, limit },
-    { skip: effectiveMode !== 'trending' },
+    { skip: effectiveMode !== "trending" },
   );
 
   // ── Personalized ─────────────────────────────────────────────────────────
@@ -180,7 +195,7 @@ const RecommendationSection = ({
     isError: personalizedError,
   } = useGetPersonalizedRecommendationsQuery(
     { limit },
-    { skip: effectiveMode !== 'personalized' },
+    { skip: effectiveMode !== "personalized" },
   );
 
   // ─── Resolve data based on effective mode ────────────────────────────────
@@ -191,12 +206,12 @@ const RecommendationSection = ({
   let services = [];
   let isPersonalized = false;
 
-  if (effectiveMode === 'related') {
+  if (effectiveMode === "related") {
     products = relatedData?.related || [];
-  } else if (effectiveMode === 'trending') {
+  } else if (effectiveMode === "trending") {
     products = trendingData?.products || [];
     services = trendingData?.services || [];
-  } else if (effectiveMode === 'personalized') {
+  } else if (effectiveMode === "personalized") {
     products = personalizedData?.products || [];
     services = personalizedData?.services || [];
     isPersonalized = personalizedData?.isPersonalized ?? false;
@@ -206,33 +221,35 @@ const RecommendationSection = ({
 
   // For "related" mode: silently hide when there are no similar products — cleaner UX
   // on product detail pages that haven't built up enough inventory yet.
-  if (!isLoading && !hasContent && !isError && effectiveMode === 'related') return null;
+  if (!isLoading && !hasContent && !isError && effectiveMode === "related")
+    return null;
 
   // ─── Section meta ────────────────────────────────────────────────────────
   const meta = {
     related: {
       icon: Sparkles,
-      title: 'You May Also Like',
-      subtitle: 'Similar products in the same category',
-      loadingText: 'Loading similar products…',
+      title: "You May Also Like",
+      subtitle: "Similar products in the same category",
+      loadingText: "Loading similar products…",
     },
     trending: {
       icon: TrendingUp,
-      title: 'Trending Now',
-      subtitle: 'Most popular products and services this week',
-      loadingText: 'Loading trending items…',
+      title: "Trending Now",
+      subtitle: "Most popular products and services this week",
+      loadingText: "Loading trending items…",
     },
     personalized: {
       icon: isPersonalized ? Sparkles : Flame,
-      title: isPersonalized ? 'Recommended for You' : 'Top Picks',
+      title: isPersonalized ? "Recommended for You" : "Top Picks",
       subtitle: isPersonalized
-        ? 'Based on your purchase history and wishlist'
-        : 'Handpicked products and services',
-      loadingText: 'Loading your recommendations…',
+        ? "Based on your purchase history and wishlist"
+        : "Handpicked products and services",
+      loadingText: "Loading your recommendations…",
     },
   };
 
-  const { icon, title, subtitle, loadingText } = meta[effectiveMode] || meta.trending;
+  const { icon, title, subtitle, loadingText } =
+    meta[effectiveMode] || meta.trending;
 
   return (
     <section className={`py-10 ${className}`}>
@@ -246,7 +263,9 @@ const RecommendationSection = ({
       ) : isError ? (
         <div className="flex items-center justify-center py-10 text-gray-400 gap-2">
           <AlertCircle className="h-5 w-5 text-gray-300" />
-          <span className="text-sm">Recommendations unavailable right now.</span>
+          <span className="text-sm">
+            Recommendations unavailable right now.
+          </span>
         </div>
       ) : !hasContent ? (
         /* ── Empty state: brand-new store / no data yet ───────────────────── */
@@ -260,14 +279,14 @@ const RecommendationSection = ({
           </div>
           <div>
             <p className="text-gray-700 font-semibold">
-              {effectiveMode === 'personalized'
-                ? 'No recommendations yet'
-                : 'Nothing trending yet'}
+              {effectiveMode === "personalized"
+                ? "No recommendations yet"
+                : "Nothing trending yet"}
             </p>
             <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
-              {effectiveMode === 'personalized'
-                ? 'Start exploring products and services — your personalized picks will appear here.'
-                : 'Be the first to discover our products and services as they launch.'}
+              {effectiveMode === "personalized"
+                ? "Start exploring products and services — your personalized picks will appear here."
+                : "Be the first to discover our products and services as they launch."}
             </p>
           </div>
           <div className="flex flex-wrap gap-3 justify-center mt-1">
@@ -290,14 +309,20 @@ const RecommendationSection = ({
           {/* Products grid */}
           {products.length > 0 && (
             <>
-              {(effectiveMode === 'trending' || effectiveMode === 'personalized') && services.length > 0 && (
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                  Digital Products
-                </h3>
-              )}
+              {(effectiveMode === "trending" ||
+                effectiveMode === "personalized") &&
+                services.length > 0 && (
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    Digital Products
+                  </h3>
+                )}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
                 {products.map((product) => (
-                  <RecommendationCard key={product._id} item={product} type="product" />
+                  <RecommendationCard
+                    key={product._id}
+                    item={product}
+                    type="product"
+                  />
                 ))}
               </div>
             </>
@@ -306,14 +331,20 @@ const RecommendationSection = ({
           {/* Services grid */}
           {services.length > 0 && (
             <>
-              {(effectiveMode === 'trending' || effectiveMode === 'personalized') && products.length > 0 && (
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">
-                  Services
-                </h3>
-              )}
+              {(effectiveMode === "trending" ||
+                effectiveMode === "personalized") &&
+                products.length > 0 && (
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">
+                    Services
+                  </h3>
+                )}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {services.map((service) => (
-                  <RecommendationCard key={service._id} item={service} type="service" />
+                  <RecommendationCard
+                    key={service._id}
+                    item={service}
+                    type="service"
+                  />
                 ))}
               </div>
             </>
