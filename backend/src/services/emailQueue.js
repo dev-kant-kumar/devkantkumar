@@ -37,15 +37,10 @@ const emailQueue = new Queue("email-queue", {
       delay: 1000,
     },
     removeOnComplete: true,
-<<<<<<< HEAD
-    removeOnFail: 100,
-  },
-=======
     // Keep failed jobs for 1 hour so they can be inspected for debugging,
     // then auto-remove to avoid unbounded queue growth.
-    removeOnFail: { age: 3600 }
-  }
->>>>>>> 9cd4d47f2002e53299022fb1e749ef95f1dd2fde
+    removeOnFail: { age: 3600 },
+  },
 });
 
 // --- Helper for Brevo API ---
@@ -319,11 +314,14 @@ const addEmailToQueue = async (options) => {
       // all tags so the preview is human-readable without exposing raw markup.
       // Uses ?? so an explicit empty-string options.text is preserved rather
       // than falling through to the HTML branch.
-      const rawPreview = options.text ?? (
-        options.html
-          ? options.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-          : ''
-      );
+      const rawPreview =
+        options.text ??
+        (options.html
+          ? options.html
+              .replace(/<[^>]*>/g, " ")
+              .replace(/\s+/g, " ")
+              .trim()
+          : "");
 
       await EmailLog.create({
         to: options.to,
@@ -333,13 +331,8 @@ const addEmailToQueue = async (options) => {
         status: "pending",
         jobId: job.id.toString(),
         queuedAt: new Date(),
-<<<<<<< HEAD
-        htmlPreview: options.html ? options.html.substring(0, 500) : "",
-        metadata: options.metadata || {},
-=======
         htmlPreview: rawPreview.substring(0, 500),
-        metadata: options.metadata || {}
->>>>>>> 9cd4d47f2002e53299022fb1e749ef95f1dd2fde
+        metadata: options.metadata || {},
       });
     } catch (logError) {
       logger.error(`Failed to create email log: ${logError.message}`);
