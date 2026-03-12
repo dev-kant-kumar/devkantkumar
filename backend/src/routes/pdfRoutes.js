@@ -4,10 +4,11 @@ const path = require("path");
 
 const router = express.Router();
 
-// Allowlist of permitted hostnames for PDF generation (prevents SSRF)
+// Allowlist of permitted hostnames for PDF generation (prevents SSRF).
+// NOTE: By default, localhost and other internal hosts are NOT allowed.
 const ALLOWED_PDF_HOSTNAMES = process.env.PDF_ALLOWED_HOSTNAMES
   ? process.env.PDF_ALLOWED_HOSTNAMES.split(",").map((h) => h.trim().toLowerCase())
-  : ["devkantkumar.com", "www.devkantkumar.com", "localhost", "127.0.0.1"];
+  : ["devkantkumar.com", "www.devkantkumar.com"];
 
 router.get("/", async (req, res) => {
   const { url } = req.query;
@@ -29,6 +30,18 @@ router.get("/", async (req, res) => {
       return res.status(400).json({ message: "Invalid URL scheme" });
     }
     const hostname = parsedUrl.hostname.toLowerCase();
+
+    // Reject obvious localhost/loopback hosts even if misconfigured in the allowlist
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname.startsWith("127.")
+    ) {
+      return res
+        .status(400)
+        .json({ message: "URL hostname is not permitted" });
+    }
 
     // Only allow requests to explicitly permitted hostnames
     if (!ALLOWED_PDF_HOSTNAMES.includes(hostname)) {
