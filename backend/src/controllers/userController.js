@@ -1,26 +1,26 @@
-const User = require('../models/User');
-const Order = require('../models/Order');
-const logger = require('../utils/logger');
-const { validationResult } = require('express-validator');
+const User = require("../models/User");
+const Order = require("../models/Order");
+const logger = require("../utils/logger");
+const { validationResult } = require("express-validator");
 
 // Get user profile (public)
 const getUserProfile = async (req, res) => {
   try {
     // Exclude all sensitive / internal fields from the public profile response
     const user = await User.findById(req.params.userId).select(
-      '-password -refreshToken -emailVerificationToken -emailVerificationExpires ' +
-      '-passwordResetToken -passwordResetExpires -twoFactorSecret ' +
-      '-emailChangeOTP -emailChangeOTPExpires -tempNewEmail ' +
-      '-passwordChangeOTP -passwordChangeOTPExpires -tempNewPassword ' +
-      '-loginAttempts -lockUntil'
+      "-password -refreshToken -emailVerificationToken -emailVerificationExpires " +
+        "-passwordResetToken -passwordResetExpires -twoFactorSecret " +
+        "-emailChangeOTP -emailChangeOTPExpires -tempNewEmail " +
+        "-passwordChangeOTP -passwordChangeOTPExpires -tempNewPassword " +
+        "-loginAttempts -lockUntil",
     );
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
     res.json(user);
   } catch (error) {
-    logger.error('Get user profile error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get user profile error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -34,21 +34,21 @@ const getDashboard = async (req, res) => {
     const recentOrders = await Order.find({ user: userId })
       .sort({ createdAt: -1 })
       .limit(5)
-      .populate('items.product items.service');
+      .populate("items.product items.service");
 
     const dashboardData = {
       user: req.user,
       stats: {
         totalOrders,
-        totalSpent: recentOrders.reduce((sum, order) => sum + order.total, 0)
+        totalSpent: recentOrders.reduce((sum, order) => sum + order.total, 0),
       },
-      recentOrders
+      recentOrders,
     };
 
     res.json(dashboardData);
   } catch (error) {
-    logger.error('Get dashboard error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get dashboard error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -66,13 +66,13 @@ const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { firstName, lastName, phone, address },
-      { new: true, runValidators: true }
-    ).select('-password -refreshToken');
+      { new: true, runValidators: true },
+    ).select("-password -refreshToken");
 
     res.json(user);
   } catch (error) {
-    logger.error('Update profile error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Update profile error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -87,7 +87,7 @@ const getUserOrders = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('items.product items.service');
+      .populate("items.product items.service");
 
     const total = await Order.countDocuments({ user: req.user.id });
 
@@ -97,12 +97,12 @@ const getUserOrders = async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    logger.error('Get user orders error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get user orders error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -111,18 +111,18 @@ const getUserDownloads = async (req, res) => {
   try {
     const orders = await Order.find({
       user: req.user.id,
-      status: 'completed'
-    }).populate('items.product items.service');
+      status: "completed",
+    }).populate("items.product items.service");
 
     const downloads = [];
-    orders.forEach(order => {
-      order.items.forEach(item => {
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
         if (item.product && item.product.downloadUrl) {
           downloads.push({
             id: item.product._id,
             name: item.product.name,
             downloadUrl: item.product.downloadUrl,
-            purchaseDate: order.createdAt
+            purchaseDate: order.createdAt,
           });
         }
       });
@@ -130,24 +130,27 @@ const getUserDownloads = async (req, res) => {
 
     res.json(downloads);
   } catch (error) {
-    logger.error('Get user downloads error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get user downloads error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 // Get user favorites
 const getFavorites = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate('marketplace.favoriteProducts marketplace.favoriteServices');
+    const user = await User.findById(req.user.id).populate(
+      "marketplace.favoriteProducts marketplace.favoriteServices",
+    );
 
-    const products = (user && user.marketplace && user.marketplace.favoriteProducts) || [];
-    const services = (user && user.marketplace && user.marketplace.favoriteServices) || [];
+    const products =
+      (user && user.marketplace && user.marketplace.favoriteProducts) || [];
+    const services =
+      (user && user.marketplace && user.marketplace.favoriteServices) || [];
 
     res.json({ products, services });
   } catch (error) {
-    logger.error('Get favorites error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get favorites error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -159,20 +162,28 @@ const addToFavorites = async (req, res) => {
 
     const user = await User.findById(req.user.id);
     if (!user.marketplace) {
-      user.marketplace = { favoriteProducts: [], favoriteServices: [], totalOrders: 0, totalSpent: 0 };
+      user.marketplace = {
+        favoriteProducts: [],
+        favoriteServices: [],
+        totalOrders: 0,
+        totalSpent: 0,
+      };
     }
 
-    const favoriteArray = type === 'product' ? user.marketplace.favoriteProducts : user.marketplace.favoriteServices;
+    const favoriteArray =
+      type === "product"
+        ? user.marketplace.favoriteProducts
+        : user.marketplace.favoriteServices;
 
     if (!favoriteArray.map(String).includes(String(itemId))) {
       favoriteArray.push(itemId);
       await user.save();
     }
 
-    res.json({ message: 'Added to favorites' });
+    res.json({ message: "Added to favorites" });
   } catch (error) {
-    logger.error('Add to favorites error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Add to favorites error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -184,10 +195,13 @@ const removeFromFavorites = async (req, res) => {
 
     const user = await User.findById(req.user.id);
     if (!user.marketplace) {
-      return res.status(404).json({ message: 'No favorites found' });
+      return res.status(404).json({ message: "No favorites found" });
     }
 
-    const favoriteArray = type === 'product' ? user.marketplace.favoriteProducts : user.marketplace.favoriteServices;
+    const favoriteArray =
+      type === "product"
+        ? user.marketplace.favoriteProducts
+        : user.marketplace.favoriteServices;
     const index = favoriteArray.map(String).indexOf(String(itemId));
 
     if (index > -1) {
@@ -195,10 +209,10 @@ const removeFromFavorites = async (req, res) => {
       await user.save();
     }
 
-    res.json({ message: 'Removed from favorites' });
+    res.json({ message: "Removed from favorites" });
   } catch (error) {
-    logger.error('Remove from favorites error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Remove from favorites error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -210,7 +224,7 @@ const getAllUsers = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const users = await User.find()
-      .select('-password -refreshToken')
+      .select("-password -refreshToken")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -223,12 +237,12 @@ const getAllUsers = async (req, res) => {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    logger.error('Get all users error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Get all users error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -241,17 +255,17 @@ const updateUserStatus = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { status },
-      { new: true }
-    ).select('-password -refreshToken');
+      { new: true },
+    ).select("-password -refreshToken");
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json(user);
   } catch (error) {
-    logger.error('Update user status error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Update user status error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -267,16 +281,16 @@ const deleteMe = async (req, res) => {
     if (!password) {
       return res.status(400).json({
         success: false,
-        message: 'Password is required to delete your account'
+        message: "Password is required to delete your account",
       });
     }
 
     // Get user with password
-    const user = await User.findById(userId).select('+password');
+    const user = await User.findById(userId).select("+password");
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -285,7 +299,8 @@ const deleteMe = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid password. Please enter your correct password to confirm account deletion.'
+        message:
+          "Invalid password. Please enter your correct password to confirm account deletion.",
       });
     }
 
@@ -297,35 +312,37 @@ const deleteMe = async (req, res) => {
     user.isActive = false;
     user.deactivatedAt = new Date();
     user.scheduledDeletionAt = scheduledDeletionAt;
-    user.accountDeletionReason = reason || 'User requested account deletion';
+    user.accountDeletionReason = reason || "User requested account deletion";
     await user.save();
 
     // Send deactivation confirmation email
     try {
-      const emailService = require('../services/emailService');
+      const emailService = require("../services/emailService");
       await emailService.sendAccountDeactivationEmail(
         user.email,
         user.firstName,
-        scheduledDeletionAt
+        scheduledDeletionAt,
       );
     } catch (emailError) {
-      logger.error('Failed to send account deactivation email:', emailError);
+      logger.error("Failed to send account deactivation email:", emailError);
       // Don't fail the deletion if email fails
     }
 
-    logger.info(`Account deactivated for user: ${user.email} - Scheduled deletion: ${scheduledDeletionAt.toISOString()}`);
+    logger.info(
+      `Account deactivated for user: ${user.email} - Scheduled deletion: ${scheduledDeletionAt.toISOString()}`,
+    );
 
     res.json({
       success: true,
-      message: 'Account deactivated successfully',
+      message: "Account deactivated successfully",
       scheduledDeletionAt: scheduledDeletionAt.toISOString(),
-      gracePeriodDays: 30
+      gracePeriodDays: 30,
     });
   } catch (error) {
-    logger.error('Delete self error:', error);
+    logger.error("Delete self error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: "Server error",
     });
   }
 };
@@ -340,7 +357,7 @@ const reactivateAccount = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email and password are required'
+        message: "Email and password are required",
       });
     }
 
@@ -348,13 +365,14 @@ const reactivateAccount = async (req, res) => {
     const user = await User.findOne({
       email: email.toLowerCase(),
       isActive: false,
-      scheduledDeletionAt: { $gt: new Date() } // Still within grace period
-    }).select('+password');
+      scheduledDeletionAt: { $gt: new Date() }, // Still within grace period
+    }).select("+password");
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'No deactivated account found with this email or grace period has expired'
+        message:
+          "No deactivated account found with this email or grace period has expired",
       });
     }
 
@@ -363,7 +381,7 @@ const reactivateAccount = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid password'
+        message: "Invalid password",
       });
     }
 
@@ -376,23 +394,26 @@ const reactivateAccount = async (req, res) => {
 
     // Send reactivation confirmation email
     try {
-      const emailService = require('../services/emailService');
-      await emailService.sendAccountReactivationEmail(user.email, user.firstName);
+      const emailService = require("../services/emailService");
+      await emailService.sendAccountReactivationEmail(
+        user.email,
+        user.firstName,
+      );
     } catch (emailError) {
-      logger.error('Failed to send account reactivation email:', emailError);
+      logger.error("Failed to send account reactivation email:", emailError);
     }
 
     logger.info(`Account reactivated for user: ${user.email}`);
 
     res.json({
       success: true,
-      message: 'Account reactivated successfully! You can now sign in.'
+      message: "Account reactivated successfully! You can now sign in.",
     });
   } catch (error) {
-    logger.error('Reactivate account error:', error);
+    logger.error("Reactivate account error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error'
+      message: "Server error",
     });
   }
 };
@@ -400,11 +421,14 @@ const reactivateAccount = async (req, res) => {
 // Add address
 const addAddress = async (req, res) => {
   try {
-    const { street, city, state, zipCode, country, isDefault, addressType } = req.body;
+    const { street, city, state, zipCode, country, isDefault, addressType } =
+      req.body;
 
     // Basic validation
     if (!street || !city || !state || !zipCode || !country) {
-      return res.status(400).json({ message: 'Please fill in all address fields' });
+      return res
+        .status(400)
+        .json({ message: "Please fill in all address fields" });
     }
 
     const user = await User.findById(req.user.id);
@@ -416,12 +440,12 @@ const addAddress = async (req, res) => {
       zipCode,
       country,
       isDefault: isDefault || false,
-      addressType: addressType || 'shipping'
+      addressType: addressType || "shipping",
     };
 
     // If setting as default, unset other defaults of same type
     if (newAddress.isDefault) {
-      user.addresses.forEach(addr => {
+      user.addresses.forEach((addr) => {
         if (addr.addressType === newAddress.addressType) {
           addr.isDefault = false;
         }
@@ -437,12 +461,12 @@ const addAddress = async (req, res) => {
     await user.save();
 
     res.json({
-      message: 'Address added successfully',
-      addresses: user.addresses
+      message: "Address added successfully",
+      addresses: user.addresses,
     });
   } catch (error) {
-    logger.error('Add address error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Add address error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -450,13 +474,14 @@ const addAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
   try {
     const { addressId } = req.params;
-    const { street, city, state, zipCode, country, isDefault, addressType } = req.body;
+    const { street, city, state, zipCode, country, isDefault, addressType } =
+      req.body;
 
     const user = await User.findById(req.user.id);
     const address = user.addresses.id(addressId);
 
     if (!address) {
-      return res.status(404).json({ message: 'Address not found' });
+      return res.status(404).json({ message: "Address not found" });
     }
 
     // Update fields if provided
@@ -470,8 +495,11 @@ const updateAddress = async (req, res) => {
     // Handle default status change
     if (isDefault !== undefined && isDefault === true) {
       // Unset other defaults of same type
-      user.addresses.forEach(addr => {
-        if (addr._id.toString() !== addressId && addr.addressType === address.addressType) {
+      user.addresses.forEach((addr) => {
+        if (
+          addr._id.toString() !== addressId &&
+          addr.addressType === address.addressType
+        ) {
           addr.isDefault = false;
         }
       });
@@ -481,12 +509,12 @@ const updateAddress = async (req, res) => {
     await user.save();
 
     res.json({
-      message: 'Address updated successfully',
-      addresses: user.addresses
+      message: "Address updated successfully",
+      addresses: user.addresses,
     });
   } catch (error) {
-    logger.error('Update address error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Update address error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -499,22 +527,24 @@ const deleteAddress = async (req, res) => {
 
     // Filter out the address to delete
     // Note: mongoose pull is safer than filter for subdocs usually, but filter works too
-    const addressIndex = user.addresses.findIndex(addr => addr._id.toString() === addressId);
+    const addressIndex = user.addresses.findIndex(
+      (addr) => addr._id.toString() === addressId,
+    );
 
     if (addressIndex === -1) {
-      return res.status(404).json({ message: 'Address not found' });
+      return res.status(404).json({ message: "Address not found" });
     }
 
     user.addresses.splice(addressIndex, 1);
     await user.save();
 
     res.json({
-      message: 'Address deleted successfully',
-      addresses: user.addresses
+      message: "Address deleted successfully",
+      addresses: user.addresses,
     });
   } catch (error) {
-    logger.error('Delete address error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Delete address error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -525,13 +555,13 @@ const deleteUser = async (req, res) => {
 
     const user = await User.findByIdAndDelete(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.json({ message: 'User deleted successfully' });
+    res.json({ message: "User deleted successfully" });
   } catch (error) {
-    logger.error('Delete user error:', error);
-    res.status(500).json({ message: 'Server error' });
+    logger.error("Delete user error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -551,5 +581,5 @@ module.exports = {
   reactivateAccount,
   addAddress,
   updateAddress,
-  deleteAddress
+  deleteAddress,
 };
