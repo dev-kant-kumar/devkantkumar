@@ -1,12 +1,41 @@
 # robots.txt for devkantkumar.com
-# Updated: 2026-02-09
+# Updated: 2026-03-12
 
 # ============================================
 # Default rules for all bots
 # ============================================
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /private/
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /package-lock.json
+# Block URL parameters that create duplicate content
+Disallow: /*?*utm_source=
+Disallow: /*?*utm_medium=
+Disallow: /*?*utm_campaign=
+Disallow: /*?session_id=
+Disallow: /*?sort=
 Crawl-delay: 1
+
+# ============================================
+# GOOGLE ADSENSE CRAWLERS (Full Access — required for AdSense)
+# ============================================
+
+# Google AdSense bot
+User-agent: Mediapartners-Google
+Allow: /
+
+# Google AdSense ad quality verification
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: AdsBot-Google-Mobile
+Allow: /
 
 # ============================================
 # SEARCH ENGINES (Full Access)
@@ -15,7 +44,6 @@ Crawl-delay: 1
 # Google (fastest crawling, no delay)
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 0
 
 User-agent: Googlebot-Image
 Allow: /images/
@@ -105,12 +133,10 @@ Crawl-delay: 2
 # Twitter/X
 User-agent: Twitterbot
 Allow: /
-Crawl-delay: 0
 
 # Facebook / Meta
 User-agent: facebookexternalhit
 Allow: /
-Crawl-delay: 0
 
 User-agent: FacebookBot
 Allow: /
@@ -119,32 +145,26 @@ Crawl-delay: 1
 # LinkedIn
 User-agent: LinkedInBot
 Allow: /
-Crawl-delay: 0
 
 # Pinterest
 User-agent: Pinterestbot
 Allow: /
-Crawl-delay: 0
 
 # Slack
 User-agent: Slackbot
 Allow: /
-Crawl-delay: 0
 
 # WhatsApp
 User-agent: WhatsApp
 Allow: /
-Crawl-delay: 0
 
 # Discord
 User-agent: Discordbot
 Allow: /
-Crawl-delay: 0
 
 # Telegram
 User-agent: TelegramBot
 Allow: /
-Crawl-delay: 0
 
 # ============================================
 # BLOCK AGGRESSIVE SEO SCRAPERS
@@ -184,42 +204,9 @@ User-agent: Bytespider
 Disallow: /
 
 # ============================================
-# Allow important resources
-# ============================================
-Allow: /favicon.ico
-Allow: /manifest.json
-Allow: /sitemap.xml
-Allow: /robots.txt
-Allow: /*.css
-Allow: /*.js
-Allow: /images/
-Allow: /blog/
-Allow: /assets/
-
-# ============================================
-# Block private/sensitive areas
-# ============================================
-Disallow: /admin/
-Disallow: /api/
-Disallow: /private/
-Disallow: /*.json$
-Disallow: /src/
-Disallow: /node_modules/
-Disallow: /.git/
-Disallow: /.env
-Disallow: /package.json
-Disallow: /package-lock.json
-
-# Block URL parameters that create duplicate content
-Disallow: /*?*utm_source=
-Disallow: /*?*utm_medium=
-Disallow: /*?*utm_campaign=
-Disallow: /*?session_id=
-Disallow: /*?sort=
-
-# ============================================
 # Sitemap location
 # ============================================
-Sitemap: https://devkantkumar.com/sitemap.xml
-Sitemap: https://devkantkumar.com/sitemap-blog.xml
-Sitemap: https://devkantkumar.com/sitemap-marketplace.xml
+Sitemap: https://www.devkantkumar.com/sitemap.xml
+Sitemap: https://www.devkantkumar.com/sitemap-blog.xml
+Sitemap: https://www.devkantkumar.com/sitemap-marketplace.xml
+

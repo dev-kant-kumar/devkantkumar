@@ -5,9 +5,18 @@ const logger = require('../utils/logger');
 
 const SITE_URL = "https://www.devkantkumar.com/";
 
-async function getSearchConsoleOverview() {
+/**
+ * Fetch a Google Search Console overview.
+ * @param {string|null} urlPrefix - Optional URL prefix to scope the report
+ *                                  (e.g. 'https://www.devkantkumar.com/marketplace').
+ *                                  Pass null or omit to get site-wide data.
+ */
+async function getSearchConsoleOverview(urlPrefix = null) {
   const redis = getRedisClient();
-  const cacheKey = `gsc_overview_${SITE_URL}`;
+  const cacheKeySuffix = urlPrefix
+    ? encodeURIComponent(urlPrefix).replace(/%/g, '_')
+    : 'all';
+  const cacheKey = `gsc_overview_${cacheKeySuffix}`;
 
   // Try cache
   if (redis) {
@@ -37,10 +46,29 @@ async function getSearchConsoleOverview() {
     const startDate = formatDate(thirtyDaysAgo);
     const endDate = formatDate(today);
 
+    // Build dimension filters when scoping to a URL prefix
+    const dimensionFilterGroups = urlPrefix
+      ? [
+          {
+            filters: [
+              {
+                dimension: 'page',
+                operator: 'contains',
+                expression: urlPrefix,
+              },
+            ],
+          },
+        ]
+      : undefined;
+
     const [res, queriesRes] = await Promise.all([
       searchConsole.searchanalytics.query({
         siteUrl: SITE_URL,
-        requestBody: { startDate, endDate },
+        requestBody: {
+          startDate,
+          endDate,
+          ...(dimensionFilterGroups && { dimensionFilterGroups }),
+        },
       }),
       searchConsole.searchanalytics.query({
         siteUrl: SITE_URL,
@@ -49,6 +77,7 @@ async function getSearchConsoleOverview() {
           endDate,
           dimensions: ["query"],
           rowLimit: 10,
+          ...(dimensionFilterGroups && { dimensionFilterGroups }),
         },
       })
     ]);
@@ -92,4 +121,4 @@ async function getSearchConsoleOverview() {
   }
 }
 
-module.exports = { getSearchConsoleOverview };
+module.exports = { getSearchConsoleOverview, SITE_URL };

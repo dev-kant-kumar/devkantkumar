@@ -11,9 +11,12 @@ import {
     Download,
     Eye,
     Filter,
+    Globe,
     Minus,
+    MousePointer2,
     Package,
     RefreshCw,
+    Search,
     ShoppingBag,
     Star,
     TrendingDown,
@@ -37,7 +40,7 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import { useGetMarketplaceAnalyticsQuery } from '../../store/api/adminApiSlice';
+import { useGetDashboardAnalyticsQuery, useGetMarketplaceAnalyticsQuery } from '../../store/api/adminApiSlice';
 
 // ─────────────────────────────── helpers ──────────────────────────────────────
 
@@ -202,6 +205,11 @@ const MarketplaceAnalytics = () => {
     const analytics = data?.analytics || {};
     const overview = analytics.overview || {};
     const trends = overview.trends || {};
+
+    // Fetch marketplace-specific Google Analytics + Search Console data
+    const { data: gaData } = useGetDashboardAnalyticsQuery();
+    const marketplaceGa = gaData?.data?.googleAnalytics?.marketplaceGa;
+    const marketplaceGsc = gaData?.data?.googleAnalytics?.marketplaceGsc;
 
     const { sorted: sortedProducts, sortConfig: pSort, toggle: pToggle } = useSort(
         analytics.productPerformance
@@ -860,6 +868,100 @@ const MarketplaceAnalytics = () => {
                     </AnimatePresence>
                 </GlassCard>
             </motion.div>
+
+            {/* ── Google Analytics & Search Console (Marketplace) ─────────── */}
+            {(marketplaceGa || marketplaceGsc) && (
+                <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Google Analytics */}
+                    {marketplaceGa && !marketplaceGa.isFallback && (
+                        <GlassCard className="p-6">
+                            <SectionTitle
+                                icon={BarChart2}
+                                title="Google Analytics — Marketplace"
+                                subtitle="Traffic data for /marketplace pages (last 30 days)"
+                            />
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                {[
+                                    { label: 'Page Views', value: (marketplaceGa.overview?.pageViews ?? 0).toLocaleString(), icon: Eye, color: 'text-blue-500' },
+                                    { label: 'Users', value: (marketplaceGa.overview?.users ?? 0).toLocaleString(), icon: Users, color: 'text-emerald-500' },
+                                    { label: 'Sessions', value: (marketplaceGa.overview?.sessions ?? 0).toLocaleString(), icon: Activity, color: 'text-violet-500' },
+                                    { label: 'Bounce Rate', value: marketplaceGa.overview?.bounceRate ?? '—', icon: MousePointer2, color: 'text-orange-500' },
+                                ].map((m) => {
+                                    const Icon = m.icon;
+                                    return (
+                                        <div key={m.label} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                                            <Icon size={18} className={m.color} />
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{m.label}</p>
+                                                <p className="font-bold text-gray-900 dark:text-white text-sm">{m.value}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {marketplaceGa.topPages?.length > 0 && (
+                                <div className="mt-4">
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Top Pages</p>
+                                    <div className="space-y-1.5">
+                                        {marketplaceGa.topPages.slice(0, 5).map((page, i) => (
+                                            <div key={i} className="flex items-center justify-between text-xs">
+                                                <span className="text-gray-600 dark:text-gray-300 truncate max-w-[70%] font-mono">{page.path}</span>
+                                                <span className="font-semibold text-blue-600 dark:text-blue-400 ml-2 shrink-0">{page.views.toLocaleString()}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </GlassCard>
+                    )}
+
+                    {/* Search Console */}
+                    {marketplaceGsc && !marketplaceGsc.isFallback && (
+                        <GlassCard className="p-6">
+                            <SectionTitle
+                                icon={Search}
+                                title="Search Console — Marketplace"
+                                subtitle="Organic search performance for /marketplace (last 30 days)"
+                            />
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                {[
+                                    { label: 'Clicks', value: (marketplaceGsc.overview?.clicks ?? 0).toLocaleString(), icon: MousePointer2, color: 'text-blue-500' },
+                                    { label: 'Impressions', value: (marketplaceGsc.overview?.impressions ?? 0).toLocaleString(), icon: Eye, color: 'text-purple-500' },
+                                    { label: 'CTR', value: `${marketplaceGsc.overview?.ctr ?? 0}%`, icon: TrendingUp, color: 'text-emerald-500' },
+                                    { label: 'Avg. Position', value: marketplaceGsc.overview?.position ?? '—', icon: Globe, color: 'text-orange-500' },
+                                ].map((m) => {
+                                    const Icon = m.icon;
+                                    return (
+                                        <div key={m.label} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                                            <Icon size={18} className={m.color} />
+                                            <div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{m.label}</p>
+                                                <p className="font-bold text-gray-900 dark:text-white text-sm">{m.value}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {marketplaceGsc.topQueries?.length > 0 && (
+                                <div className="mt-4">
+                                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Top Search Queries</p>
+                                    <div className="space-y-1.5">
+                                        {marketplaceGsc.topQueries.slice(0, 5).map((q, i) => (
+                                            <div key={i} className="flex items-center justify-between text-xs">
+                                                <span className="text-gray-600 dark:text-gray-300 truncate max-w-[70%]">{q.query}</span>
+                                                <div className="flex gap-3 shrink-0 ml-2">
+                                                    <span className="text-blue-600 dark:text-blue-400 font-semibold">{q.clicks} clicks</span>
+                                                    <span className="text-gray-400">{q.impressions} impr.</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </GlassCard>
+                    )}
+                </motion.div>
+            )}
 
             {/* ── Footer note ─────────────────────────────────────────────── */}
             <motion.p variants={itemVariants} className="text-xs text-center text-gray-400 dark:text-gray-600 pb-4">

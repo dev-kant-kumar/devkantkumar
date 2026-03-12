@@ -409,7 +409,7 @@ export const portfolioData = {
     professional: {
       github: "https://github.com/dev-kant-kumar",
       linkedin: "https://linkedin.com/in/devkantkumar",
-      portfolio: "https://devkantkumar.com",
+      portfolio: "https://www.devkantkumar.com",
       youtube: "https://www.youtube.com/@dev-code-space",
     },
     social: {
@@ -527,8 +527,8 @@ export const portfolioData = {
   // SEO Configuration - All SEO data centralized here
   seoConfig: {
     site: {
-      url: "https://devkantkumar.com",
-      domain: "devkantkumar.com",
+      url: "https://www.devkantkumar.com",
+      domain: "www.devkantkumar.com",
       language: "en",
       locale: "en_US",
       type: "website",

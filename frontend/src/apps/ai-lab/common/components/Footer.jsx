@@ -39,7 +39,7 @@ const Footer = () => {
               Resources
             </Link>
             <a
-              href="https://devkantkumar.com"
+              href="https://www.devkantkumar.com"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#9ca3af', textDecoration: 'none' }}

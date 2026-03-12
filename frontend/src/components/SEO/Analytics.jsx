@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { portfolioData } from '../../apps/Portfolio/store/data/portfolioData';
 
@@ -7,9 +7,12 @@ const Analytics = () => {
   const analyticsId = seoConfig.analytics.googleAnalyticsId;
   const location = useLocation();
   const [initialized, setInitialized] = useState(false);
+  // Track whether the initial page load has been handled (by index.html gtag config)
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    // Determine if GA is loaded
+    // Determine if GA is loaded; index.html defines window.gtag synchronously
+    // so this should be true immediately on first check.
     if (window.gtag) {
       setInitialized(true);
     } else {
@@ -25,19 +28,16 @@ const Analytics = () => {
   }, []);
 
   useEffect(() => {
-    // Skip if not initialized or if this is the first render (handled by index.html script)
     if (!initialized || !analyticsId) return;
 
-    // We only want to track *subsequent* page views, not the initial one which index.html handles.
-    // However, in a SPA, we can't easily distinguish "initial load" from "refresh" inside this effect
-    // without refs, and simple is better.
-    // BUT: standard gtag('config') in index.html sends a page_view.
-    // This effect runs on mount (dup) and updates.
-    // To prevent the duplicate on mount, we can use a ref or simplified logic.
-    // Actually, safest SPA pattern: let index.html handle first, this handles updates.
+    // Skip the first trigger caused by `initialized` changing to true.
+    // The initial page_view is already sent by the inline gtag script in index.html.
+    // Only subsequent SPA navigation should send additional page_view events.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
 
-    // Check if the current path matches what GA likely captured.
-    // If we want to be robust:
     window.gtag('config', analyticsId, {
       page_path: location.pathname + location.search,
       page_title: document.title,
