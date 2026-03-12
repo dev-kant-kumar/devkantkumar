@@ -157,6 +157,7 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
         return `/marketplace/products/${productId}/related?${params.toString()}`;
       },
       providesTags: (result, error, { productId }) => [{ type: 'Product', id: `related-${productId}` }],
+      keepUnusedDataFor: 300, // cache related products for 5 minutes
     }),
 
     getTrending: builder.query({
@@ -167,6 +168,7 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
         return `/marketplace/recommendations/trending?${params.toString()}`;
       },
       providesTags: [{ type: 'Product', id: 'TRENDING' }, { type: 'Service', id: 'TRENDING' }],
+      keepUnusedDataFor: 300, // cache trending list for 5 minutes
     }),
 
     getPersonalizedRecommendations: builder.query({
@@ -176,6 +178,7 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
         return `/marketplace/recommendations/personalized?${params.toString()}`;
       },
       providesTags: [{ type: 'Product', id: 'PERSONALIZED' }, { type: 'Service', id: 'PERSONALIZED' }],
+      keepUnusedDataFor: 120, // personalized data refreshes more often
     }),
   }),
   overrideExisting: false,

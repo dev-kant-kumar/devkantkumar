@@ -2217,16 +2217,37 @@ const sendInvoiceByEmail = async (req, res) => {
 
 // ─────────────────────────────── Recommendation System ───────────────────────────────
 
+// Shared aggregation pipeline stages for composite trend scoring.
+// score = views×0.3 + activity×0.4 + rating.average×2 + rating.count×0.1
+// The `activityField` is "downloads" for products or "totalOrders" for services.
+const trendScorePipeline = (activityField, limit) => [
+  {
+    $addFields: {
+      _trendScore: {
+        $add: [
+          { $multiply: [{ $ifNull: ["$views", 0] }, 0.3] },
+          { $multiply: [{ $ifNull: [`$${activityField}`, 0] }, 0.4] },
+          { $multiply: [{ $ifNull: ["$rating.average", 0] }, 2] },
+          { $multiply: [{ $ifNull: ["$rating.count", 0] }, 0.1] },
+        ],
+      },
+    },
+  },
+  { $sort: { _trendScore: -1, _id: 1 } },  // _id as deterministic tiebreaker
+  { $limit: limit },
+  { $project: { _trendScore: 0 } },         // strip internal scoring field
+];
+
 /**
  * GET /marketplace/products/:id/related
  * Returns active products in the same category as the given product, ranked by
- * tag overlap with the source product.  Falls back to category-only matches when
- * there are not enough tag-matched items.
+ * tag overlap with the source product (primary), then by composite trend score
+ * (secondary), then by _id for a deterministic tiebreaker.
  */
 const getRelatedProducts = async (req, res) => {
   try {
     const { id } = req.params;
-    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+    const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid product ID" });
@@ -2237,25 +2258,34 @@ const getRelatedProducts = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    const sourceTags = source.tags || [];
+    const sourceTags = Array.isArray(source.tags) ? source.tags : [];
 
-    // Fetch candidates: same category, active, excluding the source product
+    // Cap at 200 candidates to avoid loading the entire catalogue into memory
     const candidates = await Product.find({
       _id: { $ne: new mongoose.Types.ObjectId(id) },
       category: source.category,
       isActive: true,
     })
       .select("_id title slug description price originalPrice discount images rating downloads views tags category isFeatured")
+      .sort({ "rating.average": -1, downloads: -1 })
+      .limit(200)
       .lean();
 
-    // Score each candidate by tag overlap then sort descending
+    // Score by tag overlap; use trend score as deterministic tiebreaker
     const scored = candidates
       .map((p) => {
-        const overlap = (p.tags || []).filter((t) => sourceTags.includes(t)).length;
-        return { ...p, _score: overlap };
+        const overlap = (Array.isArray(p.tags) ? p.tags : []).filter((t) => sourceTags.includes(t)).length;
+        const trendScore =
+          (p.views || 0) * 0.3 +
+          (p.downloads || 0) * 0.4 +
+          (p.rating?.average || 0) * 2 +
+          (p.rating?.count || 0) * 0.1;
+        const id = p._id.toString();  // cache to avoid repeated conversion inside sort
+        return { p, overlap, trendScore, id };
       })
-      .sort((a, b) => b._score - a._score || (b.rating?.average || 0) - (a.rating?.average || 0))
-      .slice(0, limit);
+      .sort((a, b) => b.overlap - a.overlap || b.trendScore - a.trendScore || a.id.localeCompare(b.id))
+      .slice(0, limit)
+      .map(({ p }) => p);                    // return plain product objects, no internal fields
 
     res.json({ related: scored });
   } catch (error) {
@@ -2264,10 +2294,16 @@ const getRelatedProducts = async (req, res) => {
   }
 };
 
+// Allowed values for the `type` query parameter in getTrending
+const VALID_TRENDING_TYPES = new Set(["products", "services"]);
+
 /**
  * GET /marketplace/recommendations/trending
  * Returns the top trending products and/or services using a composite score:
- *   score = views * 0.3 + downloads * 0.4 + rating.average * 2 + rating.count * 0.1
+ *   score = views×0.3 + downloads/totalOrders×0.4 + rating.average×2 + rating.count×0.1
+ * Scoring and limiting are done inside MongoDB via an aggregation pipeline to avoid
+ * loading the full catalogue into application memory.
+ *
  * Query params:
  *   type  – "products" | "services" | omit for both
  *   limit – number of items per type (default 6, max 20)
@@ -2275,44 +2311,43 @@ const getRelatedProducts = async (req, res) => {
 const getTrending = async (req, res) => {
   try {
     const { type } = req.query;
-    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+    const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
+
+    // Reject unknown type values early
+    if (type && !VALID_TRENDING_TYPES.has(type)) {
+      return res.status(400).json({
+        message: `Invalid type "${type}". Must be "products", "services", or omitted.`,
+      });
+    }
 
     const results = {};
 
     if (!type || type === "products") {
-      const products = await Product.find({ isActive: true })
-        .select("_id title slug description price originalPrice discount images rating downloads views tags category isFeatured")
-        .lean();
-
-      results.products = products
-        .map((p) => ({
-          ...p,
-          _trendScore:
-            (p.views || 0) * 0.3 +
-            (p.downloads || 0) * 0.4 +
-            (p.rating?.average || 0) * 10 * 0.2 +
-            (p.rating?.count || 0) * 0.1,
-        }))
-        .sort((a, b) => b._trendScore - a._trendScore)
-        .slice(0, limit);
+      results.products = await Product.aggregate([
+        { $match: { isActive: true } },
+        ...trendScorePipeline("downloads", limit),
+        {
+          $project: {
+            _id: 1, title: 1, slug: 1, description: 1, price: 1,
+            originalPrice: 1, discount: 1, images: 1, rating: 1,
+            downloads: 1, views: 1, tags: 1, category: 1, isFeatured: 1,
+          },
+        },
+      ]);
     }
 
     if (!type || type === "services") {
-      const services = await Service.find({ isActive: true })
-        .select("_id title slug description packages images rating totalOrders views tags category isFeatured")
-        .lean();
-
-      results.services = services
-        .map((s) => ({
-          ...s,
-          _trendScore:
-            (s.views || 0) * 0.3 +
-            (s.totalOrders || 0) * 0.4 +
-            (s.rating?.average || 0) * 10 * 0.2 +
-            (s.rating?.count || 0) * 0.1,
-        }))
-        .sort((a, b) => b._trendScore - a._trendScore)
-        .slice(0, limit);
+      results.services = await Service.aggregate([
+        { $match: { isActive: true } },
+        ...trendScorePipeline("totalOrders", limit),
+        {
+          $project: {
+            _id: 1, title: 1, slug: 1, description: 1, packages: 1,
+            images: 1, rating: 1, totalOrders: 1, views: 1,
+            tags: 1, category: 1, isFeatured: 1,
+          },
+        },
+      ]);
     }
 
     res.json(results);
@@ -2325,9 +2360,9 @@ const getTrending = async (req, res) => {
 /**
  * GET /marketplace/recommendations/personalized  (protected – requires auth)
  * Returns personalised recommendations based on the authenticated user's:
- *   1. Purchased product/service categories (from completed/delivered orders)
- *   2. Wishlist categories
- * Falls back to trending items when there is no history.
+ *   1. Purchased product/service categories (from orders)
+ *   2. Wishlist categories (favoriteProducts / favoriteServices)
+ * Falls back to site-wide trending items when the user has no history.
  *
  * Query params:
  *   limit – number of items per type (default 6, max 20)
@@ -2335,29 +2370,50 @@ const getTrending = async (req, res) => {
 const getPersonalizedRecommendations = async (req, res) => {
   try {
     const userId = req.user.id;
-    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+    const limit = Math.min(parseInt(req.query.limit, 10) || 6, 20);
 
-    // 1. Gather purchased item IDs so we can exclude them
-    const orders = await Order.find({ user: userId }).select("items").lean();
+    // 1. Gather purchased item IDs to exclude already-owned items
+    const orders = await Order.find({ user: userId })
+      .select("items.itemId items.itemType")
+      .limit(500)           // cap to last 500 orders to avoid loading all history
+      .sort({ createdAt: -1 })
+      .lean();
+
     const purchasedProductIds = new Set();
     const purchasedServiceIds = new Set();
     const purchasedProductCategories = new Set();
     const purchasedServiceCategories = new Set();
 
-    const allItemIds = orders.flatMap((o) => o.items.map((i) => i.itemId?.toString()));
+    // Filter out any null/undefined item IDs before querying
+    const productItemIds = orders
+      .flatMap((o) => o.items || [])
+      .filter((i) => i.itemType === "product" && i.itemId)
+      .map((i) => i.itemId.toString());
 
-    if (allItemIds.length > 0) {
+    const serviceItemIds = orders
+      .flatMap((o) => o.items || [])
+      .filter((i) => i.itemType === "service" && i.itemId)
+      .map((i) => i.itemId.toString());
+
+    const uniqueProductIds = [...new Set(productItemIds)];
+    const uniqueServiceIds = [...new Set(serviceItemIds)];
+
+    if (uniqueProductIds.length > 0 || uniqueServiceIds.length > 0) {
       const [boughtProducts, boughtServices] = await Promise.all([
-        Product.find({ _id: { $in: allItemIds } }).select("_id category").lean(),
-        Service.find({ _id: { $in: allItemIds } }).select("_id category").lean(),
+        uniqueProductIds.length > 0
+          ? Product.find({ _id: { $in: uniqueProductIds } }).select("_id category").lean()
+          : Promise.resolve([]),
+        uniqueServiceIds.length > 0
+          ? Service.find({ _id: { $in: uniqueServiceIds } }).select("_id category").lean()
+          : Promise.resolve([]),
       ]);
       boughtProducts.forEach((p) => {
         purchasedProductIds.add(p._id.toString());
-        purchasedProductCategories.add(p.category);
+        if (p.category) purchasedProductCategories.add(p.category);
       });
       boughtServices.forEach((s) => {
         purchasedServiceIds.add(s._id.toString());
-        purchasedServiceCategories.add(s.category);
+        if (s.category) purchasedServiceCategories.add(s.category);
       });
     }
 
@@ -2375,37 +2431,39 @@ const getPersonalizedRecommendations = async (req, res) => {
       if (s.category) purchasedServiceCategories.add(s.category);
     });
 
-    // 3. Build category-based queries, falling back to trending if no history
-    const buildTrendQuery = (model, excludeIds, categories) => {
-      const filter = { isActive: true };
-      if (excludeIds.size > 0) filter._id = { $nin: [...excludeIds].map((id) => new mongoose.Types.ObjectId(id)) };
-      if (categories.size > 0) filter.category = { $in: [...categories] };
-      return model
-        .find(filter)
-        .select("_id title slug description price originalPrice discount packages images rating downloads views totalOrders tags category isFeatured")
-        .lean();
+    // 3. Build aggregation pipeline filtering by preferred categories and excluding purchased items
+    const buildPersonalizedPipeline = (activityField, excludeIds, categories, projectionFields) => {
+      const matchStage = { isActive: true };
+      if (categories.size > 0) matchStage.category = { $in: [...categories] };
+      if (excludeIds.size > 0) {
+        matchStage._id = { $nin: [...excludeIds].map((id) => new mongoose.Types.ObjectId(id)) };
+      }
+      return [
+        { $match: matchStage },
+        ...trendScorePipeline(activityField, limit),
+        { $project: projectionFields },
+      ];
     };
 
-    const [productCandidates, serviceCandidates] = await Promise.all([
-      buildTrendQuery(Product, purchasedProductIds, purchasedProductCategories),
-      buildTrendQuery(Service, purchasedServiceIds, purchasedServiceCategories),
+    const productProjection = {
+      _id: 1, title: 1, slug: 1, description: 1, price: 1,
+      originalPrice: 1, discount: 1, images: 1, rating: 1,
+      downloads: 1, views: 1, tags: 1, category: 1, isFeatured: 1,
+    };
+    const serviceProjection = {
+      _id: 1, title: 1, slug: 1, description: 1, packages: 1,
+      images: 1, rating: 1, totalOrders: 1, views: 1,
+      tags: 1, category: 1, isFeatured: 1,
+    };
+
+    const [products, services] = await Promise.all([
+      Product.aggregate(
+        buildPersonalizedPipeline("downloads", purchasedProductIds, purchasedProductCategories, productProjection)
+      ),
+      Service.aggregate(
+        buildPersonalizedPipeline("totalOrders", purchasedServiceIds, purchasedServiceCategories, serviceProjection)
+      ),
     ]);
-
-    const scoreItems = (items, downloadsField = "downloads") =>
-      items
-        .map((item) => ({
-          ...item,
-          _trendScore:
-            (item.views || 0) * 0.3 +
-            (item[downloadsField] || item.totalOrders || 0) * 0.4 +
-            (item.rating?.average || 0) * 10 * 0.2 +
-            (item.rating?.count || 0) * 0.1,
-        }))
-        .sort((a, b) => b._trendScore - a._trendScore)
-        .slice(0, limit);
-
-    const products = scoreItems(productCandidates, "downloads");
-    const services = scoreItems(serviceCandidates, "totalOrders");
 
     res.json({
       products,

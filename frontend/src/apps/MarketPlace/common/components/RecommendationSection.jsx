@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Flame, Loader2, ShoppingCart, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { AlertCircle, Flame, Loader2, ShoppingCart, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -132,7 +132,8 @@ const SectionHeader = ({ icon: Icon, title, subtitle }) => (
  * Displays one of three recommendation modes depending on props:
  *   - mode="related"       → related products for a given productId
  *   - mode="trending"      → site-wide trending products / services
- *   - mode="personalized"  → personalised for the logged-in user
+ *   - mode="personalized"  → personalised for the logged-in user;
+ *                            falls back to trending when unauthenticated
  *
  * @param {string}  mode         - "related" | "trending" | "personalized"
  * @param {string}  [productId]  - required when mode="related"
@@ -149,46 +150,53 @@ const RecommendationSection = ({
 }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
+  // When mode="personalized" but user is not authenticated, fall through to trending
+  const effectiveMode = (mode === 'personalized' && !isAuthenticated) ? 'trending' : mode;
+
   // ── Related ──────────────────────────────────────────────────────────────
   const {
     data: relatedData,
     isLoading: relatedLoading,
+    isError: relatedError,
   } = useGetRelatedProductsQuery(
     { productId, limit },
-    { skip: mode !== 'related' || !productId },
+    { skip: effectiveMode !== 'related' || !productId },
   );
 
   // ── Trending ─────────────────────────────────────────────────────────────
   const {
     data: trendingData,
     isLoading: trendingLoading,
+    isError: trendingError,
   } = useGetTrendingQuery(
     { type, limit },
-    { skip: mode !== 'trending' },
+    { skip: effectiveMode !== 'trending' },
   );
 
   // ── Personalized ─────────────────────────────────────────────────────────
   const {
     data: personalizedData,
     isLoading: personalizedLoading,
+    isError: personalizedError,
   } = useGetPersonalizedRecommendationsQuery(
     { limit },
-    { skip: mode !== 'personalized' || !isAuthenticated },
+    { skip: effectiveMode !== 'personalized' },
   );
 
-  // ─── Resolve data based on mode ─────────────────────────────────────────
+  // ─── Resolve data based on effective mode ────────────────────────────────
   const isLoading = relatedLoading || trendingLoading || personalizedLoading;
+  const isError = relatedError || trendingError || personalizedError;
 
   let products = [];
   let services = [];
   let isPersonalized = false;
 
-  if (mode === 'related') {
+  if (effectiveMode === 'related') {
     products = relatedData?.related || [];
-  } else if (mode === 'trending') {
+  } else if (effectiveMode === 'trending') {
     products = trendingData?.products || [];
     services = trendingData?.services || [];
-  } else if (mode === 'personalized') {
+  } else if (effectiveMode === 'personalized') {
     products = personalizedData?.products || [];
     services = personalizedData?.services || [];
     isPersonalized = personalizedData?.isPersonalized ?? false;
@@ -197,7 +205,7 @@ const RecommendationSection = ({
   const hasContent = products.length > 0 || services.length > 0;
 
   // Nothing to show while loading or when there are no items
-  if (!isLoading && !hasContent) return null;
+  if (!isLoading && !hasContent && !isError) return null;
 
   // ─── Section meta ────────────────────────────────────────────────────────
   const meta = {
@@ -205,11 +213,13 @@ const RecommendationSection = ({
       icon: Sparkles,
       title: 'You May Also Like',
       subtitle: 'Similar products in the same category',
+      loadingText: 'Loading similar products…',
     },
     trending: {
       icon: TrendingUp,
       title: 'Trending Now',
       subtitle: 'Most popular products and services this week',
+      loadingText: 'Loading trending items…',
     },
     personalized: {
       icon: isPersonalized ? Sparkles : Flame,
@@ -217,10 +227,11 @@ const RecommendationSection = ({
       subtitle: isPersonalized
         ? 'Based on your purchase history and wishlist'
         : 'Handpicked products and services',
+      loadingText: 'Loading your recommendations…',
     },
   };
 
-  const { icon, title, subtitle } = meta[mode] || meta.trending;
+  const { icon, title, subtitle, loadingText } = meta[effectiveMode] || meta.trending;
 
   return (
     <section className={`py-10 ${className}`}>
@@ -229,14 +240,19 @@ const RecommendationSection = ({
       {isLoading ? (
         <div className="flex items-center justify-center py-16 text-gray-400">
           <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span className="text-sm">Loading recommendations…</span>
+          <span className="text-sm">{loadingText}</span>
+        </div>
+      ) : isError ? (
+        <div className="flex items-center justify-center py-10 text-gray-400 gap-2">
+          <AlertCircle className="h-5 w-5 text-gray-300" />
+          <span className="text-sm">Recommendations unavailable right now.</span>
         </div>
       ) : (
         <>
           {/* Products grid */}
           {products.length > 0 && (
             <>
-              {(mode === 'trending' || mode === 'personalized') && services.length > 0 && (
+              {(effectiveMode === 'trending' || effectiveMode === 'personalized') && services.length > 0 && (
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
                   Digital Products
                 </h3>
@@ -252,7 +268,7 @@ const RecommendationSection = ({
           {/* Services grid */}
           {services.length > 0 && (
             <>
-              {(mode === 'trending' || mode === 'personalized') && products.length > 0 && (
+              {(effectiveMode === 'trending' || effectiveMode === 'personalized') && products.length > 0 && (
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-8">
                   Services
                 </h3>
