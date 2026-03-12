@@ -53,7 +53,7 @@ export const syncIndexHtml = () => {
 
     <!-- Sitemap -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
-    <link rel="alternate" type="application/rss+xml" title="Dev Kant Kumar's Blog" href="https://devkantkumar.com/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Dev Kant Kumar's Blog" href="https://www.devkantkumar.com/rss.xml" />
 
     <!-- Performance & Crawl -->
     <meta http-equiv="x-dns-prefetch-control" content="on" />

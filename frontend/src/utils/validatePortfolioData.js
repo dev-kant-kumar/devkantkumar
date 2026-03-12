@@ -144,7 +144,7 @@ export const isProductionReady = () => {
  * Generates a dynamic sitemap based on portfolio data
  */
 export const generateSitemap = () => {
-  const baseUrl = 'https://devkantkumar.com';
+  const baseUrl = 'https://www.devkantkumar.com';
   const urls = [
     { loc: '/', priority: 1.0, changefreq: 'weekly' },
     { loc: '/about', priority: 0.9, changefreq: 'monthly' },

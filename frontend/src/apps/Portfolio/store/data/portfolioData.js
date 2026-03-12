@@ -527,8 +527,8 @@ export const portfolioData = {
   // SEO Configuration - All SEO data centralized here
   seoConfig: {
     site: {
-      url: "https://devkantkumar.com",
-      domain: "devkantkumar.com",
+      url: "https://www.devkantkumar.com",
+      domain: "www.devkantkumar.com",
       language: "en",
       locale: "en_US",
       type: "website",
