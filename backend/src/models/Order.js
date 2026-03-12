@@ -321,15 +321,19 @@ orderSchema.index({ 'payment.status': 1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ estimatedDelivery: 1 });
 
-// Pre-save middleware to generate order number
-orderSchema.pre('save', async function(next) {
+// Pre-validate middleware to generate order number before validation runs.
+// Must be pre('validate') (not pre('save')) so that the auto-generated
+// orderNumber is present when Mongoose checks the required: true constraint.
+orderSchema.pre('validate', async function(next) {
   if (this.isNew) {
     // Use timestamp + random suffix for collision-safe, non-sequential order numbers.
     // This avoids the race condition of countDocuments() + 1 which can produce
     // duplicate values under concurrent requests.
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 90000) + 10000; // 5-digit random
-    this.orderNumber = `ORD-${timestamp}-${random}`;
+    if (!this.orderNumber) {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 90000) + 10000; // 5-digit random
+      this.orderNumber = `ORD-${timestamp}-${random}`;
+    }
 
     // Add initial timeline entry
     this.timeline.push({
