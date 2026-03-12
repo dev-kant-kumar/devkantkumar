@@ -148,6 +148,35 @@ export const marketplaceApi = baseApiSlice.injectEndpoints({
         body: data,
       }),
     }),
+
+    // Recommendations
+    getRelatedProducts: builder.query({
+      query: ({ productId, limit } = {}) => {
+        const params = new URLSearchParams();
+        if (limit) params.append('limit', limit);
+        return `/marketplace/products/${productId}/related?${params.toString()}`;
+      },
+      providesTags: (result, error, { productId }) => [{ type: 'Product', id: `related-${productId}` }],
+    }),
+
+    getTrending: builder.query({
+      query: ({ type, limit } = {}) => {
+        const params = new URLSearchParams();
+        if (type) params.append('type', type);
+        if (limit) params.append('limit', limit);
+        return `/marketplace/recommendations/trending?${params.toString()}`;
+      },
+      providesTags: [{ type: 'Product', id: 'TRENDING' }, { type: 'Service', id: 'TRENDING' }],
+    }),
+
+    getPersonalizedRecommendations: builder.query({
+      query: ({ limit } = {}) => {
+        const params = new URLSearchParams();
+        if (limit) params.append('limit', limit);
+        return `/marketplace/recommendations/personalized?${params.toString()}`;
+      },
+      providesTags: [{ type: 'Product', id: 'PERSONALIZED' }, { type: 'Service', id: 'PERSONALIZED' }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -167,4 +196,7 @@ export const {
   useDeleteReviewMutation,
   useSubscribeMutation,
   useValidateCouponMutation,
+  useGetRelatedProductsQuery,
+  useGetTrendingQuery,
+  useGetPersonalizedRecommendationsQuery,
 } = marketplaceApi;

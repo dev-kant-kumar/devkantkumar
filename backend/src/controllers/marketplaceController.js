@@ -2215,6 +2215,209 @@ const sendInvoiceByEmail = async (req, res) => {
   }
 };
 
+// ─────────────────────────────── Recommendation System ───────────────────────────────
+
+/**
+ * GET /marketplace/products/:id/related
+ * Returns active products in the same category as the given product, ranked by
+ * tag overlap with the source product.  Falls back to category-only matches when
+ * there are not enough tag-matched items.
+ */
+const getRelatedProducts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const source = await Product.findById(id).select("category tags").lean();
+    if (!source) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const sourceTags = source.tags || [];
+
+    // Fetch candidates: same category, active, excluding the source product
+    const candidates = await Product.find({
+      _id: { $ne: new mongoose.Types.ObjectId(id) },
+      category: source.category,
+      isActive: true,
+    })
+      .select("_id title slug description price originalPrice discount images rating downloads views tags category isFeatured")
+      .lean();
+
+    // Score each candidate by tag overlap then sort descending
+    const scored = candidates
+      .map((p) => {
+        const overlap = (p.tags || []).filter((t) => sourceTags.includes(t)).length;
+        return { ...p, _score: overlap };
+      })
+      .sort((a, b) => b._score - a._score || (b.rating?.average || 0) - (a.rating?.average || 0))
+      .slice(0, limit);
+
+    res.json({ related: scored });
+  } catch (error) {
+    logger.error("Get related products error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * GET /marketplace/recommendations/trending
+ * Returns the top trending products and/or services using a composite score:
+ *   score = views * 0.3 + downloads * 0.4 + rating.average * 2 + rating.count * 0.1
+ * Query params:
+ *   type  – "products" | "services" | omit for both
+ *   limit – number of items per type (default 6, max 20)
+ */
+const getTrending = async (req, res) => {
+  try {
+    const { type } = req.query;
+    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+
+    const results = {};
+
+    if (!type || type === "products") {
+      const products = await Product.find({ isActive: true })
+        .select("_id title slug description price originalPrice discount images rating downloads views tags category isFeatured")
+        .lean();
+
+      results.products = products
+        .map((p) => ({
+          ...p,
+          _trendScore:
+            (p.views || 0) * 0.3 +
+            (p.downloads || 0) * 0.4 +
+            (p.rating?.average || 0) * 10 * 0.2 +
+            (p.rating?.count || 0) * 0.1,
+        }))
+        .sort((a, b) => b._trendScore - a._trendScore)
+        .slice(0, limit);
+    }
+
+    if (!type || type === "services") {
+      const services = await Service.find({ isActive: true })
+        .select("_id title slug description packages images rating totalOrders views tags category isFeatured")
+        .lean();
+
+      results.services = services
+        .map((s) => ({
+          ...s,
+          _trendScore:
+            (s.views || 0) * 0.3 +
+            (s.totalOrders || 0) * 0.4 +
+            (s.rating?.average || 0) * 10 * 0.2 +
+            (s.rating?.count || 0) * 0.1,
+        }))
+        .sort((a, b) => b._trendScore - a._trendScore)
+        .slice(0, limit);
+    }
+
+    res.json(results);
+  } catch (error) {
+    logger.error("Get trending recommendations error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * GET /marketplace/recommendations/personalized  (protected – requires auth)
+ * Returns personalised recommendations based on the authenticated user's:
+ *   1. Purchased product/service categories (from completed/delivered orders)
+ *   2. Wishlist categories
+ * Falls back to trending items when there is no history.
+ *
+ * Query params:
+ *   limit – number of items per type (default 6, max 20)
+ */
+const getPersonalizedRecommendations = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+
+    // 1. Gather purchased item IDs so we can exclude them
+    const orders = await Order.find({ user: userId }).select("items").lean();
+    const purchasedProductIds = new Set();
+    const purchasedServiceIds = new Set();
+    const purchasedProductCategories = new Set();
+    const purchasedServiceCategories = new Set();
+
+    const allItemIds = orders.flatMap((o) => o.items.map((i) => i.itemId?.toString()));
+
+    if (allItemIds.length > 0) {
+      const [boughtProducts, boughtServices] = await Promise.all([
+        Product.find({ _id: { $in: allItemIds } }).select("_id category").lean(),
+        Service.find({ _id: { $in: allItemIds } }).select("_id category").lean(),
+      ]);
+      boughtProducts.forEach((p) => {
+        purchasedProductIds.add(p._id.toString());
+        purchasedProductCategories.add(p.category);
+      });
+      boughtServices.forEach((s) => {
+        purchasedServiceIds.add(s._id.toString());
+        purchasedServiceCategories.add(s.category);
+      });
+    }
+
+    // 2. Add categories from wishlist
+    const user = await User.findById(userId)
+      .select("favoriteProducts favoriteServices")
+      .populate("favoriteProducts", "category")
+      .populate("favoriteServices", "category")
+      .lean();
+
+    (user?.favoriteProducts || []).forEach((p) => {
+      if (p.category) purchasedProductCategories.add(p.category);
+    });
+    (user?.favoriteServices || []).forEach((s) => {
+      if (s.category) purchasedServiceCategories.add(s.category);
+    });
+
+    // 3. Build category-based queries, falling back to trending if no history
+    const buildTrendQuery = (model, excludeIds, categories) => {
+      const filter = { isActive: true };
+      if (excludeIds.size > 0) filter._id = { $nin: [...excludeIds].map((id) => new mongoose.Types.ObjectId(id)) };
+      if (categories.size > 0) filter.category = { $in: [...categories] };
+      return model
+        .find(filter)
+        .select("_id title slug description price originalPrice discount packages images rating downloads views totalOrders tags category isFeatured")
+        .lean();
+    };
+
+    const [productCandidates, serviceCandidates] = await Promise.all([
+      buildTrendQuery(Product, purchasedProductIds, purchasedProductCategories),
+      buildTrendQuery(Service, purchasedServiceIds, purchasedServiceCategories),
+    ]);
+
+    const scoreItems = (items, downloadsField = "downloads") =>
+      items
+        .map((item) => ({
+          ...item,
+          _trendScore:
+            (item.views || 0) * 0.3 +
+            (item[downloadsField] || item.totalOrders || 0) * 0.4 +
+            (item.rating?.average || 0) * 10 * 0.2 +
+            (item.rating?.count || 0) * 0.1,
+        }))
+        .sort((a, b) => b._trendScore - a._trendScore)
+        .slice(0, limit);
+
+    const products = scoreItems(productCandidates, "downloads");
+    const services = scoreItems(serviceCandidates, "totalOrders");
+
+    res.json({
+      products,
+      services,
+      isPersonalized: purchasedProductCategories.size > 0 || purchasedServiceCategories.size > 0,
+    });
+  } catch (error) {
+    logger.error("Get personalized recommendations error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
@@ -2246,4 +2449,7 @@ module.exports = {
   submitRequirements,
   downloadInvoice,
   sendInvoiceByEmail,
+  getRelatedProducts,
+  getTrending,
+  getPersonalizedRecommendations,
 };
