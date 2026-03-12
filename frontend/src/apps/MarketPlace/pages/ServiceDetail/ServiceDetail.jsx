@@ -26,6 +26,7 @@ import { useGetServiceByIdQuery } from '../../store/api/marketplaceApi';
 import { selectIsAuthenticated } from '../../store/auth/authSlice';
 import { addToCart } from '../../store/cart/cartSlice';
 import WishlistButton from '../../common/components/WishlistButton';
+import RecommendationSection from '../../common/components/RecommendationSection';
 
 const ServiceDetail = () => {
   const { serviceId } = useParams();
@@ -438,6 +439,16 @@ const ServiceDetail = () => {
         title={service?.title}
         text={service?.description}
       />
+
+      {/* Recommendations – Trending Services */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-100">
+        <RecommendationSection mode="trending" type="services" limit={6} />
+      </div>
+
+      {/* Recommendations – Personalized / Trending */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <RecommendationSection mode="personalized" limit={6} />
+      </div>
 
       {/* Mobile Sticky Action Bar */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] lg:hidden z-50 flex items-center justify-between gap-4 safe-area-bottom">
