@@ -2359,7 +2359,7 @@ const getTrending = async (req, res) => {
 
 /**
  * GET /marketplace/recommendations/personalized  (protected – requires auth)
- * Returns personalised recommendations based on the authenticated user's:
+ * Returns personalized recommendations based on the authenticated user's:
  *   1. Purchased product/service categories (from orders)
  *   2. Wishlist categories (favoriteProducts / favoriteServices)
  * Falls back to site-wide trending items when the user has no history.

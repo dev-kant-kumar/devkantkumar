@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { AlertCircle, Flame, Loader2, ShoppingCart, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { AlertCircle, Flame, Loader2, Package, ShoppingCart, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -132,7 +132,7 @@ const SectionHeader = ({ icon: Icon, title, subtitle }) => (
  * Displays one of three recommendation modes depending on props:
  *   - mode="related"       → related products for a given productId
  *   - mode="trending"      → site-wide trending products / services
- *   - mode="personalized"  → personalised for the logged-in user;
+ *   - mode="personalized"  → personalized for the logged-in user;
  *                            falls back to trending when unauthenticated
  *
  * @param {string}  mode         - "related" | "trending" | "personalized"
@@ -204,8 +204,9 @@ const RecommendationSection = ({
 
   const hasContent = products.length > 0 || services.length > 0;
 
-  // Nothing to show while loading or when there are no items
-  if (!isLoading && !hasContent && !isError) return null;
+  // For "related" mode: silently hide when there are no similar products — cleaner UX
+  // on product detail pages that haven't built up enough inventory yet.
+  if (!isLoading && !hasContent && !isError && effectiveMode === 'related') return null;
 
   // ─── Section meta ────────────────────────────────────────────────────────
   const meta = {
@@ -247,6 +248,43 @@ const RecommendationSection = ({
           <AlertCircle className="h-5 w-5 text-gray-300" />
           <span className="text-sm">Recommendations unavailable right now.</span>
         </div>
+      ) : !hasContent ? (
+        /* ── Empty state: brand-new store / no data yet ───────────────────── */
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-14 gap-4 text-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+            <Package className="h-8 w-8 text-blue-300" />
+          </div>
+          <div>
+            <p className="text-gray-700 font-semibold">
+              {effectiveMode === 'personalized'
+                ? 'No recommendations yet'
+                : 'Nothing trending yet'}
+            </p>
+            <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
+              {effectiveMode === 'personalized'
+                ? 'Start exploring products and services — your personalized picks will appear here.'
+                : 'Be the first to discover our products and services as they launch.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 justify-center mt-1">
+            <Link
+              to="/marketplace/products"
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Browse Products
+            </Link>
+            <Link
+              to="/marketplace/services"
+              className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Browse Services
+            </Link>
+          </div>
+        </motion.div>
       ) : (
         <>
           {/* Products grid */}
