@@ -121,4 +121,4 @@ async function getSearchConsoleOverview(urlPrefix = null) {
   }
 }
 
-module.exports = { getSearchConsoleOverview };
+module.exports = { getSearchConsoleOverview, SITE_URL };

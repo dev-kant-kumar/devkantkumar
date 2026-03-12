@@ -4,7 +4,7 @@ const Project = require('../models/Project');
 const BlogPost = require('../models/BlogPost');
 const Visit = require('../models/Visit');
 const { getGAOverview } = require('../services/googleAnalytics');
-const { getSearchConsoleOverview } = require('../services/searchConsole');
+const { getSearchConsoleOverview, SITE_URL } = require('../services/searchConsole');
 const logger = require('../utils/logger');
 const cloudinary = require('../services/cloudinaryService');
 const emailService = require('../services/emailService');
@@ -167,7 +167,7 @@ const getAnalytics = async (req, res) => {
           logger.error('Marketplace GA Fetch Error:', err.message);
           return null;
         }),
-        getSearchConsoleOverview('https://www.devkantkumar.com/marketplace').catch(err => {
+        getSearchConsoleOverview(`${SITE_URL}marketplace`).catch(err => {
           logger.error('Marketplace GSC Fetch Error:', err.message);
           return null;
         }),
