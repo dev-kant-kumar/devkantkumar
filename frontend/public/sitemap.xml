@@ -1,332 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
-
-  <!-- ============================================ -->
-  <!-- HOMEPAGE (Highest Priority) -->
-  <!-- ============================================ -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.devkantkumar.com/</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://devkantkumar.com</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- ============================================ -->
-  <!-- MAIN PORTFOLIO PAGES -->
-  <!-- ============================================ -->
   <url>
-    <loc>https://www.devkantkumar.com/about</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/projects</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/skills</loc>
-    <lastmod>2025-11-18</lastmod>
+    <loc>https://devkantkumar.com/about</loc>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- ============================================ -->
-  <!-- BLOG SECTION (High Priority) -->
-  <!-- ============================================ -->
   <url>
-    <loc>https://www.devkantkumar.com/blog</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Blog Post: React Server Components 2025 -->
-  <url>
-    <loc>https://www.devkantkumar.com/blog/react-server-components-2025</loc>
-    <lastmod>2025-11-18</lastmod>
+    <loc>https://devkantkumar.com/projects</loc>
+    <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.95</priority>
-
-    <!-- Featured Image -->
-    <image:image>
-      <image:loc>https://www.devkantkumar.com/images/blog/rsc-2025-featured.jpg</image:loc>
-      <image:title>React Server Components (RSC) in 2025: Complete Mastery Guide</image:title>
-      <image:caption>Comprehensive guide to React Server Components architecture, performance optimization, Suspense streaming, and production best practices</image:caption>
-    </image:image>
-
-    <!-- News attributes for Google News eligibility -->
-    <news:news>
-      <news:publication>
-        <news:name>Dev Kant Kumar Tech Blog</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2025-11-18T00:00:00+00:00</news:publication_date>
-      <news:title>React Server Components (RSC) in 2025: Complete Mastery Guide</news:title>
-      <news:keywords>react, server components, rsc, next.js, performance optimization, suspense, streaming, web development, mern stack, core web vitals</news:keywords>
-    </news:news>
+    <priority>0.8</priority>
   </url>
-
-  <!-- Blog Post: Ultimate AI Tools Directory 2025 -->
   <url>
-    <loc>https://www.devkantkumar.com/blog/ultimate-ai-tools-directory-2025</loc>
-    <lastmod>2025-12-26</lastmod>
+    <loc>https://devkantkumar.com/skills</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/contact</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/tools</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog/golpo-ai-review-2026</loc>
+    <lastmod>2026-03-08</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-
-    <!-- Featured Image -->
-    <image:image>
-      <image:loc>https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&amp;fit=crop&amp;q=80&amp;w=2000</image:loc>
-      <image:title>Ultimate AI Tools Directory 2025</image:title>
-      <image:caption>Comprehensive directory of 86+ AI tools including ChatGPT, Claude, Midjourney, and more</image:caption>
-    </image:image>
-
-    <!-- News attributes -->
-    <news:news>
-      <news:publication>
-        <news:name>Dev Kant Kumar Tech Blog</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2025-12-26T00:00:00+00:00</news:publication_date>
-      <news:title>The Ultimate Directory of AI Tools (2025 Edition)</news:title>
-      <news:keywords>ai tools, chatgpt, claude, midjourney, ai directory, productivity, artificial intelligence, 2025</news:keywords>
-    </news:news>
-  </url>
-
-  <!-- Blog Post: React Native CLI vs Expo 2025 -->
-  <url>
-    <loc>https://www.devkantkumar.com/blog/react-native-cli-vs-expo-2025</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
     <priority>0.9</priority>
-
-    <!-- News attributes -->
-    <news:news>
-      <news:publication>
-        <news:name>Dev Kant Kumar Tech Blog</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2025-12-29T00:00:00+00:00</news:publication_date>
-      <news:title>React Native CLI vs Expo in 2025: The Final Verdict</news:title>
-      <news:keywords>react native, expo, cli, mobile app development, 2025 guide, cross-platform</news:keywords>
-    </news:news>
   </url>
-
-  <!-- Blog Post: React Native vs Flutter 2026 -->
   <url>
-    <loc>https://www.devkantkumar.com/blog/react-native-vs-flutter-2026</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://devkantkumar.com/blog/agentic-ai-guide</loc>
+    <lastmod>2025-01-05</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-
-    <!-- News attributes -->
-    <news:news>
-      <news:publication>
-        <news:name>Dev Kant Kumar Tech Blog</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2025-12-29T00:00:00+00:00</news:publication_date>
-      <news:title>React Native vs Flutter in 2026: The Ultimate Comparison Guide</news:title>
-      <news:keywords>react native, flutter, cross-platform, mobile development, comparison, performance, 2026</news:keywords>
-    </news:news>
   </url>
-
-  <!-- Blog Post: yt-dlp Ultimate Guide 2025 -->
   <url>
-    <loc>https://www.devkantkumar.com/blog/yt-dlp-ultimate-guide-2026</loc>
+    <loc>https://devkantkumar.com/blog/yt-dlp-ultimate-guide-2026</loc>
     <lastmod>2026-01-06</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-
-    <!-- Featured Image -->
-    <image:image>
-      <image:loc>https://www.devkantkumar.com/images/blog/yt-dlp-guide.png</image:loc>
-      <image:title>Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites</image:title>
-      <image:caption>The most comprehensive yt-dlp guide covering YouTube, TikTok, Instagram and 1800+ platforms with 100+ commands and troubleshooting</image:caption>
-    </image:image>
-
-    <!-- News attributes for Google News eligibility -->
-    <news:news>
-      <news:publication>
-        <news:name>Dev Kant Kumar Tech Blog</news:name>
-        <news:language>en</news:language>
-      </news:publication>
-      <news:publication_date>2026-01-06T00:00:00+05:30</news:publication_date>
-      <news:title>Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites</news:title>
-      <news:keywords>yt-dlp, youtube downloader, video download, command line, tutorial, ffmpeg, sponsorblock, tiktok, instagram, automation</news:keywords>
-    </news:news>
+    <priority>0.9</priority>
   </url>
-
-
-
-  <!-- ============================================ -->
-  <!-- FREE DEVELOPER TOOLS -->
-  <!-- ============================================ -->
   <url>
-    <loc>https://www.devkantkumar.com/tools</loc>
+    <loc>https://devkantkumar.com/blog/react-server-components-2025</loc>
+    <lastmod>2025-11-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog/google-anti-gravity-ai</loc>
+    <lastmod>2025-11-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog/dotnet-assemblies-complete-guide</loc>
+    <lastmod>2025-11-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog/git-survival-guide</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog/local-llm-ollama-guide-2025</loc>
+    <lastmod>2025-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://devkantkumar.com/blog/react-native-cli-vs-expo-2025</loc>
     <lastmod>2025-12-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://www.devkantkumar.com/tools/json-formatter</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/base64-encoder-decoder</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/password-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/lorem-ipsum-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/color-palette-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/qr-code-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/uuid-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/css-gradient-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/meta-tag-generator</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/tools/markdown-previewer</loc>
-    <lastmod>2025-12-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-
-  <!-- ============================================ -->
-  <!-- CONTENT HUB -->
-  <!-- ============================================ -->
-  <url>
-    <loc>https://www.devkantkumar.com/content</loc>
-    <lastmod>2025-11-18</lastmod>
+    <loc>https://devkantkumar.com/blog/react-native-vs-flutter-2026</loc>
+    <lastmod>2024-12-29</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
-
-  <!-- ============================================ -->
-  <!-- CONTACT & SUPPORT -->
-  <!-- ============================================ -->
   <url>
-    <loc>https://www.devkantkumar.com/contact</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://devkantkumar.com/blog/ultimate-ai-tools-directory-2025</loc>
+    <lastmod>2024-12-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
-
   <url>
-    <loc>https://www.devkantkumar.com/faq</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://devkantkumar.com/blog/javascript-interview-questions-2026</loc>
+    <lastmod>2026-02-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
-
-  <!-- ============================================ -->
-  <!-- MARKETPLACE SECTION -->
-  <!-- Marketplace pages are in sitemap-marketplace.xml -->
-  <!-- ============================================ -->
-
-  <!-- ============================================ -->
-  <!-- INDIVIDUAL PROJECT PAGES -->
-  <!-- ============================================ -->
   <url>
-    <loc>https://www.devkantkumar.com/projects/portfolio-marketplace</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://devkantkumar.com/blog/javascript-internals-2026</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/projects/ecommerce-platform</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/projects/saas-application</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- ============================================ -->
-  <!-- UTILITY PAGES -->
-  <!-- ============================================ -->
-  <url>
-    <loc>https://www.devkantkumar.com/sitemap</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <!-- ============================================ -->
-  <!-- LEGAL PAGES -->
-  <!-- ============================================ -->
-  <url>
-    <loc>https://www.devkantkumar.com/privacy-policy</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
-  <url>
-    <loc>https://www.devkantkumar.com/terms-of-service</loc>
-    <lastmod>2025-11-18</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
 </urlset>

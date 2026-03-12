@@ -36,6 +36,17 @@ export const syncIndexHtml = () => {
     <title>${personalInfo.name} | ${personalInfo.title} Portfolio</title>
     <meta name="description" content="${personalInfo.name} – ${personalInfo.title}. ${professionalSummary.overview.slice(0, 150)}..." />
     <meta name="author" content="${personalInfo.name}" />
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="${personalInfo.name}, Full Stack Developer, MERN Stack, React, Node.js, MongoDB, JavaScript, Tailwind CSS, Portfolio, Web Developer, Frontend, Backend" />
+    <link rel="canonical" href="https://devkantkumar.com/" />
+
+    <!-- Open Graph defaults -->
+    <meta property="og:site_name" content="${personalInfo.name} Portfolio" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="twitter:creator" content="@dev_kant_kumar" />
+
+    <!-- Google Site Verification -->
+    <meta name="google-site-verification" content="1R7-ajqFcl9Qoi6f1TmmrJvhRyWjxRmGORdmYQyrnfw" />
 
     <!-- Preload Fonts & Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
