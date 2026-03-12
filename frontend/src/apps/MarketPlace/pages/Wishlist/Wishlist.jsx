@@ -20,6 +20,7 @@ import {
   useGetWishlistQuery,
   useRemoveFromWishlistMutation,
 } from '../../store/wishlist/wishlistApi';
+import RecommendationSection from '../../common/components/RecommendationSection';
 
 const Wishlist = () => {
   const dispatch = useDispatch();
@@ -161,34 +162,41 @@ const Wishlist = () => {
 
   if (totalItems === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center justify-center py-20 gap-4"
-      >
-        <Heart className="h-16 w-16 text-gray-300" />
-        <h2 className="text-xl font-semibold text-gray-700">
-          Your wishlist is empty
-        </h2>
-        <p className="text-gray-500 text-center max-w-sm">
-          Browse our products and services and click the heart icon to save
-          items you like.
-        </p>
-        <div className="flex gap-3">
-          <Link
-            to="/marketplace/products"
-            className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-          >
-            Browse Products
-          </Link>
-          <Link
-            to="/marketplace/services"
-            className="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-          >
-            Browse Services
-          </Link>
+      <div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-20 gap-4"
+        >
+          <Heart className="h-16 w-16 text-gray-300" />
+          <h2 className="text-xl font-semibold text-gray-700">
+            Your wishlist is empty
+          </h2>
+          <p className="text-gray-500 text-center max-w-sm">
+            Browse our products and services and click the heart icon to save
+            items you like.
+          </p>
+          <div className="flex gap-3">
+            <Link
+              to="/marketplace/products"
+              className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            >
+              Browse Products
+            </Link>
+            <Link
+              to="/marketplace/services"
+              className="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            >
+              Browse Services
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Show trending items so the empty page is still useful */}
+        <div className="border-t border-gray-100 pt-2">
+          <RecommendationSection mode="trending" limit={6} />
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -257,6 +265,11 @@ const Wishlist = () => {
           </div>
         </section>
       )}
+
+      {/* You may also like */}
+      <div className="border-t border-gray-100 pt-2">
+        <RecommendationSection mode="personalized" limit={6} />
+      </div>
     </motion.div>
   );
 };

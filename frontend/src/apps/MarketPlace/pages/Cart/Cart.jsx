@@ -11,6 +11,7 @@ import {
 import { useCurrency } from "../../context/CurrencyContext";
 import { selectIsAuthenticated } from "../../store/auth/authSlice";
 import { removeFromCart as removeFromLocalCart, selectCartItems, updateQuantity } from "../../store/cart/cartSlice";
+import RecommendationSection from "../../common/components/RecommendationSection";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -372,6 +373,11 @@ const Cart = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* You may also like – shown on both empty and filled cart */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-100">
+        <RecommendationSection mode="trending" type="products" limit={6} />
       </div>
     </div>
   );

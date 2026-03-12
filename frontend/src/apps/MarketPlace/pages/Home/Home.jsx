@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import {
     ArrowRight,
+    CheckCircle,
     Clock,
-    Loader2,
-    Star,
     Download,
-    ShieldCheck,
     Headset,
-    Calendar
+    Loader2,
+    ShieldCheck,
+    Star,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PriceDisplay from '../../../../components/common/PriceDisplay';
@@ -18,20 +18,14 @@ import Testimonials from '../../common/components/Testimonials';
 import TrustSignals, { HowItWorks } from '../../common/components/TrustSignals';
 import WhyChooseUs from '../../common/components/WhyChooseUs';
 import EmptyState from '../../common/components/ui/EmptyState';
-import { useGetProductsQuery, useGetServicesQuery } from '../../store/api/marketplaceApi';
+import { useGetTrendingQuery } from '../../store/api/marketplaceApi';
 
 const Home = () => {
-  // Fetch real services and products from API
-  const { data: servicesData, isLoading: servicesLoading } = useGetServicesQuery({ limit: 6 });
-  const { data: productsData, isLoading: productsLoading } = useGetProductsQuery({ limit: 6 });
+  // Use the trending endpoint so the home page shows genuinely popular items
+  const { data: trendingData, isLoading } = useGetTrendingQuery({ limit: 3 });
 
-  const services = servicesData?.services || [];
-  const products = productsData?.products || [];
-
-  const featuredServices = services.slice(0, 3);
-  const featuredProducts = products.slice(0, 3);
-
-  const isLoading = servicesLoading || productsLoading;
+  const featuredProducts = trendingData?.products || [];
+  const featuredServices = trendingData?.services || [];
 
   const stats = [
     { number: "Instant", label: "Digital Delivery", icon: Download },

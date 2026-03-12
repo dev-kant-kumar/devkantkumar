@@ -2283,7 +2283,7 @@ const getRelatedProducts = async (req, res) => {
         const id = p._id.toString();  // cache to avoid repeated conversion inside sort
         return { p, overlap, trendScore, id };
       })
-      .sort((a, b) => b.overlap - a.overlap || b.trendScore - a.trendScore || a.id.localeCompare(b.id))
+      .sort((a, b) => b.overlap - a.overlap || b.trendScore - a.trendScore || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
       .slice(0, limit)
       .map(({ p }) => p);                    // return plain product objects, no internal fields
 
