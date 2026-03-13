@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import FormattedText from "../../../../components/FormattedText";
 import {
   ArrowRight,
   CheckCircle,
@@ -11,6 +10,7 @@ import {
   Star,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import FormattedText from "../../../../components/FormattedText";
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import FAQ from "../../common/components/FAQ";
@@ -230,7 +230,11 @@ const Home = () => {
                     </h3>
 
                     <div className="mb-6 line-clamp-2 leading-relaxed flex-1">
-                      <FormattedText text={service.description} variant="card" truncate={120} />
+                      <FormattedText
+                        text={service.description}
+                        variant="card"
+                        truncate={120}
+                      />
                     </div>
 
                     {service.features && service.features.length > 0 && (
@@ -353,7 +357,11 @@ const Home = () => {
                         {product.title}
                       </h3>
                       <div className="text-sm line-clamp-2">
-                        <FormattedText text={product.description} variant="card" truncate={100} />
+                        <FormattedText
+                          text={product.description}
+                          variant="card"
+                          truncate={100}
+                        />
                       </div>
                     </div>
 

@@ -24,8 +24,7 @@ const BULLET_PATTERNS = [
 const HEADER_PATTERN = /^[A-Z][A-Z\s'&/,]{4,}:?\s*$/;
 
 // URL detection
-const URL_PATTERN =
-  /(https?:\/\/[^\s<>,;)"']+)/g;
+const URL_PATTERN = /(https?:\/\/[^\s<>,;)"']+)/g;
 
 function isBulletLine(line) {
   return BULLET_PATTERNS.some((p) => p.test(line.trim()));
@@ -64,7 +63,7 @@ function linkify(text) {
       >
         {url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 50)}
         {url.replace(/^https?:\/\/(www\.)?/, "").length > 50 ? "…" : ""}
-      </a>
+      </a>,
     );
     lastIndex = match.index + match[0].length;
   }
@@ -222,9 +221,7 @@ function FormattedText({
 
   if (!text) return null;
 
-  return (
-    <div className={`formatted-text ${className}`.trim()}>{rendered}</div>
-  );
+  return <div className={`formatted-text ${className}`.trim()}>{rendered}</div>;
 }
 
 /**
@@ -250,7 +247,7 @@ function extractBulletIcon(line) {
 
   // Emoji/symbol bullets — extract the leading emoji
   const emojiMatch = trimmed.match(
-    /^([\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[✅☑✓✔→►●•◆◇■□▪▫‣⭐⚡➤➡][\uFE0F]?)/u
+    /^([\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[✅☑✓✔→►●•◆◇■□▪▫‣⭐⚡➤➡][\uFE0F]?)/u,
   );
   if (emojiMatch) {
     return <span>{emojiMatch[1]}</span>;
@@ -276,7 +273,7 @@ function stripBulletPrefix(line) {
   // Remove emoji prefix — match one emoji + optional space
   const emojiStripped = trimmed.replace(
     /^([\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[✅☑✓✔→►●•◆◇■□▪▫‣⭐⚡➤➡][\uFE0F]?)\s*/u,
-    ""
+    "",
   );
   if (emojiStripped !== trimmed) return emojiStripped;
 

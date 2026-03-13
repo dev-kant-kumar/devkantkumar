@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import ShareModal from "../../../../components/common/ShareModal";
+import FormattedText from "../../../../components/FormattedText";
 import ReviewForm from "../../../../components/Reviews/ReviewForm";
 import ReviewList from "../../../../components/Reviews/ReviewList";
-import FormattedText from "../../../../components/FormattedText";
 import ProductSchema, {
   BreadcrumbSchema,
 } from "../../../../components/SEO/SchemaMarkup";

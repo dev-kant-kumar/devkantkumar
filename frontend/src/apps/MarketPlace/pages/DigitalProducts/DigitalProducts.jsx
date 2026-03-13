@@ -13,10 +13,10 @@ import {
   Star,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import FormattedText from "../../../../components/FormattedText";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
+import FormattedText from "../../../../components/FormattedText";
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import { useAddToCartMutation } from "../../../../store/cart/cartApi";
@@ -501,7 +501,11 @@ const DigitalProducts = ({ category: propCategory }) => {
                           {product.title}
                         </h3>
                         <div className="text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
-                          <FormattedText text={product.description} variant="card" truncate={120} />
+                          <FormattedText
+                            text={product.description}
+                            variant="card"
+                            truncate={120}
+                          />
                         </div>
 
                         <div className="flex items-center justify-between text-xs text-gray-500 mb-6 pb-6 border-b border-gray-100">

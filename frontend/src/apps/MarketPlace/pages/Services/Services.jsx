@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import FormattedText from "../../../../components/FormattedText";
 import {
   ArrowRight,
   Award,
@@ -22,6 +21,7 @@ import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import FormattedText from "../../../../components/FormattedText";
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
 import FAQ from "../../common/components/FAQ";
@@ -349,7 +349,11 @@ const Services = () => {
                         {service.title}
                       </h3>
                       <div className="text-gray-600 mb-4 line-clamp-2">
-                        <FormattedText text={service.description} variant="card" truncate={120} />
+                        <FormattedText
+                          text={service.description}
+                          variant="card"
+                          truncate={120}
+                        />
                       </div>
 
                       {service.features && (
