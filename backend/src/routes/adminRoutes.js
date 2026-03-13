@@ -46,6 +46,9 @@ router.post('/products', adminMarketplaceController.createProduct);
 router.put('/products/:id', adminMarketplaceController.updateProduct);
 router.delete('/products/:id', adminMarketplaceController.deleteProduct);
 
+// Google Merchant Center
+router.post('/merchant-center/sync', adminMarketplaceController.syncMerchantCenter);
+
 // Services
 router.get('/services', adminMarketplaceController.getAdminServices);
 router.get('/services/:id/analytics', adminMarketplaceController.getServiceAnalytics);
