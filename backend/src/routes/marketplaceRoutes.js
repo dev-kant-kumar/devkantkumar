@@ -29,8 +29,10 @@ router.use("/services/:serviceId/reviews", reviewRouter);
 
 // Public routes
 router.get("/services", marketplaceController.getServices);
+router.get("/services/:id/meta", marketplaceController.getServiceMeta);
 router.get("/services/:id", marketplaceController.getServiceById);
 router.get("/products", marketplaceController.getProducts);
+router.get("/products/:id/meta", marketplaceController.getProductMeta);
 router.get("/products/:id", marketplaceController.getProductById);
 router.get("/products/:id/related", marketplaceController.getRelatedProducts);
 router.get("/categories", marketplaceController.getCategories);

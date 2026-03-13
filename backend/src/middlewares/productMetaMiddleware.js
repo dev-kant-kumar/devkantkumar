@@ -15,12 +15,22 @@
  * <head> before the browser (or crawler) parses the page.
  *
  * Regular browsers are unaffected — they still receive the normal React app.
+ *
+ * Industry-grade features:
+ *  - Redis caching (via cacheService) with configurable TTL
+ *  - ETag + Vary: User-Agent for proper HTTP cache semantics at CDN / proxy
+ *  - Cache invalidation helpers exported for use by admin controllers
+ *  - Rich Schema.org JSON-LD (priceValidUntil, aggregateRating, hasOfferCatalog)
+ *  - HTML/markdown description sanitisation (truncated to 155 chars)
+ *  - og:image:secure_url + og:image:type for maximum crawler compatibility
+ *  - og:updated_time for content-freshness signals
  */
 
 const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
 const logger = require("../utils/logger");
+const cache = require("../services/cacheService");
 
 // ---------------------------------------------------------------------------
 // Bot / crawler detection
@@ -107,6 +117,38 @@ function getIndexHtml(publicDir) {
 }
 
 // ---------------------------------------------------------------------------
+// Redis cache helpers
+// ---------------------------------------------------------------------------
+
+/** Redis key TTL for cached meta fragments (seconds). 10 minutes by default. */
+const META_CACHE_TTL = 600;
+
+/** Prefix used for all meta-fragment cache keys — easy to pattern-delete. */
+const META_CACHE_PREFIX = "meta";
+
+function metaCacheKey(type, identifier) {
+  return `${META_CACHE_PREFIX}:${type}:${identifier}`;
+}
+
+/**
+ * Invalidate all cached meta entries for a given product or service.
+ * Call this from admin controllers after create / update / delete.
+ *
+ * @param {"product"|"service"} type
+ * @param {string} id    - MongoDB ObjectId string
+ * @param {string} [slug] - slug, when available
+ */
+async function invalidateMetaCache(type, id, slug) {
+  try {
+    if (id) await cache.del(metaCacheKey(type, id));
+    if (slug) await cache.del(metaCacheKey(type, slug));
+  } catch (err) {
+    // Non-fatal — log and continue
+    logger.warn(`productMetaMiddleware: cache invalidation failed: ${err.message}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Meta tag builders
 // ---------------------------------------------------------------------------
 
@@ -121,16 +163,32 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;");
 }
 
+/**
+ * Strip HTML tags and common Markdown syntax from a string, then truncate to
+ * 155 characters (the standard SEO meta-description limit).  This prevents
+ * raw HTML or markdown leaking into meta tags shown by ad-platforms.
+ */
+function sanitizeDescription(raw, maxLen = 155) {
+  if (!raw) return "";
+  return String(raw)
+    // Remove HTML tags
+    .replace(/<[^>]+>/g, " ")
+    // Remove common Markdown: bold/italic/code markers
+    .replace(/[*_`~>#]/g, "")
+    // Remove Markdown links: [text](url) → text
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    // Normalise whitespace
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLen);
+}
+
 function buildProductMetaTags(product) {
   const url = `${BASE_URL}/marketplace/products/${product.slug || product._id}`;
   const title = escapeHtml(product.seo?.metaTitle || product.title);
-  const description = escapeHtml(
-    product.seo?.metaDescription ||
-      (product.description || "").slice(0, 300),
-  );
-  const image =
-    product.images?.[0]?.url ||
-    `${BASE_URL}/images/marketplace-og.jpg`;
+  const rawDesc =
+    product.seo?.metaDescription || product.description || "";
+  const description = escapeHtml(sanitizeDescription(rawDesc));
   const price = product.price;
   const currency = "INR";
   const availability = product.isActive
@@ -143,14 +201,67 @@ function buildProductMetaTags(product) {
     (product.seo?.keywords || product.tags || []).join(", "),
   );
 
-  // All images for og:image tags
+  // All images for og:image tags (capped at 5 to keep <head> lean)
   const allImages =
-    product.images?.map((img) => img.url).filter(Boolean) || [];
+    product.images?.map((img) => img.url).filter(Boolean).slice(0, 5) || [];
   if (allImages.length === 0) allImages.push(`${BASE_URL}/images/marketplace-og.jpg`);
+  const primaryImage = allImages[0];
 
   const ogImageTags = allImages
-    .map((imgUrl) => `  <meta property="og:image" content="${escapeHtml(imgUrl)}" />`)
+    .map(
+      (imgUrl) =>
+        `  <meta property="og:image" content="${escapeHtml(imgUrl)}" />\n` +
+        `  <meta property="og:image:secure_url" content="${escapeHtml(imgUrl)}" />\n` +
+        `  <meta property="og:image:type" content="image/jpeg" />`,
+    )
     .join("\n");
+
+  const updatedAt = product.updatedAt
+    ? new Date(product.updatedAt).toISOString()
+    : new Date().toISOString();
+
+  // Schema.org aggregateRating (if the product carries rating data)
+  const aggregateRating =
+    product.rating?.count > 0
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: product.rating.average,
+          reviewCount: product.rating.count,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined;
+
+  // Price valid until: 1 year from last update — a sensible default for digital goods
+  const priceValidUntil = new Date(
+    Date.now() + 365 * 24 * 60 * 60 * 1000,
+  )
+    .toISOString()
+    .split("T")[0];
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: sanitizeDescription(rawDesc, 500),
+    image: allImages,
+    url,
+    sku: itemId,
+    brand: { "@type": "Brand", name: brand },
+    offers: {
+      "@type": "Offer",
+      url,
+      priceCurrency: currency,
+      price,
+      priceValidUntil,
+      availability,
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Person", name: "Dev Kant Kumar" },
+    },
+    category: product.category,
+  };
+  if (aggregateRating) jsonLd.aggregateRating = aggregateRating;
+  if (product.version) jsonLd.version = product.version;
 
   return `
   <!-- Primary SEO -->
@@ -166,6 +277,7 @@ function buildProductMetaTags(product) {
   <meta property="og:description" content="${description}" />
   <meta property="og:site_name" content="Dev Kant Kumar Marketplace" />
   <meta property="og:locale" content="en_US" />
+  <meta property="og:updated_time" content="${escapeHtml(updatedAt)}" />
 ${ogImageTags}
 
   <!-- Facebook / Meta Ads product-specific tags -->
@@ -181,45 +293,21 @@ ${ogImageTags}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${title}" />
   <meta name="twitter:description" content="${description}" />
-  <meta name="twitter:image" content="${escapeHtml(allImages[0])}" />
+  <meta name="twitter:image" content="${escapeHtml(primaryImage)}" />
   <meta name="twitter:site" content="@dev_kant_kumar" />
 
   <!-- Schema.org Product (JSON-LD) -->
   <script type="application/ld+json">
-  ${JSON.stringify(
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: product.title,
-      description: product.description,
-      image: allImages,
-      url,
-      sku: itemId,
-      brand: { "@type": "Brand", name: brand },
-      offers: {
-        "@type": "Offer",
-        url,
-        priceCurrency: currency,
-        price,
-        availability,
-        itemCondition: "https://schema.org/NewCondition",
-        seller: { "@type": "Person", name: "Dev Kant Kumar" },
-      },
-      category: product.category,
-    },
-    null,
-    2,
-  )}
+  ${JSON.stringify(jsonLd, null, 2)}
   </script>`;
 }
 
 function buildServiceMetaTags(service) {
   const url = `${BASE_URL}/marketplace/services/${service.slug || service._id}`;
   const title = escapeHtml(service.seo?.metaTitle || service.title);
-  const description = escapeHtml(
-    service.seo?.metaDescription ||
-      (service.description || "").slice(0, 300),
-  );
+  const rawDesc =
+    service.seo?.metaDescription || service.description || "";
+  const description = escapeHtml(sanitizeDescription(rawDesc));
   const image =
     service.images?.[0]?.url ||
     `${BASE_URL}/images/marketplace-og.jpg`;
@@ -230,6 +318,8 @@ function buildServiceMetaTags(service) {
     .filter((p) => typeof p === "number" && p >= 0);
   const lowPrice =
     prices.length > 0 ? Math.min(...prices) : service.startingPrice || 0;
+  const highPrice =
+    prices.length > 0 ? Math.max(...prices) : lowPrice;
   const availability = service.isActive
     ? "https://schema.org/InStock"
     : "https://schema.org/OutOfStock";
@@ -239,6 +329,77 @@ function buildServiceMetaTags(service) {
   const keywords = escapeHtml(
     (service.seo?.keywords || service.tags || []).join(", "),
   );
+
+  const updatedAt = service.updatedAt
+    ? new Date(service.updatedAt).toISOString()
+    : new Date().toISOString();
+
+  const priceValidUntil = new Date(
+    Date.now() + 365 * 24 * 60 * 60 * 1000,
+  )
+    .toISOString()
+    .split("T")[0];
+
+  // Build individual Offer objects per package for hasOfferCatalog
+  const offerCatalogItems = packages.map((pkg) => ({
+    "@type": "Offer",
+    name: pkg.title || pkg.name,
+    description: pkg.description,
+    price: pkg.price,
+    priceCurrency: currency,
+    priceValidUntil,
+    availability,
+    itemCondition: "https://schema.org/NewCondition",
+  }));
+
+  const aggregateRating =
+    service.rating?.count > 0
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: service.rating.average,
+          reviewCount: service.rating.count,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": ["Service", "Product"],
+    name: service.title,
+    description: sanitizeDescription(rawDesc, 500),
+    image,
+    url,
+    brand: { "@type": "Brand", name: brand },
+    offers:
+      packages.length > 1
+        ? {
+            "@type": "AggregateOffer",
+            url,
+            priceCurrency: currency,
+            lowPrice,
+            highPrice,
+            offerCount: packages.length,
+            priceValidUntil,
+          }
+        : {
+            "@type": "Offer",
+            url,
+            priceCurrency: currency,
+            price: lowPrice,
+            priceValidUntil,
+            availability,
+          },
+    category: service.category,
+  };
+  if (offerCatalogItems.length > 0) {
+    jsonLd.hasOfferCatalog = {
+      "@type": "OfferCatalog",
+      name: `${service.title} — Service Packages`,
+      itemListElement: offerCatalogItems,
+    };
+  }
+  if (aggregateRating) jsonLd.aggregateRating = aggregateRating;
 
   return `
   <!-- Primary SEO -->
@@ -253,8 +414,11 @@ function buildServiceMetaTags(service) {
   <meta property="og:title" content="${title}" />
   <meta property="og:description" content="${description}" />
   <meta property="og:image" content="${escapeHtml(image)}" />
+  <meta property="og:image:secure_url" content="${escapeHtml(image)}" />
+  <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:site_name" content="Dev Kant Kumar Marketplace" />
   <meta property="og:locale" content="en_US" />
+  <meta property="og:updated_time" content="${escapeHtml(updatedAt)}" />
 
   <!-- Facebook / Meta Ads product-specific tags -->
   <meta property="product:price:amount" content="${lowPrice}" />
@@ -274,37 +438,7 @@ function buildServiceMetaTags(service) {
 
   <!-- Schema.org Service (JSON-LD) -->
   <script type="application/ld+json">
-  ${JSON.stringify(
-    {
-      "@context": "https://schema.org",
-      "@type": ["Service", "Product"],
-      name: service.title,
-      description: service.description,
-      image,
-      url,
-      brand: { "@type": "Brand", name: brand },
-      offers:
-        packages.length > 1
-          ? {
-              "@type": "AggregateOffer",
-              url,
-              priceCurrency: currency,
-              lowPrice,
-              highPrice: prices.length > 0 ? Math.max(...prices) : lowPrice,
-              offerCount: packages.length,
-            }
-          : {
-              "@type": "Offer",
-              url,
-              priceCurrency: currency,
-              price: lowPrice,
-              availability,
-            },
-      category: service.category,
-    },
-    null,
-    2,
-  )}
+  ${JSON.stringify(jsonLd, null, 2)}
   </script>`;
 }
 
@@ -353,51 +487,91 @@ function createProductMetaMiddleware(publicDir) {
 
       if (!identifier || !type) return next();
 
-      // Fetch from DB
-      let item = null;
+      // -----------------------------------------------------------------------
+      // 1. Redis cache lookup (fast path for repeat bot visits)
+      // -----------------------------------------------------------------------
+      const cacheKey = metaCacheKey(type, identifier);
+      let metaTags = null;
+
       try {
-        if (type === "product") {
-          const Product = mongoose.model("Product");
-          if (
-            mongoose.Types.ObjectId.isValid(identifier) &&
-            /^[0-9a-fA-F]{24}$/.test(identifier)
-          ) {
-            item = await Product.findById(identifier).lean();
-          }
-          if (!item) {
-            item = await Product.findOne({ slug: identifier }).lean();
-          }
-        } else {
-          const Service = mongoose.model("Service");
-          if (
-            mongoose.Types.ObjectId.isValid(identifier) &&
-            /^[0-9a-fA-F]{24}$/.test(identifier)
-          ) {
-            item = await Service.findById(identifier).lean();
-          }
-          if (!item) {
-            item = await Service.findOne({ slug: identifier }).lean();
-          }
-        }
-      } catch (dbErr) {
-        // DB not available during build / dev — fall through to SPA
-        logger.warn(
-          `productMetaMiddleware: DB lookup failed for ${identifier}: ${dbErr.message}`,
-        );
-        return next();
+        metaTags = await cache.get(cacheKey);
+      } catch (cacheErr) {
+        logger.warn(`productMetaMiddleware: cache get failed: ${cacheErr.message}`);
       }
 
-      if (!item) return next();
+      // -----------------------------------------------------------------------
+      // 2. DB lookup (cache miss or Redis unavailable)
+      // -----------------------------------------------------------------------
+      let item = null;
+      if (!metaTags) {
+        try {
+          if (type === "product") {
+            const Product = mongoose.model("Product");
+            if (
+              mongoose.Types.ObjectId.isValid(identifier) &&
+              /^[0-9a-fA-F]{24}$/.test(identifier)
+            ) {
+              item = await Product.findById(identifier).lean();
+            }
+            if (!item) {
+              item = await Product.findOne({ slug: identifier }).lean();
+            }
+          } else {
+            const Service = mongoose.model("Service");
+            if (
+              mongoose.Types.ObjectId.isValid(identifier) &&
+              /^[0-9a-fA-F]{24}$/.test(identifier)
+            ) {
+              item = await Service.findById(identifier).lean();
+            }
+            if (!item) {
+              item = await Service.findOne({ slug: identifier }).lean();
+            }
+          }
+        } catch (dbErr) {
+          // DB not available — fall through to SPA
+          logger.warn(
+            `productMetaMiddleware: DB lookup failed for ${identifier}: ${dbErr.message}`,
+          );
+          return next();
+        }
 
-      // Read index.html (cached after first read)
+        if (!item) return next();
+
+        // Build meta tags
+        metaTags =
+          type === "product"
+            ? buildProductMetaTags(item)
+            : buildServiceMetaTags(item);
+
+        // Store in Redis for subsequent bot requests
+        // Also cache under the canonical ID so slug-based and ID-based requests
+        // can both populate the cache.
+        try {
+          const idKey = metaCacheKey(type, String(item._id));
+          const slugKey = item.slug ? metaCacheKey(type, item.slug) : null;
+          await cache.set(idKey, metaTags, META_CACHE_TTL);
+          if (slugKey && slugKey !== idKey) {
+            await cache.set(slugKey, metaTags, META_CACHE_TTL);
+          }
+        } catch (cacheSetErr) {
+          logger.warn(`productMetaMiddleware: cache set failed: ${cacheSetErr.message}`);
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 3. ETag + conditional GET support
+      // -----------------------------------------------------------------------
+      const etag = `"meta-${type}-${identifier}"`;
+      if (req.headers["if-none-match"] === etag) {
+        return res.status(304).end();
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. Read index.html and inject
+      // -----------------------------------------------------------------------
       const indexHtml = getIndexHtml(publicDir);
       if (!indexHtml) return next();
-
-      // Build and inject meta tags
-      const metaTags =
-        type === "product"
-          ? buildProductMetaTags(item)
-          : buildServiceMetaTags(item);
 
       // Replace the opening <head> tag to inject our meta block
       const injected = indexHtml.replace(
@@ -406,7 +580,11 @@ function createProductMetaMiddleware(publicDir) {
       );
 
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("Cache-Control", "public, max-age=300"); // 5 min cache for bot responses
+      // Vary: User-Agent tells CDNs/proxies that bot and browser responses differ
+      res.setHeader("Vary", "User-Agent");
+      res.setHeader("ETag", etag);
+      // 5 min browser + 1 min CDN cache for bot responses
+      res.setHeader("Cache-Control", "public, max-age=300, s-maxage=60, stale-while-revalidate=600");
       res.send(injected);
     } catch (err) {
       logger.error("productMetaMiddleware unexpected error:", err);
@@ -415,4 +593,4 @@ function createProductMetaMiddleware(publicDir) {
   };
 }
 
-module.exports = { createProductMetaMiddleware, isBot };
+module.exports = { createProductMetaMiddleware, isBot, invalidateMetaCache };

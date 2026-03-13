@@ -2629,11 +2629,289 @@ const getPersonalizedRecommendations = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/v1/marketplace/products/:id/meta
+ * GET /api/v1/marketplace/services/:id/meta
+ *
+ * Returns a structured JSON object containing all product/service metadata
+ * needed for ad campaign creation (Facebook/Meta Ads, Google Merchant Center,
+ * LinkedIn, etc.).  This endpoint is publicly accessible so that external
+ * tools, scripts, and ad platforms that prefer JSON over HTML scraping can
+ * directly retrieve clean, complete product data.
+ *
+ * The response mirrors the Open Graph + Schema.org fields injected by the
+ * server-side meta middleware, ensuring consistency between the two surfaces.
+ */
+const getProductMeta = async (req, res) => {
+  try {
+    const identifier = req.params.id;
+    let product = null;
+
+    if (
+      mongoose.Types.ObjectId.isValid(identifier) &&
+      identifier.match(/^[0-9a-fA-F]{24}$/)
+    ) {
+      product = await Product.findById(identifier).lean();
+    }
+    if (!product) {
+      product = await Product.findOne({ slug: identifier }).lean();
+    }
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const BASE_URL = "https://www.devkantkumar.com";
+    const url = `${BASE_URL}/marketplace/products/${product.slug || product._id}`;
+    const allImages =
+      product.images?.map((img) => img.url).filter(Boolean) || [];
+    if (allImages.length === 0) allImages.push(`${BASE_URL}/images/marketplace-og.jpg`);
+
+    const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
+
+    res.json({
+      type: "product",
+      id: String(product._id),
+      slug: product.slug,
+      title: product.seo?.metaTitle || product.title,
+      description:
+        product.seo?.metaDescription ||
+        (product.description || "").slice(0, 155),
+      keywords: product.seo?.keywords || product.tags || [],
+      images: allImages,
+      url,
+      canonical: url,
+      openGraph: {
+        type: "product",
+        title: product.seo?.metaTitle || product.title,
+        description:
+          product.seo?.metaDescription ||
+          (product.description || "").slice(0, 155),
+        images: allImages,
+        url,
+        siteName: "Dev Kant Kumar Marketplace",
+        locale: "en_US",
+        updatedTime: product.updatedAt,
+      },
+      product: {
+        retailerItemId: String(product._id),
+        price: product.price,
+        currency: "INR",
+        availability: product.isActive ? "in stock" : "out of stock",
+        condition: "new",
+        brand: "Dev Kant Kumar Marketplace",
+        category: product.category,
+        priceValidUntil,
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: "@dev_kant_kumar",
+        title: product.seo?.metaTitle || product.title,
+        description:
+          product.seo?.metaDescription ||
+          (product.description || "").slice(0, 155),
+        image: allImages[0],
+      },
+      schemaOrg: {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.title,
+        description: product.description,
+        image: allImages,
+        url,
+        sku: String(product._id),
+        brand: { "@type": "Brand", name: "Dev Kant Kumar Marketplace" },
+        offers: {
+          "@type": "Offer",
+          url,
+          priceCurrency: "INR",
+          price: product.price,
+          priceValidUntil,
+          availability: product.isActive
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+          itemCondition: "https://schema.org/NewCondition",
+        },
+        ...(product.rating?.count > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: product.rating.average,
+                reviewCount: product.rating.count,
+              },
+            }
+          : {}),
+        category: product.category,
+      },
+    });
+  } catch (error) {
+    logger.error("Get product meta error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getServiceMeta = async (req, res) => {
+  try {
+    const identifier = req.params.id;
+    let service = null;
+
+    if (
+      mongoose.Types.ObjectId.isValid(identifier) &&
+      identifier.match(/^[0-9a-fA-F]{24}$/)
+    ) {
+      service = await Service.findById(identifier).lean();
+    }
+    if (!service) {
+      service = await Service.findOne({ slug: identifier }).lean();
+    }
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    const BASE_URL = "https://www.devkantkumar.com";
+    const url = `${BASE_URL}/marketplace/services/${service.slug || service._id}`;
+    const image =
+      service.images?.[0]?.url || `${BASE_URL}/images/marketplace-og.jpg`;
+
+    const packages = service.packages || [];
+    const prices = packages
+      .map((p) => p.price)
+      .filter((p) => typeof p === "number" && p >= 0);
+    const lowPrice =
+      prices.length > 0 ? Math.min(...prices) : service.startingPrice || 0;
+    const highPrice =
+      prices.length > 0 ? Math.max(...prices) : lowPrice;
+
+    const priceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
+
+    res.json({
+      type: "service",
+      id: String(service._id),
+      slug: service.slug,
+      title: service.seo?.metaTitle || service.title,
+      description:
+        service.seo?.metaDescription ||
+        (service.description || "").slice(0, 155),
+      keywords: service.seo?.keywords || service.tags || [],
+      images: [image],
+      url,
+      canonical: url,
+      openGraph: {
+        type: "product",
+        title: service.seo?.metaTitle || service.title,
+        description:
+          service.seo?.metaDescription ||
+          (service.description || "").slice(0, 155),
+        images: [image],
+        url,
+        siteName: "Dev Kant Kumar Marketplace",
+        locale: "en_US",
+        updatedTime: service.updatedAt,
+      },
+      product: {
+        retailerItemId: String(service._id),
+        price: lowPrice,
+        currency: "INR",
+        availability: service.isActive ? "in stock" : "out of stock",
+        condition: "new",
+        brand: "Dev Kant Kumar Marketplace",
+        category: service.category,
+        priceValidUntil,
+      },
+      packages: packages.map((pkg) => ({
+        name: pkg.name,
+        title: pkg.title,
+        description: pkg.description,
+        price: pkg.price,
+        currency: "INR",
+        deliveryTime: pkg.deliveryTime,
+        revisions: pkg.revisions,
+        features: pkg.features || [],
+      })),
+      twitter: {
+        card: "summary_large_image",
+        site: "@dev_kant_kumar",
+        title: service.seo?.metaTitle || service.title,
+        description:
+          service.seo?.metaDescription ||
+          (service.description || "").slice(0, 155),
+        image,
+      },
+      schemaOrg: {
+        "@context": "https://schema.org",
+        "@type": ["Service", "Product"],
+        name: service.title,
+        description: service.description,
+        image,
+        url,
+        brand: { "@type": "Brand", name: "Dev Kant Kumar Marketplace" },
+        offers:
+          packages.length > 1
+            ? {
+                "@type": "AggregateOffer",
+                url,
+                priceCurrency: "INR",
+                lowPrice,
+                highPrice,
+                offerCount: packages.length,
+                priceValidUntil,
+              }
+            : {
+                "@type": "Offer",
+                url,
+                priceCurrency: "INR",
+                price: lowPrice,
+                priceValidUntil,
+                availability: service.isActive
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+              },
+        ...(packages.length > 0
+          ? {
+              hasOfferCatalog: {
+                "@type": "OfferCatalog",
+                name: `${service.title} — Service Packages`,
+                itemListElement: packages.map((pkg) => ({
+                  "@type": "Offer",
+                  name: pkg.title || pkg.name,
+                  description: pkg.description,
+                  price: pkg.price,
+                  priceCurrency: "INR",
+                  priceValidUntil,
+                })),
+              },
+            }
+          : {}),
+        ...(service.rating?.count > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: service.rating.average,
+                reviewCount: service.rating.count,
+              },
+            }
+          : {}),
+        category: service.category,
+      },
+    });
+  } catch (error) {
+    logger.error("Get service meta error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
+  getProductMeta,
   getServices,
   getServiceById,
+  getServiceMeta,
   getCategories,
   search,
   getCart,

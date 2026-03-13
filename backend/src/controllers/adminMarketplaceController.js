@@ -8,6 +8,7 @@ const Subscriber = require("../models/Subscriber");
 const emailService = require("../services/emailService");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
+const { invalidateMetaCache } = require("../middlewares/productMetaMiddleware");
 
 // Escape all special regex metacharacters in a user-supplied string so it is
 // treated as a plain substring search. Prevents ReDoS attacks where a crafted
@@ -118,6 +119,9 @@ exports.createProduct = async (req, res) => {
     });
     await product.save();
 
+    // Bust the server-side meta cache for this product
+    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: product,
@@ -226,6 +230,9 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Bust the server-side meta cache for this product
+    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+
     res.json({
       success: true,
       data: product,
@@ -270,6 +277,9 @@ exports.deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    // Bust the server-side meta cache for this product
+    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
 
     res.json({
       success: true,
@@ -525,6 +535,9 @@ exports.createService = async (req, res) => {
     });
     await service.save();
 
+    // Bust the server-side meta cache for this service
+    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: service,
@@ -636,6 +649,9 @@ exports.updateService = async (req, res) => {
       return res.status(404).json({ message: "Service not found" });
     }
 
+    // Bust the server-side meta cache for this service
+    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+
     res.json({
       success: true,
       data: service,
@@ -680,6 +696,9 @@ exports.deleteService = async (req, res) => {
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
+
+    // Bust the server-side meta cache for this service
+    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
 
     res.json({
       success: true,
