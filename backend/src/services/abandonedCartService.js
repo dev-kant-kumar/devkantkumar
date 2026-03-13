@@ -86,6 +86,10 @@ async function acquireLock() {
 /**
  * Build a plain-object representation of a cart item suitable for the email
  * template, from a populated User cart item.
+ *
+ * Returns `null` when the cart item's `product` / `service` reference is absent
+ * (e.g. the document was deleted after it was added to the cart).  Callers must
+ * filter out null values before passing the array to the email template.
  */
 function cartItemToEmailItem(item) {
   const product = item.product || item.service;

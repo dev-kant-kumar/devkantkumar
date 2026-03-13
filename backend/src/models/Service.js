@@ -304,6 +304,10 @@ serviceSchema.index({ totalOrders: -1 });
 serviceSchema.index({ createdAt: -1 });
 serviceSchema.index({ isFeatured: 1, isActive: 1 });
 serviceSchema.index({ title: "text", description: "text", tags: "text" });
+// Compound indexes for the most common query patterns in the public catalogue
+// (isActive filter + optional category + sort by createdAt)
+serviceSchema.index({ isActive: 1, createdAt: -1 });
+serviceSchema.index({ isActive: 1, category: 1, createdAt: -1 });
 
 // Pre-save middleware to generate unique slug
 serviceSchema.pre("save", async function (next) {

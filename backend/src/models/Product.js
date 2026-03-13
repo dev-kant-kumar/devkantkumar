@@ -260,6 +260,10 @@ productSchema.index({ downloads: -1 });
 productSchema.index({ createdAt: -1 });
 productSchema.index({ isFeatured: 1, isActive: 1 });
 productSchema.index({ title: "text", description: "text", tags: "text" });
+// Compound indexes for the most common query patterns in the public catalogue
+// (isActive filter + optional category + sort by createdAt)
+productSchema.index({ isActive: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, category: 1, createdAt: -1 });
 
 // Pre-save middleware to generate unique slug
 productSchema.pre("save", async function (next) {

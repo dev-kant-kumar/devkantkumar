@@ -55,7 +55,8 @@ const getServices = async (req, res) => {
     const services = await Service.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     const total = await Service.countDocuments(query);
 
@@ -85,12 +86,12 @@ const getServiceById = async (req, res) => {
       mongoose.Types.ObjectId.isValid(identifier) &&
       identifier.match(/^[0-9a-fA-F]{24}$/)
     ) {
-      service = await Service.findById(identifier);
+      service = await Service.findById(identifier).lean();
     }
 
     // Fall back to slug lookup
     if (!service) {
-      service = await Service.findOne({ slug: identifier });
+      service = await Service.findOne({ slug: identifier }).lean();
     }
 
     if (!service) {
@@ -132,7 +133,8 @@ const getProducts = async (req, res) => {
     const products = await Product.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     const total = await Product.countDocuments(query);
 
@@ -162,12 +164,12 @@ const getProductById = async (req, res) => {
       mongoose.Types.ObjectId.isValid(identifier) &&
       identifier.match(/^[0-9a-fA-F]{24}$/)
     ) {
-      product = await Product.findById(identifier);
+      product = await Product.findById(identifier).lean();
     }
 
     // Fall back to slug lookup
     if (!product) {
-      product = await Product.findOne({ slug: identifier });
+      product = await Product.findOne({ slug: identifier }).lean();
     }
 
     if (!product) {
@@ -227,11 +229,11 @@ const search = async (req, res) => {
     let results = {};
 
     if (!type || type === "products") {
-      results.products = await Product.find(searchQuery).limit(10);
+      results.products = await Product.find(searchQuery).limit(10).lean();
     }
 
     if (!type || type === "services") {
-      results.services = await Service.find(searchQuery).limit(10);
+      results.services = await Service.find(searchQuery).limit(10).lean();
     }
 
     res.json(results);

@@ -4,6 +4,7 @@ const quoteController = require("../controllers/quoteController");
 const supportController = require("../controllers/supportController");
 const { protect, optionalAuth } = require("../middlewares/auth");
 const { createLimiter } = require("../middlewares/rateLimiter");
+const cacheMiddleware = require("../middlewares/cacheMiddleware");
 
 const reviewRouter = require("./reviewRoutes");
 
@@ -27,17 +28,19 @@ const downloadLimiter = createLimiter({
 router.use("/products/:productId/reviews", reviewRouter);
 router.use("/services/:serviceId/reviews", reviewRouter);
 
-// Public routes
-router.get("/services", marketplaceController.getServices);
+// Public routes — hot read paths are cached in Redis to absorb repeated requests
+// without hitting MongoDB.  TTLs are short enough that stale data is never visible
+// for more than a few minutes, and the middleware is a no-op when Redis is down.
+router.get("/services", cacheMiddleware(60, "services"), marketplaceController.getServices);
 router.get("/services/:id/meta", marketplaceController.getServiceMeta);
-router.get("/services/:id", marketplaceController.getServiceById);
-router.get("/products", marketplaceController.getProducts);
+router.get("/services/:id", cacheMiddleware(120, "service"), marketplaceController.getServiceById);
+router.get("/products", cacheMiddleware(60, "products"), marketplaceController.getProducts);
 router.get("/products/:id/meta", marketplaceController.getProductMeta);
-router.get("/products/:id", marketplaceController.getProductById);
-router.get("/products/:id/related", marketplaceController.getRelatedProducts);
-router.get("/categories", marketplaceController.getCategories);
-router.get("/search", marketplaceController.search);
-router.get("/recommendations/trending", marketplaceController.getTrending);
+router.get("/products/:id", cacheMiddleware(120, "product"), marketplaceController.getProductById);
+router.get("/products/:id/related", cacheMiddleware(120, "related"), marketplaceController.getRelatedProducts);
+router.get("/categories", cacheMiddleware(300, "categories"), marketplaceController.getCategories);
+router.get("/search", cacheMiddleware(30, "search"), marketplaceController.search);
+router.get("/recommendations/trending", cacheMiddleware(120, "trending"), marketplaceController.getTrending);
 router.post("/payment/webhook", marketplaceController.handleRazorpayWebhook);
 
 // Quote request (public - no auth required)
