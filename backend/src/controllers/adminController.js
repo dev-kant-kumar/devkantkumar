@@ -4,7 +4,7 @@ const Project = require('../models/Project');
 const BlogPost = require('../models/BlogPost');
 const Visit = require('../models/Visit');
 const { getGAOverview } = require('../services/googleAnalytics');
-const { getSearchConsoleOverview } = require('../services/searchConsole');
+const { getSearchConsoleOverview, SITE_URL } = require('../services/searchConsole');
 const logger = require('../utils/logger');
 const cloudinary = require('../services/cloudinaryService');
 const emailService = require('../services/emailService');
@@ -120,7 +120,7 @@ const getAnalytics = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    // Visit Stats (Last 30 Days)
+    // Visit Stats (Last 30 Days) - all pages
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const visitStats = await Visit.aggregate([
@@ -134,10 +134,27 @@ const getAnalytics = async (req, res) => {
       { $sort: { _id: 1 } }
     ]);
 
-    // Google Analytics and Search Console Overview
+    // Marketplace-specific visit stats (last 30 days)
+    const marketplaceVisitStats = await Visit.aggregate([
+      {
+        $match: {
+          timestamp: { $gte: thirtyDaysAgo },
+          path: { $regex: '^/marketplace' },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
+          views: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Google Analytics and Search Console Overview (site-wide + marketplace-specific)
     let googleAnalytics = null;
     try {
-      const [ga, gsc] = await Promise.all([
+      const [ga, gsc, marketplaceGa, marketplaceGsc] = await Promise.all([
         getGAOverview().catch(err => {
           logger.error('GA Fetch Error:', err.message);
           return null;
@@ -145,9 +162,17 @@ const getAnalytics = async (req, res) => {
         getSearchConsoleOverview().catch(err => {
           logger.error('GSC Fetch Error:', err.message);
           return null;
-        })
+        }),
+        getGAOverview('/marketplace').catch(err => {
+          logger.error('Marketplace GA Fetch Error:', err.message);
+          return null;
+        }),
+        getSearchConsoleOverview(`${SITE_URL}marketplace`).catch(err => {
+          logger.error('Marketplace GSC Fetch Error:', err.message);
+          return null;
+        }),
       ]);
-      googleAnalytics = { ga, gsc };
+      googleAnalytics = { ga, gsc, marketplaceGa, marketplaceGsc };
     } catch (err) {
       logger.error('Error fetching Google analytics in getAnalytics:', err);
     }
@@ -159,6 +184,7 @@ const getAnalytics = async (req, res) => {
         orderStats: orderStats.map(item => ({ month: item._id, orders: item.orders })),
         revenueStats: revenueStats.map(item => ({ month: item._id, revenue: item.revenue })),
         visitStats: visitStats.map(item => ({ date: item._id, views: item.views })),
+        marketplaceVisitStats: marketplaceVisitStats.map(item => ({ date: item._id, views: item.views })),
         googleAnalytics
       }
     });

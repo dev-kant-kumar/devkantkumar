@@ -1,7 +1,7 @@
 import { portfolioData } from '../apps/Portfolio/store/data/portfolioData';
 
 export const generateSitemap = () => {
-  const baseUrl = 'https://devkantkumar.com';
+  const baseUrl = 'https://www.devkantkumar.com';
   const currentDate = new Date().toISOString().split('T')[0];
 
   // Static pages

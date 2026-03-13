@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const generateSitemap = () => {
     console.log('Generating sitemap...');
     const { seoConfig } = portfolioData;
-    const siteUrl = seoConfig?.site?.url || 'https://devkantkumar.com';
+    const siteUrl = seoConfig?.site?.url || 'https://www.devkantkumar.com';
     const blogUrl = `${siteUrl}/blog`;
 
     const currentDate = new Date().toISOString().split('T')[0];

@@ -16,7 +16,7 @@ const SEOHead = ({
   modifiedTime = '',
   section = '',
 }) => {
-  const baseUrl = 'https://devkantkumar.com';
+  const baseUrl = 'https://www.devkantkumar.com';
   const fullUrl = `${baseUrl}/ai-lab${url}`;
   const fullImage = image.startsWith('http') ? image : `${baseUrl}${image}`;
   const fullTitle = title.includes('AI Lab') ? title : `${title} | AI Lab`;
@@ -119,23 +119,23 @@ export const getAILabStructuredData = () => ({
   '@type': 'WebSite',
   name: 'AI Lab',
   description: 'Interactive AI learning platform for students and beginners',
-  url: 'https://devkantkumar.com/ai-lab',
+  url: 'https://www.devkantkumar.com/ai-lab',
   author: {
     '@type': 'Person',
     name: 'Dev Kant Kumar',
-    url: 'https://devkantkumar.com',
+    url: 'https://www.devkantkumar.com',
   },
   publisher: {
     '@type': 'Organization',
     name: 'Dev Kant Kumar',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://devkantkumar.com/ai-lab/images/robot-hello.png',
+      url: 'https://www.devkantkumar.com/ai-lab/images/robot-hello.png',
     },
   },
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://devkantkumar.com/ai-lab?q={search_term_string}',
+    target: 'https://www.devkantkumar.com/ai-lab?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
 });
@@ -151,7 +151,7 @@ export const getSessionStructuredData = (session, index) => ({
   provider: {
     '@type': 'Organization',
     name: 'AI Lab',
-    url: 'https://devkantkumar.com/ai-lab',
+    url: 'https://www.devkantkumar.com/ai-lab',
   },
   educationalLevel: 'Beginner',
   isAccessibleForFree: true,
@@ -163,7 +163,7 @@ export const getSessionStructuredData = (session, index) => ({
     startDate: session.date,
   },
   teaches: session.topics?.join(', ') || 'Artificial Intelligence',
-  image: session.heroImage ? `https://devkantkumar.com${session.heroImage}` : 'https://devkantkumar.com/ai-lab/images/robot-hello.png',
+  image: session.heroImage ? `https://www.devkantkumar.com${session.heroImage}` : 'https://www.devkantkumar.com/ai-lab/images/robot-hello.png',
 });
 
 /**
@@ -184,7 +184,7 @@ export const getQuizStructuredData = (quiz, index) => ({
   provider: {
     '@type': 'Organization',
     name: 'AI Lab',
-    url: 'https://devkantkumar.com/ai-lab',
+    url: 'https://www.devkantkumar.com/ai-lab',
   },
 });
 
@@ -198,7 +198,7 @@ export const getBreadcrumbStructuredData = (items) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://devkantkumar.com${item.url}`,
+    item: `https://www.devkantkumar.com${item.url}`,
   })),
 });
 

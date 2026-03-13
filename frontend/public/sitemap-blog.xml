@@ -5,7 +5,7 @@
 
   <!-- Blog Homepage -->
   <url>
-    <loc>https://devkantkumar.com/blog</loc>
+    <loc>https://www.devkantkumar.com/blog</loc>
     <lastmod>2025-12-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -13,14 +13,14 @@
 
   <!-- Blog Post: React Server Components 2025 -->
   <url>
-    <loc>https://devkantkumar.com/blog/react-server-components-2025</loc>
+    <loc>https://www.devkantkumar.com/blog/react-server-components-2025</loc>
     <lastmod>2025-11-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
 
     <!-- Image for this post -->
     <image:image>
-      <image:loc>https://devkantkumar.com/images/blog/rsc-2025-featured.jpg</image:loc>
+      <image:loc>https://www.devkantkumar.com/images/blog/rsc-2025-featured.jpg</image:loc>
       <image:title>React Server Components 2025 Complete Guide</image:title>
       <image:caption>Comprehensive guide to React Server Components architecture, performance optimization, and production patterns</image:caption>
     </image:image>
@@ -39,14 +39,14 @@
 
   <!-- Blog Post: yt-dlp Ultimate Guide 2025 -->
   <url>
-    <loc>https://devkantkumar.com/blog/yt-dlp-ultimate-guide-2026</loc>
+    <loc>https://www.devkantkumar.com/blog/yt-dlp-ultimate-guide-2026</loc>
     <lastmod>2026-01-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
 
     <!-- Image for this post -->
     <image:image>
-      <image:loc>https://devkantkumar.com/images/blog/yt-dlp-guide.png</image:loc>
+      <image:loc>https://www.devkantkumar.com/images/blog/yt-dlp-guide.png</image:loc>
       <image:title>Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites</image:title>
       <image:caption>The most comprehensive yt-dlp guide covering YouTube, TikTok, Instagram and 1800+ platforms with 100+ commands</image:caption>
     </image:image>
@@ -65,7 +65,7 @@
 
   <!-- Blog Post: Anti Gravity Editor -->
   <url>
-    <loc>https://devkantkumar.com/blog/google-anti-gravity-ai</loc>
+    <loc>https://www.devkantkumar.com/blog/google-anti-gravity-ai</loc>
     <lastmod>2025-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -73,7 +73,7 @@
 
   <!-- Blog Post: Git Survival Guide -->
   <url>
-    <loc>https://devkantkumar.com/blog/git-survival-guide</loc>
+    <loc>https://www.devkantkumar.com/blog/git-survival-guide</loc>
     <lastmod>2025-11-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -81,7 +81,7 @@
 
   <!-- Blog Post: Local LLMs with Ollama -->
   <url>
-    <loc>https://devkantkumar.com/blog/local-llm-ollama-guide-2025</loc>
+    <loc>https://www.devkantkumar.com/blog/local-llm-ollama-guide-2025</loc>
     <lastmod>2025-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -89,7 +89,7 @@
 
   <!-- Blog Post: Agentic AI 2025 Guide -->
   <url>
-    <loc>https://devkantkumar.com/blog/agentic-ai-2025-guide</loc>
+    <loc>https://www.devkantkumar.com/blog/agentic-ai-guide</loc>
     <lastmod>2025-12-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -97,7 +97,7 @@
 
   <!-- Blog Post: Ultimate AI Tools Directory 2025 -->
   <url>
-    <loc>https://devkantkumar.com/blog/ultimate-ai-tools-directory-2025</loc>
+    <loc>https://www.devkantkumar.com/blog/ultimate-ai-tools-directory-2026</loc>
     <lastmod>2025-12-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
@@ -123,7 +123,7 @@
 
   <!-- Blog Post: React Native CLI vs Expo 2025 -->
   <url>
-    <loc>https://devkantkumar.com/blog/react-native-cli-vs-expo-2025</loc>
+    <loc>https://www.devkantkumar.com/blog/react-native-cli-vs-expo-2026</loc>
     <lastmod>2025-12-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -142,7 +142,7 @@
 
   <!-- Blog Post: React Native vs Flutter 2026 -->
   <url>
-    <loc>https://devkantkumar.com/blog/react-native-vs-flutter-2026</loc>
+    <loc>https://www.devkantkumar.com/blog/react-native-vs-flutter-2026</loc>
     <lastmod>2025-12-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -159,6 +159,113 @@
     </news:news>
   </url>
 
-  <!-- Add more blog posts here as you publish them -->
+  <!-- Blog Post: JavaScript Interview Questions 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/javascript-interview-questions-2026</loc>
+    <lastmod>2026-02-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-02-03T00:00:00+00:00</news:publication_date>
+      <news:title>100+ JavaScript Interview Questions &amp; Answers for 2026</news:title>
+      <news:keywords>javascript interview questions, javascript interview 2026, js interview, closures, promises, event loop, ES6</news:keywords>
+    </news:news>
+  </url>
+
+  <!-- Blog Post: JavaScript Internals 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/javascript-internals-2026</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-02-20T00:00:00+00:00</news:publication_date>
+      <news:title>JavaScript Internals 2026: How JS Works Under the Hood</news:title>
+      <news:keywords>javascript internals, v8 engine, event loop, closures, hoisting, execution context, async await, garbage collection</news:keywords>
+    </news:news>
+  </url>
+
+  <!-- Blog Post: Golpo AI Review 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/golpo-ai-review-2026</loc>
+    <lastmod>2026-03-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-03-08T00:00:00+05:30</news:publication_date>
+      <news:title>Golpo AI Review 2026: Is This $39 Whiteboard Video Tool Actually Worth It?</news:title>
+      <news:keywords>golpo ai review, ai video generator, whiteboard animation, ai content creation</news:keywords>
+    </news:news>
+  </url>
+
+  <!-- Blog Post: Node.js API Guide 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/nodejs-api-guide-2026</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-03-04T00:00:00+00:00</news:publication_date>
+      <news:title>Node.js API Guide 2026: REST, GraphQL, gRPC, WebSockets &amp; 25 Topics Mastered</news:title>
+      <news:keywords>node.js api, rest api, graphql, grpc, websocket, api security, express.js, microservices</news:keywords>
+    </news:news>
+  </url>
+
+  <!-- Blog Post: Complete System Design Roadmap 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/complete-system-design-roadmap-2026</loc>
+    <lastmod>2026-01-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <news:news>
+      <news:publication>
+        <news:name>Dev Kant Kumar Blog</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-01-25T00:00:00+00:00</news:publication_date>
+      <news:title>Complete System Design Roadmap 2026: Learn Scalability &amp; Crack Interviews</news:title>
+      <news:keywords>system design roadmap, system design interview, scalability, distributed systems, backend engineering</news:keywords>
+    </news:news>
+  </url>
+
+  <!-- Blog Post: AWeber Review 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/aweber-review-2026</loc>
+    <lastmod>2026-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post: Best Affiliate Programs 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/best-affiliate-programs-2026</loc>
+    <lastmod>2026-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Post: How to Start a Blog 2026 -->
+  <url>
+    <loc>https://www.devkantkumar.com/blog/how-to-start-a-blog-2026</loc>
+    <lastmod>2026-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 
 </urlset>

@@ -10,13 +10,35 @@ const analyticsClient = new BetaAnalyticsDataClient({
 
 const PROPERTY_ID = process.env.GA_PROPERTY_ID; // e.g. 123456789
 
-async function getGAOverview() {
+/**
+ * Build a GA4 dimensionFilter for a specific page path prefix.
+ * @param {string} pathPrefix - e.g. '/marketplace'
+ */
+function buildPathFilter(pathPrefix) {
+  return {
+    filter: {
+      fieldName: 'pagePath',
+      stringFilter: {
+        matchType: 'BEGINS_WITH',
+        value: pathPrefix,
+      },
+    },
+  };
+}
+
+/**
+ * Fetch a GA4 overview report.
+ * @param {string|null} pathPrefix - Optional path prefix to scope the report (e.g. '/marketplace').
+ *                                   Pass null or omit to get site-wide data.
+ */
+async function getGAOverview(pathPrefix = null) {
   if (!PROPERTY_ID) {
     throw new Error('GA_PROPERTY_ID is not defined');
   }
 
   const redis = getRedisClient();
-  const cacheKey = `ga_overview_${PROPERTY_ID}`;
+  const cacheKeySuffix = pathPrefix ? pathPrefix.replace(/\//g, '_') : 'all';
+  const cacheKey = `ga_overview_${PROPERTY_ID}_${cacheKeySuffix}`;
 
   // Try to get from cache
   if (redis) {
@@ -30,6 +52,8 @@ async function getGAOverview() {
     }
   }
 
+  const dimensionFilter = pathPrefix ? buildPathFilter(pathPrefix) : undefined;
+
   try {
     // 1. Core Overview Report
     const [overviewResponse] = await analyticsClient.runReport({
@@ -42,6 +66,7 @@ async function getGAOverview() {
         { name: "bounceRate" },
         { name: "averageSessionDuration" },
       ],
+      ...(dimensionFilter && { dimensionFilter }),
     });
 
     // 2. Top Pages Report
@@ -52,6 +77,7 @@ async function getGAOverview() {
       metrics: [{ name: "screenPageViews" }],
       limit: 10,
       orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+      ...(dimensionFilter && { dimensionFilter }),
     });
 
     // 3. Countries Report
@@ -62,6 +88,7 @@ async function getGAOverview() {
       metrics: [{ name: "totalUsers" }],
       limit: 5,
       orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }],
+      ...(dimensionFilter && { dimensionFilter }),
     });
 
     // 4. Devices Report
@@ -70,6 +97,7 @@ async function getGAOverview() {
       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
       dimensions: [{ name: "deviceCategory" }],
       metrics: [{ name: "totalUsers" }],
+      ...(dimensionFilter && { dimensionFilter }),
     });
 
     const overviewMetrics = overviewResponse.rows?.[0]?.metricValues || [];

@@ -104,17 +104,18 @@ export const blogData = [
     tags: ["ollama", "ai", "llama-3", "local-llm", "react", "privacy", "rag", "uncensored"]
   },
   {
-    id: "react-native-cli-vs-expo-2025",
-    slug: "react-native-cli-vs-expo-2025",
-    title: "React Native CLI vs Expo in 2025: The Final Verdict",
-    excerpt: "Stop wondering which tool to use. In 2025, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.",
+    id: "react-native-cli-vs-expo-2026",
+    slug: "react-native-cli-vs-expo-2026",
+    title: "React Native CLI vs Expo in 2026: The Final Verdict",
+    excerpt: "Stop wondering which tool to use. In 2026, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.",
     category: "React Native",
     author: "Dev Kant Kumar",
     readTime: "12 min read",
     publishDate: "2025-12-29",
+    modifiedDate: "2026-01-07",
     image: "/images/blog/react-native-cli-vs-expo.png",
     featured: true,
-    tags: ["React Native", "Expo", "Mobile", "2025 Guide"]
+    tags: ["React Native", "Expo", "Mobile", "2026 Guide"]
   },
   {
     id: "react-native-vs-flutter-2026",
@@ -130,17 +131,18 @@ export const blogData = [
     tags: ["React Native", "Flutter", "Mobile Development", "Cross-Platform", "JavaScript", "Dart", "2026"]
   },
   {
-    id: "ultimate-ai-tools-directory-2025",
-    slug: "ultimate-ai-tools-directory-2025",
-    title: "The Ultimate Directory of AI Tools (2025 Edition)",
-    excerpt: "A comprehensive, curated list of 86+ best AI tools available in 2025. Explore chatbots, image generators, coding assistants, and more.",
+    id: "ultimate-ai-tools-directory-2026",
+    slug: "ultimate-ai-tools-directory-2026",
+    title: "100+ AI Tools That Replace $10K/Month in Software (2026 Directory)",
+    excerpt: "100 AI tools for 2026: free ChatGPT alternatives, AI image generators, coding assistants. Categories, pricing & real recommendations.",
     category: "AI Resources",
     author: "Dev Kant Kumar",
     readTime: "15 min read",
     publishDate: "2024-12-26",
+    modifiedDate: "2026-01-07",
     image: "/images/blog/ai-tools.png",
     featured: true,
-    tags: ["AI Tools", "Productivity", "Directory", "ChatGPT", "Midjourney"]
+    tags: ["AI Tools", "ChatGPT", "Midjourney", "Claude", "AI Directory", "2026", "Productivity", "Free AI"]
   },
   {
     id: "javascript-interview-questions-2026",
@@ -167,5 +169,75 @@ export const blogData = [
     image: "/images/blog/js-internals-2026.png",
     featured: true,
     tags: ["JavaScript", "V8 Engine", "Event Loop", "Closures", "Hoisting", "Execution Context", "Async/Await", "Interview Preparation"]
+  },
+  {
+    id: "nodejs-api-guide-2026",
+    slug: "nodejs-api-guide-2026",
+    title: "Node.js API Guide 2026: REST, GraphQL, gRPC, WebSockets & 25 Topics Mastered",
+    excerpt: "The complete Node.js API reference — from HTTP to microservices. Build REST, GraphQL, gRPC, WebSocket, Webhook, SSE & tRPC APIs. Production code, security, testing, deployment. 100+ code examples.",
+    category: "Tutorials",
+    author: "Dev Kant Kumar",
+    readTime: "55 min read",
+    publishDate: "2026-03-04",
+    modifiedDate: "2026-03-04",
+    image: "/images/blog/api-guide.png",
+    featured: true,
+    tags: ["Node.js", "REST API", "GraphQL", "gRPC", "WebSockets", "API Security", "Express.js", "Microservices"]
+  },
+  {
+    id: "complete-system-design-roadmap-2026",
+    slug: "complete-system-design-roadmap-2026",
+    title: "Complete System Design Roadmap 2026: Learn Scalability & Crack Interviews",
+    excerpt: "By 2026, most code will be written by AI - but systems still need thinkers. This roadmap teaches you how to design scalable systems, think like senior engineers, and win system design interviews.",
+    category: "System Design",
+    author: "Dev Kant Kumar",
+    readTime: "15 min read",
+    publishDate: "2026-01-25",
+    modifiedDate: "2026-01-25",
+    image: "/images/blog/system-design-2026.jpg",
+    featured: true,
+    tags: ["System Design", "System Design Roadmap", "Software Engineering", "Distributed Systems", "Scalability", "FAANG Preparation"]
+  },
+  {
+    id: "aweber-review-2026",
+    slug: "aweber-review-2026",
+    title: "AWeber Review 2026: Best Email Marketing for Small Business?",
+    excerpt: "Is AWeber the right email marketing platform for your business in 2026? This honest review covers pricing, features, automation, and how it compares to Mailchimp and ConvertKit. Start free today.",
+    category: "Tools",
+    author: "Dev Kant Kumar",
+    readTime: "12 min read",
+    publishDate: "2026-01-07",
+    modifiedDate: "2026-01-07",
+    image: "/images/blog/aweber-review-2026.png",
+    featured: true,
+    tags: ["AWeber Review", "Email Marketing", "Small Business Tools", "Newsletter Software", "Marketing Automation"]
+  },
+  {
+    id: "best-affiliate-programs-2026",
+    slug: "best-affiliate-programs-2026",
+    title: "75+ Best Affiliate Programs 2026: Earn Up to $2,500/Sale (Real Commission Data)",
+    excerpt: "75+ affiliate programs with verified commissions up to $2,500/sale. Recurring income programs, real cookie durations & payout thresholds.",
+    category: "Resources",
+    author: "Dev Kant Kumar",
+    readTime: "25 min read",
+    publishDate: "2026-01-07",
+    modifiedDate: "2026-01-07",
+    image: "/images/blog/affiliate-programs-2026.png",
+    featured: true,
+    tags: ["Best Affiliate Programs", "Affiliate Marketing 2026", "High Paying Affiliate Programs", "Passive Income", "Make Money Online"]
+  },
+  {
+    id: "how-to-start-a-blog-2026",
+    slug: "how-to-start-a-blog-2026",
+    title: "How to Start a Blog in 2026: Complete Guide to Make $5K+/Month",
+    excerpt: "Start a blog and earn $5K+/month. Step-by-step WordPress setup, hosting deals, and proven monetization strategies.",
+    category: "Tutorials",
+    author: "Dev Kant Kumar",
+    readTime: "25 min read",
+    publishDate: "2026-01-07",
+    modifiedDate: "2026-01-07",
+    image: "/images/blog/start-blog-2026.png",
+    featured: true,
+    tags: ["Blogging", "WordPress", "Web Hosting", "Make Money Online", "Passive Income", "Side Hustle"]
   }
 ];

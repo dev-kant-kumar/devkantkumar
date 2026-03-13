@@ -8,6 +8,8 @@ const Subscriber = require("../models/Subscriber");
 const emailService = require("../services/emailService");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
+const { invalidateMetaCache } = require("../middlewares/productMetaMiddleware");
+const merchantCenter = require("../services/merchantCenterService");
 
 // Escape all special regex metacharacters in a user-supplied string so it is
 // treated as a plain substring search. Prevents ReDoS attacks where a crafted
@@ -118,6 +120,14 @@ exports.createProduct = async (req, res) => {
     });
     await product.save();
 
+    // Bust the server-side meta cache for this product
+    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+
+    // Sync to Google Merchant Center (fire-and-forget)
+    merchantCenter.upsertProduct(product).catch((err) =>
+      logger.error("MerchantCenter upsert error (createProduct):", err.message)
+    );
+
     res.status(201).json({
       success: true,
       data: product,
@@ -226,6 +236,14 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Bust the server-side meta cache for this product
+    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+
+    // Sync to Google Merchant Center (fire-and-forget)
+    merchantCenter.upsertProduct(product).catch((err) =>
+      logger.error("MerchantCenter upsert error (updateProduct):", err.message)
+    );
+
     res.json({
       success: true,
       data: product,
@@ -270,6 +288,14 @@ exports.deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    // Bust the server-side meta cache for this product
+    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+
+    // Remove from Google Merchant Center (fire-and-forget)
+    merchantCenter.deleteProduct(product._id).catch((err) =>
+      logger.error("MerchantCenter delete error (deleteProduct):", err.message)
+    );
 
     res.json({
       success: true,
@@ -525,6 +551,9 @@ exports.createService = async (req, res) => {
     });
     await service.save();
 
+    // Bust the server-side meta cache for this service
+    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+
     res.status(201).json({
       success: true,
       data: service,
@@ -636,6 +665,9 @@ exports.updateService = async (req, res) => {
       return res.status(404).json({ message: "Service not found" });
     }
 
+    // Bust the server-side meta cache for this service
+    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+
     res.json({
       success: true,
       data: service,
@@ -680,6 +712,9 @@ exports.deleteService = async (req, res) => {
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
+
+    // Bust the server-side meta cache for this service
+    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
 
     res.json({
       success: true,
@@ -2321,6 +2356,37 @@ exports.getServiceAnalytics = async (req, res) => {
     });
   } catch (error) {
     logger.error("Get service analytics error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+// @desc    Bulk-sync all products to Google Merchant Center
+// @route   POST /api/v1/admin/merchant-center/sync
+// @access  Admin
+exports.syncMerchantCenter = async (req, res) => {
+  try {
+    // Respond immediately so the admin UI isn't blocked; sync runs in background
+    res.json({
+      success: true,
+      message: "Google Merchant Center sync started. Results will appear in server logs.",
+    });
+
+    // Run async after response is sent
+    merchantCenter
+      .syncAllProducts()
+      .then(({ synced, failed, total, error }) => {
+        if (error) {
+          logger.error("[MerchantCenter] Bulk sync finished with error:", error);
+        } else {
+          logger.info(
+            `[MerchantCenter] Bulk sync finished — synced: ${synced}, failed: ${failed}, total: ${total}`
+          );
+        }
+      })
+      .catch((err) => logger.error("[MerchantCenter] Bulk sync crashed:", err.message));
+  } catch (error) {
+    logger.error("syncMerchantCenter error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

@@ -30,7 +30,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
       "@type": "Person",
       "name": personalInfo.name,
       "alternateName": "devkantkumar",
-      "url": portfolioData.seoConfig?.site?.url || "https://devkantkumar.com",
+      "url": portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com",
       "image": personalInfo.profileImage,
       "jobTitle": personalInfo.title || "Full Stack Web Developer",
       "worksFor": {
@@ -77,27 +77,27 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
     "@type": "WebSite",
     "name": `${personalInfo.name} - Portfolio`,
     "description": professionalSummary?.overview || `Portfolio of ${personalInfo.name}, ${personalInfo.title}`,
-    "url": portfolioData.seoConfig?.site?.url || "https://devkantkumar.com",
+    "url": portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com",
     "author": {
       "@type": "Person",
       "name": personalInfo.name,
       "jobTitle": personalInfo.title,
-      "url": portfolioData.seoConfig?.site?.url || "https://devkantkumar.com"
+      "url": portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com"
     },
     "publisher": {
       "@type": "Person",
       "name": personalInfo.name,
-      "url": portfolioData.seoConfig?.site?.url || "https://devkantkumar.com"
+      "url": portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com"
     },
     "potentialAction": {
       "@type": "SearchAction",
-      "target": `${portfolioData.seoConfig?.site?.url || "https://devkantkumar.com"}/search?q={search_term_string}`,
+      "target": `${portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com"}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   });
 
   const getProjectSchema = (project) => {
-    const siteUrl = portfolioData.seoConfig?.site?.url || "https://devkantkumar.com";
+    const siteUrl = portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com";
     const imageUrl = project.image?.startsWith('http')
       ? project.image
       : project.image
@@ -121,7 +121,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
   };
 
   const getBlogPostSchema = (post) => {
-    const siteUrl = portfolioData.seoConfig?.site?.url || "https://devkantkumar.com";
+    const siteUrl = portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com";
     const imageUrl = post.image?.startsWith('http')
       ? post.image
       : `${siteUrl}${post.image?.startsWith('/') ? '' : '/'}${post.image || ''}`;
@@ -168,7 +168,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
     "@type": "Organization",
     "name": personalInfo.name,
     "description": "Professional Full Stack Developer",
-    "url": portfolioData.seoConfig?.site?.url || "https://devkantkumar.com",
+    "url": portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com",
     "logo": personalInfo.profileImage,
     "contactPoint": {
       "@type": "ContactPoint",
@@ -186,7 +186,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
     const items = (pageData.items || projects || []).map((p, idx) => ({
       "@type": "ListItem",
       "position": idx + 1,
-      "url": `${seoConfig?.site?.url || "https://devkantkumar.com"}/projects/${p.id}`
+      "url": `${seoConfig?.site?.url || "https://www.devkantkumar.com"}/projects/${p.id}`
     }));
     return {
       "@context": "https://schema.org",
@@ -200,7 +200,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
       "@type": "ListItem",
       "position": idx + 1,
       "name": c.name,
-      "item": `${seoConfig?.site?.url || "https://devkantkumar.com"}${c.path}`
+      "item": `${seoConfig?.site?.url || "https://www.devkantkumar.com"}${c.path}`
     }));
     return {
       "@context": "https://schema.org",
@@ -222,7 +222,7 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
   });
 
   const getSoftwareApplicationSchema = (tool) => {
-    const siteUrl = portfolioData.seoConfig?.site?.url || "https://devkantkumar.com";
+    const siteUrl = portfolioData.seoConfig?.site?.url || "https://www.devkantkumar.com";
 
     return {
       "@context": "https://schema.org",

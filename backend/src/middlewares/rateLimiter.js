@@ -1,5 +1,21 @@
 const rateLimit = require('express-rate-limit');
+const { RedisStore } = require('rate-limit-redis');
+const { getRedisClient } = require('../db/redis');
 const logger = require('../utils/logger');
+
+/**
+ * Build a RedisStore for express-rate-limit when a Redis client is available,
+ * or fall back to the default in-memory store for single-instance / dev setups.
+ * Using Redis ensures rate-limit counters are shared across all Node.js processes
+ * behind a load balancer, preventing per-instance bypass.
+ */
+const buildStore = () => {
+  const redis = getRedisClient();
+  if (!redis) return undefined; // fall back to in-memory
+  return new RedisStore({
+    sendCommand: (...args) => redis.sendCommand(args),
+  });
+};
 
 const createLimiter = (options) => {
   return rateLimit({
@@ -7,6 +23,7 @@ const createLimiter = (options) => {
     max: options.max,
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    store: buildStore(),
     message: {
       success: false,
       message: options.message || 'Too many requests, please try again later.'

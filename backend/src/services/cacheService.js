@@ -94,7 +94,9 @@ class CacheService {
     }
   }
 
-  // Delete all keys matching pattern
+  // Delete all keys matching pattern using cursor-based SCAN (safe for large keyspaces).
+  // The legacy KEYS command blocks the Redis event loop for the full O(N) scan;
+  // SCAN iterates in batches and never blocks longer than a single step.
   async delPattern(pattern) {
     try {
       const redis = this.getClient();
@@ -102,10 +104,15 @@ class CacheService {
         logger.warn('Redis client not available, skipping cache pattern delete');
         return false;
       }
-      const keys = await redis.keys(`${pattern}:*`);
-      if (keys.length > 0) {
-        await redis.del(...keys);
-      }
+      const matchPattern = `${pattern}:*`;
+      let cursor = 0;
+      do {
+        const reply = await redis.scan(cursor, { MATCH: matchPattern, COUNT: 100 });
+        cursor = reply.cursor;
+        if (reply.keys.length > 0) {
+          await redis.del(reply.keys);
+        }
+      } while (cursor !== 0);
       return true;
     } catch (error) {
       logger.error('Cache delete pattern error:', error);

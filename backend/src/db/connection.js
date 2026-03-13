@@ -8,7 +8,13 @@ const connectDB = async () => {
       : process.env.MONGODB_URI;
 
     const options = {
-      maxPoolSize: process.env.NODE_ENV === 'production' ? 20 : 10,
+      // Raise the pool ceiling for high-concurrency production deployments.
+      // 50 connections sustains ~10 K concurrent users when each request holds a
+      // connection for ~5 ms on average (50 conns × 200 req/s per conn = 10 K RPS).
+      maxPoolSize: process.env.NODE_ENV === 'production' ? 50 : 10,
+      // Keep a warm minimum so the first burst of requests never waits for
+      // connection establishment.
+      minPoolSize: process.env.NODE_ENV === 'production' ? 5 : 1,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       bufferCommands: false,
