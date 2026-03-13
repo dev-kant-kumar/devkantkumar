@@ -556,8 +556,81 @@ const getAccountReactivationTemplate = ({ firstName, dashboardUrl }) => {
   return wrapHtml('Account Reactivated', content, 'Welcome back! Your account has been restored.');
 };
 
-const getInvoiceEmailTemplate = ({ firstName, order, invoiceUrl }) => {
-  // Helper to format currency
+/**
+ * Abandoned cart recovery email
+ * Sent ~1 hour after a user adds items to cart but has not checked out.
+ *
+ * @param {object} params
+ * @param {string} params.firstName      - Recipient's first name
+ * @param {Array}  params.items          - Populated cart items: { title, imageUrl, price, currency }
+ * @param {string} params.cartUrl        - Deep-link back to the cart
+ * @param {string} params.unsubscribeUrl - One-click unsubscribe link
+ */
+const getAbandonedCartEmailTemplate = ({ firstName, items = [], cartUrl, unsubscribeUrl }) => {
+  const formatCurrency = (amount, currency = 'INR') => {
+    const symbols = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
+    const symbol = symbols[currency] || (currency + ' ');
+    return `${symbol}${(amount || 0).toFixed(2)}`;
+  };
+
+  const itemsHtml = items.slice(0, 4).map(item => `
+    <tr>
+      <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; vertical-align: middle; width: 64px;">
+        ${item.imageUrl
+    ? `<img src="${item.imageUrl}" alt="${item.title}" width="56" height="56"
+              style="border-radius: 8px; object-fit: cover; display: block;" />`
+    : `<div style="width:56px;height:56px;border-radius:8px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:24px;">🛒</div>`
+  }
+      </td>
+      <td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; vertical-align: middle;">
+        <div style="font-weight: 600; color: #111827; font-size: 14px;">${item.title}</div>
+        ${item.packageName ? `<div style="font-size: 12px; color: #6b7280; margin-top: 2px;">Package: ${item.packageName}</div>` : ''}
+        <div style="font-size: 13px; color: #374151; margin-top: 4px; font-weight: 500;">${formatCurrency(item.price, item.currency)}</div>
+      </td>
+    </tr>
+  `).join('');
+
+  const moreItems = items.length > 4 ? `<p style="text-align:center;font-size:13px;color:#6b7280;margin-top:8px;">…and ${items.length - 4} more item${items.length - 4 > 1 ? 's' : ''}</p>` : '';
+
+  const content = `
+    <div class="text-center">
+      <div style="font-size: 48px; line-height: 1; margin-bottom: 16px;">🛒</div>
+    </div>
+    <h1 class="text-center">You left something behind!</h1>
+    <p class="text-center text-muted" style="margin-bottom: 24px;">Your cart is waiting for you</p>
+
+    <p>Hi ${firstName},</p>
+    <p>You added some great items to your cart but didn't complete your purchase. Don't worry — we've saved everything for you!</p>
+
+    <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; margin: 24px 0;">
+      <h3 style="margin-top: 0; margin-bottom: 16px; color: #111827; font-size: 16px;">Your saved items:</h3>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        ${itemsHtml}
+      </table>
+      ${moreItems}
+    </div>
+
+    <div class="text-center" style="margin: 32px 0;">
+      <a href="${cartUrl}" class="button" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); font-size: 17px; padding: 16px 40px; border-radius: 10px;">
+        Complete My Purchase →
+      </a>
+    </div>
+
+    <div class="box box-info" style="background-color: #fef3c7; border-color: #fcd34d; color: #92400e; border-radius: 10px;">
+      <p class="mb-0 text-sm" style="text-align: center;">
+        ⚡ <strong>Act fast:</strong> Items in your cart are not reserved and may sell out.
+      </p>
+    </div>
+
+    <p class="text-sm text-center text-muted" style="margin-top: 32px;">
+      Questions? Just reply to this email — we're happy to help.<br />
+      <a href="${unsubscribeUrl}" style="color: #9ca3af; font-size: 11px;">Unsubscribe from cart reminders</a>
+    </p>
+  `;
+  return wrapHtml('You left something in your cart 🛒', content, 'Come back and complete your purchase!');
+};
+
+const getInvoiceEmailTemplate = ({ firstName, order, invoiceUrl }) => {  // Helper to format currency
   const formatCurrency = (amount, currency = 'INR') => {
     const symbols = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
     const symbol = symbols[currency] || (currency + ' ');
@@ -634,6 +707,7 @@ module.exports = {
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
   getInvoiceEmailTemplate,
+  getAbandonedCartEmailTemplate,
   getEmailChangeOtpTemplate,
   getPasswordChangeOtpTemplate,
   COMPANY_INFO

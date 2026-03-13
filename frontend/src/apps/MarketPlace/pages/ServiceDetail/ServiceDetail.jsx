@@ -26,6 +26,8 @@ import {
 import { useAddToCartMutation } from "../../../../store/cart/cartApi";
 import RecommendationSection from "../../common/components/RecommendationSection";
 import WishlistButton from "../../common/components/WishlistButton";
+import UrgencyBadge from "../../common/components/UrgencyBadge";
+import RecentPurchaseToast from "../../common/components/RecentPurchaseToast";
 import MarketPlaceSEO from "../../components/SEO/MarketPlaceSEO";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useGetServiceByIdQuery } from "../../store/api/marketplaceApi";
@@ -335,6 +337,7 @@ const ServiceDetail = () => {
                     )}
                     {isAdding ? "Adding..." : "Continue"}
                   </button>
+                  <UrgencyBadge productId={service._id} type="service" />
                 </div>
               </div>
 
@@ -519,6 +522,7 @@ const ServiceDetail = () => {
                     >
                       Contact Seller
                     </Link>
+                    <UrgencyBadge productId={service._id} type="service" />
                   </div>
                 </div>
               </div>
@@ -578,6 +582,9 @@ const ServiceDetail = () => {
           Continue ({packages[selectedPackage]?.name})
         </button>
       </div>
+
+      {/* Social proof: recent purchase toast */}
+      <RecentPurchaseToast productId={service._id} productTitle={service.title} />
     </div>
   );
 };

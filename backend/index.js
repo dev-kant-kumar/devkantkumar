@@ -286,6 +286,15 @@ const startServer = async () => {
     const io = initializeSocket(httpServer);
     logger.info('Socket.io initialized for real-time notifications');
 
+    // Start background jobs
+    try {
+      const { startAbandonedCartCron } = require('./src/services/abandonedCartService');
+      startAbandonedCartCron();
+      logger.info('🛒 Abandoned cart recovery cron started');
+    } catch (cronErr) {
+      logger.warn(`Abandoned cart cron failed to start: ${cronErr.message}`);
+    }
+
     const startListener = (port) => {
       const portNum = parseInt(port, 10);
       httpServer.listen(portNum, () => {

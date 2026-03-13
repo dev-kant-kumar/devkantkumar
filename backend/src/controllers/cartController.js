@@ -325,6 +325,10 @@ exports.clearCart = async (req, res, next) => {
 
     user.cart.items = [];
     user.cart.updatedAt = Date.now();
+    // Reset abandoned-cart reminder counter so a new cart session starts fresh
+    if (user.marketplace) {
+      user.marketplace.abandonedCartRemindersSent = 0;
+    }
     await user.save();
 
     res.status(200).json({

@@ -12,6 +12,7 @@ const {
   getAccountDeactivationTemplate,
   getAccountReactivationTemplate,
   getInvoiceEmailTemplate,
+  getAbandonedCartEmailTemplate,
   getEmailChangeOtpTemplate,
   getPasswordChangeOtpTemplate,
 } = require("../utils/emailTemplates");
@@ -413,6 +414,28 @@ class EmailService {
       subject: `Re: ${subject} [${ticketNumber}]`,
       html,
       type: "support-ticket-response",
+    });
+  }
+
+  /**
+   * Send an abandoned cart recovery email to a user.
+   *
+   * @param {string} email       - Recipient email
+   * @param {string} firstName   - Recipient's first name
+   * @param {Array}  items       - Cart items: { title, imageUrl, price, currency, packageName }
+   */
+  async sendAbandonedCartEmail(email, firstName, items = []) {
+    const clientUrl = this._getClientUrl();
+    const cartUrl = `${clientUrl}/marketplace/cart`;
+    const unsubscribeUrl = `${clientUrl}/marketplace/unsubscribe?email=${encodeURIComponent(email)}&type=cart`;
+
+    const html = getAbandonedCartEmailTemplate({ firstName, items, cartUrl, unsubscribeUrl });
+
+    return addEmailToQueue({
+      to: email,
+      subject: `🛒 You left something in your cart, ${firstName}!`,
+      html,
+      type: "abandoned-cart-email",
     });
   }
 }
