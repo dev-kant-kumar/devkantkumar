@@ -1,37 +1,39 @@
-const winston = require('winston');
-const path = require('path');
+const winston = require("winston");
+const path = require("path");
 
 // Create logs directory if it doesn't exist
-const fs = require('fs');
-const logsDir = path.join(__dirname, '../../logs');
+const fs = require("fs");
+const logsDir = path.join(__dirname, "../../logs");
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir, { recursive: true });
 }
 
 // Define log format
 const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.errors({ stack: true }),
+  // Use pure JSON for file transports so structured meta (error.response, etc.)
+  // is preserved verbatim and easy to parse. Avoid prettyPrint here which can
+  // split objects across multiple entries and lose structure in some setups.
   winston.format.json(),
-  winston.format.prettyPrint()
 );
 
 // Create logger instance
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || "info",
   format: logFormat,
-  defaultMeta: { service: 'devkantkumar-backend' },
+  defaultMeta: { service: "devkantkumar-backend" },
   transports: [
     // Write all logs with level 'error' and below to error.log
     new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
-      level: 'error',
+      filename: path.join(logsDir, "error.log"),
+      level: "error",
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
     // Write all logs with level 'info' and below to combined.log
     new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
+      filename: path.join(logsDir, "combined.log"),
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
@@ -39,22 +41,29 @@ const logger = winston.createLogger({
 });
 
 // Always log to console (important for cloud platforms like Render)
-const consoleFormat = process.env.NODE_ENV === 'production'
-  ? winston.format.combine(
-      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-      winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
-        const metaStr = Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : '';
-        return `${timestamp} [${level}] ${service}: ${message}${metaStr}`;
-      })
-    )
-  : winston.format.combine(
-      winston.format.colorize(),
-      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-      winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
-        const metaStr = Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : '';
-        return `${timestamp} [${level}] ${service}: ${message}${metaStr}`;
-      })
-    );
+const consoleFormat =
+  process.env.NODE_ENV === "production"
+    ? winston.format.combine(
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        winston.format.printf(
+          ({ timestamp, level, message, service, ...meta }) => {
+            const metaStr =
+              Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : "";
+            return `${timestamp} [${level}] ${service}: ${message}${metaStr}`;
+          },
+        ),
+      )
+    : winston.format.combine(
+        winston.format.colorize(),
+        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        winston.format.printf(
+          ({ timestamp, level, message, service, ...meta }) => {
+            const metaStr =
+              Object.keys(meta).length > 0 ? ` | ${JSON.stringify(meta)}` : "";
+            return `${timestamp} [${level}] ${service}: ${message}${metaStr}`;
+          },
+        ),
+      );
 
 logger.add(new winston.transports.Console({ format: consoleFormat }));
 

@@ -1,24 +1,26 @@
 /**
  * merchantCenterService.js
  *
- * Syncs digital products to Google Merchant Center via the Content API v2.1.
+ * Syncs digital products to Google Merchant Center via the NEW Merchant API
+ * (merchantapi.googleapis.com) — fully replacing the legacy Content API v2.1.
+ *
+ * Merchant API reference:
+ *   https://developers.google.com/merchant/api
  *
  * Key design decisions:
  *  - All prices are stored in INR in MongoDB.
  *  - The final price shown to buyers = base price × (1 + surchargeRate / 100),
  *    where surchargeRate is fetched live from SystemSetting so the Merchant
  *    Center listing always reflects the true checkout amount.
- *  - Products with an originalPrice > price are mapped as sale items:
- *      price      → originalPrice + surcharge   (regular / struck-through)
- *      salePrice  → price + surcharge            (current selling price)
+ *  - Products with an originalPrice > price are mapped as sale items.
+ *  - A primary "API upload" data source is created once per merchant account
+ *    and reused for all subsequent product inserts.
  *  - The service is fire-and-forget from the controller: failures are logged
  *    but never propagate back to the HTTP response.
- *  - A dedicated GoogleAuth instance (separate scope) is used so existing
- *    Analytics / Search Console integrations are unaffected.
- *  - Bulk-sync helper exposed for the admin "Sync all" endpoint.
  */
 
-const { google } = require("googleapis");
+const { GoogleAuth } = require("google-auth-library");
+const axios = require("axios");
 const logger = require("../utils/logger");
 const SystemSetting = require("../models/SystemSetting");
 
@@ -26,34 +28,113 @@ const SystemSetting = require("../models/SystemSetting");
 // Config
 // ---------------------------------------------------------------------------
 
-const MERCHANT_ID = process.env.GOOGLE_MERCHANT_ID;
+const MERCHANT_ID = process.env.GOOGLE_MERCHANT_ID; // e.g. "5745579580"
 const BASE_URL = process.env.CLIENT_URL || "https://www.devkantkumar.com";
 const BRAND_NAME = process.env.MERCHANT_BRAND_NAME || "Dev Kant Kumar";
 
-// Content API requires a write-capable scope that the read-only shared
-// googleAuth (analytics + search console) deliberately does not include.
-// Using a dedicated instance keeps the principle of least-privilege intact
-// for existing integrations.
-const merchantAuth = new google.auth.GoogleAuth({
+// Merchant API base URLs (v1 — v1beta was discontinued Feb 28 2026)
+const MC_BASE = "https://merchantapi.googleapis.com";
+const DATASOURCES_API = `${MC_BASE}/datasources/v1/accounts/${MERCHANT_ID}/dataSources`;
+const PRODUCTS_API = (dataSourceId) =>
+  `${MC_BASE}/products/v1/accounts/${MERCHANT_ID}/productInputs:insert?dataSource=${encodeURIComponent(dataSourceId)}`;
+// PRODUCT_DELETE_API is built inline in deleteProduct() so it can read _cachedDataSourceName at call time
+
+// Auth — needs the content scope
+const merchantAuth = new GoogleAuth({
   credentials: process.env.GOOGLE_SERVICE_ACCOUNT_JSON
     ? JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON)
-    : undefined, // fallback → GOOGLE_APPLICATION_CREDENTIALS env var
+    : undefined,
   scopes: ["https://www.googleapis.com/auth/content"],
 });
+
+// ---------------------------------------------------------------------------
+// Data Source cache (in-process singleton)
+// ---------------------------------------------------------------------------
+
+let _cachedDataSourceName = null; // e.g. "accounts/5745579580/dataSources/12345"
+
+/**
+ * Ensure a primary "API upload" data source exists for this merchant account.
+ * Creates one if none is found, then caches the resource name.
+ *
+ * @returns {Promise<string>} Full data source resource name
+ */
+async function getPrimaryDataSource() {
+  if (_cachedDataSourceName) return _cachedDataSourceName;
+
+  const token = await getAccessToken();
+  const headers = buildHeaders(token);
+
+  // 1. List existing data sources and look for an existing API upload source
+  try {
+    const listResp = await axios.get(DATASOURCES_API, { headers });
+    const sources = listResp.data.dataSources || [];
+    const existing = sources.find(
+      (s) => s.primaryProductDataSource || (s.input && s.input === "API"),
+    );
+    if (existing) {
+      _cachedDataSourceName = existing.name;
+      logger.info(
+        `[MerchantCenter] Reusing existing data source: ${_cachedDataSourceName}`,
+      );
+      return _cachedDataSourceName;
+    }
+  } catch (err) {
+    logger.warn(
+      "[MerchantCenter] Could not list data sources, will attempt create:",
+      err?.response?.data || err.message,
+    );
+  }
+
+  // 2. Create a new primary product data source
+  const body = {
+    displayName: "API Upload – devkantkumar.com",
+    primaryProductDataSource: {
+      contentLanguage: "en",
+      feedLabel: "IN",
+      countries: ["IN"],
+    },
+  };
+
+  const createResp = await axios.post(DATASOURCES_API, body, { headers });
+  _cachedDataSourceName = createResp.data.name;
+  logger.info(
+    `[MerchantCenter] Created new data source: ${_cachedDataSourceName}`,
+  );
+  return _cachedDataSourceName;
+}
+
+// ---------------------------------------------------------------------------
+// Auth helpers
+// ---------------------------------------------------------------------------
+
+async function getAccessToken() {
+  const client = await merchantAuth.getClient();
+  const tokenResp = await client.getAccessToken();
+  return tokenResp.token;
+}
+
+function buildHeaders(token) {
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /**
- * Strip HTML tags and common Markdown from a string, then truncate.
- * Google Merchant Center descriptions must be plain text (≤ 5 000 chars).
+ * Strip HTML tags and common Markdown, then truncate.
+ * Merchant Center descriptions must be plain text (≤ 5 000 chars).
  */
 function toPlainText(raw, maxLen = 5000) {
   if (!raw) return "";
   return raw
-    .replace(/<[^>]+>/g, " ")         // HTML tags
-    .replace(/[*_`#~>]/g, "")         // Markdown symbols
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[*_`#~>]/g, "")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, maxLen);
@@ -61,25 +142,23 @@ function toPlainText(raw, maxLen = 5000) {
 
 /**
  * Fetch the current surcharge rate (%) from SystemSetting.
- * Defaults to 0 if the DB call fails so we never block a product save.
+ * Defaults to 0 if the DB call fails.
  */
 async function getSurchargeRate() {
   try {
     const settings = await SystemSetting.getSettings();
     return Number(settings?.marketplace?.surchargeRate ?? 0);
   } catch (err) {
-    logger.error("[MerchantCenter] Failed to fetch surcharge rate:", err.message);
+    logger.error(
+      "[MerchantCenter] Failed to fetch surcharge rate:",
+      err.message,
+    );
     return 0;
   }
 }
 
 /**
- * Apply surcharge to a base INR price and return a string suitable for the
- * Merchant Center price field (2 decimal places).
- *
- * @param {number} basePrice   Base price in INR (as stored in DB)
- * @param {number} surchargeRate  Percentage, e.g. 18 for 18 %
- * @returns {string}  e.g. "118.00"
+ * Apply surcharge and return a formatted price string (2 decimal places).
  */
 function applyAndFormat(basePrice, surchargeRate) {
   const final = Math.round(basePrice * (1 + surchargeRate / 100) * 100) / 100;
@@ -87,13 +166,12 @@ function applyAndFormat(basePrice, surchargeRate) {
 }
 
 /**
- * Map a MongoDB Product document to a Google Content API product resource.
+ * Map a MongoDB Product document to a Merchant API productInput resource.
  *
- * @param {object} product       Mongoose document or plain object
- * @param {number} surchargeRate Current surcharge percentage
- * @returns {object}  Content API product body
+ * Merchant API product input reference:
+ *   https://developers.google.com/merchant/api/reference/rest/products_v1beta/accounts.productInputs
  */
-function buildMerchantProduct(product, surchargeRate) {
+function buildProductInput(product, surchargeRate) {
   const offerId = String(product._id);
   const slug = product.slug || offerId;
   const productUrl = `${BASE_URL}/marketplace/products/${slug}`;
@@ -101,7 +179,7 @@ function buildMerchantProduct(product, surchargeRate) {
   // Images
   const images = (product.images || []).map((img) => img.url).filter(Boolean);
   const imageLink = images[0] || `${BASE_URL}/og-image.jpg`;
-  const additionalImageLinks = images.slice(1, 10); // API limit
+  const additionalImageLinks = images.slice(1, 10);
 
   // Pricing
   const basePrice = Number(product.price) || 0;
@@ -114,9 +192,9 @@ function buildMerchantProduct(product, surchargeRate) {
     : null;
 
   // Availability
-  const availability = product.isActive !== false ? "in stock" : "out of stock";
+  const availability = product.isActive !== false ? "in_stock" : "out_of_stock";
 
-  // Category → Google product type hierarchy
+  // Category mapping
   const categoryMap = {
     templates: "Software > Website Templates",
     components: "Software > UI Components",
@@ -130,68 +208,57 @@ function buildMerchantProduct(product, surchargeRate) {
   const productType =
     categoryMap[product.category] || "Software > Digital Downloads";
 
-  // Custom attributes for richer data
-  const customAttributes = [];
-  if (product.version) {
-    customAttributes.push({ name: "version", value: product.version });
-  }
-  if (product.license) {
-    customAttributes.push({ name: "license", value: product.license });
-  }
-  if ((product.technologies || []).length > 0) {
-    customAttributes.push({
-      name: "technologies",
-      value: product.technologies.slice(0, 5).join(", "),
-    });
-  }
-
-  const resource = {
+  // Merchant API v1: top-level = offerId, feedLabel, contentLanguage
+  // All product data goes inside "productAttributes"
+  const input = {
     offerId,
-    title: String(product.title).slice(0, 150), // GMC title limit
-    description: toPlainText(product.description),
-    link: productUrl,
-    imageLink,
+    feedLabel: "IN",
     contentLanguage: "en",
-    targetCountry: "IN",
-    channel: "online",
-    availability,
-    condition: "new",
-    brand: BRAND_NAME,
-    // Digital product → no physical GTIN/MPN
-    identifierExists: "false",
-    productTypes: [productType],
-    // Price field = "full" / regular price
-    price: {
-      value: hasOriginalPrice ? finalOriginalPrice : finalPrice,
-      currency: "INR",
-    },
-    // Free digital delivery (no physical shipping)
-    shipping: [
-      {
-        price: { value: "0.00", currency: "INR" },
-        country: "IN",
-        service: "Digital Delivery",
-      },
-    ],
-    // Custom labels for campaign targeting (up to label4)
-    customLabel0: product.category || "",
-    customLabel1: product.isFeatured ? "featured" : "standard",
-    customLabel2: product.license || "",
-    ...(customAttributes.length > 0 && { customAttributes }),
-  };
 
-  // Add additionalImageLinks only when present (API rejects empty arrays)
-  if (additionalImageLinks.length > 0) {
-    resource.additionalImageLinks = additionalImageLinks;
-  }
+    productAttributes: {
+      title: String(product.title).slice(0, 150),
+      description: toPlainText(product.description),
+      link: productUrl,
+      imageLink,
+      availability,
+      condition: "new",
+      brand: BRAND_NAME,
+      identifierExists: false,
+      productTypes: [productType],
+
+      // Price uses amountMicros + currencyCode in Merchant API v1
+      price: {
+        amountMicros: String(
+          Math.round(
+            Number(hasOriginalPrice ? finalOriginalPrice : finalPrice) *
+              1_000_000,
+          ),
+        ),
+        currencyCode: "INR",
+      },
+
+      // Free digital delivery
+      shipping: [
+        {
+          price: { amountMicros: "0", currencyCode: "INR" },
+          country: "IN",
+          service: "Digital Delivery",
+        },
+      ],
+
+      ...(additionalImageLinks.length > 0 && { additionalImageLinks }),
+    },
+  };
 
   // Sale price when there is a discount
   if (hasOriginalPrice) {
-    resource.salePrice = { value: finalPrice, currency: "INR" };
-    // salePriceEffectiveDate is optional; omitting it means "always on sale"
+    input.productAttributes.salePrice = {
+      amountMicros: String(Math.round(Number(finalPrice) * 1_000_000)),
+      currencyCode: "INR",
+    };
   }
 
-  return resource;
+  return input;
 }
 
 // ---------------------------------------------------------------------------
@@ -211,24 +278,24 @@ async function upsertProduct(product) {
   }
 
   try {
-    const surchargeRate = await getSurchargeRate();
-    const authClient = await merchantAuth.getClient();
-    const content = google.content({ version: "v2.1", auth: authClient });
+    const [surchargeRate, dataSourceName, token] = await Promise.all([
+      getSurchargeRate(),
+      getPrimaryDataSource(),
+      getAccessToken(),
+    ]);
 
-    const productResource = buildMerchantProduct(product, surchargeRate);
+    const productInput = buildProductInput(product, surchargeRate);
+    const url = PRODUCTS_API(dataSourceName);
 
-    await content.products.insert({
-      merchantId: MERCHANT_ID,
-      requestBody: productResource,
-    });
+    await axios.post(url, productInput, { headers: buildHeaders(token) });
 
     logger.info(
-      `[MerchantCenter] Upserted product: ${product._id} (${product.title})`
+      `[MerchantCenter] Upserted product: ${product._id} (${product.title})`,
     );
   } catch (err) {
     logger.error(
       `[MerchantCenter] Failed to upsert product ${product._id}:`,
-      err.message
+      err?.response?.data || err.message,
     );
   }
 }
@@ -241,29 +308,32 @@ async function upsertProduct(product) {
  */
 async function deleteProduct(productId) {
   if (!MERCHANT_ID) {
-    logger.warn("[MerchantCenter] GOOGLE_MERCHANT_ID not set – skipping delete");
+    logger.warn(
+      "[MerchantCenter] GOOGLE_MERCHANT_ID not set – skipping delete",
+    );
     return;
   }
 
   try {
-    const authClient = await merchantAuth.getClient();
-    const content = google.content({ version: "v2.1", auth: authClient });
+    // Ensure data source is cached so PRODUCT_DELETE_API can use it
+    await getPrimaryDataSource();
+    const token = await getAccessToken();
 
-    // Content API product ID format: online:en:IN:<offerId>
-    const gmcProductId = `online:en:IN:${productId}`;
+    // Merchant API product input name format:
+    // accounts/{merchantId}/productInputs/online~en~IN~{offerId}
+    const productInputName = `accounts/${MERCHANT_ID}/productInputs/online~en~IN~${productId}`;
+    const url = `${MC_BASE}/products/v1/${productInputName}?dataSource=${encodeURIComponent(_cachedDataSourceName)}`;
 
-    await content.products.delete({
-      merchantId: MERCHANT_ID,
-      productId: gmcProductId,
-    });
+    await axios.delete(url, { headers: buildHeaders(token) });
 
     logger.info(`[MerchantCenter] Deleted product: ${productId}`);
   } catch (err) {
-    // 404 is expected when the product was never synced; suppress it
-    if (err?.code !== 404 && err?.response?.status !== 404) {
+    const status = err?.response?.status;
+    // 404 is expected when the product was never synced
+    if (status !== 404) {
       logger.error(
         `[MerchantCenter] Failed to delete product ${productId}:`,
-        err.message
+        err?.response?.data || err.message,
       );
     }
   }
@@ -271,7 +341,7 @@ async function deleteProduct(productId) {
 
 /**
  * Bulk-sync all products from MongoDB to Google Merchant Center.
- * Runs in batches to respect API rate limits.
+ * Runs in sequential batches to respect API rate limits.
  * Returns a summary { synced, failed, total }.
  */
 async function syncAllProducts() {
@@ -284,23 +354,24 @@ async function syncAllProducts() {
   // Lazy-load Product to avoid circular dependency
   const Product = require("../models/Product");
 
-  const BATCH_SIZE = 20; // Content API custombatch limit is 1,000, but keep batches small
-  const BATCH_DELAY_MS = 500; // Pause between batches
+  const BATCH_SIZE = 20;
+  const BATCH_DELAY_MS = 500;
 
   let synced = 0;
   let failed = 0;
-  let lastId = null; // cursor for efficient pagination
+  let lastId = null;
 
   try {
-    const surchargeRate = await getSurchargeRate();
-    const authClient = await merchantAuth.getClient();
-    const content = google.content({ version: "v2.1", auth: authClient });
+    const [surchargeRate, dataSourceName, token] = await Promise.all([
+      getSurchargeRate(),
+      getPrimaryDataSource(),
+      getAccessToken(),
+    ]);
 
     const total = await Product.countDocuments({});
     logger.info(`[MerchantCenter] Starting bulk sync of ${total} products…`);
 
     while (true) {
-      // Cursor-based pagination: filter on _id > lastId to avoid skip() scans
       const query = lastId ? { _id: { $gt: lastId } } : {};
       const products = await Product.find(query)
         .sort({ _id: 1 })
@@ -309,37 +380,32 @@ async function syncAllProducts() {
 
       if (products.length === 0) break;
 
-      // Build custombatch entries
-      const entries = products.map((product, idx) => ({
-        batchId: idx + 1,
-        merchantId: MERCHANT_ID,
-        method: "insert",
-        product: buildMerchantProduct(product, surchargeRate),
-      }));
+      // Merchant API does not have a custombatch endpoint in v1beta,
+      // so we fire concurrent requests per batch (Promise.allSettled keeps
+      // failures isolated).
+      const insertUrl = PRODUCTS_API(dataSourceName);
+      const headers = buildHeaders(token);
 
-      try {
-        const resp = await content.products.custombatch({
-          requestBody: { entries },
-        });
+      const results = await Promise.allSettled(
+        products.map((product) =>
+          axios.post(insertUrl, buildProductInput(product, surchargeRate), {
+            headers,
+          }),
+        ),
+      );
 
-        const kinds = resp.data.entries || [];
-        kinds.forEach((entry) => {
-          if (entry.errors) {
-            failed++;
-            logger.error(
-              `[MerchantCenter] Batch entry error (batchId ${entry.batchId}):`,
-              JSON.stringify(entry.errors)
-            );
-          } else {
-            synced++;
-          }
-        });
-      } catch (batchErr) {
-        logger.error("[MerchantCenter] Batch insert error:", batchErr.message);
-        failed += products.length;
-      }
+      results.forEach((result, idx) => {
+        if (result.status === "fulfilled") {
+          synced++;
+        } else {
+          failed++;
+          logger.error(
+            `[MerchantCenter] Failed to sync product ${products[idx]._id}:`,
+            result.reason?.response?.data || result.reason?.message,
+          );
+        }
+      });
 
-      // Advance cursor to the _id of the last product in this batch
       lastId = products[products.length - 1]._id;
 
       if (products.length === BATCH_SIZE) {
@@ -348,11 +414,14 @@ async function syncAllProducts() {
     }
 
     logger.info(
-      `[MerchantCenter] Bulk sync complete — synced: ${synced}, failed: ${failed}, total: ${synced + failed}`
+      `[MerchantCenter] Bulk sync complete — synced: ${synced}, failed: ${failed}, total: ${synced + failed}`,
     );
     return { synced, failed, total: synced + failed };
   } catch (err) {
-    logger.error("[MerchantCenter] Bulk sync error:", err.message);
+    logger.error(
+      "[MerchantCenter] Bulk sync error:",
+      err?.response?.data || err.message,
+    );
     return { synced, failed, total: synced + failed, error: err.message };
   }
 }

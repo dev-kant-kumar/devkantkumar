@@ -1,47 +1,77 @@
 import {
-    BarChart2,
-    Download,
-    Edit2,
-    Eye,
-    Filter,
-    Package,
-    Plus,
-    RefreshCw,
-    Search,
-    ShoppingBag,
-    Star,
-    Trash2
-} from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
-import DeleteConfirmationModal from '../../common/components/DeleteConfirmationModal';
-import PremiumButton from '../../common/components/PremiumButton';
+  BarChart2,
+  Download,
+  Edit2,
+  Eye,
+  Filter,
+  Package,
+  Plus,
+  RefreshCw,
+  Search,
+  ShoppingBag,
+  Star,
+  Trash2,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import DeleteConfirmationModal from "../../common/components/DeleteConfirmationModal";
+import PremiumButton from "../../common/components/PremiumButton";
 import {
-    useDeleteProductMutation,
-    useGetAdminProductsQuery,
-    useSyncMerchantCenterMutation
-} from '../../store/api/adminApiSlice';
+  useDeleteProductMutation,
+  useGetAdminProductsQuery,
+  useSyncMerchantCenterMutation,
+} from "../../store/api/adminApiSlice";
 
 const Products = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [syncStatus, setSyncStatus] = useState(null); // null, 'loading', 'success', 'error', 'partial'
+  const [syncResult, setSyncResult] = useState(null); // { synced, failed, total, message }
 
   const navigate = useNavigate();
 
   const { data, isLoading } = useGetAdminProductsQuery({});
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-  const [syncMerchantCenter, { isLoading: isSyncing }] = useSyncMerchantCenterMutation();
+  const [syncMerchantCenter, { isLoading: isSyncing }] =
+    useSyncMerchantCenterMutation();
 
   const products = data?.products || [];
 
   const handleMerchantSync = async () => {
+    setSyncStatus("loading");
     try {
-      await syncMerchantCenter().unwrap();
-      toast.success('Syncing to Google Merchant Center — check server logs for results.');
+      const result = await syncMerchantCenter().unwrap();
+
+      if (result.success) {
+        setSyncStatus("success");
+        setSyncResult({
+          synced: result.synced,
+          failed: result.failed,
+          total: result.total,
+          message: result.message,
+        });
+      } else {
+        setSyncStatus("partial");
+        setSyncResult({
+          synced: result.synced,
+          failed: result.failed,
+          total: result.total,
+          message: result.message,
+        });
+      }
     } catch (error) {
-      toast.error(error.data?.message || 'Failed to trigger Merchant Center sync');
+      setSyncStatus("error");
+      setSyncResult({
+        synced: 0,
+        failed: 0,
+        total: 0,
+        message:
+          error.data?.message ||
+          error.message ||
+          "Failed to sync to Merchant Center",
+      });
     }
   };
 
@@ -55,17 +85,18 @@ const Products = () => {
 
     try {
       await deleteProduct(itemToDelete._id).unwrap();
-      toast.success('Product deleted');
+      toast.success("Product deleted");
       setDeleteModalOpen(false);
       setItemToDelete(null);
     } catch (error) {
-      toast.error(error.data?.message || 'Failed to delete product');
+      toast.error(error.data?.message || "Failed to delete product");
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -92,10 +123,10 @@ const Products = () => {
             ) : (
               <ShoppingBag size={16} />
             )}
-            {isSyncing ? 'Syncing…' : 'Sync to Google'}
+            {isSyncing ? "Syncing…" : "Sync to Google"}
           </button>
           <PremiumButton
-            onClick={() => navigate('new')}
+            onClick={() => navigate("new")}
             label="Add Product"
             icon={Plus}
             statsCount={products.length}
@@ -104,10 +135,97 @@ const Products = () => {
         </div>
       </div>
 
+      {/* Sync Status Banner */}
+      {syncStatus && (
+        <div
+          className={`w-full p-4 rounded-xl border-l-4 flex items-start justify-between gap-4 animate-in fade-in slide-in-from-top duration-300 ${
+            syncStatus === "loading"
+              ? "bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600"
+              : syncStatus === "success"
+                ? "bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-600"
+                : syncStatus === "partial"
+                  ? "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-400 dark:border-yellow-600"
+                  : "bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600"
+          }`}
+        >
+          <div className="flex-1">
+            <div
+              className={`font-semibold text-sm mb-2 ${
+                syncStatus === "loading"
+                  ? "text-blue-900 dark:text-blue-200"
+                  : syncStatus === "success"
+                    ? "text-green-900 dark:text-green-200"
+                    : syncStatus === "partial"
+                      ? "text-yellow-900 dark:text-yellow-200"
+                      : "text-red-900 dark:text-red-200"
+              }`}
+            >
+              {syncStatus === "loading" &&
+                "🔄 Syncing to Google Merchant Center..."}
+              {syncStatus === "success" && "✓ Sync Complete!"}
+              {syncStatus === "partial" && "⚠ Sync Partially Failed"}
+              {syncStatus === "error" && "❌ Sync Failed"}
+            </div>
+            {syncResult && (
+              <div
+                className={`text-sm ${
+                  syncStatus === "loading"
+                    ? "text-blue-800 dark:text-blue-300"
+                    : syncStatus === "success"
+                      ? "text-green-800 dark:text-green-300"
+                      : syncStatus === "partial"
+                        ? "text-yellow-800 dark:text-yellow-300"
+                        : "text-red-800 dark:text-red-300"
+                }`}
+              >
+                {syncStatus === "loading" ? (
+                  <span>Please wait while products are being synced...</span>
+                ) : (
+                  <div className="space-y-1">
+                    <p>
+                      <strong>{syncResult.synced}</strong> of{" "}
+                      <strong>{syncResult.total}</strong> products synced
+                      {syncResult.failed > 0 && (
+                        <span>
+                          {" "}
+                          • <strong>{syncResult.failed}</strong> failed
+                        </span>
+                      )}
+                    </p>
+                    {syncResult.message && (
+                      <p className="opacity-90">{syncResult.message}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              setSyncStatus(null);
+              setSyncResult(null);
+            }}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0 mt-1"
+            title="Dismiss"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Filters Bar */}
       <div className="flex items-center space-x-4 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-2 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all duration-300">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Search products..."
@@ -125,15 +243,20 @@ const Products = () => {
       {/* Table Container */}
       <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="p-12 text-center text-gray-500 animate-pulse">Loading products...</div>
+          <div className="p-12 text-center text-gray-500 animate-pulse">
+            Loading products...
+          </div>
         ) : filteredProducts.length === 0 ? (
           <div className="p-16 text-center flex flex-col items-center">
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                <Package size={32} className="text-gray-400" />
+              <Package size={32} className="text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">No products found</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              No products found
+            </h3>
             <p className="text-gray-500 mt-2 max-w-sm mx-auto">
-                Get started by creating your first product. It will appear here once added.
+              Get started by creating your first product. It will appear here
+              once added.
             </p>
           </div>
         ) : (
@@ -141,13 +264,27 @@ const Products = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50">
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Product</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Price</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Views / Downloads</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Rating</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
-                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Product
+                  </th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Category
+                  </th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Price
+                  </th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Views / Downloads
+                  </th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Rating
+                  </th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Status
+                  </th>
+                  <th className="px-6 py-5 font-semibold text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200/50 dark:divide-gray-700/50">
@@ -160,7 +297,11 @@ const Products = () => {
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 overflow-hidden shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-300">
                           {product.images?.[0]?.url ? (
-                            <img src={product.images[0].url} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={product.images[0].url}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Package size={20} className="text-gray-400" />
@@ -168,8 +309,12 @@ const Products = () => {
                           )}
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 dark:text-white line-clamp-1">{product.title}</p>
-                          <p className="text-xs text-gray-500 truncate max-w-[200px] font-mono opacity-80">{product.slug}</p>
+                          <p className="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                            {product.title}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate max-w-[200px] font-mono opacity-80">
+                            {product.slug}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -195,16 +340,21 @@ const Products = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className="flex items-center gap-1 text-amber-500 font-medium text-sm">
-                        <Star size={13} className="fill-amber-400 text-amber-400" />
+                        <Star
+                          size={13}
+                          className="fill-amber-400 text-amber-400"
+                        />
                         {(product.rating?.average ?? 0).toFixed(1)}
-                        <span className="text-xs text-gray-400 font-normal">({product.rating?.count ?? 0})</span>
+                        <span className="text-xs text-gray-400 font-normal">
+                          ({product.rating?.count ?? 0})
+                        </span>
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/20">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                            Active
-                        </span>
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Active
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
@@ -242,8 +392,8 @@ const Products = () => {
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
         onClose={() => {
-            setDeleteModalOpen(false);
-            setItemToDelete(null);
+          setDeleteModalOpen(false);
+          setItemToDelete(null);
         }}
         onConfirm={handleDelete}
         title="Delete Product"

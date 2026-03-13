@@ -82,7 +82,9 @@ exports.getProductById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
-    const product = await Product.findById(new mongoose.Types.ObjectId(req.params.id));
+    const product = await Product.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -121,12 +123,19 @@ exports.createProduct = async (req, res) => {
     await product.save();
 
     // Bust the server-side meta cache for this product
-    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+    invalidateMetaCache("product", String(product._id), product.slug).catch(
+      () => {},
+    );
 
     // Sync to Google Merchant Center (fire-and-forget)
-    merchantCenter.upsertProduct(product).catch((err) =>
-      logger.error("MerchantCenter upsert error (createProduct):", err.message)
-    );
+    merchantCenter
+      .upsertProduct(product)
+      .catch((err) =>
+        logger.error(
+          "MerchantCenter upsert error (createProduct):",
+          err.message,
+        ),
+      );
 
     res.status(201).json({
       success: true,
@@ -237,12 +246,19 @@ exports.updateProduct = async (req, res) => {
     }
 
     // Bust the server-side meta cache for this product
-    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+    invalidateMetaCache("product", String(product._id), product.slug).catch(
+      () => {},
+    );
 
     // Sync to Google Merchant Center (fire-and-forget)
-    merchantCenter.upsertProduct(product).catch((err) =>
-      logger.error("MerchantCenter upsert error (updateProduct):", err.message)
-    );
+    merchantCenter
+      .upsertProduct(product)
+      .catch((err) =>
+        logger.error(
+          "MerchantCenter upsert error (updateProduct):",
+          err.message,
+        ),
+      );
 
     res.json({
       success: true,
@@ -290,12 +306,19 @@ exports.deleteProduct = async (req, res) => {
     }
 
     // Bust the server-side meta cache for this product
-    invalidateMetaCache("product", String(product._id), product.slug).catch(() => {});
+    invalidateMetaCache("product", String(product._id), product.slug).catch(
+      () => {},
+    );
 
     // Remove from Google Merchant Center (fire-and-forget)
-    merchantCenter.deleteProduct(product._id).catch((err) =>
-      logger.error("MerchantCenter delete error (deleteProduct):", err.message)
-    );
+    merchantCenter
+      .deleteProduct(product._id)
+      .catch((err) =>
+        logger.error(
+          "MerchantCenter delete error (deleteProduct):",
+          err.message,
+        ),
+      );
 
     res.json({
       success: true,
@@ -329,7 +352,9 @@ exports.getCustomers = async (req, res) => {
           ...(search
             ? {
                 $or: [
-                  { firstName: { $regex: escapeRegExp(search), $options: "i" } },
+                  {
+                    firstName: { $regex: escapeRegExp(search), $options: "i" },
+                  },
                   { lastName: { $regex: escapeRegExp(search), $options: "i" } },
                   { email: { $regex: escapeRegExp(search), $options: "i" } },
                 ],
@@ -411,7 +436,9 @@ exports.getCustomerById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid customer ID" });
     }
-    const customer = await User.findById(new mongoose.Types.ObjectId(req.params.id)).select("-password");
+    const customer = await User.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    ).select("-password");
 
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
@@ -505,7 +532,9 @@ exports.getAdminServiceById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid service ID" });
     }
-    const service = await Service.findById(new mongoose.Types.ObjectId(req.params.id));
+    const service = await Service.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -552,7 +581,9 @@ exports.createService = async (req, res) => {
     await service.save();
 
     // Bust the server-side meta cache for this service
-    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+    invalidateMetaCache("service", String(service._id), service.slug).catch(
+      () => {},
+    );
 
     res.status(201).json({
       success: true,
@@ -656,17 +687,23 @@ exports.updateService = async (req, res) => {
       }));
     }
 
-    const service = await Service.findByIdAndUpdate(new mongoose.Types.ObjectId(req.params.id), updateData, {
-      new: true,
-      runValidators: true,
-    });
+    const service = await Service.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(req.params.id),
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
 
     // Bust the server-side meta cache for this service
-    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+    invalidateMetaCache("service", String(service._id), service.slug).catch(
+      () => {},
+    );
 
     res.json({
       success: true,
@@ -714,7 +751,9 @@ exports.deleteService = async (req, res) => {
     }
 
     // Bust the server-side meta cache for this service
-    invalidateMetaCache("service", String(service._id), service.slug).catch(() => {});
+    invalidateMetaCache("service", String(service._id), service.slug).catch(
+      () => {},
+    );
 
     res.json({
       success: true,
@@ -794,7 +833,9 @@ exports.updateAdminOrderStatus = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -848,7 +889,9 @@ exports.getOrderById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id))
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    )
       .populate(
         "user",
         "firstName lastName email profile avatar createdAt marketplace",
@@ -895,7 +938,9 @@ exports.addMilestone = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res
@@ -937,7 +982,9 @@ exports.updateMilestone = async (req, res) => {
     const { status, message } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
     const order = await Order.findById(new mongoose.Types.ObjectId(id));
 
@@ -986,7 +1033,9 @@ exports.addAdminMessage = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res
@@ -1050,7 +1099,9 @@ exports.markDelivered = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res
@@ -1260,7 +1311,9 @@ exports.approveRequirements = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res.status(404).json({
@@ -1336,7 +1389,9 @@ exports.completePhase = async (req, res) => {
     const { notes, deliverableUrl, externalLink } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
     const order = await Order.findById(new mongoose.Types.ObjectId(id));
 
@@ -1412,7 +1467,9 @@ exports.markApproval = async (req, res) => {
     const { approval_type, status, notes } = req.body; // e.g., 'design_approval', 'approved'
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid order ID" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order ID" });
     }
     const order = await Order.findById(new mongoose.Types.ObjectId(id));
     if (!order) {
@@ -1459,7 +1516,9 @@ exports.requestRequirementsChanges = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid order ID" });
     }
-    const order = await Order.findById(new mongoose.Types.ObjectId(req.params.id));
+    const order = await Order.findById(
+      new mongoose.Types.ObjectId(req.params.id),
+    );
 
     if (!order) {
       return res.status(404).json({
@@ -2360,33 +2419,49 @@ exports.getServiceAnalytics = async (req, res) => {
   }
 };
 
-
 // @desc    Bulk-sync all products to Google Merchant Center
 // @route   POST /api/v1/admin/merchant-center/sync
 // @access  Admin
 exports.syncMerchantCenter = async (req, res) => {
   try {
-    // Respond immediately so the admin UI isn't blocked; sync runs in background
-    res.json({
-      success: true,
-      message: "Google Merchant Center sync started. Results will appear in server logs.",
-    });
+    // Wait for sync to complete and return results to frontend
+    const result = await merchantCenter.syncAllProducts();
 
-    // Run async after response is sent
-    merchantCenter
-      .syncAllProducts()
-      .then(({ synced, failed, total, error }) => {
-        if (error) {
-          logger.error("[MerchantCenter] Bulk sync finished with error:", error);
-        } else {
-          logger.info(
-            `[MerchantCenter] Bulk sync finished — synced: ${synced}, failed: ${failed}, total: ${total}`
-          );
-        }
-      })
-      .catch((err) => logger.error("[MerchantCenter] Bulk sync crashed:", err.message));
+    const { synced, failed, total, error, message } = result;
+
+    if (error) {
+      logger.error(`[MerchantCenter] Bulk sync failed: ${message || error}`);
+      return res.status(400).json({
+        success: false,
+        message: `Sync failed: ${message || error}`,
+        synced: 0,
+        failed: total || 0,
+        total: total || 0,
+      });
+    }
+
+    logger.info(
+      `[MerchantCenter] Sync completed — synced: ${synced}, failed: ${failed}, total: ${total}`,
+    );
+
+    const allSucceeded = failed === 0;
+    return res.json({
+      success: allSucceeded,
+      message: allSucceeded
+        ? `✓ Successfully synced ${synced} products to Google Merchant Center`
+        : `⚠ Synced ${synced} products, but ${failed} failed. Check logs for details.`,
+      synced,
+      failed,
+      total,
+    });
   } catch (error) {
     logger.error("syncMerchantCenter error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Sync error: " + (error.message || String(error)),
+      synced: 0,
+      failed: 0,
+      total: 0,
+    });
   }
 };
