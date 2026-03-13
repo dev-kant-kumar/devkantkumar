@@ -244,6 +244,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('public'));
 
+  // Inject server-side product/service meta tags for bot crawlers (Facebook, Google, etc.)
+  // so that ad-campaign tools can extract product data from the URL.
+  const { createProductMetaMiddleware } = require('./src/middlewares/productMetaMiddleware');
+  app.use(createProductMetaMiddleware(path.join(__dirname, 'public')));
+
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });

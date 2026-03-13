@@ -12,6 +12,8 @@ const SEOHead = ({
   noindex = false,
   canonical,
   canonicalUrl,
+  // Product-specific Open Graph tags (used when type="product")
+  product = {},
 }) => {
   const { personalInfo, seoKeywords, seoConfig } = portfolioData;
 
@@ -97,6 +99,30 @@ const SEOHead = ({
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDescription} />
       <meta property="og:image" content={pageImage} />
+      <meta property="og:site_name" content="Dev Kant Kumar Marketplace" />
+      <meta property="og:locale" content="en_US" />
+
+      {/* Product-specific Open Graph tags (Facebook/Meta Ads, Google Merchant) */}
+      {type === "product" && product.price != null && (
+        <>
+          <meta property="product:price:amount" content={String(product.price)} />
+          <meta property="product:price:currency" content={product.currency || "INR"} />
+          <meta
+            property="product:availability"
+            content={product.availability ?? "in stock"}
+          />
+          <meta property="product:condition" content="new" />
+          {product.retailerItemId && (
+            <meta property="product:retailer_item_id" content={product.retailerItemId} />
+          )}
+          {product.brand && (
+            <meta property="product:brand" content={product.brand} />
+          )}
+          {product.category && (
+            <meta property="product:category" content={product.category} />
+          )}
+        </>
+      )}
 
       {/* Article specific (for blog posts) */}
       {type === "article" && (

@@ -178,6 +178,14 @@ const ProductDetail = () => {
           "download",
           "React template",
         ].filter(Boolean)}
+        product={{
+          price: product.price,
+          currency: "INR",
+          availability: product.isActive ? "in stock" : "out of stock",
+          retailerItemId: product._id,
+          brand: "Dev Kant Kumar Marketplace",
+          category: product.category,
+        }}
       />
       <ProductSchema product={product} reviews={product.reviews || []} />
       <BreadcrumbSchema

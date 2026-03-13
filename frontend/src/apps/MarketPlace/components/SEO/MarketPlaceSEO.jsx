@@ -7,6 +7,8 @@ const MarketPlaceSEO = ({
   image,
   url,
   type = "website",
+  // Product-specific meta props forwarded to SEOHead
+  product = {},
   ...props
 }) => {
   const fullTitle = title
@@ -33,6 +35,7 @@ const MarketPlaceSEO = ({
       image={image || "/images/marketplace-og.jpg"}
       url={url}
       type={type}
+      product={product}
       {...props}
     />
   );

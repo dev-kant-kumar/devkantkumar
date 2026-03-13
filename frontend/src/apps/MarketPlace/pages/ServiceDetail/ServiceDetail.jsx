@@ -184,7 +184,7 @@ const ServiceDetail = () => {
         title={service.title}
         description={service.description}
         image={service.images?.[0]?.url}
-        type="service"
+        type="product"
         canonical={`https://www.devkantkumar.com/marketplace/services/${service.slug || service._id}`}
         keywords={[
           service.title,
@@ -193,6 +193,17 @@ const ServiceDetail = () => {
           "web development",
           "India",
         ].filter(Boolean)}
+        product={{
+          price: (() => {
+            const prices = packages.map((p) => p.price).filter((p) => typeof p === "number" && p >= 0);
+            return prices.length > 0 ? Math.min(...prices) : (service.startingPrice || 0);
+          })(),
+          currency: "INR",
+          availability: service.isActive ? "in stock" : "out of stock",
+          retailerItemId: service._id,
+          brand: "Dev Kant Kumar Marketplace",
+          category: service.category,
+        }}
       />
       <ServiceSchema service={service} reviews={service.reviews || []} />
       <BreadcrumbSchema
