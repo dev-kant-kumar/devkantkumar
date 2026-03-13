@@ -26,6 +26,8 @@ import {
 import { useAddToCartMutation } from "../../../../store/cart/cartApi";
 import RecommendationSection from "../../common/components/RecommendationSection";
 import WishlistButton from "../../common/components/WishlistButton";
+import UrgencyBadge from "../../common/components/UrgencyBadge";
+import RecentPurchaseToast from "../../common/components/RecentPurchaseToast";
 import MarketPlaceSEO from "../../components/SEO/MarketPlaceSEO";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useGetServiceByIdQuery } from "../../store/api/marketplaceApi";
@@ -184,7 +186,7 @@ const ServiceDetail = () => {
         title={service.title}
         description={service.description}
         image={service.images?.[0]?.url}
-        type="service"
+        type="product"
         canonical={`https://www.devkantkumar.com/marketplace/services/${service.slug || service._id}`}
         keywords={[
           service.title,
@@ -193,6 +195,17 @@ const ServiceDetail = () => {
           "web development",
           "India",
         ].filter(Boolean)}
+        product={{
+          price: (() => {
+            const prices = packages.map((p) => p.price).filter((p) => typeof p === "number" && p >= 0);
+            return prices.length > 0 ? Math.min(...prices) : (service.startingPrice || 0);
+          })(),
+          currency: "INR",
+          availability: service.isActive ? "in stock" : "out of stock",
+          retailerItemId: service._id,
+          brand: "Dev Kant Kumar Marketplace",
+          category: service.category,
+        }}
       />
       <ServiceSchema service={service} reviews={service.reviews || []} />
       <BreadcrumbSchema
@@ -324,6 +337,7 @@ const ServiceDetail = () => {
                     )}
                     {isAdding ? "Adding..." : "Continue"}
                   </button>
+                  <UrgencyBadge productId={service._id} type="service" />
                 </div>
               </div>
 
@@ -508,6 +522,7 @@ const ServiceDetail = () => {
                     >
                       Contact Seller
                     </Link>
+                    <UrgencyBadge productId={service._id} type="service" />
                   </div>
                 </div>
               </div>
@@ -567,6 +582,9 @@ const ServiceDetail = () => {
           Continue ({packages[selectedPackage]?.name})
         </button>
       </div>
+
+      {/* Social proof: recent purchase toast */}
+      <RecentPurchaseToast productId={service._id} productTitle={service.title} />
     </div>
   );
 };

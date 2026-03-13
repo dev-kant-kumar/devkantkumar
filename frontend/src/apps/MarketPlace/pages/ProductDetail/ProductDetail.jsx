@@ -24,6 +24,8 @@ import ProductSchema, {
 import { useAddToCartMutation } from "../../../../store/cart/cartApi";
 import RecommendationSection from "../../common/components/RecommendationSection";
 import WishlistButton from "../../common/components/WishlistButton";
+import UrgencyBadge from "../../common/components/UrgencyBadge";
+import RecentPurchaseToast from "../../common/components/RecentPurchaseToast";
 import MarketPlaceSEO from "../../components/SEO/MarketPlaceSEO";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useGetProductByIdQuery } from "../../store/api/marketplaceApi";
@@ -178,6 +180,14 @@ const ProductDetail = () => {
           "download",
           "React template",
         ].filter(Boolean)}
+        product={{
+          price: product.price,
+          currency: "INR",
+          availability: product.isActive ? "in stock" : "out of stock",
+          retailerItemId: product._id,
+          brand: "Dev Kant Kumar Marketplace",
+          category: product.category,
+        }}
       />
       <ProductSchema product={product} reviews={product.reviews || []} />
       <BreadcrumbSchema
@@ -294,6 +304,7 @@ const ProductDetail = () => {
                       </button>
                     </div>
                   </div>
+                  <UrgencyBadge productId={product._id} type="product" />
                 </div>
 
                 <FormattedText
@@ -460,6 +471,7 @@ const ProductDetail = () => {
                   <Share2 size={20} />
                   Share Product
                 </button>
+                <UrgencyBadge productId={product._id} type="product" />
               </div>
 
               <div className="space-y-4 pt-6 border-t border-gray-100">
@@ -526,6 +538,9 @@ const ProductDetail = () => {
           Add to Cart
         </button>
       </div>
+
+      {/* Social proof: recent purchase toast */}
+      <RecentPurchaseToast productId={product._id} productTitle={product.title} />
     </div>
   );
 };

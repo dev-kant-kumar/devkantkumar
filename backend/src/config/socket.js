@@ -1,6 +1,8 @@
 const { Server } = require("socket.io");
+const { createAdapter } = require("@socket.io/redis-adapter");
 const jwt = require("jsonwebtoken");
 const logger = require("../utils/logger");
+const { getRedisClient } = require("../db/redis");
 
 let io = null;
 
@@ -43,6 +45,29 @@ const initializeSocket = (httpServer) => {
     pingTimeout: 60000,
     pingInterval: 25000,
   });
+
+  // Attach Redis adapter so socket events propagate across all Node.js processes
+  // behind a load balancer.  The adapter uses pub/sub on a dedicated client so the
+  // main redis connection is never saturated by socket traffic.
+  const redisClient = getRedisClient();
+  if (redisClient) {
+    try {
+      const pubClient = redisClient.duplicate();
+      const subClient = redisClient.duplicate();
+      Promise.all([pubClient.connect(), subClient.connect()])
+        .then(() => {
+          io.adapter(createAdapter(pubClient, subClient));
+          logger.info("Socket.io Redis adapter attached — events propagate across all instances");
+        })
+        .catch((err) => {
+          logger.warn(`Socket.io Redis adapter setup failed, running single-instance: ${err.message}`);
+        });
+    } catch (err) {
+      logger.warn(`Socket.io Redis adapter init error: ${err.message}`);
+    }
+  } else {
+    logger.warn("Redis unavailable — Socket.io running without Redis adapter (single-instance only)");
+  }
 
   // Authentication middleware
   io.use(async (socket, next) => {

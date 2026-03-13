@@ -209,7 +209,10 @@ const userSchema = new mongoose.Schema({
     totalSpent: { type: Number, default: 0 },
     favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     favoriteServices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }],
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }]
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
+    // Tracks how many abandoned-cart reminder emails have been sent for the
+    // current cart session.  Reset to 0 when the cart is cleared (checkout).
+    abandonedCartRemindersSent: { type: Number, default: 0 }
   },
 
   // --- Referral ---

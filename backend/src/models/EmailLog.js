@@ -36,6 +36,7 @@ const emailLogSchema = new mongoose.Schema({
       'contact-user-auto-reply',
       'newsletter-welcome-email',
       'newsletter-update',
+      'abandoned-cart-email',
       'generic-email'
     ],
     index: true

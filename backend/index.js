@@ -82,10 +82,24 @@ app.use(helmet({
   },
 }));
 
-// Rate limiting
+// Rate limiting — backed by Redis when available so limits are shared across
+// all Node.js instances behind a load balancer (prevents per-instance bypass).
+const buildGlobalStore = () => {
+  try {
+    const { RedisStore } = require('rate-limit-redis');
+    const { getRedisClient } = require('./src/db/redis');
+    const redis = getRedisClient();
+    if (!redis) return undefined;
+    return new RedisStore({ sendCommand: (...args) => redis.sendCommand(args) });
+  } catch (_) {
+    return undefined;
+  }
+};
+
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  store: buildGlobalStore(),
   message: {
     error: 'Too many requests from this IP, please try again later.',
   },
@@ -161,8 +175,17 @@ const csrfProtection = (req, res, next) => {
 };
 app.use(csrfProtection);
 
-// Compression middleware
-app.use(compression());
+// Compression middleware — only compress responses larger than 1 KB at level 6
+// (good balance of CPU cost vs. wire savings).  Clients can opt-out via the
+// `x-no-compression` request header.
+app.use(compression({
+  level: 6,
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  },
+}));
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -244,6 +267,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('public'));
 
+  // Inject server-side product/service meta tags for bot crawlers (Facebook, Google, etc.)
+  // so that ad-campaign tools can extract product data from the URL.
+  const { createProductMetaMiddleware } = require('./src/middlewares/productMetaMiddleware');
+  app.use(createProductMetaMiddleware(path.join(__dirname, 'public')));
+
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
@@ -281,9 +309,26 @@ const startServer = async () => {
     const io = initializeSocket(httpServer);
     logger.info('Socket.io initialized for real-time notifications');
 
+    // Start background jobs
+    try {
+      const { startAbandonedCartCron } = require('./src/services/abandonedCartService');
+      startAbandonedCartCron();
+      logger.info('🛒 Abandoned cart recovery cron started');
+    } catch (cronErr) {
+      logger.warn(`Abandoned cart cron failed to start: ${cronErr.message}`);
+    }
+
     const startListener = (port) => {
       const portNum = parseInt(port, 10);
       httpServer.listen(portNum, () => {
+        // Keep-Alive tuning for high-concurrency: keep TCP connections open
+        // so clients reuse them (avoids 3-way-handshake overhead per request).
+        // headersTimeout must be slightly longer than keepAliveTimeout to prevent
+        // a race condition where the server closes the socket while the client is
+        // still writing the next request header.
+        httpServer.keepAliveTimeout = 65000;   // 65 s  (Nginx default is 75 s)
+        httpServer.headersTimeout    = 66000;   // 1 s buffer above keepAliveTimeout
+
         logger.info(`🚀 Server running in ${process.env.NODE_ENV} mode on http://localhost:${portNum}`);
         logger.info(`📡 Socket.io ready for real-time connections`);
       });
