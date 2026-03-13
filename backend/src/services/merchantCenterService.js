@@ -27,7 +27,8 @@ const SystemSetting = require("../models/SystemSetting");
 // ---------------------------------------------------------------------------
 
 const MERCHANT_ID = process.env.GOOGLE_MERCHANT_ID;
-const BASE_URL = "https://www.devkantkumar.com";
+const BASE_URL = process.env.CLIENT_URL || "https://www.devkantkumar.com";
+const BRAND_NAME = process.env.MERCHANT_BRAND_NAME || "Dev Kant Kumar";
 
 // Content API requires a write-capable scope that the read-only shared
 // googleAuth (analytics + search console) deliberately does not include.
@@ -155,7 +156,7 @@ function buildMerchantProduct(product, surchargeRate) {
     channel: "online",
     availability,
     condition: "new",
-    brand: "Dev Kant Kumar",
+    brand: BRAND_NAME,
     // Digital product → no physical GTIN/MPN
     identifierExists: "false",
     productTypes: [productType],

@@ -463,6 +463,13 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
       invalidatesTags: ["Product"],
     }),
 
+    syncMerchantCenter: builder.mutation({
+      query: () => ({
+        url: API_ENDPOINTS.ADMIN.MARKETPLACE.MERCHANT_CENTER_SYNC,
+        method: "POST",
+      }),
+    }),
+
     // Services
     getAdminServices: builder.query({
       query: (params) => ({
@@ -870,6 +877,7 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useSyncMerchantCenterMutation,
   useGetAdminServicesQuery,
   useGetAdminServiceByIdQuery,
   useCreateServiceMutation,

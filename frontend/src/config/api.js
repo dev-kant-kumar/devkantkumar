@@ -106,6 +106,7 @@ export const API_ENDPOINTS = {
       PRODUCTS: '/admin/products',
       SERVICES: '/admin/services',
       ORDERS: '/admin/marketplace/orders',
+      MERCHANT_CENTER_SYNC: '/admin/merchant-center/sync',
     },
     UPLOAD_IMAGE: '/admin/upload/image',
     UPLOAD_PROJECT_IMAGE: '/admin/upload/project-image',
