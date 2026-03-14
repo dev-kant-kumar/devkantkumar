@@ -10,6 +10,7 @@ const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 const { invalidateMetaCache } = require("../middlewares/productMetaMiddleware");
 const merchantCenter = require("../services/merchantCenterService");
+const { PAID_STATUSES } = require("../utils/orderConstants");
 
 // Escape all special regex metacharacters in a user-supplied string so it is
 // treated as a plain substring search. Prevents ReDoS attacks where a crafted
@@ -842,7 +843,21 @@ exports.updateAdminOrderStatus = async (req, res) => {
     }
 
     if (status) order.status = status;
-    if (paymentStatus) order.payment.status = paymentStatus;
+    if (paymentStatus) {
+      order.payment.status = paymentStatus;
+    } else if (
+      status &&
+      PAID_STATUSES.includes(status) &&
+      order.payment.status !== "completed" &&
+      order.payment.status !== "refunded"
+    ) {
+      // When an admin moves an order to a paid status, automatically mark the
+      // payment as completed so the order appears correctly in analytics.
+      order.payment.status = "completed";
+      if (!order.payment.paidAt) {
+        order.payment.paidAt = new Date();
+      }
+    }
 
     // Handle estimatedDelivery if moving to in_progress
     if (status === "in_progress" && !order.estimatedDelivery) {
@@ -1164,18 +1179,6 @@ exports.markDelivered = async (req, res) => {
 // @access  Admin
 exports.getStats = async (req, res) => {
   try {
-    // Statuses that represent a successfully paid order.
-    // "pending" and "cancelled"/"refunded" are excluded because payment
-    // is either not yet captured or has been reversed.
-    const PAID_STATUSES = [
-      "confirmed",
-      "awaiting_requirements",
-      "in_progress",
-      "revising",
-      "delivered",
-      "completed",
-    ];
-
     // Robust trend calculator – returns a rounded number (never NaN / Infinity).
     // Returns null when there is no prior-period baseline so the UI can show "N/A".
     const calcTrend = (cur, prev) => {
@@ -1198,7 +1201,6 @@ exports.getStats = async (req, res) => {
       {
         $match: {
           status: { $in: PAID_STATUSES },
-          "payment.status": "completed",
         },
       },
       {
@@ -1222,7 +1224,6 @@ exports.getStats = async (req, res) => {
     const periodMatch = (from, to) => {
       const match = {
         status: { $in: PAID_STATUSES },
-        "payment.status": "completed",
         createdAt: { $gte: from },
       };
       if (to) match.createdAt.$lt = to;
@@ -1265,7 +1266,6 @@ exports.getStats = async (req, res) => {
           $match: {
             createdAt: { $gte: thirtyDaysAgo },
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
           },
         },
         {
@@ -1600,15 +1600,6 @@ exports.requestRequirementsChanges = async (req, res) => {
 // ANALYTICS ENDPOINTS
 // ──────────────────────────────────────────────────────────────────────────────
 
-const PAID_STATUSES = [
-  "confirmed",
-  "awaiting_requirements",
-  "in_progress",
-  "revising",
-  "delivered",
-  "completed",
-];
-
 const calcTrend = (cur, prev) => {
   const c = Number(cur) || 0;
   const p = Number(prev) || 0;
@@ -1632,7 +1623,6 @@ exports.getMarketplaceAnalytics = async (req, res) => {
 
     const paidMatch = {
       status: { $in: PAID_STATUSES },
-      "payment.status": "completed",
     };
 
     const [
@@ -2002,7 +1992,6 @@ exports.getProductAnalytics = async (req, res) => {
 
     const paidMatchItem = {
       status: { $in: PAID_STATUSES },
-      "payment.status": "completed",
       "items.itemId": objId,
       "items.itemType": "product",
     };
@@ -2019,7 +2008,6 @@ exports.getProductAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
           },
         },
         { $unwind: "$items" },
@@ -2046,7 +2034,6 @@ exports.getProductAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
             createdAt: { $gte: thirtyDaysAgo },
           },
         },
@@ -2073,7 +2060,6 @@ exports.getProductAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
             createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
           },
         },
@@ -2100,7 +2086,6 @@ exports.getProductAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
             createdAt: {
               $gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000),
             },
@@ -2130,7 +2115,6 @@ exports.getProductAnalytics = async (req, res) => {
       // Recent 10 orders
       Order.find({
         status: { $in: PAID_STATUSES },
-        "payment.status": "completed",
         "items.itemId": objId,
         "items.itemType": "product",
       })
@@ -2219,7 +2203,6 @@ exports.getServiceAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
           },
         },
         { $unwind: "$items" },
@@ -2245,7 +2228,6 @@ exports.getServiceAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
             createdAt: { $gte: thirtyDaysAgo },
           },
         },
@@ -2272,7 +2254,6 @@ exports.getServiceAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
             createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
           },
         },
@@ -2299,7 +2280,6 @@ exports.getServiceAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
             createdAt: {
               $gte: new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000),
             },
@@ -2329,7 +2309,6 @@ exports.getServiceAnalytics = async (req, res) => {
         {
           $match: {
             status: { $in: PAID_STATUSES },
-            "payment.status": "completed",
           },
         },
         { $unwind: "$items" },
@@ -2368,7 +2347,6 @@ exports.getServiceAnalytics = async (req, res) => {
       // Recent 10 orders
       Order.find({
         status: { $in: PAID_STATUSES },
-        "payment.status": "completed",
         "items.itemId": objId,
         "items.itemType": "service",
       })

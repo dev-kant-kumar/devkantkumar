@@ -5,6 +5,7 @@ const Order = require("../models/Order");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const mongoose = require("mongoose");
+const { PAID_STATUSES } = require("../utils/orderConstants");
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
   let filter = {};
@@ -56,7 +57,7 @@ exports.createReview = catchAsync(async (req, res, next) => {
   // Also check if order is completed
   const orders = await Order.find({
     user: new mongoose.Types.ObjectId(user),
-    "payment.status": "completed", // Or whatever status means "paid/acquired"
+    status: { $in: PAID_STATUSES },
     // We need to match at least one item in the items array
     items: {
       $elemMatch: {
