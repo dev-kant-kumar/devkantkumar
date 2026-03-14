@@ -30,10 +30,16 @@ const parseStoredUser = () => {
   }
 };
 
+// Compute initial auth state synchronously from localStorage to avoid login flash on reload
+const storedToken = localStorage.getItem('adminToken');
+const storedUser = parseStoredUser();
+const hasValidToken = storedToken && storedToken !== 'undefined' && storedToken !== 'null';
+const hasValidUser = storedUser !== null && typeof storedUser === 'object';
+
 const initialState = {
-  isAuthenticated: false,
-  adminToken: localStorage.getItem('adminToken') || null,
-  adminUser: parseStoredUser(),
+  isAuthenticated: !!(hasValidToken && hasValidUser),
+  adminToken: hasValidToken ? storedToken : null,
+  adminUser: (hasValidToken && hasValidUser) ? storedUser : null,
   isLoading: false,
   error: null,
   lastLoginTime: localStorage.getItem('adminLastLogin') || null,
