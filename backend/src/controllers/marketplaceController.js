@@ -14,6 +14,7 @@ const emailService = require("../services/emailService");
 const logger = require("../utils/logger");
 const { createNotification } = require("../services/notificationService");
 const referralController = require("./referralController");
+const { PAID_STATUSES } = require("../utils/orderConstants");
 
 // Initialize Razorpay — crash early if credentials are missing
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -1779,7 +1780,7 @@ const createReview = async (req, res) => {
       user: userId,
       "items.itemId": new mongoose.Types.ObjectId(productId),
       "items.itemType": "product",
-      "payment.status": "completed", // Ensure payment is completed
+      status: { $in: PAID_STATUSES },
     });
 
     if (!hasPurchased) {
