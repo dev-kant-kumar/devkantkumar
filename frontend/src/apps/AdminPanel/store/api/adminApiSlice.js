@@ -47,7 +47,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     verifyAdmin2FALogin: builder.mutation({
       query: (credentials) => ({
-        url: "/admin/verify-2fa",
+        url: API_ENDPOINTS.AUTH.LOGIN_2FA,
         method: "POST",
         body: credentials,
       }),
@@ -55,14 +55,14 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     setupAdmin2FA: builder.mutation({
       query: () => ({
-        url: "/admin/setup-2fa",
+        url: API_ENDPOINTS.AUTH.SETUP_2FA,
         method: "POST",
       }),
     }),
 
     verifyAdmin2FASetup: builder.mutation({
       query: (data) => ({
-        url: "/admin/verify-2fa-setup",
+        url: API_ENDPOINTS.AUTH.VERIFY_2FA,
         method: "POST",
         body: data,
       }),
@@ -70,7 +70,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     disableAdmin2FA: builder.mutation({
       query: (data) => ({
-        url: "/admin/disable-2fa",
+        url: API_ENDPOINTS.AUTH.DISABLE_2FA,
         method: "POST",
         body: data,
       }),
@@ -101,7 +101,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     changeAdminPassword: builder.mutation({
       query: (passwordData) => ({
-        url: API_ENDPOINTS.ADMIN.CHANGE_PASSWORD,
+        url: API_ENDPOINTS.ADMIN.PASSWORD_CHANGE,
         method: "POST",
         body: passwordData,
       }),
