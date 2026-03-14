@@ -95,8 +95,8 @@ const Products = () => {
 
   const filteredProducts = products.filter(
     (product) =>
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
+      (product.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (product.category?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
   );
 
   return (

@@ -56,7 +56,7 @@ const Subscribers = () => {
     };
 
     const filteredSubscribers = subscribers.filter(sub =>
-        sub.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (sub.email?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
     if (isLoading) {

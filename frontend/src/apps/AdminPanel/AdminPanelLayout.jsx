@@ -7,7 +7,7 @@ import "./common/styles/animations.css";
 
 const AdminPanelLayout = () => {
   // Show performance monitor in development mode
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = import.meta.env.DEV;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 

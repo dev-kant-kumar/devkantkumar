@@ -59,7 +59,7 @@ const generateRss = () => {
       <title><![CDATA[${meta.title}]]></title>
       <link>${postUrl}</link>
       <guid>${postUrl}</guid>
-      <description><![CDATA[${meta.excerpt}]]></description>
+      <description><![CDATA[${meta.excerpt || meta.description || ''}]]></description>
       <pubDate>${new Date(meta.publishDate).toUTCString()}</pubDate>
       <author>${personalInfo.contact.email} (${personalInfo.name})</author>
       ${meta.tags ? meta.tags.map(tag => `<category><![CDATA[${tag}]]></category>`).join('') : ''}
