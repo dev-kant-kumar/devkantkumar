@@ -26,7 +26,6 @@ export const API_CONFIG = {
 
 // Full API URL
 export const API_URL = `${API_CONFIG.BASE_URL}${API_CONFIG.API_VERSION}`;
-console.log('API_URL:', API_URL);
 
 // API Endpoints
 export const API_ENDPOINTS = {

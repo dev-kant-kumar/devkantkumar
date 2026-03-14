@@ -117,7 +117,7 @@ const AdminProjectFiles = ({ orderId, order }) => {
     // Search by name
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(f => f.name.toLowerCase().includes(q));
+      result = result.filter(f => (f.name?.toLowerCase() || "").includes(q));
     }
 
     return result;
