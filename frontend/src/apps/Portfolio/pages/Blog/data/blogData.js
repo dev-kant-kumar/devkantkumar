@@ -1,5 +1,18 @@
 export const blogData = [
   {
+    id: "free-ai-video-generators-2026",
+    slug: "free-ai-video-generators-2026",
+    title: "5 Free AI Video Generators With No Limits in 2026",
+    excerpt: "Most \"free\" AI video tools are lying. Here are 5 that genuinely give you unlimited generations — no credit card, no watermark, no catch.",
+    category: "Tools",
+    tags: ["AI Tools", "Video Generation", "Free Tools", "Content Creation", "2026", "Unlimited AI"],
+    author: "Dev Kant Kumar",
+    readTime: "7 min read",
+    publishDate: "2026-03-21",
+    image: "/images/blog/free-ai-video-generators-2026.png",
+    featured: true
+  },
+  {
     id: "golpo-ai-review-2026",
     slug: "golpo-ai-review-2026",
     title: "Golpo AI Review 2026: Is This $39 Whiteboard Video Tool Actually Worth It?",
