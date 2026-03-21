@@ -93,10 +93,10 @@ const ScreenshotPlaceholder = ({ tool, image }) => (
     <div className="my-8 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/50 shadow-2xl">
         {image ? (
             <div className="relative group">
-                <img 
-                    src={image} 
-                    alt={`${tool} Interface Screenshot`} 
-                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.02]" 
+                <img
+                    src={image}
+                    alt={`${tool} Interface Screenshot`}
+                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent opacity-60" />
                 <div className="absolute bottom-4 left-6">
@@ -164,7 +164,7 @@ const FreeAIVideoGenerators2026 = () => {
             ],
             limitations: "Videos are short clips, no audio natively, limited aspect ratio control.",
             link: "https://lmarena.ai",
-            image: "/images/blog/arena-ai.png",
+            image: "/images/blog/arena-ai.jpg",
             icon: Sparkles
         },
         {
@@ -180,7 +180,7 @@ const FreeAIVideoGenerators2026 = () => {
             ],
             limitations: "Servers can be congested; generation can take 10-20 minutes during peak hours.",
             link: "https://qwen.ai",
-            image: "/images/blog/qwen-ai.png",
+            image: "/images/blog/qwen-ai.jpg",
             icon: Mic
         },
         {
@@ -196,7 +196,7 @@ const FreeAIVideoGenerators2026 = () => {
             ],
             limitations: "Local mode needs a strong GPU (RTX 3060+). Web version has a credit system.",
             link: "https://pinokio.computer",
-            image: "/images/blog/wan-ai.png",
+            image: "/images/blog/wan-ai.jpg",
             icon: ShieldCheck
         },
         {
@@ -212,7 +212,7 @@ const FreeAIVideoGenerators2026 = () => {
             ],
             limitations: "The Free tier uses the 'Quality' model; Pro models require a subscription.",
             link: "https://vheer.com",
-            image: "/images/blog/vheer-ai.png",
+            image: "/images/blog/vheer-ai.jpg",
             icon: ImageIcon
         },
         {
@@ -228,7 +228,7 @@ const FreeAIVideoGenerators2026 = () => {
             ],
             limitations: "Template-based approach offers less freedom for custom experimental projects.",
             link: "https://digen.ai",
-            image: "/images/blog/digen-ai.png",
+            image: "/images/blog/digen-ai.jpg",
             icon: Layout
         }
     ];
@@ -420,7 +420,7 @@ const FreeAIVideoGenerators2026 = () => {
                         <p className="text-lg text-slate-300 mb-8">
                             Across all these tools, one pattern consistently produces better output: <strong className="text-white">generate your image first, then animate it.</strong> Giving the model a precise visual reference removes guesswork.
                         </p>
-                        
+
                         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                             {[
                                 { step: "1. Capture Stills", desc: "Use Vheer to generate a high-quality still image", icon: ImageIcon },
@@ -479,7 +479,7 @@ const FreeAIVideoGenerators2026 = () => {
                 <section className="text-center py-12 border-t border-slate-800">
                     <h2 className="text-2xl md:text-3xl font-black text-white mb-4">Final Thought</h2>
                     <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-                        The barrier to professional video production has collapsed in 2026. These tools aren't compromises — they're legitimate 
+                        The barrier to professional video production has collapsed in 2026. These tools aren't compromises — they're legitimate
                         alternatives to paid platforms. Start with Arena to understand quality, then use Qwen for audio support.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
