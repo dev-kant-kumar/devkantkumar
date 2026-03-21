@@ -33,7 +33,7 @@ export const info = {
     featured: true,
     readTime: "7 min read",
     author: "Dev Kant Kumar",
-    image: "/images/blog/free-ai-video-generators-2026.png",
+    image: "/images/blog/free-ai-video-generators-2026.jpg",
     keywords: "free AI video generator no watermark, unlimited AI video generator 2026, Arena AI free video, Qwen AI video generator free, Wan AI unlimited videos, Best free AI video 2026, no credit card AI video",
     tags: [
         "AI Tools",
