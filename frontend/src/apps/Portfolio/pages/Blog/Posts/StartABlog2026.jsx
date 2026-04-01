@@ -417,12 +417,12 @@ const StartABlog2026 = () => {
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
                         How to Start a Blog in 2026
                         <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500">
                             (And Make $5,000+/Month)
                         </span>
-                    </h1>
+                    </h2>
 
                     {/* Author & Stats */}
                     <div className="flex flex-wrap items-center gap-6 text-sm text-slate-400 mb-8 border-b border-slate-800 pb-8">

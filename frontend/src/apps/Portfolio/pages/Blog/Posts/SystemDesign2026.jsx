@@ -489,14 +489,9 @@ SystemDesign2026.Image = SystemDesignCardImage;
 export const info = {
   slug: "complete-system-design-roadmap-2026",
 
-  title:
-    "Complete System Design Roadmap 2026: Learn Scalability & Crack Interviews",
-
-  description:
-    "A step-by-step system design roadmap for 2026. Learn scalability, databases, APIs, caching, and distributed systems. Beginner-friendly, interview-focused, and free.",
-
-  excerpt:
-    "By 2026, most code will be written by AI - but systems still need thinkers. This roadmap teaches you how to design scalable systems, think like senior engineers, and win system design interviews.",
+  title: "Complete System Design Roadmap 2026",
+  description: "A step-by-step system design roadmap for 2026. Learn scalability, databases, APIs, caching, and distributed systems. Beginner-friendly and free.",
+  excerpt: "Master system design in 2026. Learn scalability, distributed systems, and FAANG interview preparation with this comprehensive roadmap.",
 
   publishDate: "2026-01-25",
   modifiedDate: "2026-01-25",

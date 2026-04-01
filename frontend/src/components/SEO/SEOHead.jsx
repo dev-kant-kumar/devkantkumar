@@ -42,10 +42,19 @@ const SEOHead = ({
   const currentPage = getCurrentPage();
   const pageSEO = getPageSEO(currentPage);
 
-  // Use provided title directly; otherwise build from page config + branding
-  const pageTitle = title
-    ? title
-    : `${pageSEO.title} | ${personalInfo.name} - ${personalInfo.title}`;
+  const baseSiteAppend = ` | ${personalInfo.name}`;
+  const fullSiteAppend = ` | ${personalInfo.name} - ${personalInfo.title}`;
+  
+  // Use provided title directly if provided
+  let pageTitle = title || pageSEO.title;
+  if (!pageTitle.includes(personalInfo.name)) {
+      if (pageTitle.length + fullSiteAppend.length <= 70) {
+          pageTitle += fullSiteAppend;
+      } else if (pageTitle.length + baseSiteAppend.length <= 70) {
+          pageTitle += baseSiteAppend;
+      }
+      // If it's already long, do not append anything to avoid Google truncating.
+  }
   const pageDescription =
     description || pageSEO.description || seoConfig.defaultMeta.description;
 

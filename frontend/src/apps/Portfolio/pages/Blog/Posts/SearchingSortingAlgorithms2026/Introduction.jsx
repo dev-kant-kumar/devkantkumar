@@ -11,10 +11,10 @@ const Introduction = () => {
                     <span className="text-cyan-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider">Complete DSA Guide 2026</span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Searching & Sorting</span>
                     <br />Algorithms Explained
-                </h1>
+                </h2>
 
                 <p className="text-sm sm:text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">
                     Master the fundamental algorithms that power everything from database queries to Google search.

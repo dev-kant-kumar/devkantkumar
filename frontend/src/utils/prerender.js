@@ -10,8 +10,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, "../../dist");
 
+import { blogData } from "../apps/Portfolio/pages/Blog/data/blogData.js";
+
 // Routes to prerender
-const routes = [
+const baseRoutes = [
   "/",
   "/about",
   "/projects",
@@ -20,17 +22,11 @@ const routes = [
   "/contact",
   "/tools",
   "/tools/og-preview",
-  // Blog posts
-  "/blog/yt-dlp-ultimate-guide-2026",
-  "/blog/anti-gravity-editor",
-  "/blog/git-survival-guide",
-  "/blog/react-server-components-2025",
-  "/blog/agentic-ai-2025-guide",
-  "/blog/dotnet-assembly-guide",
-  "/blog/ollama-guide",
-  "/blog/ultimate-ai-tools-directory-2025",
-  "/blog/react-native-cli-vs-expo-2025",
-  "/blog/react-native-vs-flutter-2026",
+];
+
+const routes = [
+  ...baseRoutes,
+  ...blogData.map((post) => `/blog/${post.slug}`)
 ];
 
 async function getBrowser() {

@@ -21,9 +21,9 @@ import { useState } from "react";
 // =====================================================
 export const info = {
     slug: "golpo-ai-review-2026",
-    title: "Golpo AI Review 2026: Is This $39 Whiteboard Video Tool Actually Worth It?",
+    title: "Golpo AI Review 2026: Is This Video Tool Worth It?",
     description: "Honest Golpo AI review 2026 — real results, full pricing breakdown, free vs paid, and whether it's worth it for YouTubers, educators, and developers. Read before you buy.",
-    excerpt: "Golpo AI generates genuinely impressive whiteboard explainer videos from just a text prompt or document. The output quality is real. But is it worth $39/month? Find out in our comprehensive review.",
+    excerpt: "Genuinely impressive whiteboard explainer videos from text prompts. Is Golpo AI worth $39/month? Read our full 2026 review.",
     publishDate: "2026-03-08",
     modifiedDate: "2026-03-08",
     category: "AI Tools",
@@ -331,9 +331,9 @@ const GolpoAIReview2026 = () => {
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
+                    <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
                         {info.title}
-                    </h1>
+                    </h2>
 
                     {/* Meta Info */}
                     <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-8">

@@ -254,12 +254,12 @@ function OllamaGuidePost() {
       <article className="max-w-4xl mx-auto px-6 py-12">
         {/* Introduction */}
         <section className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
+          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
             Stop Paying for OpenAI: Run Llama 3 Locally with{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">
               Ollama
             </span>
-          </h1>
+          </h2>
           <p className="text-xl text-gray-300 leading-relaxed font-light mb-8">
             Imagine having a ChatGPT-level AI running entirely on your laptop. No subscription fees, no privacy concerns, and no internet connection required. It sounds like sci-fi, but with <strong>Ollama</strong>, it's a reality today.
           </p>
@@ -598,11 +598,11 @@ OllamaGuidePost.CardImage = OllamaCardImage;
 
 // Post metadata
 OllamaGuidePost.info = {
-  id: "local-llm-ollama-guide-2026",
-  slug: "local-llm-ollama-guide-2026",
-  title: "Stop Paying for OpenAI: Run Llama 3 Locally with Ollama (2026 Guide)",
+  id: "local-llm-ollama-guide-2025",
+  slug: "local-llm-ollama-guide-2025",
+  title: "Run Llama 3 Locally with Ollama: The Complete 2025 Guide",
   excerpt:
-    "Learn how to run powerful AI models like Llama 3 entirely on your laptop. No subscription fees, total privacy, and offline access using Ollama.",
+    "Learn to run powerful AI models like Llama 3 on your laptop. No subscription fees, total privacy, and offline access using Ollama.",
   category: "AI & ML",
   author: "Dev Kant Kumar",
   readTime: "20 min read",

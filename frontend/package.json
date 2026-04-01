@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run generate-sitemap && npm run generate-rss",
+    "build": "vite build && npm run prerender && npm run generate-sitemap && npm run generate-rss && npm run seo-audit",
     "generate-rss": "node src/utils/generateRss.js",
     "generate-sitemap": "node src/scripts/generateSitemap.js",
     "prerender": "node src/utils/prerender.js",
+    "seo-audit": "node src/utils/seoAudit.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "validate-portfolio": "node src/utils/validatePortfolioData.js",

@@ -1623,9 +1623,9 @@ RSCGuide2025.CardImage = RSCCardImage;
 RSCGuide2025.info = {
   id: "react-server-components-2025",
   slug: "react-server-components-2025",
-  title: "React Server Components (RSC) Complete Guide 2026: Architecture & Best Practices",
+  title: "React Server Components (RSC) Guide 2026: Architecture & Patterns",
   excerpt:
-    "Master React Server Components in 2026. Learn RSC architecture, streaming, and Next.js patterns for faster apps.",
+    "Master React Server Components. Learn RSC architecture, streaming, and Next.js patterns for building ultra-fast applications in 2026.",
   category: "React",
   author: "Dev Kant Kumar",
   readTime: "15 min read",

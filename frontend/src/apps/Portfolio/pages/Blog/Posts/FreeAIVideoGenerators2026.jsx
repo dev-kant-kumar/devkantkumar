@@ -250,13 +250,13 @@ const FreeAIVideoGenerators2026 = () => {
                         </div>
                     </div>
 
-                    <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
+                    <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
                         5 Free AI Video Generators That{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">
                             Actually Have No Limits
                         </span>{" "}
                         in 2026
-                    </h1>
+                    </h2>
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-8 pb-8 border-b border-slate-800">
                         <div className="flex items-center gap-2">

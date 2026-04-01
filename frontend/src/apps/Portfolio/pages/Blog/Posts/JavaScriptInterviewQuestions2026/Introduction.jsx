@@ -9,9 +9,9 @@ const Introduction = () => {
             <Star size={14} className="text-yellow-400" />
             <span className="text-yellow-300 text-xs font-bold uppercase tracking-wider">Updated for 2026</span>
         </div>
-        <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+        <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
           100+ <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500">JavaScript</span> Interview Questions
-        </h1>
+        </h2>
         <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
           The definitive guide. From simple data types to complex microtask queues, mastering these 100+ questions will separate you from 90% of candidates.
         </p>

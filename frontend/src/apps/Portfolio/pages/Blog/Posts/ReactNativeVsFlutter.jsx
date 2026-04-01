@@ -703,11 +703,11 @@ function RNvsFlutterFeaturedImage({ className = "" }) {
           </div>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">React Native</span>
           <span className="text-white"> vs </span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-400">Flutter</span>
-        </h1>
+        </h2>
 
         <p className="text-slate-400 text-lg max-w-2xl">
           The Definitive 2026 Comparison • Performance • Developer Experience • Which One Should You Choose?

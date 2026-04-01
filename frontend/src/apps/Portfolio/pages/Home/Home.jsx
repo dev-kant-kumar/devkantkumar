@@ -41,7 +41,7 @@ const Home = () => {
       {/* SEO Components */}
       <SEOHead
         title="Home"
-        description={`${portfolioData.personalInfo.name} – Full Stack Developer (MERN), UI/UX Engineer, and Open Source Contributor. Explore projects using React, Node.js, MongoDB, Tailwind CSS, Git, Postman, and more. Available for freelance, remote, and tech collaborations.`}
+        description="Dev Kant Kumar – Full Stack Developer (MERN) and UI/UX Engineer. Specialist in React, Node.js, and scalable web apps. Available for remote collaborations."
         keywords={portfolioData.seoKeywords}
         image={portfolioData.personalInfo.profileImage}
         type="website"

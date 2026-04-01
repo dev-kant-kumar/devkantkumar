@@ -301,7 +301,7 @@ const SystemDesignRoadmap = () => {
   return (
     <div className="w-full bg-[#0B1120] rounded-2xl border border-slate-800 overflow-hidden my-10">
       <div className="p-8 border-b border-slate-800 bg-slate-900/50">
-        <h1 className="text-3xl font-bold text-white mb-2">System Design Mastery Roadmap</h1>
+        <h2 className="text-3xl font-bold text-white mb-2">System Design Mastery Roadmap</h2>
         <p className="text-slate-400">Your interactive checklist to becoming a System Architect</p>
         <div className="mt-4 p-4 bg-cyan-900/20 rounded-lg border border-cyan-500/20">
             <div className="flex justify-between items-center">

@@ -139,7 +139,7 @@ const Contact = () => {
       {/* SEO Components */}
       <SEOHead
         title="Contact"
-        description="Get in touch to discuss your project ideas. I'm available for web development, mobile apps, and consulting services."
+        description="Get in touch for web development, mobile apps, and consulting services."
         keywords={portfolioData.seoKeywords}
         type="website"
       />

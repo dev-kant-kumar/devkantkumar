@@ -41,14 +41,14 @@ export default function Part1_Foundations() {
             {/* HERO: Hook Section - First 5 seconds matter */}
             <section className="space-y-8">
                 {/* Main Title */}
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1]">
+                <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1]">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500">
                         Agentic AI
                     </span>
                     <br />
                     The Complete Guide to<br />
                     Building Autonomous Systems
-                </h1>
+                </h2>
 
                 {/* Value Proposition - Why keep reading */}
                 <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-3xl">

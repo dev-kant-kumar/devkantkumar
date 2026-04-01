@@ -48,10 +48,10 @@ function JSFeaturedImage({ className = "" }) {
             <Layers size={28} className="text-amber-400" />
           </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+        <h2 className="text-4xl md:text-5xl font-black text-center leading-tight mb-4">
           <span className="text-white">JavaScript </span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500">Internals</span>
-        </h1>
+        </h2>
         <p className="text-slate-400 text-lg">How JS Works Under the Hood — From Engine to Event Loop</p>
       </div>
     </div>
@@ -1523,8 +1523,8 @@ JavaScriptInternals2026.CardImage = JSCardImage;
 JavaScriptInternals2026.info = {
   id: "javascript-internals-2026",
   slug: "javascript-internals-2026",
-  title: "JavaScript Internals 2026: How JS Works Under the Hood — Engine, Event Loop, Closures & More",
-  excerpt: "The most comprehensive guide to JavaScript internals on the internet. Master V8 engine, execution context, hoisting, closures, prototypes, event loop, promises, async/await, and garbage collection with visual diagrams and real-world examples.",
+  title: "JavaScript Internals 2026: V8 Engine, Event Loop, Closures & More",
+  excerpt: "The ultimate guide to JavaScript internals. Master V8 engine, hoisting, closures, event loop, and memory management with visual diagrams.",
   category: "JavaScript",
   author: "Dev Kant Kumar",
   readTime: "55 min read",

@@ -118,8 +118,8 @@ const APIMastery2026 = () => {
 export const info = {
   id: "nodejs-api-guide-2026",
   slug: "nodejs-api-guide-2026",
-  title: "Node.js API Guide 2026: REST, GraphQL, gRPC, WebSockets & 25 Topics Mastered",
-  excerpt: "The complete Node.js API reference — from HTTP to microservices. Build REST, GraphQL, gRPC, WebSocket, Webhook, SSE & tRPC APIs. Production code, security, testing, deployment. 100+ code examples.",
+  title: "Node.js API Guide 2026: REST, GraphQL, gRPC & WebSockets Mastery",
+  excerpt: "The complete Node.js API reference. Build REST, GraphQL, gRPC, and WebSocket APIs. Production code, security, and deployment with 100+ examples.",
   keywords: "node.js api tutorial 2026, rest api node.js, graphql node.js, grpc node.js, websocket node.js, api security best practices, api design patterns, express api, fastify api, node.js backend guide, api caching redis, webhook node.js, sse server sent events, trpc tutorial, api rate limiting, jwt authentication node.js, api testing supertest, api gateway nginx, microservices node.js, api versioning, owasp api security, bullmq kafka, socket.io, api documentation openapi, docker node.js, graceful shutdown",
   category: "Tutorials",
   author: "Dev Kant Kumar",

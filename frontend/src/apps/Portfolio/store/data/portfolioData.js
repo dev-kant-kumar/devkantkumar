@@ -645,7 +645,7 @@ export const portfolioData = {
       title:
         "Dev Kant Kumar | MERN Stack, React, Node.js, Tailwind, Open Source Developer Portfolio",
       description:
-        "Dev Kant Kumar – Full Stack Developer (MERN), UI/UX Engineer, and Open Source Contributor. Explore projects using React, Node.js, MongoDB, Tailwind CSS, Git, Postman, and more. Available for freelance, remote, and tech collaborations.",
+        "Dev Kant Kumar – Full Stack Developer (MERN) & UI/UX Engineer. Specialist in React, Node.js, and scalable web apps. Available for remote tech collaborations.",
       image: "https://avatars.githubusercontent.com/u/101362859?v=4",
       author: "Dev Kant Kumar",
     },

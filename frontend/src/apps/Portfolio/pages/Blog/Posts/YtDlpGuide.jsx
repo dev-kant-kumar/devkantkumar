@@ -63,10 +63,10 @@ function FeaturedImage({ className = "" }) {
             <Download size={28} className="text-green-400" />
           </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-center leading-tight mb-4">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-center leading-tight mb-4">
           <span className="text-white">Complete yt-dlp Guide </span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-green-400">2026</span>
-        </h1>
+        </h2>
         <p className="text-slate-400 text-base md:text-lg max-w-2xl px-2">
           Master video downloads from 1800+ platforms. The most comprehensive guide with 100+ commands, troubleshooting, and advanced techniques.
         </p>

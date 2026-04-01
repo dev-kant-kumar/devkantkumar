@@ -22,9 +22,9 @@ import { useState } from "react";
 // =====================================================
 export const info = {
     slug: "aweber-review-2026",
-    title: "AWeber Review 2026: Best Email Marketing for Small Business?",
-    description: "Complete AWeber review with pricing ($0-$20/mo), features, pros & cons. Discover why 100,000+ businesses trust AWeber for email marketing. Free plan available - no credit card required.",
-    excerpt: "Is AWeber the right email marketing platform for your business in 2026? This honest review covers pricing, features, automation, and how it compares to Mailchimp and ConvertKit. Start free today.",
+    title: "AWeber Review 2026: Best Email Marketing Platform?",
+    description: "Complete AWeber review with pricing ($0-$20/mo), features, pros & cons. Discover why 100,000+ businesses trust AWeber.",
+    excerpt: "Is AWeber the right email marketing platform for you in 2026? This review covers pricing, features, and how it compares to Mailchimp. Start free today.",
     publishDate: "2026-01-07",
     modifiedDate: "2026-01-07",
     category: "Tools",
@@ -340,13 +340,13 @@ const AWeberReview2026 = () => {
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
+                    <h2 className="text-3xl md:text-5xl font-black text-white leading-tight mb-6">
                         AWeber Review 2026: Is It Still the{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                             Best Email Marketing
                         </span>{" "}
                         for Small Business?
-                    </h1>
+                    </h2>
 
                     {/* Meta Info */}
                     <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-8">

@@ -244,7 +244,7 @@ const Tools = () => {
     <>
       <SEOHead
         title="Free Online Developer Tools | Dev Kant Kumar"
-        description="Collection of free online developer tools including JSON Formatter, Base64 Encoder, Password Generator, Color Palette Generator and more. Fast, secure, and no signup required."
+        description="Free online developer tools: JSON Formatter, Base64 Encoder, Password Generator, and more. Fast, secure, and no signup required."
         keywords="free developer tools, online tools, json formatter, base64 encoder, password generator, color palette, web tools"
       />
 

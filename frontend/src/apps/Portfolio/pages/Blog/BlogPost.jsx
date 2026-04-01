@@ -462,7 +462,7 @@ const BlogPost = () => {
   return (
     <>
       <SEOHead
-        title={`${blogPost.title} | ${portfolioData.personalInfo.name}`}
+        title={blogPost.title}
         description={blogPost.excerpt}
         keywords={blogPost.keywords || blogPost.tags?.join(", ")}
         canonicalUrl={`/blog/${blogPost.slug}`}
@@ -476,6 +476,16 @@ const BlogPost = () => {
         }}
       />
       <StructuredData type="blog" pageData={blogPost} />
+      <StructuredData 
+        type="breadcrumbs" 
+        pageData={{
+          breadcrumbs: [
+            { name: "Home", path: "/" },
+            { name: "Blog", path: "/blog" },
+            { name: blogPost.title, path: `/blog/${blogPost.slug}` }
+          ]
+        }} 
+      />
       {blogPost.faqs && blogPost.faqs.length > 0 && (
         <StructuredData type="faq" pageData={blogPost} />
       )}
@@ -873,6 +883,9 @@ const BlogPost = () => {
                         <img
                           src={portfolioData.personalInfo.profileImage}
                           alt={portfolioData.personalInfo.name}
+                          loading="lazy"
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded-full border border-slate-700"
                         />
                         <div>
