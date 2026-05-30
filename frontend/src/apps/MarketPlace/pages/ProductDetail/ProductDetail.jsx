@@ -165,15 +165,21 @@ const ProductDetail = () => {
     );
   }
 
+  const rawSeoTitle = product.seo?.metaTitle || product.title;
+  const cleanSeoTitle = rawSeoTitle.length > 46 ? rawSeoTitle.substring(0, 43) + "..." : rawSeoTitle;
+
+  const rawSeoDesc = product.seo?.metaDescription || product.description;
+  const cleanSeoDesc = rawSeoDesc.length > 160 ? rawSeoDesc.substring(0, 157) + "..." : rawSeoDesc;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title={product.title}
-        description={product.description}
+        title={cleanSeoTitle}
+        description={cleanSeoDesc}
         image={product.images?.[0]?.url}
         type="product"
         canonical={`https://www.devkantkumar.com/marketplace/products/${product.slug || product._id}`}
-        keywords={[
+        keywords={product.seo?.keywords?.length > 0 ? product.seo.keywords : [
           product.title,
           product.category,
           "buy",

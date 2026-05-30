@@ -1,6 +1,23 @@
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { 
+  Calendar, 
+  Youtube, 
+  Linkedin, 
+  BookOpen, 
+  Clock, 
+  Play, 
+  ArrowUpRight, 
+  Users, 
+  Video, 
+  Eye, 
+  Sparkles, 
+  Compass, 
+  Flame, 
+  UserCheck, 
+  ExternalLink 
+} from "lucide-react";
 import SEOHead from "../../../../components/SEO/SEOHead";
 import StructuredData from "../../../../components/SEO/StructuredData";
 import { API_URL } from "../../../../config/api";
@@ -16,7 +33,7 @@ const Content = () => {
   // Render card image (from Blog.jsx logic)
   const renderCardImage = (meta, className = "") => {
     const C = getPostComponentBySlug(meta.slug);
-    // Prefer CardImage, then Image (usually same), then FeaturedImage
+    // Prefer CardImage, then Image, then FeaturedImage
     const ImgComp = C?.CardImage || C?.Image || C?.FeaturedImage;
     if (typeof ImgComp === "function") return <ImgComp className={className} size="card" />;
     if (React.isValidElement(ImgComp)) return React.cloneElement(ImgComp, { className });
@@ -45,8 +62,6 @@ const Content = () => {
         setIsYouTubeLoading(true);
         setYouTubeError(null);
 
-
-
         const response = await fetch(`${API_URL}/youtube/data`);
         const json = await response.json();
 
@@ -68,15 +83,6 @@ const Content = () => {
     };
 
     fetchYouTubeData();
-  }, []);
-
-  // Placeholder: Fetch recent LinkedIn posts
-  useEffect(() => {
-    // TODO: Replace this placeholder with a real LinkedIn API or custom backend integration.
-    // Example approach:
-    // 1. Build a small serverless function that fetches latest posts from LinkedIn API.
-    // 2. Expose only the required fields (text, image, url, publishedAt).
-    // 3. Call that endpoint from here and set state.
   }, []);
 
   const latestBlogPosts = (localPostMetas || []).slice(0, 3);
@@ -112,7 +118,11 @@ const Content = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
   const { personalInfo } = portfolioData;
@@ -128,102 +138,82 @@ const Content = () => {
       />
       <StructuredData type="website" />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-        {/* Hero Section */}
-        <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden pt-32 pb-16">
-          {/* Background Effects (matching Projects/Blog) */}
-          <div className="absolute inset-0">
-            <motion.div
-              className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-cyan-400/20 to-blue-600/20 rounded-full blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-400/20 to-pink-600/20 rounded-full blur-3xl"
-              animate={{
-                scale: [1.2, 1, 1.2],
-                opacity: [0.4, 0.7, 0.4],
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 2,
-              }}
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.03)_1px,transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
-          </div>
+      <div className="bg-slate-950 min-h-screen text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300 relative overflow-hidden">
+        {/* Background Grids & Ambient Effects */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.015)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[140px] pointer-events-none" />
+        </div>
 
+        {/* Hero Section */}
+        <section className="relative z-10 min-h-[60vh] flex items-center justify-center pt-32 pb-16">
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 text-center"
+            className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12 text-center"
           >
             <motion.div variants={itemVariants} className="mb-6">
-              <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 border border-cyan-500/30 rounded-full text-cyan-300 text-sm font-medium backdrop-blur-xl shadow-lg shadow-cyan-500/10">
-                <span className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse" />
-                Official Content Hub
+              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-950/80 border border-slate-800 rounded-xl text-cyan-400 text-xs font-mono font-bold tracking-wider uppercase shadow-xl">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                Official Content Hub // dev_insights
               </span>
             </motion.div>
 
             <motion.h1
               variants={itemVariants}
-              className="text-5xl lg:text-7xl xl:text-8xl font-bold mb-6 leading-tight text-white"
+              className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-none text-white tracking-tight"
             >
-              Content
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl ml-3">
+              Creative
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl ml-4">
                 Hub
               </span>
             </motion.h1>
 
             <motion.p
               variants={itemVariants}
-              className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-8 leading-relaxed"
+              className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8 leading-relaxed"
             >
-              Watch my latest YouTube videos, explore LinkedIn insights, and
-              stay updated with everything I create.
+              Sharing ideas, standardizing workflows, and building solutions. Here you'll find the latest deep dives from my YouTube channel, LinkedIn insights, and engineering blog.
             </motion.p>
 
             <motion.div
               variants={itemVariants}
-              className="flex flex-wrap justify-center gap-4"
+              className="flex flex-wrap justify-center gap-3.5"
             >
-              <div className="px-4 py-2 rounded-full bg-slate-900/60 border border-cyan-500/20 text-slate-200 text-sm flex items-center gap-2 backdrop-blur-xl">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                New content every week
+              <div className="px-4 py-2 bg-slate-900/60 border border-slate-800/80 backdrop-blur-md rounded-xl text-slate-300 text-xs font-mono flex items-center gap-2 shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Active Knowledge Stream
               </div>
-              <div className="px-4 py-2 rounded-full bg-slate-900/60 border border-cyan-500/20 text-slate-200 text-sm flex items-center gap-2 backdrop-blur-xl">
-                <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                YouTube • LinkedIn • Blog
+              <div className="px-4 py-2 bg-slate-900/60 border border-slate-800/80 backdrop-blur-md rounded-xl text-slate-300 text-xs font-mono flex items-center gap-2 shadow-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                Tech stack & PWA integrated
               </div>
             </motion.div>
           </motion.div>
         </section>
 
-        {/* Latest YouTube Video */}
-        <section className="py-16 bg-slate-900/40 border-y border-slate-800/60">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row items-start gap-10">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-red-500/80 to-orange-500/80 text-white font-bold text-sm shadow-lg shadow-red-500/30">
-                    YT
-                  </span>
+        {/* Latest YouTube Video Section */}
+        <section className="relative z-10 py-16 border-t border-slate-900/80 bg-slate-950/40">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <div className="flex flex-col lg:flex-row items-stretch gap-8">
+              
+              {/* Main Player Component */}
+              <div className="flex-1 flex flex-col justify-between">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm shadow-md">
+                    <Youtube size={20} />
+                  </div>
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">
-                      Latest YouTube Video
+                    <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                      Latest Masterclass
                     </h2>
-                    <p className="text-slate-400 text-sm">
-                      Automatically pull your newest upload once the API is
-                      configured.
+                    <p className="text-slate-500 text-xs font-mono mt-0.5 uppercase tracking-wider">
+                      Streaming live from YouTube API
                     </p>
                   </div>
                 </div>
@@ -232,11 +222,10 @@ const Content = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 hover:border-cyan-500/40 transition-all duration-500 shadow-xl shadow-black/40"
+                  className="group relative flex-1 flex flex-col bg-slate-950/80 border border-slate-900 rounded-3xl overflow-hidden hover:border-cyan-500/30 transition-all duration-300 backdrop-blur-xl shadow-2xl shadow-black/60"
                 >
-                  <div className="relative aspect-video overflow-hidden">
-                    {latestYouTubeVideo &&
-                    playingVideoId === latestYouTubeVideo.id ? (
+                  <div className="relative aspect-video w-full overflow-hidden bg-slate-950 border-b border-slate-900">
+                    {latestYouTubeVideo && playingVideoId === latestYouTubeVideo.id ? (
                       <iframe
                         src={`https://www.youtube.com/embed/${latestYouTubeVideo.id}?autoplay=1`}
                         title={latestYouTubeVideo.title}
@@ -251,68 +240,65 @@ const Content = () => {
                           alt={latestYouTubeVideo.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        {/* Glass overlay + play button */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="relative">
-                            <div className="absolute inset-0 rounded-full bg-cyan-500/40 blur-xl group-hover:blur-2xl transition-all duration-300" />
+                            <div className="absolute inset-0 rounded-full bg-cyan-500/30 blur-2xl group-hover:blur-3xl transition-all duration-300" />
                             <button
                               type="button"
-                              className="relative w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl shadow-cyan-500/40 border border-white/20"
+                              className="relative w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-2xl shadow-cyan-500/40 border border-white/20 hover:scale-110 active:scale-95 transition-all duration-300"
                               aria-label="Play video"
-                              onClick={() =>
-                                setPlayingVideoId(latestYouTubeVideo.id)
-                              }
+                              onClick={() => setPlayingVideoId(latestYouTubeVideo.id)}
                             >
-                              <svg
-                                className="w-7 h-7 text-white ml-1"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                              >
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
+                              <Play className="w-6 h-6 text-white fill-current ml-1" />
                             </button>
                           </div>
                         </div>
                       </>
                     ) : (
-                      <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-                        <p className="text-slate-400 text-sm">
-                          Connect YouTube API to display your latest video.
+                      <div className="w-full h-full min-h-[300px] bg-slate-950/80 flex flex-col items-center justify-center p-6 text-center border border-dashed border-slate-800 rounded-3xl">
+                        <Video size={40} className="text-slate-600 mb-3" />
+                        <h4 className="text-slate-400 font-semibold mb-1">YouTube Feed Offline</h4>
+                        <p className="text-slate-500 text-xs max-w-sm">
+                          Configure VITE_YOUTUBE_CHANNEL_URL in environment files to automatically pull active streams.
                         </p>
                       </div>
                     )}
                   </div>
 
                   {latestYouTubeVideo && (
-                    <div className="p-8 flex flex-col gap-4">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <h3 className="text-xl md:text-2xl font-bold text-white">
+                    <div className="p-6 md:p-8 flex flex-col gap-4 flex-1 justify-between">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <span className="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-mono uppercase tracking-wider text-cyan-400">
+                            Published // {formatDate(latestYouTubeVideo.publishedAt)}
+                          </span>
+                        </div>
+                        <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight leading-tight group-hover:text-cyan-300 transition-colors">
                           {latestYouTubeVideo.title}
                         </h3>
-                        <span className="px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
-                          Published {formatDate(latestYouTubeVideo.publishedAt)}
-                        </span>
+                        <p className="text-slate-400 text-sm leading-relaxed line-clamp-3">
+                          {latestYouTubeVideo.description}
+                        </p>
                       </div>
-                      <p className="text-slate-300 text-sm md:text-base leading-relaxed line-clamp-3">
-                        {latestYouTubeVideo.description}
-                      </p>
-                      <div className="flex flex-wrap gap-3">
+                      
+                      <div className="flex flex-wrap gap-3.5 pt-2">
                         <a
                           href={`https://www.youtube.com/watch?v=${latestYouTubeVideo.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300"
+                          className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-mono font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all duration-300"
                         >
                           Watch on YouTube
+                          <ArrowUpRight size={14} className="ml-1.5" />
                         </a>
                         <a
                           href={YOUTUBE_CHANNEL_URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-600 text-slate-200 text-sm font-medium hover:border-cyan-400 hover:text-white transition-all duration-300"
+                          className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 text-xs font-mono font-bold uppercase tracking-wider hover:border-slate-700 hover:text-white transition-all duration-300"
                         >
-                          Visit channel
+                          Visit Channel
                         </a>
                       </div>
                     </div>
@@ -320,162 +306,150 @@ const Content = () => {
                 </motion.div>
               </div>
 
-              {/* Side details */}
-              <div className="w-full max-w-md lg:max-w-sm space-y-6">
-                {/* YouTube channel stats card */}
-                <div className="rounded-2xl bg-slate-900/60 border border-cyan-500/30 p-6 backdrop-blur-xl overflow-hidden">
-                  {channelStats?.banner && (
-                    <div className="relative h-20 -mx-6 -mt-6 mb-6 overflow-hidden">
-                      <img
-                        src={channelStats.banner}
-                        alt="Channel banner"
-                        className="w-full h-full object-cover opacity-80"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                    </div>
-                  )}
+              {/* YouTube Statistics & Custom Branding Portal */}
+              <div className="w-full lg:w-[380px] shrink-0 flex flex-col justify-between">
+                <div className="flex items-center gap-3 mb-6 lg:invisible">
+                  <div className="w-10 h-10" />
+                </div>
 
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="relative">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center overflow-hidden border border-cyan-400/40">
-                        {channelStats?.avatar ? (
+                <div className="flex-1 flex flex-col gap-6">
+                  {/* Channel Stats Glass Capsule */}
+                  <div className="flex-1 rounded-3xl bg-slate-950/80 border border-slate-900 p-6 backdrop-blur-xl overflow-hidden hover:border-cyan-500/20 transition-all duration-300 shadow-2xl shadow-black/50 flex flex-col justify-between">
+                    <div>
+                      {channelStats?.banner && (
+                        <div className="relative h-20 -mx-6 -mt-6 mb-6 overflow-hidden border-b border-slate-900">
                           <img
-                            src={channelStats.avatar}
-                            alt={channelStats.title}
-                            className="w-full h-full object-cover"
+                            src={channelStats.banner}
+                            alt="Channel banner"
+                            className="w-full h-full object-cover opacity-60"
                           />
-                        ) : (
-                          <span className="text-white font-semibold text-xl">
-                            {personalInfo.name.charAt(0)}
-                          </span>
-                        )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="relative">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center overflow-hidden border border-cyan-400/20 shadow-md">
+                            {channelStats?.avatar ? (
+                              <img
+                                src={channelStats.avatar}
+                                alt={channelStats.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-white font-black text-xl">
+                                {personalInfo.name.charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                          <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-4 border-slate-950 animate-pulse" />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-cyan-400 mb-0.5">
+                            Creator Profile
+                          </p>
+                          <h3 className="text-base font-bold text-white truncate tracking-tight">
+                            {channelStats?.title || "Dev Code Space"}
+                          </h3>
+                          <p className="text-xs text-slate-500 truncate">
+                            {channelStats?.description || "Modern Dev Tutorials & Tech Insights."}
+                          </p>
+                        </div>
                       </div>
-                      <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-slate-950" />
+
+                      {/* Stats Modules with Glass Shadowing */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-slate-950/40 border border-slate-900 rounded-xl p-3 text-center hover:border-cyan-500/10 transition-colors shadow-inner">
+                          <p className="text-[9px] font-mono text-slate-500 mb-1 uppercase font-bold tracking-wider">Subscribers</p>
+                          <p className="text-sm font-black text-white font-mono">
+                            {formatNumber(channelStats?.subscribers)}
+                          </p>
+                        </div>
+                        <div className="bg-slate-950/40 border border-slate-900 rounded-xl p-3 text-center hover:border-cyan-500/10 transition-colors shadow-inner">
+                          <p className="text-[9px] font-mono text-slate-500 mb-1 uppercase font-bold tracking-wider">Videos</p>
+                          <p className="text-sm font-black text-white font-mono">
+                            {formatNumber(channelStats?.videos)}
+                          </p>
+                        </div>
+                        <div className="bg-slate-950/40 border border-slate-900 rounded-xl p-3 text-center hover:border-cyan-500/10 transition-colors shadow-inner">
+                          <p className="text-[9px] font-mono text-slate-500 mb-1 uppercase font-bold tracking-wider">Views</p>
+                          <p className="text-sm font-black text-white font-mono">
+                            {formatNumber(channelStats?.views)}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-xs uppercase tracking-wide text-cyan-400 mb-1">
-                        YouTube Channel
-                      </p>
-                      <h3 className="text-lg font-semibold text-white truncate">
-                        {channelStats?.title || "Dev Code Space"}
-                      </h3>
-                      <p className="text-xs text-slate-400 truncate">
-                        {channelStats?.description ||
-                          "Modern Dev Tutorials & Tech Insights."}
-                      </p>
+
+                    <div className="mt-6">
+                      <a
+                        href={YOUTUBE_CHANNEL_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-full px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-mono font-bold uppercase tracking-wider shadow-lg shadow-red-600/10 hover:shadow-red-600/20 transition-all duration-300"
+                      >
+                        Subscribe on YouTube
+                        <ExternalLink size={12} className="ml-1.5" />
+                      </a>
+
+                      {isYouTubeLoading && (
+                        <p className="mt-3 text-[10px] font-mono text-slate-500 text-center animate-pulse">
+                          Syncing with Google Server...
+                        </p>
+                      )}
+                      {youTubeError && !isYouTubeLoading && (
+                        <p className="mt-3 text-[10px] font-mono text-red-400 text-center">
+                          {youTubeError}
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 mt-4">
-                    <div className="bg-slate-900/80 border border-slate-700/60 rounded-xl p-3 text-center">
-                      <p className="text-xs text-slate-400 mb-1">Subscribers</p>
-                      <p className="text-sm font-semibold text-white">
-                        {formatNumber(channelStats?.subscribers)}
+                  {/* Curator Glass Pill */}
+                  <div className="rounded-3xl bg-slate-950/50 border border-slate-900 p-5 backdrop-blur-xl flex items-center gap-4 hover:border-cyan-500/10 transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 font-mono font-bold text-sm shadow-md">
+                      DK
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 font-mono">
+                        Lead Producer //
+                        <span className="text-cyan-400 font-bold ml-1.5">
+                          {personalInfo.name}
+                        </span>
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-1 uppercase tracking-wider font-mono">
+                        {personalInfo.title}
                       </p>
                     </div>
-                    <div className="bg-slate-900/80 border border-slate-700/60 rounded-xl p-3 text-center">
-                      <p className="text-xs text-slate-400 mb-1">Videos</p>
-                      <p className="text-sm font-semibold text-white">
-                        {formatNumber(channelStats?.videos)}
-                      </p>
-                    </div>
-                    <div className="bg-slate-900/80 border border-slate-700/60 rounded-xl p-3 text-center">
-                      <p className="text-xs text-slate-400 mb-1">Total Views</p>
-                      <p className="text-sm font-semibold text-white">
-                        {formatNumber(channelStats?.views)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <a
-                    href={YOUTUBE_CHANNEL_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-5 inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-medium hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300"
-                  >
-                    Visit YouTube Channel
-                    <svg
-                      className="w-4 h-4 ml-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17 7l-10 10M8 7h9v9"
-                      />
-                    </svg>
-                  </a>
-
-                  {isYouTubeLoading && (
-                    <p className="mt-3 text-[11px] text-slate-500">
-                      Loading channel stats...
-                    </p>
-                  )}
-                  {youTubeError && !isYouTubeLoading && (
-                    <p className="mt-3 text-[11px] text-red-400">
-                      {youTubeError}
-                    </p>
-                  )}
-                </div>
-
-                <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 backdrop-blur-xl flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-semibold text-lg">
-                    DK
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-300">
-                      Curated by
-                      <span className="text-cyan-400 font-semibold ml-1">
-                        {personalInfo.name}
-                      </span>
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {personalInfo.title}
-                    </p>
                   </div>
                 </div>
+
               </div>
+
             </div>
           </div>
         </section>
 
-        {/* More YouTube Videos Grid */}
+        {/* Video Grid Feed Section */}
         {youTubeVideos.length > 1 && (
-          <section className="py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <section className="relative z-10 py-20">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                    More Videos from the Channel
+                  <h2 className="text-3xl font-black text-white tracking-tight">
+                    Technical Masterclasses
                   </h2>
-                  <p className="text-slate-400 text-sm md:text-base max-w-xl">
-                    Deep dives into AI agents, MCP, and modern developer
-                    tooling.
+                  <p className="text-slate-400 text-sm max-w-xl mt-1 leading-relaxed">
+                    Explore deeper deep-dives focusing on microservices, agentic workflows, API systems, and robust developer structures.
                   </p>
                 </div>
                 <a
                   href="https://www.youtube.com/@dev-code-space/videos"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/30 text-cyan-300 text-sm font-medium hover:bg-slate-900 hover:border-cyan-400 transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-300 text-xs font-mono font-bold uppercase tracking-wider hover:bg-slate-900 hover:border-cyan-500/40 hover:text-white transition-all duration-300"
                 >
-                  View all videos
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 7l-10 10M8 7h9v9"
-                    />
-                  </svg>
+                  Explore Feed
+                  <ArrowUpRight size={14} />
                 </a>
               </div>
 
@@ -483,16 +457,16 @@ const Content = () => {
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
+                viewport={{ once: true, amount: 0.1 }}
                 className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
               >
                 {youTubeVideos.slice(1).map((video) => (
                   <motion.article
                     key={video.id}
                     variants={itemVariants}
-                    className="group relative rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-cyan-400/40 transition-all duration-300 overflow-hidden shadow-lg shadow-black/30"
+                    className="group relative flex flex-col h-full bg-slate-950/80 border border-slate-900 rounded-3xl overflow-hidden hover:border-cyan-500/30 transition-all duration-300 backdrop-blur-xl shadow-xl shadow-black/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)] cursor-pointer"
                   >
-                    <div className="relative h-40 overflow-hidden">
+                    <div className="relative h-48 overflow-hidden bg-slate-950 border-b border-slate-900 shrink-0">
                       {playingVideoId === video.id ? (
                         <iframe
                           src={`https://www.youtube.com/embed/${video.id}?autoplay=1`}
@@ -511,9 +485,9 @@ const Content = () => {
                             />
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-red-600/90 text-[11px] uppercase tracking-wide text-white flex items-center gap-1">
-                            <span className="inline-block w-2 h-2 bg-white rounded-full"></span>
-                            Video
+                          <div className="absolute top-4 left-4 px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-[9px] font-mono font-bold uppercase tracking-wider text-red-400 flex items-center gap-1.5 shadow-md">
+                            <span className="inline-block w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                            YouTube
                           </div>
                           <button
                             type="button"
@@ -521,55 +495,39 @@ const Content = () => {
                             aria-label="Play video"
                             onClick={() => setPlayingVideoId(video.id)}
                           >
-                            <span className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-xl shadow-cyan-500/30 border border-white/20">
-                              <svg
-                                className="w-6 h-6 text-white ml-0.5"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                              >
-                                <path d="M8 5v14l11-7z" />
-                              </svg>
+                            <span className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-xl shadow-cyan-500/30 border border-white/20 group-hover:scale-110 transition-transform duration-300">
+                              <Play className="w-5 h-5 text-white fill-current ml-0.5" />
                             </span>
                           </button>
                         </>
                       )}
                     </div>
-                    <div className="p-5 space-y-3">
-                      <h3 className="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
-                        {video.title}
-                      </h3>
-                      <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">
-                        {video.description}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-slate-400 pt-1 mb-3">
-                        <span>{formatDate(video.publishedAt)}</span>
+                    
+                    <div className="p-6 flex flex-col gap-3.5 flex-1 justify-between">
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">
+                          {formatDate(video.publishedAt)}
+                        </span>
+                        <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug">
+                          {video.title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed line-clamp-3">
+                          {video.description}
+                        </p>
                       </div>
-                      <div className="flex">
+
+                      <div className="pt-2">
                         <a
                           href={`https://www.youtube.com/watch?v=${video.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-semibold hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300"
+                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider hover:border-cyan-400 hover:text-cyan-300 transition-all duration-300"
                         >
-                          Watch on YouTube
-                          <svg
-                            className="w-3 h-3 ml-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M17 7l-10 10M8 7h9v9"
-                            />
-                          </svg>
+                          Watch Video
+                          <ArrowUpRight size={12} className="ml-1" />
                         </a>
                       </div>
                     </div>
-
-                    {/* Overlay link removed in favor of explicit button CTA to mirror blog cards */}
                   </motion.article>
                 ))}
               </motion.div>
@@ -577,39 +535,26 @@ const Content = () => {
           </section>
         )}
 
-        {/* LinkedIn Posts */}
-        <section className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+        {/* LinkedIn Stream Section */}
+        <section className="relative z-10 py-20 border-t border-slate-900 bg-slate-950/20">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  Recent LinkedIn Posts
+                <h2 className="text-3xl font-black text-white tracking-tight">
+                  LinkedIn Knowledge Stream
                 </h2>
-                <p className="text-slate-400 text-sm md:text-base max-w-xl">
-                  Short-form ideas around development, content creation, and
-                  career growth.
+                <p className="text-slate-400 text-sm max-w-xl mt-1 leading-relaxed">
+                  Real-time updates, framework paradigms, architectural designs, and brief technological insights.
                 </p>
               </div>
               <a
                 href="https://linkedin.com/in/devkantkumar"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/70 border border-cyan-500/30 text-cyan-300 text-sm font-medium hover:bg-slate-900 hover:border-cyan-400 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-300 text-xs font-mono font-bold uppercase tracking-wider hover:bg-slate-900 hover:border-cyan-500/40 hover:text-white transition-all duration-300"
               >
-                View all on LinkedIn
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 7l-10 10M8 7h9v9"
-                  />
-                </svg>
+                Connect on LinkedIn
+                <ArrowUpRight size={14} />
               </a>
             </div>
 
@@ -617,99 +562,87 @@ const Content = () => {
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              className="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+              viewport={{ once: true, amount: 0.1 }}
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
             >
               {linkedInPosts.map((post) => (
                 <motion.article
                   key={post.id}
                   variants={itemVariants}
-                  className="group relative rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-cyan-400/40 transition-all duration-300 overflow-hidden shadow-lg shadow-black/30"
+                  className="group relative flex flex-col h-full bg-slate-950/80 border border-slate-900 rounded-3xl overflow-hidden hover:border-cyan-500/30 transition-all duration-300 backdrop-blur-xl shadow-xl shadow-black/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)]"
                 >
-                  {/* If EMBED post → Render iframe full height */}
                   {post.type === "embed" ? (
-                    <div className="relative w-full overflow-hidden rounded-xl">
+                    <div className="relative w-full overflow-hidden rounded-3xl bg-slate-950 flex-1 flex flex-col justify-center">
                       <div
                         className="
                           [&>iframe]:w-full
                           [&>iframe]:h-auto
                           [&>iframe]:min-h-[465px]
-                          [&>iframe]:rounded-xl
+                          [&>iframe]:rounded-3xl
                           [&>iframe]:border-0
                           [&>iframe]:overflow-hidden
+                          p-2 bg-slate-950
                         "
                         dangerouslySetInnerHTML={{ __html: post.embedHtml }}
                       />
                     </div>
                   ) : (
                     <>
-                      {/* Thumbnail / Image Section (optional) */}
-                      <div className="relative h-60 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900" />
-
-                        {post.image && (
+                      {/* Optional Thumbnail */}
+                      {post.image ? (
+                        <div className="relative h-48 overflow-hidden border-b border-slate-900 shrink-0">
                           <img
                             src={post.image}
                             alt={post.title}
-                            className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
-                        )}
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-
-                        {/* LinkedIn Badge */}
-                        <div className="absolute top-4 left-4 flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-xl bg-[#0a66c2] flex items-center justify-center text-white text-xs font-bold">
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                          <div className="absolute top-4 left-4 flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-[#0a66c2]/10 border border-[#0a66c2]/30 flex items-center justify-center text-[#0a66c2] text-xs font-mono font-bold shadow-md backdrop-blur-md">
+                              in
+                            </div>
+                            <span className="px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-[9px] font-mono font-bold uppercase tracking-wider text-slate-300 shadow-md">
+                              Post
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-6 pb-0 flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-[#0a66c2]/10 border border-[#0a66c2]/30 flex items-center justify-center text-[#0a66c2] text-xs font-mono font-bold shadow-md">
                             in
                           </div>
-                          <span className="px-2.5 py-1 rounded-full bg-slate-900/80 border border-slate-700 text-[11px] uppercase tracking-wide text-slate-200">
-                            LinkedIn Post
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-900 text-[9px] font-mono font-bold uppercase tracking-wider text-slate-400 shadow-md">
+                            Text Insight
                           </span>
                         </div>
-                      </div>
+                      )}
 
-                      {/* Content Section */}
-                      <div className="p-6 space-y-3">
-                        <h3 className="text-lg font-semibold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
-                          {post.title}
-                        </h3>
-                        <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">
-                          {post.description || post.excerpt}
-                        </p>
-
-                        <div className="flex items-center justify-between text-xs text-slate-400 mt-2">
-                          <span>
-                            {post.publishedAt
-                              ? formatDate(post.publishedAt)
-                              : "Recently Posted"}
+                      {/* Content Area */}
+                      <div className="p-6 flex flex-col gap-3.5 flex-1 justify-between">
+                        <div className="space-y-2">
+                          <span className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">
+                            {post.publishedAt ? formatDate(post.publishedAt) : "Recently Broadcasted"}
                           </span>
+                          <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug">
+                            {post.title}
+                          </h3>
+                          <p className="text-sm text-slate-400 leading-relaxed line-clamp-4">
+                            {post.description || post.excerpt}
+                          </p>
+                        </div>
 
-                          <span className="inline-flex items-center gap-1">
-                            View on LinkedIn
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M17 7l-10 10M8 7h9v9"
-                              />
-                            </svg>
-                          </span>
+                        <div className="pt-2">
+                          <a
+                            href={post.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider hover:border-cyan-400 hover:text-cyan-300 transition-all duration-300"
+                          >
+                            Read Post
+                            <ArrowUpRight size={12} className="ml-1" />
+                          </a>
                         </div>
                       </div>
-
-                      <a
-                        href={post.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="absolute inset-0"
-                        aria-label="View on LinkedIn"
-                      />
                     </>
                   )}
                 </motion.article>
@@ -720,86 +653,69 @@ const Content = () => {
 
         {/* Latest Blog Articles */}
         {latestBlogPosts.length > 0 && (
-          <section className="py-20 bg-slate-900/40 border-t border-slate-800/60">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <section className="relative z-10 py-20 border-t border-slate-900 bg-slate-950/40">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                    Latest Blog Articles
+                  <h2 className="text-3xl font-black text-white tracking-tight">
+                    Engineering Journal
                   </h2>
-                  <p className="text-slate-400 text-sm md:text-base max-w-xl">
-                    A quick glimpse into recent long-form content from my blog.
+                  <p className="text-slate-400 text-sm max-w-xl mt-1 leading-relaxed">
+                    Long-form architectures, software design patterns, operational guides, and detailed coding posts.
                   </p>
                 </div>
                 <Link
                   to="/blog"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/40 text-cyan-300 text-sm font-medium hover:border-cyan-400 hover:bg-slate-900/80 transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold uppercase tracking-wider hover:border-cyan-400 hover:bg-slate-950 transition-all duration-300"
                 >
-                  View all articles
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 7l-10 10M8 7h9v9"
-                    />
-                  </svg>
+                  View Blog
+                  <BookOpen size={14} />
                 </Link>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {latestBlogPosts.map((post) => (
                   <article
                     key={post.id}
-                    className="group rounded-2xl bg-slate-900/70 border border-slate-800 hover:border-cyan-400/40 transition-all duration-300 overflow-hidden shadow-lg shadow-black/30"
+                    className="group relative flex flex-col h-full bg-slate-950/80 border border-slate-900 rounded-3xl overflow-hidden hover:border-cyan-500/30 transition-all duration-300 backdrop-blur-xl shadow-xl shadow-black/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.03)]"
                   >
-                    <div className="relative h-40 overflow-hidden bg-slate-800">
+                    <div className="relative h-48 overflow-hidden bg-slate-900 border-b border-slate-900 shrink-0">
                       {renderCardImage(
                         post,
                         "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-900/80 border border-slate-700 text-[11px] uppercase tracking-wide text-slate-200">
+                      <div className="absolute top-4 left-4 px-2.5 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-[9px] font-mono font-bold uppercase tracking-wider text-slate-300 shadow-md">
                         {post.category}
                       </div>
                     </div>
-                    <div className="p-5 space-y-3">
-                      <h3 className="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                        <span>{post.readTime}</span>
-                        <span>
-                          {formatDate(post.publishDate || post.publishedAt)}
-                        </span>
+
+                    <div className="p-6 flex flex-col gap-3.5 flex-1 justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">
+                          <span className="flex items-center gap-1">
+                            <Clock size={10} />
+                            {post.readTime}
+                          </span>
+                          <span>
+                            {formatDate(post.publishDate || post.publishedAt)}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug">
+                          {post.title}
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed line-clamp-3">
+                          {post.excerpt}
+                        </p>
                       </div>
+
                       <div className="pt-2">
                         <Link
                           to={`/blog/${post.slug}`}
-                          className="inline-flex items-center gap-1 text-sm font-medium text-cyan-300 hover:text-cyan-200"
+                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider hover:border-cyan-400 hover:text-cyan-300 transition-all duration-300"
                         >
-                          Read article
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M17 7l-10 10M8 7h9v9"
-                            />
-                          </svg>
+                          Read Article
+                          <ArrowUpRight size={12} className="ml-1" />
                         </Link>
                       </div>
                     </div>

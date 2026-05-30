@@ -105,7 +105,7 @@ const Services = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title="Web Development Services — Hire React & Node.js Developer | Dev Kant Kumar"
+        title="Web Development Services | Marketplace"
         description="Hire an expert full-stack developer for React apps, Node.js APIs, MERN stack development, SaaS MVPs, and more. Professional packages starting from ₹4,999."
         keywords={[
           "hire React developer",

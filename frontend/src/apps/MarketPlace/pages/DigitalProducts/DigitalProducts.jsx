@@ -197,8 +197,8 @@ const DigitalProducts = ({ category: propCategory }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title="Buy React Templates & Digital Products — Next.js, MERN, Tailwind | Dev Kant Kumar"
-        description="Download premium React dashboards, Next.js starter templates, Tailwind CSS UI kits, MERN boilerplates and more. One-time payment, instant download. Starting from ₹999."
+        title="React Templates & Digital Products | Marketplace"
+        description="Download premium React dashboards, Next.js templates, Tailwind CSS UI kits, and MERN boilerplates. One-time payment, instant download from ₹999."
         keywords={[
           "buy React template",
           "Next.js starter template download",

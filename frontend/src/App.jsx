@@ -12,10 +12,6 @@ const MarketPlaceRoutes = React.lazy(() =>
   import("./apps/MarketPlace/MarketPlaceRoutes")
 );
 
-const AILabRoutes = React.lazy(() =>
-  import("./apps/ai-lab/AILabRoutes")
-);
-
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
 import Loader from "./shared/components/Loader";
@@ -46,7 +42,6 @@ function App() {
               <Route path="/*" element={<PortfolioRoutes />} />
               <Route path="/admin/*" element={<AdminPanelRoutes />} />
               <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
-              <Route path="/ai-lab/*" element={<AILabRoutes />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
 

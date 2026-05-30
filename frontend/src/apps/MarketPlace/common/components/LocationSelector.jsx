@@ -294,6 +294,7 @@ const LocationSelector = () => {
                             svg
                             className="text-lg rounded-sm shadow-sm"
                             aria-label={countryCode}
+                            alt={countryCode || 'IN'}
                         />
                         <span>{countryCode || 'IN'}</span>
                     </div>

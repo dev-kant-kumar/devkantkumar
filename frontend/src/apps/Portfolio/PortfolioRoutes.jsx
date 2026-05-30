@@ -7,15 +7,11 @@ const Home = React.lazy(() => import("./pages/Home/Home.jsx"));
 const About = React.lazy(() => import("./pages/About/About.jsx"));
 
 const Projects = React.lazy(() => import("./pages/Projects/Projects.jsx"));
-const ProjectDetail = React.lazy(() =>
-  import("./pages/Projects/ProjectDetail.jsx")
-);
 const Skills = React.lazy(() => import("./pages/Skills/Skills.jsx"));
 const Blog = React.lazy(() => import("./pages/Blog/Blog.jsx"));
 const BlogPost = React.lazy(() => import("./pages/Blog/BlogPost.jsx"));
 const Contact = React.lazy(() => import("./pages/Contact/Contact.jsx"));
 const Content = React.lazy(() => import("./pages/Content/Content.jsx"));
-const AITools = React.lazy(() => import("./pages/Test/AIToolsDirectory.jsx"));
 
 // Additional pages
 const FAQ = React.lazy(() => import("./pages/FAQ.jsx"));
@@ -50,9 +46,6 @@ const PortfolioRoutes = () => {
           {/* Projects listing page - Grid with filters */}
           <Route path="projects" element={<Projects />} />
 
-          {/* Individual project case study */}
-          <Route path="projects/:projectId" element={<ProjectDetail />} />
-
           {/* Skills page - Technical expertise matrix */}
           <Route path="skills" element={<Skills />} />
 
@@ -77,9 +70,6 @@ const PortfolioRoutes = () => {
           {/* Legal pages */}
           <Route path="privacy" element={<PrivacyPolicy />} />
           <Route path="terms" element={<TermsOfService />} />
-
-          {/* AI Tools Directory */}
-          <Route path="ai-tools" element={<AITools />} />
 
           {/* Tools pages - Free developer tools */}
           <Route path="tools" element={<Tools />} />

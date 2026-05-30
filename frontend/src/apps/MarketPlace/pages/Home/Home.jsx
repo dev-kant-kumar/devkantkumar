@@ -38,8 +38,8 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title="Dev Kant Kumar Marketplace — Premium React Templates & Dev Services"
-        description="Buy premium React templates, Next.js boilerplates, MERN stack kits, and hire a full-stack developer for web development, APIs, and SaaS. Instant digital download. Starting from ₹999."
+        title="Dev Kant Kumar Marketplace — React Templates & Dev Services"
+        description="Buy premium React templates, Next.js boilerplates, MERN stack kits, and hire full-stack developer services. Instant digital download from ₹999."
         keywords={[
           "React templates",
           "Next.js boilerplate",

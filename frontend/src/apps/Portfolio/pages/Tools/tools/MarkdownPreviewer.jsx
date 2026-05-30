@@ -92,7 +92,7 @@ const MarkdownPreviewer = () => {
     <>
       <SEOHead
         title="Markdown Previewer & Editor - Free Online Tool | Dev Kant Kumar"
-        description="Write and preview Markdown in real-time. Features syntax highlighting, split-screen view, and easy export. Free online Markdown editor for developers and writers."
+        description="Write and preview Markdown in real-time. Features split-screen preview and syntax highlighting. A free online editor for developers and writers."
         keywords="markdown previewer, markdown editor, online markdown editor, readme generator, markdown to html"
       />
       <StructuredData

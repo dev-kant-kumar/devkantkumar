@@ -15,8 +15,17 @@ import {
   Download,
   HelpCircle
 } from "lucide-react";
+import SEOHead from "../../../components/SEO/SEOHead";
+import { useMetadata } from "../../../utils/useMetadata";
 
 const Sitemap = () => {
+  // Update metadata for Sitemap page
+  useMetadata({
+    title: 'Sitemap - Site Navigation',
+    description: 'A complete sitemap of the Dev Kant Kumar portfolio, marketplace, and developer tools. Navigate easily through all sections and resources.',
+    keywords: ["sitemap", "navigation", "website structure", "pages", "portfolio", "marketplace", "tools"]
+  });
+
   const siteStructure = {
     portfolio: {
       title: "Portfolio",
@@ -91,7 +100,13 @@ const Sitemap = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24 pb-16">
+    <>
+      <SEOHead
+        title="Sitemap - Site Navigation"
+        description="A complete sitemap of the Dev Kant Kumar portfolio, marketplace, and developer tools. Navigate easily through all sections and resources."
+        keywords={["sitemap", "navigation", "website structure", "pages", "portfolio", "marketplace", "tools"]}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-24 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -259,6 +274,7 @@ const Sitemap = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

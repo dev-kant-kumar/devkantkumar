@@ -1,28 +1,24 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-    AlertCircle,
-    ArrowUpRight,
-    Award,
-    Briefcase,
-    CheckCircle,
-    ChevronUp,
-    Clock,
-    Code,
-    ExternalLink,
-    Github,
-    Globe,
-    Heart,
-    Instagram,
-    Linkedin,
-    Mail,
-    MapPin,
-    MessageCircle,
-    Phone,
-    Send,
-    Sparkles,
-    Twitter,
-    Users,
-    Zap,
+  AlertCircle,
+  ArrowUpRight,
+  ChevronUp,
+  Clock,
+  Code,
+  ExternalLink,
+  Github,
+  Heart,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Send,
+  Sparkles,
+  Twitter,
+  Zap,
+  Phone,
+  Globe
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -31,8 +27,7 @@ import { portfolioData } from "../../store/data/portfolioData";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { personalInfo, socialLinks, technicalSkills, achievements } =
-    portfolioData;
+  const { personalInfo, socialLinks } = portfolioData;
 
   // Newsletter form state
   const [email, setEmail] = useState("");
@@ -144,521 +139,287 @@ const Footer = () => {
     },
   ];
 
-  const achievementStats = [
-    {
-      icon: Code,
-      label: "Projects Built",
-      value: "6+",
-      color: "from-cyan-400 to-blue-500",
-    },
-    {
-      icon: Users,
-      label: "Clients Served",
-      value: "10+",
-      color: "from-cyan-400 to-blue-500",
-    },
-    {
-      icon: Award,
-      label: "Experience",
-      value: "2+ Years",
-      color: "from-cyan-400 to-blue-500",
-    },
-    {
-      icon: Globe,
-      label: "Global Reach",
-      value: "8+ Countries",
-      color: "from-cyan-400 to-blue-500",
-    },
-  ];
-
   return (
-    <footer className="relative bg-[#0f1729] border-t border-cyan-500/10 overflow-hidden">
-      {/* Background matching hero section */}
-      <div className="absolute inset-0">
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0f1729] via-[#1a2332] to-[#0f1729]" />
-
-        {/* Animated orbs matching hero */}
-        <motion.div
-          className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, -80, 0],
-            y: [0, 60, 0],
-            scale: [1.2, 1, 1.2],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 5,
-          }}
-        />
-
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.05)_1px,transparent_1px)] bg-[size:50px_50px]" />
+    <footer className="relative bg-slate-950 border-t border-slate-900 overflow-hidden text-left">
+      {/* Decorative Cyber Grid Background */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.01)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        
+        {/* Glow sweeps */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-gradient-to-t from-cyan-500/5 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-0 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse" />
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10">
-        <div className="max-w-7xl mx-auto px-6 py-20">
-          {/* Top Section - Brand & Newsletter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="grid lg:grid-cols-2 gap-16 mb-20 pb-20 border-b border-cyan-500/10"
-          >
-            {/* Brand Section */}
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                    <Code className="w-8 h-8 text-white" />
-                  </div>
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#0f1729] shadow-lg shadow-emerald-500/50"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">
-                    {personalInfo.name}
-                  </h3>
-                  <p className="text-cyan-400 text-sm font-medium">
-                    {personalInfo.title}
-                  </p>
-                </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 sm:px-8 lg:px-12">
+        
+        {/* Top Segment: Brand Grid & Newsletter Input */}
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 pb-16 border-b border-slate-900">
+          
+          {/* Brand Intro Card (7/12 cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                <Code className="w-6 h-6 text-white" />
               </div>
-
-              <p className="text-slate-300 leading-relaxed max-w-md text-lg">
-                {personalInfo.tagline}
-              </p>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-sm text-slate-300">
-                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <MapPin className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <span>{personalInfo.location.current}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-slate-300">
-                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-cyan-400" />
-                  </div>
-                  <span>{personalInfo.location.timezone}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-lg shadow-emerald-500/50"
-                  />
-                  <span className="text-sm text-emerald-400 font-semibold">
-                    {personalInfo.availability.status}
-                  </span>
-                </div>
+              <div>
+                <h3 className="text-xl font-bold text-white tracking-wide">{personalInfo.name}</h3>
+                <p className="text-xs text-cyan-400 font-mono tracking-wider font-bold uppercase">{personalInfo.title}</p>
               </div>
             </div>
 
-            {/* Newsletter Section */}
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-                  <Mail className="w-6 h-6 text-cyan-400" />
-                  Stay Updated
-                </h4>
-                <p className="text-slate-300 text-sm">
-                  Get notified about new projects, blog posts, and tech
-                  insights.
-                </p>
+            <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+              {personalInfo.tagline}
+            </p>
+
+            {/* Quick Status Badges */}
+            <div className="flex flex-wrap gap-4 pt-2 text-xs text-slate-400">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-cyan-400" />
+                <span>{personalInfo.location.current}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-cyan-400" />
+                <span>{personalInfo.location.timezone}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-emerald-400 font-bold font-mono">{personalInfo.availability.status}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Newsletter Segment (5/12 cols) */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                <Mail className="w-5 h-5 text-cyan-400" />
+                Stay Updated
+              </h4>
+              <p className="text-slate-400 text-xs">
+                Subscribe to get notified about new projects, articles, and tech insights.
+              </p>
+            </div>
+
+            {/* Subscribe Form Box */}
+            <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email address"
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:bg-slate-900/80 transition-all text-sm disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-3 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 text-white font-bold text-xs rounded-xl tracking-wider uppercase shadow-md shadow-cyan-500/10 hover:shadow-lg hover:shadow-cyan-500/20 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Subscribe</span>
+                    </>
+                  )}
+                </button>
               </div>
 
-              <div className="space-y-4">
-                {/* Mobile Layout - Stacked */}
-                <div className="flex flex-col gap-3 sm:hidden">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    disabled={isSubmitting}
-                    className="w-full px-5 py-4 bg-[#1a2332] border border-cyan-500/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:bg-[#1e2838] transition-all duration-300 disabled:opacity-50"
-                  />
-                  <button
-                    onClick={handleNewsletterSubmit}
-                    disabled={isSubmitting}
-                    className="w-full px-6 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                      />
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Subscribe Now</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Desktop Layout - Inline */}
-                <div className="relative group hidden sm:block">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    disabled={isSubmitting}
-                    className="w-full px-6 py-4 pr-40 bg-[#1a2332] border border-cyan-500/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:bg-[#1e2838] transition-all duration-300 disabled:opacity-50"
-                  />
-                  <button
-                    onClick={handleNewsletterSubmit}
-                    disabled={isSubmitting}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                      />
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Subscribe</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
+              {/* Status Feedbacks */}
+              <AnimatePresence mode="wait">
                 {submitStatus === "success" && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 text-emerald-400 text-sm bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3"
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2 text-emerald-400 text-xs bg-emerald-950/20 border border-emerald-500/20 rounded-lg p-2.5 font-bold"
                   >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Successfully subscribed! Thank you for joining.</span>
+                    <span>Thank you for subscribing!</span>
                   </motion.div>
                 )}
-
                 {submitStatus === "error" && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3"
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-2 text-rose-400 text-xs bg-rose-950/20 border border-rose-500/20 rounded-lg p-2.5 font-bold"
                   >
-                    <AlertCircle className="w-4 h-4" />
+                    <AlertCircle className="w-3.5 h-3.5" />
                     <span>{errorMessage}</span>
                   </motion.div>
                 )}
+              </AnimatePresence>
 
-                <p className="text-slate-500 text-xs">
-                  No spam, unsubscribe at any time. Privacy policy compliant.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+              <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
+                Unsubscribe at any time. Clean & Secure.
+              </p>
+            </form>
+          </div>
 
-          {/* Links Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-20"
-          >
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
-                <Zap className="w-4 h-4 text-cyan-400" />
-                Navigation
-              </h4>
-              <ul className="space-y-3">
-                {footerSections.quickLinks.map((link, index) => (
-                  <li key={index}>
-                    <Link
-                      to={link.path}
-                      className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
-                    >
-                      <ArrowUpRight className="w-3 h-3 text-cyan-400/50 group-hover:text-cyan-400 transition-colors" />
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">
-                        {link.name}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Services */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-cyan-400" />
-                Services
-              </h4>
-              <ul className="space-y-3">
-                {footerSections.services.map((service, index) => (
-                  <li key={index}>
-                    <Link
-                      to={service.path}
-                      className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
-                    >
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">
-                        {service.name}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
-                <Globe className="w-4 h-4 text-cyan-400" />
-                Resources
-              </h4>
-              <ul className="space-y-3">
-                {footerSections.resources.map((resource, index) => (
-                  <li key={index}>
-                    {resource.external ? (
-                      <a
-                        href={resource.path}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
-                      >
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">
-                          {resource.name}
-                        </span>
-                        <ExternalLink className="w-3 h-3 opacity-50 group-hover:opacity-100" />
-                      </a>
-                    ) : (
-                      <Link
-                        to={resource.path}
-                        className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
-                      >
-                        <span className="group-hover:translate-x-1 transition-transform duration-200">
-                          {resource.name}
-                        </span>
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
-                <Phone className="w-4 h-4 text-cyan-400" />
-                Contact
-              </h4>
-              <ul className="space-y-3 mb-6">
-                <li>
-                  <a
-                    href={`mailto:${personalInfo.contact.email}`}
-                    className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">
-                      Email Me
-                    </span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={`tel:${personalInfo.contact.phone}`}
-                    className="text-slate-300 hover:text-cyan-400 text-sm transition-all duration-200 inline-flex items-center gap-2 group"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">
-                      Call Me
-                    </span>
-                  </a>
-                </li>
-              </ul>
-
-              {/* Social Links */}
-              <div className="flex flex-wrap gap-2">
-                {socialPlatforms.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center ${social.color} transition-all duration-200 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20`}
-                    title={social.name}
-                  >
-                    <social.icon className="w-4 h-4" />
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 pb-16 border-b border-cyan-500/10"
-          >
-            {achievementStats.map((stat, index) => (
-              <motion.div
-                key={index}
-                className="text-center group"
-                whileHover={{ y: -5 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 mb-3 group-hover:border-cyan-400/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20 transition-all duration-300">
-                  <stat.icon className="w-6 h-6 text-cyan-400" />
-                </div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-slate-400">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Bottom Bar */}
-          {/* Bottom Bar - Mobile Layout (Optimized for small devices) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex md:hidden flex-col items-center gap-6"
-          >
-            {/* Copyright */}
-            <div className="flex flex-col items-center gap-2 text-sm text-slate-400 text-center">
-              <span>
-                © {currentYear} {personalInfo.name}
-              </span>
-              <span className="flex items-center gap-1.5">
-                Crafted with{" "}
-                <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> in
-                India
-              </span>
-            </div>
-
-            {/* Policy Links - Centered Grid for Mobile */}
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-4">
-              <Link
-                to="/privacy"
-                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                to="/terms"
-                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                to="/sitemap"
-                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
-              >
-                Sitemap
-              </Link>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 rounded-full border border-cyan-500/20">
-                <Sparkles className="w-3 h-3 text-cyan-400" />
-                <span className="text-xs text-slate-300 font-medium">
-                  v2.0.0
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Bottom Bar - Desktop Layout (Original) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="hidden md:flex flex-row justify-between items-center gap-6"
-          >
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <span>
-                © {currentYear} {personalInfo.name}
-              </span>
-              <span className="text-slate-600">•</span>
-              <span className="flex items-center gap-1.5">
-                Crafted with{" "}
-                <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> in
-                India
-              </span>
-            </div>
-
-            <div className="flex items-center gap-6">
-              <Link
-                to="/privacy"
-                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                to="/terms"
-                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                to="/sitemap"
-                className="text-sm text-slate-400 hover:text-cyan-400 transition-colors duration-200"
-              >
-                Sitemap
-              </Link>
-              <div className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 rounded-full border border-cyan-500/20">
-                <Sparkles className="w-3 h-3 text-cyan-400" />
-                <span className="text-xs text-slate-300 font-medium">
-                  v2.0.0
-                </span>
-              </div>
-            </div>
-          </motion.div>
         </div>
+
+        {/* Center Segment: Quick Links Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-16 border-b border-slate-900 text-sm">
+          
+          {/* Navigation Links */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 font-mono">
+              <Zap className="w-3.5 h-3.5 text-cyan-400" />
+              Navigation
+            </h4>
+            <ul className="space-y-2.5">
+              {footerSections.quickLinks.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.path}
+                    className="text-slate-400 hover:text-cyan-400 text-xs transition-colors inline-flex items-center gap-1 group font-medium"
+                  >
+                    <ArrowUpRight className="w-3 h-3 text-cyan-500/30 group-hover:text-cyan-400 transition-colors" />
+                    <span>{link.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Service Links */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 font-mono">
+              <Code className="w-3.5 h-3.5 text-cyan-400" />
+              Services
+            </h4>
+            <ul className="space-y-2.5">
+              {footerSections.services.map((service, index) => (
+                <li key={index}>
+                  <Link
+                    to={service.path}
+                    className="text-slate-400 hover:text-cyan-400 text-xs transition-colors inline-flex items-center gap-1 group font-medium"
+                  >
+                    <ArrowUpRight className="w-3 h-3 text-cyan-500/30 group-hover:text-cyan-400 transition-colors" />
+                    <span>{service.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Resource Links */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 font-mono">
+              <Globe className="w-3.5 h-3.5 text-cyan-400" />
+              Resources
+            </h4>
+            <ul className="space-y-2.5">
+              {footerSections.resources.map((resource, index) => (
+                <li key={index}>
+                  {resource.external ? (
+                    <a
+                      href={resource.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-cyan-400 text-xs transition-colors inline-flex items-center gap-1 group font-medium"
+                    >
+                      <ArrowUpRight className="w-3 h-3 text-cyan-500/30 group-hover:text-cyan-400 transition-colors" />
+                      <span>{resource.name}</span>
+                      <ExternalLink className="w-2.5 h-2.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                  ) : (
+                    <Link
+                      to={resource.path}
+                      className="text-slate-400 hover:text-cyan-400 text-xs transition-colors inline-flex items-center gap-1 group font-medium"
+                    >
+                      <ArrowUpRight className="w-3 h-3 text-cyan-500/30 group-hover:text-cyan-400 transition-colors" />
+                      <span>{resource.name}</span>
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Socials & Contacts */}
+          <div className="space-y-4">
+            <h4 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 font-mono">
+              <Mail className="w-3.5 h-3.5 text-cyan-400" />
+              Connect
+            </h4>
+            <ul className="space-y-2.5 mb-5 text-xs text-slate-400 font-medium">
+              <li>
+                <a href={`mailto:${personalInfo.contact.email}`} className="hover:text-cyan-400 transition-colors inline-flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Email Developer</span>
+                </a>
+              </li>
+              <li>
+                <a href={`tel:${personalInfo.contact.phone}`} className="hover:text-cyan-400 transition-colors inline-flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Call Developer</span>
+                </a>
+              </li>
+            </ul>
+
+            {/* Glowing Brand Icon Buttons */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              {socialPlatforms.map((social, index) => (
+                <motion.a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.08, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 ${social.color} transition-colors shadow-sm`}
+                  title={social.name}
+                >
+                  <social.icon className="w-4 h-4" />
+                </motion.a>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom Segment: Copyright & Policies */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-10 text-xs text-slate-500 font-medium">
+          
+          {/* Left copyright side */}
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
+            <span>© {currentYear} {personalInfo.name}. All rights reserved.</span>
+            <span className="hidden md:inline text-slate-800">•</span>
+            <span className="flex items-center gap-1">
+              Made with <Heart className="w-3 h-3 text-rose-500 fill-rose-500 animate-pulse" /> in India
+            </span>
+          </div>
+
+          {/* Right policy links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <Link to="/privacy" className="hover:text-cyan-400 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-cyan-400 transition-colors">Terms of Service</Link>
+            <Link to="/sitemap" className="hover:text-cyan-400 transition-colors">Sitemap</Link>
+            
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-slate-400">
+              <Sparkles className="w-3 h-3 text-cyan-400" />
+              <span className="text-[10px] font-bold font-mono">v2.01</span>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
-      {/* Back to Top Button */}
+      {/* Futuristic Floating Back to Top Button */}
       <motion.button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.1, y: -3 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-8 right-8 z-50 w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transition-all duration-300 border border-cyan-400/20"
+        whileHover={{ scale: 1.08, y: -2 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-8 right-8 z-50 w-11 h-11 bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-950 rounded-xl flex items-center justify-center shadow-2xl hover:shadow-cyan-500/10 transition-colors cursor-pointer"
         title="Back to top"
       >
-        <ChevronUp className="w-5 h-5 text-white" />
+        <ChevronUp className="w-4 h-4 text-cyan-400" />
       </motion.button>
     </footer>
   );

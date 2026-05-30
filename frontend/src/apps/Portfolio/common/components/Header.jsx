@@ -1,5 +1,16 @@
+/* eslint-disable no-unused-vars */
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Grid3X3, LayoutDashboard, Settings, User } from "lucide-react";
+import { 
+  ChevronDown, 
+  LayoutDashboard, 
+  User, 
+  Grid3X3, 
+  Video, 
+  ShoppingBag,
+  Sparkles,
+  Zap,
+  Activity
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import InstallPrompt from "../../../../components/PWA/InstallPrompt";
@@ -16,7 +27,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
+      const isScrolled = window.scrollY > 15;
       setScrolled(isScrolled);
     };
 
@@ -39,35 +50,30 @@ const Header = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  // Primary navigation items (always visible)
-  const primaryNavItems = [
+  const toolsCount = 12; // True actual developer tools count
+
+  // Top level navigation links (excluding dropdown)
+  const primaryNavLinks = [
     { name: "Home", path: "/" },
+    { name: "Projects", path: "/projects" },
     { name: "Blog", path: "/blog" },
-    { name: "Contact", path: "/contact" },
+    { name: "Tools", path: "/tools", badge: toolsCount.toString() },
   ];
 
-  // Explore dropdown items
-  const exploreItems = [
-    { name: "About", path: "/about", icon: User, description: "Learn about me" },
-    { name: "Skills", path: "/skills", icon: LayoutDashboard, description: "Technical expertise" },
-    { name: "Projects", path: "/projects", icon: Grid3X3, description: "My portfolio work" },
-    { name: "Content", path: "/content", icon: LayoutDashboard, description: "Videos & media" },
+  // More Dropdown items by section
+  const moreAboutItems = [
+    { name: "About me", path: "/about", icon: User, description: "My journey & background" },
+    { name: "Skills", path: "/skills", icon: Grid3X3, description: "Technical expertise matrix" },
+    { name: "Content", path: "/content", icon: Video, description: "Masterclasses & media stream" },
   ];
 
-  // Tools dropdown items
-  const toolsItems = [
-    { name: "All Tools", path: "/tools", description: "Developer utilities" },
-    { name: "JSON Formatter", path: "/tools/json-formatter", description: "Format & validate JSON" },
-    { name: "OG Preview", path: "/tools/og-preview", description: "Social share preview" },
-    { name: "QR Generator", path: "/tools/qr-code-generator", description: "Create QR codes" },
+  const moreServicesItems = [
+    { name: "Marketplace", path: "/marketplace", icon: ShoppingBag, description: "SaaS templates & custom solutions" },
+    { name: "Admin Panel", path: "/admin", icon: LayoutDashboard, description: "Secure control panel dashboard" },
   ];
 
-  // Panel switcher (Admin areas)
-  const panelItems = [
-    { name: "Portfolio", path: "/", current: true },
-    { name: "Marketplace", path: "/marketplace" },
-    { name: "Admin", path: "/admin" },
-  ];
+  // Helper arrays for route checks
+  const allDropdownItems = [...moreAboutItems, ...moreServicesItems];
 
   const isActive = (path) => {
     if (path === "/" && location.pathname === "/") return true;
@@ -87,347 +93,393 @@ const Header = () => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
       <AnnouncementBanner />
-      <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`w-full transition-all duration-500 ${
-          scrolled
-            ? "bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-2xl shadow-black/20"
-            : "bg-transparent"
-        }`}
-      >
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center group shrink-0">
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="text-xl font-bold">
-                  {personalInfo.name.split(" ").map((word, index) => (
-                    <span
-                      key={index}
-                      className={
-                        index === 0
-                          ? "bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
-                          : "text-white ml-1.5"
-                      }
-                    >
-                      {word}
+      
+      {/* Floating Capsule Header Container */}
+      <div className={`w-full transition-all duration-500 ease-in-out ${
+        scrolled 
+          ? "pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" 
+          : "pt-0 px-0 max-w-full"
+      }`}>
+        <motion.header
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className={`w-full transition-all duration-500 relative ${
+            scrolled
+              ? "bg-slate-950/80 backdrop-blur-2xl border border-slate-900/80 rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] shadow-cyan-950/5"
+              : "bg-transparent border-b border-transparent"
+          }`}
+        >
+          {/* Cybernetic Accent Glow Line at top of the capsule when scrolled */}
+          {scrolled && (
+            <div className="absolute top-0 left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent blur-[0.5px]" />
+          )}
+
+          <nav className="px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 relative">
+              
+              {/* Logo / Brand Cockpit */}
+              <Link to="/" className="flex items-center group shrink-0 relative z-10">
+                <motion.div
+                  className="relative flex flex-col justify-center"
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="text-xl font-black tracking-tight leading-none flex items-center">
+                    {personalInfo.name.split(" ").map((word, index) => (
+                      <span
+                        key={index}
+                        className={
+                          index === 0
+                            ? "bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent relative drop-shadow-[0_0_15px_rgba(6,182,212,0.15)]"
+                            : "text-white ml-1.5"
+                        }
+                      >
+                        {word}
+                      </span>
+                    ))}
+                    {/* Glowing status pulse dot for online aesthetic */}
+                    <span className="relative flex h-2 w-2 ml-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                     </span>
-                  ))}
-                </div>
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider group-hover:text-cyan-300 transition-colors duration-300">
-                  {personalInfo.title}
-                </div>
-              </motion.div>
-            </Link>
+                  </div>
+                  <div className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold group-hover:text-cyan-400 transition-colors duration-300 mt-1 flex items-center gap-1.5">
+                    <Activity size={8} className="text-cyan-500 animate-pulse" />
+                    {personalInfo.title}
+                  </div>
+                </motion.div>
+              </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
-              {/* Primary Nav Items */}
-              {primaryNavItems.map((item) => (
+              {/* Desktop Telemetry Navigation Bar */}
+              <div className="hidden lg:flex items-center gap-8 h-full">
+                {/* Primary Nav Links with Slide-Over Neon Indicator */}
+                <div className="flex items-center gap-6 h-full">
+                  {primaryNavLinks.map((item) => {
+                    const active = isActive(item.path);
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.path}
+                        className={`relative flex items-center h-16 px-1.5 text-sm font-semibold transition-all duration-300 font-mono tracking-tight group outline-none focus:outline-none focus-visible:outline-none ${
+                          active
+                            ? "text-cyan-300 font-bold"
+                            : "text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        <span className="relative z-10 flex items-center">
+                          {item.name}
+                          {item.badge && (
+                            <span className="bg-cyan-950/80 text-cyan-400 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ml-2 border border-cyan-500/20 shadow-inner group-hover:border-cyan-400/40 transition-colors">
+                              {item.badge}
+                            </span>
+                          )}
+                        </span>
+
+                        {/* Interactive sliding border (Framer Motion Magic) */}
+                        {active && (
+                          <motion.div
+                            layoutId="activeNavIndicator"
+                            className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full shadow-[0_-2px_10px_rgba(34,211,238,0.4)]"
+                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                          />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* More Dropdown Portal */}
+                <div className="relative h-full flex items-center">
+                  <button
+                    onClick={(e) => handleDropdownToggle("more", e)}
+                    className={`flex items-center gap-1.5 h-16 px-1.5 text-sm font-semibold transition-all duration-300 cursor-pointer font-mono tracking-tight border-b-2 outline-none focus:outline-none focus-visible:outline-none ${
+                      isDropdownActive(allDropdownItems) || activeDropdown === "more"
+                        ? "text-cyan-300 border-cyan-400"
+                        : "text-slate-400 border-transparent hover:text-white"
+                    }`}
+                  >
+                    <span>More</span>
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-200 text-slate-500 ${activeDropdown === "more" ? "rotate-180 text-cyan-400" : ""}`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {activeDropdown === "more" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute top-full right-0 mt-2.5 w-60 bg-slate-950/98 backdrop-blur-3xl border border-slate-900/90 rounded-2xl shadow-3xl overflow-hidden z-[60] p-4 space-y-4 shadow-[0_30px_70px_rgba(0,0,0,0.95)]"
+                      >
+                        {/* Glowing radial ambient background dot inside dropdown */}
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
+
+                        {/* About Section */}
+                        <div className="space-y-2.5 relative z-10">
+                          <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
+                            <Sparkles size={8} className="text-slate-500" />
+                            About
+                          </p>
+                          <div className="space-y-1">
+                            {moreAboutItems.map((item) => {
+                              const Icon = item.icon;
+                              const currentActive = isActive(item.path);
+                              return (
+                                <Link
+                                  key={item.name}
+                                  to={item.path}
+                                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
+                                    currentActive
+                                      ? "bg-cyan-500/10 text-cyan-300"
+                                      : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
+                                  }`}
+                                >
+                                  <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
+                                    currentActive 
+                                      ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 shadow-md"
+                                      : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
+                                  }`}>
+                                    <Icon size={14} />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
+                                    <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Dropdown Divider */}
+                        <div className="border-t border-slate-900" />
+
+                        {/* Services Section */}
+                        <div className="space-y-2.5 relative z-10">
+                          <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
+                            <Zap size={8} className="text-slate-500" />
+                            Services
+                          </p>
+                          <div className="space-y-1">
+                            {moreServicesItems.map((item) => {
+                              const Icon = item.icon;
+                              const currentActive = isActive(item.path);
+                              const isAdmin = item.path === "/admin";
+                              return (
+                                <Link
+                                  key={item.name}
+                                  to={item.path}
+                                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
+                                    currentActive
+                                      ? isAdmin ? "bg-purple-500/10 text-purple-300" : "bg-cyan-500/10 text-cyan-300"
+                                      : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
+                                  }`}
+                                >
+                                  <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
+                                    currentActive 
+                                      ? isAdmin
+                                        ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
+                                        : "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
+                                      : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
+                                  }`}>
+                                    <Icon size={14} />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
+                                    <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Desktop Actions Cockpit */}
+              <div className="hidden lg:flex items-center gap-3.5 shrink-0 relative z-10">
+                {/* Install Prompt */}
+                <InstallPrompt />
+
+                {/* Icon-Only Marketplace Button (ShoppingBag) with Ambient Glow */}
                 <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`relative px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
-                    isActive(item.path)
-                      ? "text-cyan-300 bg-cyan-500/10"
-                      : "text-slate-300 hover:text-white hover:bg-white/5"
-                  }`}
+                  to="/marketplace"
+                  title="Marketplace"
+                  aria-label="Marketplace"
+                  className="w-9 h-9 flex items-center justify-center bg-slate-950/60 border border-slate-900 hover:border-cyan-500/40 text-cyan-400 hover:text-cyan-300 rounded-xl transition-all duration-300 shadow-lg shadow-black/40 hover:shadow-[0_0_15px_rgba(34,211,238,0.15)] hover:scale-105 backdrop-blur-xl shrink-0"
                 >
-                  {item.name}
+                  <ShoppingBag size={16} />
                 </Link>
-              ))}
 
-              {/* Explore Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={(e) => handleDropdownToggle("explore", e)}
-                  className={`flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
-                    isDropdownActive(exploreItems) || activeDropdown === "explore"
-                      ? "text-cyan-300 bg-cyan-500/10"
-                      : "text-slate-300 hover:text-white hover:bg-white/5"
-                  }`}
+                {/* Stark Contrast Glowing White CTA Button with Tactile Active State */}
+                <Link
+                  to="/contact"
+                  className="relative group/btn overflow-hidden px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-950 text-xs font-mono font-black tracking-wider uppercase rounded-xl transition-all duration-300 shrink-0 select-none shadow-[0_0_20px_rgba(255,255,255,0.18)] hover:shadow-[0_0_30px_rgba(255,255,255,0.38)] hover:scale-[1.03] active:scale-[0.96] active:bg-slate-200 active:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-transparent active:border-slate-350"
                 >
-                  Explore
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform duration-200 ${activeDropdown === "explore" ? "rotate-180" : ""}`}
-                  />
-                </button>
+                  {/* Dynamic Glossy Sheen Sweep on Hover */}
+                  <span className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-slate-950/[0.04] to-transparent -translate-x-full group-hover/btn:animate-[projectMarquee_1.2s_linear_infinite]" />
+                  
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    Hire me
+                    <Zap size={11} className="fill-current text-slate-950" />
+                  </span>
+                </Link>
+              </div>
 
-                <AnimatePresence>
-                  {activeDropdown === "explore" && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full left-0 mt-2 w-64 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60]"
-                    >
-                      <div className="p-2">
-                        {exploreItems.map((item) => {
+              {/* Mobile Header Actions (Persistent CTA & Drawer Trigger) */}
+              <div className="flex lg:hidden items-center gap-2 relative z-10">
+                {/* Persistent Stark Contrast White Button with Tactile Active State */}
+                <Link
+                  to="/contact"
+                  className="px-3.5 py-1.5 bg-white text-slate-950 text-xs font-mono font-black uppercase tracking-wide rounded-xl shadow-lg shadow-white/10 transition-all hover:scale-[1.03] active:scale-[0.95] active:bg-slate-200 active:shadow-[0_0_5px_rgba(255,255,255,0.05)] shrink-0"
+                >
+                  Hire me
+                </Link>
+
+                {/* Mobile menu button */}
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800 shrink-0"
+                >
+                  <motion.svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {isMenuOpen ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    )}
+                  </motion.svg>
+                </motion.button>
+              </div>
+            </div>
+
+            {/* Mobile Drawer Navigation with Obsidian styling */}
+            <AnimatePresence>
+              {isMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="lg:hidden overflow-hidden"
+                >
+                  <div className="px-2 pt-2 pb-6 space-y-4 bg-slate-950/95 backdrop-blur-xl border-t border-slate-900 rounded-b-2xl mt-2 relative">
+                    {/* Background glows inside mobile drawer */}
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
+
+                    {/* Primary Links */}
+                    <div className="space-y-1.5 relative z-10">
+                      {primaryNavLinks.map((item) => (
+                        <Link
+                          key={item.name}
+                          to={item.path}
+                          className={`block px-4 py-3 text-base font-semibold rounded-xl transition-all duration-300 font-mono ${
+                            isActive(item.path)
+                              ? "text-cyan-300 bg-cyan-500/10 border border-cyan-500/20"
+                              : "text-slate-300 hover:text-white hover:bg-slate-900"
+                          }`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{item.name}</span>
+                            {item.badge && (
+                              <span className="bg-cyan-500/10 text-cyan-400 text-xs font-mono px-2 py-0.5 rounded-full border border-cyan-500/20">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {/* Divider + More Pages Label */}
+                    <div className="pt-2 border-t border-slate-900 relative z-10">
+                      <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono mb-2 flex items-center gap-1.5">
+                        <Sparkles size={8} />
+                        More Pages
+                      </p>
+                      
+                      {/* Secondary Smaller Links with Icons */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        {moreAboutItems.map((item) => {
                           const Icon = item.icon;
                           return (
                             <Link
                               key={item.name}
                               to={item.path}
-                              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                              className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
                                 isActive(item.path)
-                                  ? "bg-cyan-500/20 text-cyan-300"
-                                  : "text-slate-300 hover:bg-white/5 hover:text-white"
+                                  ? "text-cyan-300 bg-cyan-500/10"
+                                  : "text-slate-400 hover:text-white hover:bg-slate-900/60"
                               }`}
+                              onClick={() => setIsMenuOpen(false)}
                             >
-                              <Icon size={18} className="shrink-0 text-slate-400" />
-                              <div>
-                                <div className="font-medium text-sm">{item.name}</div>
-                                <div className="text-xs text-slate-500">{item.description}</div>
-                              </div>
+                              <Icon size={14} className="text-slate-500 shrink-0" />
+                              <span className="font-mono text-xs">{item.name}</span>
                             </Link>
                           );
                         })}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
 
-              {/* Tools Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={(e) => handleDropdownToggle("tools", e)}
-                  className={`flex items-center gap-1 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-lg ${
-                    isDropdownActive(toolsItems) || activeDropdown === "tools"
-                      ? "text-cyan-300 bg-cyan-500/10"
-                      : "text-slate-300 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  Tools
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform duration-200 ${activeDropdown === "tools" ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                <AnimatePresence>
-                  {activeDropdown === "tools" && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full left-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60]"
-                    >
-                      <div className="p-2">
-                        {toolsItems.map((item) => (
-                          <Link
-                            key={item.name}
-                            to={item.path}
-                            className={`block px-3 py-2.5 rounded-lg transition-all ${
-                              isActive(item.path)
-                                ? "bg-cyan-500/20 text-cyan-300"
-                                : "text-slate-300 hover:bg-white/5 hover:text-white"
-                            }`}
-                          >
-                            <div className="font-medium text-sm">{item.name}</div>
-                            <div className="text-xs text-slate-500">{item.description}</div>
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
-            {/* Right Side Actions */}
-            <div className="hidden lg:flex items-center gap-2">
-              {/* Install Button */}
-              <InstallPrompt />
-
-              {/* Panel Switcher (Settings - at the end) */}
-              <div className="relative">
-                <button
-                  onClick={(e) => handleDropdownToggle("panels", e)}
-                  className={`p-2 rounded-lg transition-all duration-300 ${
-                    activeDropdown === "panels"
-                      ? "bg-white/10 text-white"
-                      : "text-slate-400 hover:text-white hover:bg-white/5"
-                  }`}
-                  title="Switch Panel"
-                >
-                  <Settings size={18} />
-                </button>
-
-                <AnimatePresence>
-                  {activeDropdown === "panels" && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full right-0 mt-2 w-44 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60]"
-                    >
-                      <div className="p-2 space-y-1">
-                        <div className="px-3 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                          Switch Panel
-                        </div>
-                        {panelItems.map((item) => (
-                          <Link
-                            key={item.name}
-                            to={item.path}
-                            className={`block px-3 py-2 rounded-lg text-sm transition-all ${
-                              item.current
-                                ? "bg-cyan-500/20 text-cyan-300 font-medium"
-                                : "text-slate-300 hover:bg-white/5 hover:text-white"
-                            }`}
-                          >
-                            {item.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-
-            {/* Mobile menu button */}
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-300 border border-white/10"
-            >
-              <motion.svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                animate={{ rotate: isMenuOpen ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {isMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
-              </motion.svg>
-            </motion.button>
-          </div>
-
-          {/* Mobile Navigation */}
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="lg:hidden overflow-hidden"
-              >
-                <div className="px-2 pt-2 pb-6 space-y-1 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 rounded-b-2xl mt-2">
-                  {/* Primary Items */}
-                  {primaryNavItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-300 ${
-                        isActive(item.path)
-                          ? "text-cyan-300 bg-cyan-500/20 border border-cyan-500/30"
-                          : "text-slate-300 hover:text-white hover:bg-white/5"
-                      }`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-
-                  {/* Explore Section */}
-                  <div className="pt-4 border-t border-white/10">
-                    <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                      Explore
-                    </p>
-                    {exploreItems.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.path}
-                        className={`block px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                          isActive(item.path)
-                            ? "text-cyan-300 bg-cyan-500/10"
-                            : "text-slate-400 hover:text-white hover:bg-white/5"
-                        }`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Tools Section */}
-                  <div className="pt-4 border-t border-white/10">
-                    <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                      Tools
-                    </p>
-                    {toolsItems.slice(0, 3).map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.path}
-                        className={`block px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                          isActive(item.path)
-                            ? "text-cyan-300 bg-cyan-500/10"
-                            : "text-slate-400 hover:text-white hover:bg-white/5"
-                        }`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Panel Switcher */}
-                  <div className="pt-4 border-t border-white/10">
-                    <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                      Switch Panel
-                    </p>
-                    <div className="flex gap-2 px-4">
-                      {panelItems.map((item) => (
+                        {/* Admin panel listed secondary */}
                         <Link
-                          key={item.name}
-                          to={item.path}
-                          className={`flex-1 text-center px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                            item.current
-                              ? "bg-cyan-500 text-white"
-                              : "bg-slate-800 text-slate-400 hover:text-white"
+                          to="/admin"
+                          className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                            isActive("/admin")
+                              ? "text-purple-300 bg-purple-500/10"
+                              : "text-slate-400 hover:text-purple-300 hover:bg-slate-900/60"
                           }`}
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          {item.name}
+                          <LayoutDashboard size={14} className="text-slate-500 shrink-0" />
+                          <span className="font-mono text-xs">Admin Panel</span>
                         </Link>
-                      ))}
+                      </div>
+                    </div>
+
+                    {/* View Marketplace Full-width Teal CTA */}
+                    <div className="pt-3 border-t border-slate-900 relative z-10">
+                      <Link
+                        to="/marketplace"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-teal-500/10 border border-teal-500/20 text-teal-400 hover:text-teal-300 hover:border-teal-500/40 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 shadow-md shadow-teal-500/5 hover:shadow-teal-500/15"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <ShoppingBag size={14} />
+                        View Marketplace
+                      </Link>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </nav>
-      </motion.header>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </nav>
+        </motion.header>
+      </div>
     </div>
   );
 };

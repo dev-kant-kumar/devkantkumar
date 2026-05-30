@@ -47,7 +47,7 @@ const CssGradientGenerator = () => {
     <>
       <SEOHead
         title="CSS Gradient Generator - Free Online Color Tool | Dev Kant Kumar"
-        description="Create beautiful CSS gradients visually. Generate linear and radial gradients, customize colors and angles, and get ready-to-use CSS code. Free tool for designers and developers."
+        description="Create beautiful linear and radial CSS gradients visually. Customize colors, angles, and get ready-to-use CSS code instantly."
         keywords="css gradient generator, gradient maker, linear gradient, radial gradient, css background generator, web design tools"
       />
       <StructuredData

@@ -18,6 +18,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../../../components/SEO/SEOHead";
+import StructuredData from "../../../components/SEO/StructuredData";
 import { useMetadata } from "../../../utils/useMetadata";
 import { portfolioData } from "../store/data/portfolioData";
 
@@ -29,7 +30,7 @@ const FAQ = () => {
 
   // Update metadata for FAQ page
   useMetadata({
-    title: 'FAQ - Frequently Asked Questions',
+    title: 'FAQ',
     description: 'Find answers to common questions about my development services, process, pricing, and collaboration approach.',
     keywords: 'FAQ, questions, development services, pricing, process, collaboration'
   });
@@ -190,8 +191,8 @@ const FAQ = () => {
     <>
       {/* SEO Components */}
       <SEOHead
-        title="FAQ - Frequently Asked Questions"
-        description="Find answers to common questions about my development services, process, pricing, and collaboration approach. Get insights into my work methodology and technical expertise."
+        title="FAQ"
+        description="Find answers to common questions about my development services, process, pricing, and collaboration approach."
         keywords="FAQ, questions, development services, pricing, process, collaboration, MERN stack, web development"
         type="article"
       />
@@ -207,17 +208,16 @@ const FAQ = () => {
         }}
       />
 
-      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <section className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300">
         {/* Advanced Background Effects - Matching Hero Section */}
         <div className="absolute inset-0">
-          {/* Animated Mesh Gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.1),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(139,92,246,0.15),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
+          {/* Subtle Cyber Grid */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
           {/* Dynamic Gradient Orbs */}
           <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
             animate={{
               x: mousePosition.x * 0.15 - 50,
               y: mousePosition.y * 0.15 - 50,
@@ -230,7 +230,7 @@ const FAQ = () => {
             }}
           />
           <motion.div
-            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-600/20 rounded-full blur-3xl"
+            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"
             animate={{
               x: -mousePosition.x * 0.1 + 50,
               y: -mousePosition.y * 0.1 + 50,
@@ -242,33 +242,6 @@ const FAQ = () => {
               scale: { duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 },
             }}
           />
-
-          {/* Sophisticated Grid Pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.03)_1px,transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
-
-          {/* Floating Particles */}
-          {[...Array(15)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-cyan-400/40 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [-20, 20],
-                x: [-10, 10],
-                opacity: [0, 1, 0],
-                scale: [0, 1, 0],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 4,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
         </div>
 
         {/* Main Content */}
@@ -283,14 +256,14 @@ const FAQ = () => {
             {/* Badge */}
             <motion.div className="mb-8">
               <motion.span
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 border border-cyan-500/30 rounded-full text-cyan-300 text-sm font-medium backdrop-blur-xl shadow-lg shadow-cyan-500/10"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase mb-6"
                 whileHover={{
                   scale: 1.05,
-                  boxShadow: "0 0 25px rgba(34, 211, 238, 0.3)",
+                  boxShadow: "0 0 25px rgba(34, 211, 238, 0.15)",
                 }}
               >
-                <HelpCircle className="w-4 h-4" />
-                Frequently Asked Questions
+                <HelpCircle className="w-3.5 h-3.5 text-cyan-400" />
+                Frequently Asked Questions // FAQ
               </motion.span>
             </motion.div>
 
@@ -329,16 +302,16 @@ const FAQ = () => {
             <div className="relative mb-8">
               <motion.div
                 className="relative"
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.01 }}
                 transition={{ duration: 0.2 }}
               >
-                <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-cyan-400 w-5 h-5 z-10" />
+                <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-500 w-5 h-5 z-10" />
                 <input
                   type="text"
                   placeholder="Search questions, answers, or tags..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-16 pr-6 py-5 bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 focus:bg-slate-800/50 transition-all duration-300 text-lg"
+                  className="w-full pl-16 pr-6 py-5 bg-slate-900/60 border border-slate-800/80 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/40 focus:bg-slate-900/80 backdrop-blur-xl transition-all duration-300 text-lg"
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/5 to-purple-500/5 pointer-events-none" />
               </motion.div>
@@ -350,10 +323,10 @@ const FAQ = () => {
                 <motion.button
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
-                  className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 backdrop-blur-xl ${
+                  className={`flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 border ${
                     activeCategory === category.id
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25"
-                      : "bg-slate-800/30 border border-slate-700/50 text-slate-300 hover:bg-slate-700/40 hover:border-cyan-500/30 hover:text-white"
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent shadow-lg shadow-cyan-500/25"
+                      : "bg-slate-900/40 border border-slate-800/80 text-slate-400 hover:bg-slate-900/80 hover:border-slate-700/50 hover:text-white"
                   }`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -383,27 +356,27 @@ const FAQ = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * index, duration: 0.6 }}
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.01 }}
                 >
                   {/* Glassmorphism Card */}
-                  <div className="relative bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden group-hover:border-cyan-500/30 transition-all duration-300">
+                  <div className="relative bg-slate-950/80 border border-slate-800/80 rounded-2xl overflow-hidden group-hover:border-cyan-500/40 group-hover:bg-slate-900/20 transition-all duration-300 backdrop-blur-xl">
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                     <button
                       onClick={() => toggleItem(item.id)}
-                      className="relative w-full px-8 py-8 text-left flex items-center justify-between hover:bg-slate-700/20 transition-all duration-300"
+                      className="relative w-full px-8 py-8 text-left flex items-center justify-between hover:bg-slate-900/40 transition-all duration-300"
                     >
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-white mb-4 group-hover:text-cyan-100 transition-colors duration-300">
+                        <h3 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-100 transition-colors duration-300">
                           {item.question}
                         </h3>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap gap-2">
                           {item.tags.map((tag, tagIndex) => (
                             <motion.span
                               key={tagIndex}
-                              className="px-3 py-1.5 bg-slate-700/40 backdrop-blur-sm border border-slate-600/50 text-slate-300 text-sm rounded-lg group-hover:bg-cyan-500/20 group-hover:border-cyan-500/30 group-hover:text-cyan-200 transition-all duration-300"
-                              whileHover={{ scale: 1.1 }}
+                              className="px-2.5 py-1 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 text-xs font-mono group-hover:bg-cyan-950/30 group-hover:border-cyan-500/30 group-hover:text-cyan-400 transition-all duration-300"
+                              whileHover={{ scale: 1.05 }}
                             >
                               {tag}
                             </motion.span>
@@ -414,10 +387,10 @@ const FAQ = () => {
                         <motion.div
                           animate={{ rotate: openItems.has(item.id) ? 180 : 0 }}
                           transition={{ duration: 0.3 }}
-                          className="p-2 rounded-full bg-slate-700/50 group-hover:bg-cyan-500/20 transition-colors duration-300"
+                          className="p-2 rounded-full bg-slate-900/50 group-hover:bg-cyan-500/20 transition-colors duration-300"
                         >
                           <ChevronDown className={`w-5 h-5 transition-colors duration-300 ${
-                            openItems.has(item.id) ? 'text-cyan-400' : 'text-slate-400 group-hover:text-cyan-300'
+                            openItems.has(item.id) ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-300'
                           }`} />
                         </motion.div>
                       </div>
@@ -433,12 +406,12 @@ const FAQ = () => {
                           className="overflow-hidden"
                         >
                           <div className="px-8 pb-8">
-                            <div className="border-t border-slate-700/30 pt-6">
+                            <div className="border-t border-slate-800/60 pt-6">
                               <motion.p
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="text-slate-300 leading-relaxed text-lg"
+                                className="text-slate-300 leading-relaxed text-lg font-medium"
                               >
                                 {item.answer}
                               </motion.p>
@@ -460,7 +433,7 @@ const FAQ = () => {
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 flex items-center justify-center"
+                    className="w-24 h-24 mx-auto mb-6 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center"
                   >
                     <HelpCircle className="w-12 h-12 text-slate-500" />
                   </motion.div>
@@ -520,7 +493,7 @@ const FAQ = () => {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                     <Link
                       to="/contact"
                       className="group relative flex items-center justify-center p-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl text-white font-semibold text-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/25"
@@ -532,20 +505,20 @@ const FAQ = () => {
                     </Link>
                   </motion.div>
 
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                     <a
                       href={`mailto:${portfolioData.personalInfo.contact.email}`}
-                      className="group flex items-center justify-center p-8 bg-slate-700/30 backdrop-blur-xl border border-slate-600/50 rounded-2xl text-white font-semibold text-lg hover:bg-slate-600/40 hover:border-cyan-500/30 transition-all duration-300"
+                      className="group flex items-center justify-center p-8 bg-slate-900 border border-slate-800/80 rounded-2xl text-white font-semibold text-lg hover:bg-slate-900 hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.03)] transition-all duration-300"
                     >
                       <Mail className="w-6 h-6 mr-3 group-hover:text-cyan-400 transition-colors duration-300" />
                       <span>Email Directly</span>
                     </a>
                   </motion.div>
 
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                     <a
                       href={`tel:${portfolioData.personalInfo.contact.phone}`}
-                      className="group flex items-center justify-center p-8 bg-slate-700/30 backdrop-blur-xl border border-slate-600/50 rounded-2xl text-white font-semibold text-lg hover:bg-slate-600/40 hover:border-cyan-500/30 transition-all duration-300"
+                      className="group flex items-center justify-center p-8 bg-slate-900 border border-slate-800/80 rounded-2xl text-white font-semibold text-lg hover:bg-slate-900 hover:border-cyan-500/30 hover:shadow-[0_0_20px_rgba(6,182,212,0.03)] transition-all duration-300"
                     >
                       <Phone className="w-6 h-6 mr-3 group-hover:text-cyan-400 transition-colors duration-300" />
                       <span>Call Me</span>
@@ -559,9 +532,9 @@ const FAQ = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <div className="inline-flex items-center px-6 py-3 bg-slate-700/30 backdrop-blur-xl border border-slate-600/50 rounded-full text-slate-300">
-                    <Clock className="w-5 h-5 mr-3 text-cyan-400" />
-                    <span className="font-medium">Response time: {portfolioData.personalInfo.contact.responseTime}</span>
+                  <div className="inline-flex items-center px-4 py-2 bg-slate-900 border border-slate-800 rounded-full text-slate-400 text-xs font-mono font-bold">
+                    <Clock className="w-4 h-4 mr-2 text-cyan-400" />
+                    <span>Response time: {portfolioData.personalInfo.contact.responseTime}</span>
                   </div>
                 </motion.div>
               </div>

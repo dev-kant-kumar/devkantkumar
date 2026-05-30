@@ -72,7 +72,7 @@ const MetaTagGenerator = () => {
     <>
       <SEOHead
         title="Meta Tag Generator - Free SEO Tool | Dev Kant Kumar"
-        description="Generate accurate meta tags for better SEO and social media sharing. Create Title, Description, Open Graph, and Twitter Card tags. Preview how your site looks on Google and social media."
+        description="Generate accurate meta tags for SEO and social sharing. Create Title, Description, Open Graph, and Twitter tags with real-time previews."
         keywords="meta tag generator, seo tool, open graph generator, twitter card generator, meta tags, seo optimizer"
       />
       <StructuredData

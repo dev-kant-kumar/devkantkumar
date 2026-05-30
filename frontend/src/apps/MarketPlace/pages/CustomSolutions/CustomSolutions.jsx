@@ -204,8 +204,8 @@ const CustomSolutions = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title="Custom Software Development Solutions | Dev Kant Kumar"
-        description="Get a custom-built web app, mobile app, API, or enterprise software solution. Tailored development packages starting from ₹4,999. React, Node.js, MERN stack experts."
+        title="Custom Software Solutions | Dev Kant Kumar"
+        description="Get a custom web app, mobile app, API, or enterprise software solution. Tailored development starting from ₹4,999. React, Node.js, MERN stack experts."
         keywords={["custom web development", "custom software solution", "hire React developer India", "MERN stack development", "enterprise software development", "SaaS development", "API development India"]}
         url="https://www.devkantkumar.com/marketplace/custom-solutions"
         canonical="https://www.devkantkumar.com/marketplace/custom-solutions"

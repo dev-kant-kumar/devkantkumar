@@ -91,7 +91,7 @@ const PasswordGenerator = () => {
     <>
       <SEOHead
         title="Strong Password Generator - Free Secure Password Tool | Dev Kant Kumar"
-        description="Generate strong, secure random passwords instantly. Customize length, include uppercase, lowercase, numbers, and symbols. Free online password generator with strength meter."
+        description="Generate strong, secure random passwords instantly. Customize length, characters, and get real-time password strength reviews."
         keywords="password generator, strong password, random password, secure password, password creator, generate password online"
       />
       <StructuredData

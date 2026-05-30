@@ -29,7 +29,7 @@ export const blogData = [
     id: "yt-dlp-ultimate-guide-2026",
     slug: "yt-dlp-ultimate-guide-2026",
     title: "Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites",
-    excerpt: "The most comprehensive yt-dlp guide on the internet. Master video downloads from YouTube, TikTok, and 1800+ platforms with troubleshooting tips.",
+    excerpt: "Master yt-dlp in 2026. Download videos from YouTube, TikTok and 1800+ sites. Fix bot detection errors and speed up downloads with aria2c. 100+ commands.",
     category: "Tutorials",
     author: "Dev Kant Kumar",
     readTime: "45 min read",

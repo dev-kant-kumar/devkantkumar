@@ -21,12 +21,32 @@ const baseRoutes = [
   "/blog",
   "/contact",
   "/tools",
-  "/tools/og-preview",
+  "/faq",
+  "/sitemap",
+  "/privacy",
+  "/terms",
+  "/content",
+  // Marketplace catalog routes
+  "/marketplace",
+  "/marketplace/services",
+  "/marketplace/products",
+  "/marketplace/custom-solutions",
+  "/marketplace/faq",
+  "/marketplace/contact",
 ];
 
-const routes = [
-  ...baseRoutes,
-  ...blogData.map((post) => `/blog/${post.slug}`)
+const toolSlugs = [
+  "json-formatter",
+  "base64-encoder-decoder",
+  "password-generator",
+  "lorem-ipsum-generator",
+  "color-palette-generator",
+  "qr-code-generator",
+  "uuid-generator",
+  "css-gradient-generator",
+  "meta-tag-generator",
+  "markdown-previewer",
+  "og-preview",
 ];
 
 async function getBrowser() {
@@ -68,6 +88,56 @@ async function getBrowser() {
 async function prerender() {
   console.log("📦 Starting prerendering process...");
 
+  // Try to fetch products and services from local API
+  let products = [];
+  let services = [];
+
+  const fallbackProducts = [
+    { slug: 'budget-tracker-2026-canva-spreadsheet-template-monthly-budget-planner-expense-tracker' },
+    { slug: 'social-media-content-calendar-2026-canva-template-for-instagram-facebook-twitter' },
+    { slug: 'vinoba-bhave-university-assignment-cover-page-template-bca-editable-printable-a4' }
+  ];
+
+  const fallbackServices = [
+    { slug: 'static-website-development' }
+  ];
+
+  try {
+    const response = await fetch('http://localhost:5000/api/v1/marketplace/products?limit=100');
+    if (response.ok) {
+      const data = await response.json();
+      products = data.products || [];
+      console.log(`Fetched ${products.length} products from API for prerender.`);
+    } else {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+  } catch (err) {
+    console.log('⚠️ Could not fetch products from API, using prerender database fallbacks:', err.message);
+    products = fallbackProducts;
+  }
+
+  try {
+    const response = await fetch('http://localhost:5000/api/v1/marketplace/services?limit=100');
+    if (response.ok) {
+      const data = await response.json();
+      services = data.services || [];
+      console.log(`Fetched ${services.length} services from API for prerender.`);
+    } else {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+  } catch (err) {
+    console.log('⚠️ Could not fetch services from API, using prerender database fallbacks:', err.message);
+    services = fallbackServices;
+  }
+
+  const routes = [
+    ...baseRoutes,
+    ...blogData.map((post) => `/blog/${post.slug}`),
+    ...toolSlugs.map((slug) => `/tools/${slug}`),
+    ...products.map((p) => `/marketplace/products/${p.slug}`),
+    ...services.map((s) => `/marketplace/services/${s.slug}`)
+  ];
+
   // 1. Start a local server to serve the dist folder
   console.log("🚀 Starting preview server...");
   const server = spawn("npm", ["run", "preview", "--", "--port", "4173"], {
@@ -78,26 +148,41 @@ async function prerender() {
   // Give the server some time to start
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
+  let activePort = 4173;
+  try {
+    const res = await fetch("http://localhost:4173/");
+    if (res.ok || res.status) activePort = 4173;
+  } catch (err) {
+    try {
+      const res = await fetch("http://localhost:4174/");
+      if (res.ok || res.status) activePort = 4174;
+    } catch (err2) {
+      console.log("⚠️ Preview ports offline, defaulting to 4173:", err2.message);
+    }
+  }
+  console.log(`📡 Rendering using active preview port: ${activePort}`);
+
   let browser;
 
   try {
     browser = await getBrowser();
+    const page = await browser.newPage();
+    // Set viewport to desktop to ensure all content is visible/rendered
+    await page.setViewport({ width: 1280, height: 800 });
 
+    let index = 0;
     for (const route of routes) {
-      const page = await browser.newPage();
-
-      // Set viewport to desktop to ensure all content is visible/rendered
-      await page.setViewport({ width: 1280, height: 800 });
-
-      const url = `http://localhost:4173${route}`;
-      console.log(`Rendering: ${route}`);
+      index++;
+      const url = `http://localhost:${activePort}${route}`;
+      const percentage = ((index / routes.length) * 100).toFixed(0);
+      console.log(`[${percentage}%] Rendering: ${route}`);
 
       // Go to the page and wait for network idle (all requests finished)
       // We use a slightly more relaxed timeout for Vercel
       await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
 
       // Wait a bit more for any client-side hydration/animations
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Get the HTML
       const html = await page.content();
@@ -118,10 +203,8 @@ async function prerender() {
 
       // Write the file
       fs.writeFileSync(filePath, html);
-      console.log(`✅ Saved: ${filePath}`);
-
-      await page.close();
     }
+    await page.close();
   } catch (error) {
     console.error("❌ Prerendering failed:", error);
     // On Vercel, we might want to fail the build if prerendering fails

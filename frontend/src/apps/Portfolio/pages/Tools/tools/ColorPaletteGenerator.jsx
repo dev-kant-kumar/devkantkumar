@@ -146,7 +146,7 @@ const ColorPaletteGenerator = () => {
     <>
       <SEOHead
         title="Color Palette Generator - Free Color Scheme Tool | Dev Kant Kumar"
-        description="Generate beautiful color palettes for your designs. Create harmonious color schemes with complementary, analogous, triadic, and monochromatic modes. Export as CSS, SCSS, or Tailwind."
+        description="Generate beautiful color palettes and harmonious color schemes for your designs. Export as CSS, SCSS, or Tailwind CSS."
         keywords="color palette generator, color scheme, color picker, palette generator, css colors, tailwind colors, design colors"
       />
       <StructuredData

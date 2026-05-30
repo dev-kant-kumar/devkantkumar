@@ -7,7 +7,7 @@ import { portfolioData } from '../apps/Portfolio/store/data/portfolioData.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const generateSitemap = () => {
+const generateSitemap = async () => {
     console.log('Generating sitemap...');
     const { seoConfig } = portfolioData;
     const siteUrl = seoConfig?.site?.url || 'https://www.devkantkumar.com';
@@ -23,19 +23,115 @@ const generateSitemap = () => {
         '/skills',
         '/contact',
         '/blog',
-        '/tools'
+        '/tools',
+        '/faq',
+        '/sitemap',
+        '/privacy',
+        '/terms',
+        '/content',
+        // Marketplace static pages
+        '/marketplace',
+        '/marketplace/services',
+        '/marketplace/products',
+        '/marketplace/products/templates',
+        '/marketplace/products/components',
+        '/marketplace/products/tools',
+        '/marketplace/products/courses',
+        '/marketplace/custom-solutions',
+        '/marketplace/support',
+        '/marketplace/faq',
+        '/marketplace/terms',
+        '/marketplace/privacy',
+        '/marketplace/refunds',
+        '/marketplace/license',
+        '/marketplace/contact'
     ];
+
+    const toolSlugs = [
+        'json-formatter',
+        'base64-encoder-decoder',
+        'password-generator',
+        'lorem-ipsum-generator',
+        'color-palette-generator',
+        'qr-code-generator',
+        'uuid-generator',
+        'css-gradient-generator',
+        'meta-tag-generator',
+        'markdown-previewer',
+        'og-preview'
+    ];
+
+    // Try to fetch products and services from local API
+    let products = [];
+    let services = [];
+
+    // Fallbacks from database seed
+    const fallbackProducts = [
+        { slug: 'budget-tracker-2026-canva-spreadsheet-template-monthly-budget-planner-expense-tracker', updatedAt: currentDate },
+        { slug: 'social-media-content-calendar-2026-canva-template-for-instagram-facebook-twitter', updatedAt: currentDate },
+        { slug: 'vinoba-bhave-university-assignment-cover-page-template-bca-editable-printable-a4', updatedAt: currentDate }
+    ];
+
+    const fallbackServices = [
+        { slug: 'static-website-development', updatedAt: currentDate }
+    ];
+
+    try {
+        const response = await fetch('http://localhost:5000/api/v1/marketplace/products?limit=100');
+        if (response.ok) {
+            const data = await response.json();
+            products = data.products || [];
+            console.log(`Fetched ${products.length} products from API for sitemap.`);
+        } else {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+    } catch (err) {
+        console.log('⚠️ Could not fetch products from API, using sitemap database fallbacks:', err.message);
+        products = fallbackProducts;
+    }
+
+    try {
+        const response = await fetch('http://localhost:5000/api/v1/marketplace/services?limit=100');
+        if (response.ok) {
+            const data = await response.json();
+            services = data.services || [];
+            console.log(`Fetched ${services.length} services from API for sitemap.`);
+        } else {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+    } catch (err) {
+        console.log('⚠️ Could not fetch services from API, using sitemap database fallbacks:', err.message);
+        services = fallbackServices;
+    }
 
     const sitemapItems = [
         ...staticPages.map(page => ({
             url: `${siteUrl}${page}`,
             lastModified: currentDate,
             changeFrequency: 'monthly',
-            priority: page === '' ? '1.0' : '0.8'
+            priority: page === '' ? '1.0' : (page.startsWith('/marketplace') ? '0.8' : '0.8')
         })),
         ...blogData.map(post => ({
             url: `${blogUrl}/${post.slug}`,
             lastModified: post.modifiedDate || post.publishDate || currentDate,
+            changeFrequency: 'weekly',
+            priority: '0.9'
+        })),
+        ...toolSlugs.map(slug => ({
+            url: `${siteUrl}/tools/${slug}`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly',
+            priority: '0.7'
+        })),
+        ...products.map(product => ({
+            url: `${siteUrl}/marketplace/products/${product.slug}`,
+            lastModified: product.updatedAt ? product.updatedAt.split('T')[0] : currentDate,
+            changeFrequency: 'weekly',
+            priority: '0.9'
+        })),
+        ...services.map(service => ({
+            url: `${siteUrl}/marketplace/services/${service.slug}`,
+            lastModified: service.updatedAt ? service.updatedAt.split('T')[0] : currentDate,
             changeFrequency: 'weekly',
             priority: '0.9'
         }))

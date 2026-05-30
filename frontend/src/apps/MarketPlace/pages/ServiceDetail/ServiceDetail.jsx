@@ -180,15 +180,21 @@ const ServiceDetail = () => {
   const currentPkg = packages[selectedPackage];
   const priceData = getPrice(currentPkg);
 
+  const rawSeoTitle = service.seo?.metaTitle || service.title;
+  const cleanSeoTitle = rawSeoTitle.length > 46 ? rawSeoTitle.substring(0, 43) + "..." : rawSeoTitle;
+
+  const rawSeoDesc = service.seo?.metaDescription || service.description;
+  const cleanSeoDesc = rawSeoDesc.length > 160 ? rawSeoDesc.substring(0, 157) + "..." : rawSeoDesc;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title={service.title}
-        description={service.description}
+        title={cleanSeoTitle}
+        description={cleanSeoDesc}
         image={service.images?.[0]?.url}
         type="product"
         canonical={`https://www.devkantkumar.com/marketplace/services/${service.slug || service._id}`}
-        keywords={[
+        keywords={service.seo?.keywords?.length > 0 ? service.seo.keywords : [
           service.title,
           service.category,
           "hire developer",

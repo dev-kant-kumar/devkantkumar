@@ -251,17 +251,20 @@ const Tools = () => {
       {/* Structured Data for Software Collection */}
       <StructuredData type="website" />
 
-      <div className="min-h-screen bg-slate-950">
+      <div className="bg-slate-950 min-h-screen text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300 relative overflow-hidden">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-24 pb-16">
+        <section className="relative overflow-hidden pt-32 pb-16">
           {/* Background Effects */}
           <div className="absolute inset-0">
+            {/* Subtle Cyber Grid */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
             <div className="absolute top-0 left-1/4 w-[600px] h-[400px] bg-cyan-500/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-500/10 rounded-full blur-3xl" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -271,33 +274,36 @@ const Tools = () => {
               <motion.span
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 rounded-full text-cyan-300 text-sm font-medium mb-6"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase mb-6"
               >
-                <Zap size={16} />
-                100% Free • No Signup Required
+                <Zap size={14} className="text-cyan-400 animate-pulse" />
+                100% Free • No Signup Required // TOOLS
               </motion.span>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+              <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
                 Free Developer{' '}
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                   Tools
                 </span>
               </h1>
-              <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8">
+              <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8 font-medium leading-relaxed">
                 Powerful online tools to boost your productivity. Format JSON, generate passwords,
                 create color palettes, and more — all in your browser.
               </p>
 
               {/* Search Bar */}
-              <div className="max-w-xl mx-auto relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search tools..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-900/50 border border-slate-800 rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
-                />
+              <div className="max-w-xl mx-auto relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                <div className="relative">
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-cyan-400 transition-colors" size={18} />
+                  <input
+                    type="text"
+                    placeholder="Search tools..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-6 py-4 bg-slate-900/60 border border-slate-800/80 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/40 focus:bg-slate-900/80 backdrop-blur-xl transition-all duration-300 group-hover:border-cyan-500/40"
+                  />
+                </div>
               </div>
             </motion.div>
 
@@ -315,13 +321,13 @@ const Tools = () => {
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all ${
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all border ${
                       isActive
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25'
-                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-700/50'
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent shadow-lg shadow-cyan-500/25'
+                        : 'bg-slate-900/40 text-slate-400 hover:bg-slate-900/80 hover:text-white border-slate-800/80 hover:border-slate-700/50'
                     }`}
                   >
-                    <Icon size={18} />
+                    <Icon size={16} />
                     {cat.name}
                   </button>
                 );
@@ -363,7 +369,7 @@ const Tools = () => {
                   >
                     <Link
                       to={`/tools/${tool.slug}`}
-                      className={`block h-full p-6 bg-slate-900/50 border ${tool.borderColor} rounded-2xl hover:bg-slate-900/80 hover:border-opacity-50 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/5 hover:-translate-y-1`}
+                      className="block h-full p-6 bg-slate-950/80 border border-slate-800/80 rounded-2xl hover:bg-slate-900/40 hover:border-cyan-500/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.05)] hover:-translate-y-1 backdrop-blur-xl"
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
@@ -371,8 +377,8 @@ const Tools = () => {
                           <Icon size={24} className="text-white" />
                         </div>
                         {tool.popular && (
-                          <span className="flex items-center gap-1 px-2 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-400 text-xs font-medium">
-                            <TrendingUp size={12} />
+                          <span className="flex items-center gap-1 px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-400 text-xs font-mono font-bold uppercase tracking-wider text-[10px]">
+                            <TrendingUp size={10} className="text-amber-400" />
                             Popular
                           </span>
                         )}
@@ -382,17 +388,17 @@ const Tools = () => {
                       <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
                         {tool.name}
                       </h3>
-                      <p className="text-slate-400 text-sm mb-4 line-clamp-2">
+                      <p className="text-slate-400 text-sm mb-4 line-clamp-2 leading-relaxed">
                         {tool.description}
                       </p>
 
                       {/* Category Tag */}
                       <div className="flex items-center justify-between">
-                        <span className={`px-3 py-1 ${tool.bgColor} ${tool.textColor} text-xs font-medium rounded-full border ${tool.borderColor}`}>
+                        <span className={`px-2.5 py-0.5 ${tool.bgColor} ${tool.textColor} text-[10px] font-mono font-bold rounded border ${tool.borderColor} uppercase`}>
                           {tool.category}
                         </span>
-                        <span className="flex items-center gap-1 text-cyan-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                          Use Tool <ArrowRight size={14} />
+                        <span className="flex items-center gap-1 text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+                          Use Tool <ArrowRight size={12} />
                         </span>
                       </div>
                     </Link>
@@ -406,60 +412,71 @@ const Tools = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-20"
+                className="text-center py-20 max-w-md mx-auto"
               >
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-slate-800/50 flex items-center justify-center">
-                  <Search size={32} className="text-slate-600" />
+                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center">
+                  <Search size={24} className="text-slate-500" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-400 mb-2">No tools found</h3>
-                <p className="text-slate-500 mb-6">Try adjusting your search or filters</p>
+                <h3 className="text-xl font-bold text-white mb-2">No Tools Found</h3>
+                <p className="text-slate-400 mb-6 text-sm">Try adjusting your search or category filters</p>
                 <button
                   onClick={() => { setSearchTerm(''); setActiveCategory('all'); }}
-                  className="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl font-medium transition-colors"
+                  className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 transition-all text-xs tracking-wider uppercase"
                 >
-                  Clear filters
+                  Clear Filters
                 </button>
               </motion.div>
             )}
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="pb-20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700/50 p-8 lg:p-12">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+        {/* Section: Call to Action (CTA) */}
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="py-24 bg-slate-950 border-t border-slate-900/60 relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.03),transparent_70%)] pointer-events-none" />
+          
+          <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
+            <motion.div 
+              variants={itemVariants}
+              className="bg-slate-950/80 border border-slate-800/80 rounded-3xl p-10 sm:p-14 backdrop-blur-2xl shadow-2xl relative overflow-hidden text-center space-y-8"
+              whileHover={{ borderColor: "rgba(6, 182, 212, 0.25)" }}
+            >
 
-              <div className="relative text-center">
-                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                  Need a Custom{' '}
-                  <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">
-                    Tool?
-                  </span>
+              <div className="space-y-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase">
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  CUSTOM BUILD // TOOLS
+                </span>
+                <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none">
+                  Need a custom <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">developer tool?</span>
                 </h2>
-                <p className="text-slate-400 text-lg mb-8 max-w-xl mx-auto">
-                  I can build custom developer tools tailored to your specific needs.
-                  Let's discuss your requirements!
+                <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                  I can build secure, high-performance offline-first web utilities tailored to your exact needs.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    to="/contact"
-                    className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
-                  >
-                    Request a Tool
-                  </Link>
-                  <Link
-                    to="/blog"
-                    className="px-8 py-4 border border-slate-600 text-white font-medium rounded-xl hover:bg-slate-800 transition-all"
-                  >
-                    Read Development Tips
-                  </Link>
-                </div>
               </div>
-            </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                <Link
+                  to="/contact"
+                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 transition-all text-center tracking-wider uppercase text-xs sm:text-sm cursor-pointer"
+                >
+                  REQUEST A TOOL
+                </Link>
+                <Link
+                  to="/blog"
+                  className="px-8 py-4 border border-slate-800 bg-slate-900/60 text-slate-300 font-bold rounded-xl hover:border-slate-600 hover:text-white transition-all text-center tracking-wider uppercase text-xs sm:text-sm backdrop-blur-xl cursor-pointer"
+                >
+                  DEVELOPMENT TIPS
+                </Link>
+              </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
       </div>
     </>
   );

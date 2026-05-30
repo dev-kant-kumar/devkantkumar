@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { AlertTriangle, Calendar, FileText, Mail, Scale, Shield, Users } from 'lucide-react';
+import SEOHead from '../../../../components/SEO/SEOHead';
+import StructuredData from '../../../../components/SEO/StructuredData';
 
 const TermsOfService = () => {
   const lastUpdated = "October 1, 2025";
@@ -103,106 +105,130 @@ const TermsOfService = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Background Effects */}
-      <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%239C92AC%22%20fill-opacity%3D%220.05%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
+    <>
+      <SEOHead
+        title="Terms of Service – Portfolio Legal Hub"
+        description="Review my official Terms of Service governing the use of this professional portfolio website and marketplace integrations."
+        keywords="terms of service, portfolio legal, accept terms, user conduct, devkantkumar"
+        canonicalUrl="/terms"
+        type="website"
+      />
+      <StructuredData type="website" />
 
-      <div className="relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="pt-32 pb-16"
-        >
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full">
-              <Scale className="w-5 h-5 text-amber-400" />
-              <span className="text-amber-300 font-medium">Legal Document</span>
+      <div className="bg-slate-950 min-h-screen text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300 relative overflow-hidden">
+        {/* Background Grids & Ambient Effects */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.01)_1px,transparent_1px)] bg-[size:50px_50px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="relative z-10">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="pt-36 pb-16"
+          >
+            <div className="max-w-4xl mx-auto px-6 text-center">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-900/60 border border-slate-800 rounded-xl text-amber-400 text-xs font-mono font-bold tracking-wider uppercase shadow-xl mb-6">
+                <Scale className="w-4 h-4 text-amber-400" />
+                Legal Protocol // TERMS_OF_SERVICE
+              </div>
+
+              <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-none">
+                Terms of
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-2xl ml-3.5">
+                  Service
+                </span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Please read these terms carefully before navigating our portfolio site and exploring marketplace integrations.
+              </p>
+
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-950/60 border border-slate-900 text-slate-500 text-xs font-mono">
+                <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                Last updated // {lastUpdated}
+              </div>
             </div>
+          </motion.div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Terms of Service
-            </h1>
-
-            <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-              Please read these terms carefully before using our website and services.
-            </p>
-
-            <div className="flex items-center justify-center gap-2 text-slate-400">
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm">Last updated: {lastUpdated}</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Content */}
-        <div className="max-w-4xl mx-auto px-6 pb-20">
-          <div className="space-y-12">
-            {sections.map((section, index) => (
-              <motion.div
-                key={section.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
-                <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 group-hover:border-amber-500/30 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-amber-500/30">
-                      <section.icon className="w-6 h-6 text-amber-400" />
+          {/* Content */}
+          <div className="max-w-4xl mx-auto px-6 pb-24">
+            <div className="space-y-8">
+              {sections.map((section, index) => (
+                <motion.div
+                  key={section.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group relative"
+                >
+                  <div className="relative bg-slate-950/80 border border-slate-900 rounded-3xl p-8 md:p-10 hover:border-cyan-500/30 transition-all duration-300 backdrop-blur-xl shadow-xl shadow-black/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.02)]">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 shadow-md">
+                        <section.icon className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">{section.title}</h2>
                     </div>
-                    <h2 className="text-2xl font-bold text-white">{section.title}</h2>
+
+                    <div className="space-y-6">
+                      {section.content.map((item, itemIndex) => (
+                        <div key={itemIndex} className="space-y-2">
+                          <h3 className="text-sm font-mono font-bold text-cyan-400 uppercase tracking-wider">{item.subtitle}</h3>
+                          <p className="text-slate-300 text-sm md:text-base leading-relaxed">{item.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Contact Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="group relative"
+              >
+                <div className="relative bg-slate-950/80 border border-slate-900 rounded-3xl p-8 md:p-10 hover:border-emerald-500/30 transition-all duration-300 backdrop-blur-xl shadow-xl shadow-black/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.02)]">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-400 shadow-md">
+                      <Mail className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">Contact Information</h2>
                   </div>
 
                   <div className="space-y-6">
-                    {section.content.map((item, itemIndex) => (
-                      <div key={itemIndex} className="space-y-2">
-                        <h3 className="text-lg font-semibold text-amber-300">{item.subtitle}</h3>
-                        <p className="text-slate-300 leading-relaxed">{item.text}</p>
+                    <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                      If you have any inquiries, suggestions, or issues regarding these Terms of Service or our operational platforms, please reach out to our administration team:
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 shadow-md">
+                        <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">Email Address</p>
+                        <a href="mailto:support@devkantkumar.com" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors mt-1 inline-block">
+                          support@devkantkumar.com
+                        </a>
                       </div>
-                    ))}
+                      <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 shadow-md">
+                        <p className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">Secure Portal</p>
+                        <a href="https://devkantkumar.com/contact" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors mt-1 inline-block">
+                          devkantkumar.com/contact
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
-            ))}
-
-            {/* Contact Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="relative group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500" />
-              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 group-hover:border-emerald-500/30 transition-all duration-300">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-600/20 border border-emerald-500/30">
-                    <Mail className="w-6 h-6 text-emerald-400" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white">Contact Information</h2>
-                </div>
-
-                <div className="space-y-4">
-                  <p className="text-slate-300 leading-relaxed">
-                    If you have any questions about these Terms of Service, please contact us:
-                  </p>
-
-                  <div className="space-y-2">
-                    <p className="text-slate-300">
-                      <span className="text-emerald-400 font-medium">Email:</span> support@devkantkumar.com
-                    </p>
-                    <p className="text-slate-300">
-                      <span className="text-emerald-400 font-medium">Website:</span> https://devkantkumar.com/contact
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -193,17 +193,20 @@ const Blog = () => {
       />
       <StructuredData type="website" />
 
-      <div className="min-h-screen bg-slate-950">
+      <div className="bg-slate-950 min-h-screen text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300 relative overflow-hidden">
         {/* ============================================ */}
         {/* CLEAN HERO */}
         {/* ============================================ */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden pt-12">
           {/* Subtle Background */}
           <div className="absolute inset-0">
+            {/* Subtle Cyber Grid */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute top-0 left-1/3 w-[600px] h-[300px] bg-cyan-500/5 rounded-full blur-3xl" />
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6">
+          <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-24 pb-6 z-10">
             {/* Main Row: Title + Search */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -211,22 +214,26 @@ const Blog = () => {
               className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
             >
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white">
-                  Blog
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase mb-4">
+                  <BookOpen size={14} className="text-cyan-400 animate-pulse" />
+                  TECH JOURNAL // BLOG
+                </span>
+                <h1 className="text-4xl lg:text-5xl font-black text-white tracking-tight">
+                  Developer <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">Insights</span>
                 </h1>
-                <p className="text-slate-500 text-sm mt-1">
-                  {blogPosts.length} articles on development, AI & tech
+                <p className="text-slate-400 text-sm mt-2 font-medium">
+                  {blogPosts.length} articles on full-stack web development, AI engineering, and careers.
                 </p>
               </div>
 
               {/* Search Button */}
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="flex items-center gap-3 px-4 py-2.5 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl text-slate-400 hover:text-white transition-all w-full md:w-auto"
+                className="flex items-center gap-3 px-5 py-3 bg-slate-900/60 hover:bg-slate-900/80 border border-slate-800 rounded-xl text-slate-500 hover:text-white transition-all w-full md:w-auto backdrop-blur-xl group hover:border-cyan-500/40"
               >
-                <Search size={18} />
-                <span className="text-sm">Search posts...</span>
-                <kbd className="hidden lg:inline-flex items-center ml-auto px-2 py-0.5 text-xs bg-slate-700/50 rounded text-slate-500">⌘K</kbd>
+                <Search size={16} className="text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">Search posts...</span>
+                <kbd className="hidden lg:inline-flex items-center ml-auto px-2 py-0.5 text-[10px] bg-slate-950 border border-slate-850 rounded text-slate-500 font-mono">⌘K</kbd>
               </button>
             </motion.div>
           </div>
@@ -507,17 +514,17 @@ const Blog = () => {
                 >
                   <Link
                     to={`/blog/${post.slug}`}
-                    className="block h-full bg-slate-900/50 border border-slate-800/50 rounded-2xl overflow-hidden hover:border-cyan-500/30 hover:bg-slate-900/80 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/5"
+                    className="block h-full bg-slate-950/80 border border-slate-800/80 rounded-2xl overflow-hidden hover:border-cyan-500/40 hover:bg-slate-900/40 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.05)] backdrop-blur-xl"
                   >
                     {/* Image */}
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-48 overflow-hidden border-b border-slate-800/60">
                       {renderCardImage(
                         post,
                         "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="absolute top-3 left-3">
-                        <span className="px-2.5 py-1 bg-slate-900/80 backdrop-blur-sm text-cyan-300 text-xs font-medium rounded-full border border-slate-700/50">
+                        <span className="px-2.5 py-1 bg-slate-900/80 backdrop-blur-sm text-cyan-400 text-xs font-mono font-bold rounded-lg border border-slate-800 uppercase">
                           {post.category}
                         </span>
                       </div>
@@ -525,14 +532,14 @@ const Blog = () => {
 
                     {/* Content */}
                     <div className="p-5">
-                      <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
+                      <div className="flex items-center gap-3 text-xs font-mono text-slate-500 mb-3">
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
                           {new Date(post.publishDate).toLocaleDateString("en-US", {
                             month: "short", day: "numeric"
                           })}
                         </span>
-                        <span className="w-1 h-1 rounded-full bg-slate-700" />
+                        <span className="w-1 h-1 rounded-full bg-slate-850" />
                         <span className="flex items-center gap-1">
                           <Clock size={12} />
                           {post.readTime}
@@ -541,7 +548,7 @@ const Blog = () => {
                       <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors line-clamp-2">
                         {post.title}
                       </h3>
-                      <p className="text-slate-400 text-sm line-clamp-2 mb-4">
+                      <p className="text-slate-400 text-sm line-clamp-2 mb-4 leading-relaxed">
                         {post.excerpt}
                       </p>
                       <div className="flex items-center justify-between">
@@ -549,12 +556,12 @@ const Blog = () => {
                           <img
                             src={personalInfo.profileImage}
                             alt={personalInfo.name}
-                            className="w-6 h-6 rounded-full object-cover"
+                            className="w-5 h-5 rounded-full object-cover border border-slate-800"
                           />
-                          <span className="text-slate-500 text-xs">{post.author}</span>
+                          <span className="text-slate-500 text-xs font-mono">{post.author}</span>
                         </div>
-                        <span className="text-cyan-400 text-sm font-medium group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                          Read <ArrowRight size={14} />
+                        <span className="text-cyan-400 text-xs font-mono font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                          Read <ArrowRight size={12} />
                         </span>
                       </div>
                     </div>
@@ -588,25 +595,28 @@ const Blog = () => {
         {/* ============================================ */}
         {/* NEWSLETTER CTA */}
         {/* ============================================ */}
-        <section className="py-16 border-t border-slate-800/50">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-24 border-t border-slate-900/60 relative overflow-hidden bg-slate-950">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.03),transparent_70%)] pointer-events-none" />
+
+          <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700/50 p-8 lg:p-12"
+              className="bg-slate-950/80 border border-slate-800/80 rounded-3xl p-10 sm:p-14 backdrop-blur-2xl shadow-2xl relative overflow-hidden text-center space-y-8"
+              whileHover={{ borderColor: "rgba(6, 182, 212, 0.25)" }}
             >
               {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
               <div className="relative text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6">
-                  <Rss size={16} className="text-cyan-400" />
-                  <span className="text-cyan-300 text-sm font-medium">Newsletter</span>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase mb-6">
+                  <Rss size={14} className="text-cyan-400" />
+                  <span>Stay Updated // NEWSLETTER</span>
                 </div>
                 <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                  Stay in the <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">loop</span>
+                  Stay in the <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">loop</span>
                 </h2>
                 <p className="text-slate-400 text-lg mb-8 max-w-xl mx-auto">
                   Get the latest articles, tutorials, and insights delivered straight to your inbox. No spam, unsubscribe anytime.
@@ -631,7 +641,7 @@ const Blog = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       disabled={isSubmittingNewsletter}
-                      className="flex-1 px-5 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 disabled:opacity-50"
+                      className="flex-1 px-5 py-3.5 bg-slate-900 border border-slate-800/80 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/40 focus:bg-slate-900/80 transition-all font-mono text-sm disabled:opacity-50"
                       required
                     />
                     <motion.button
@@ -639,7 +649,7 @@ const Blog = () => {
                       disabled={isSubmittingNewsletter || !email.trim()}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs tracking-wider uppercase"
                     >
                       {isSubmittingNewsletter ? (
                         <>

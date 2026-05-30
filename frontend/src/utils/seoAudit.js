@@ -28,7 +28,7 @@ function auditHtmlFile(filePath) {
   
   // Define Patterns
   const titlePattern = /<title[^>]*>([\s\S]*?)<\/title>/i;
-  const descPattern = /<meta[^>]+(?:name=["']description["'][^>]+content=["']([^"']*)["']|content=["']([^"']*)["'][^>]+name=["']description["'])/i;
+  const descPattern = /<meta[^>]+(?:name=["']description["'][^>]+content=(?:"([^"]*)"|'([^']*)')|content=(?:"([^"]*)"|'([^']*)')[^>]+name=["']description["'])/i;
   const h1Pattern = /<h1[^>]*>/gi;
   const imgPattern = /<img[^>]*>/gi;
   
@@ -42,10 +42,10 @@ function auditHtmlFile(filePath) {
   
   // Description Check
   const descMatch = content.match(descPattern);
-  if (!descMatch || (!descMatch[1] && !descMatch[2])) {
+  if (!descMatch || (!descMatch[1] && !descMatch[2] && !descMatch[3] && !descMatch[4])) {
     errors.push('Missing <meta name="description"> tag');
   } else {
-    const descContent = descMatch[1] || descMatch[2];
+    const descContent = descMatch[1] || descMatch[2] || descMatch[3] || descMatch[4] || '';
     if (descContent.length < 50 || descContent.length > 160) {
       warnings.push(`Description length is ${descContent.length} characters (Recommended 50-160)`);
     }
