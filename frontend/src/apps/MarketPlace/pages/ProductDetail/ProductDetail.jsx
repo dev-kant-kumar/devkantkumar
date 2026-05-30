@@ -130,9 +130,9 @@ const ProductDetail = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">
             Failed to load product
-          </h3>
+          </h1>
           <p className="text-gray-600 mb-4">
             {error?.data?.message || "Something went wrong"}
           </p>

@@ -256,12 +256,32 @@ const Content = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="w-full h-full min-h-[300px] bg-slate-950/80 flex flex-col items-center justify-center p-6 text-center border border-dashed border-slate-800 rounded-3xl">
-                        <Video size={40} className="text-slate-600 mb-3" />
-                        <h4 className="text-slate-400 font-semibold mb-1">YouTube Feed Offline</h4>
-                        <p className="text-slate-500 text-xs max-w-sm">
-                          Configure VITE_YOUTUBE_CHANNEL_URL in environment files to automatically pull active streams.
-                        </p>
+                      <div className="w-full h-full min-h-[350px] bg-slate-950/80 flex flex-col items-center justify-center p-8 text-center border border-slate-900/80 rounded-3xl backdrop-blur-xl relative overflow-hidden">
+                        {/* Ambient red glow inside the offline card */}
+                        <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-red-500/5 rounded-full blur-[60px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+                        
+                        <div className="relative z-10 flex flex-col items-center gap-4">
+                          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 mb-2">
+                            <Youtube size={28} />
+                          </div>
+                          
+                          <h4 className="text-xl font-bold text-white tracking-tight">YouTube Channel Offline</h4>
+                          <p className="text-slate-400 text-sm max-w-md leading-relaxed">
+                            I regularly publish deep-dive software engineering tutorials, architectural masterclasses, and coding workflows. Explore my video tutorials and subscribe directly on my YouTube channel.
+                          </p>
+                          
+                          <div className="flex flex-wrap justify-center gap-3 mt-2">
+                            <a
+                              href={YOUTUBE_CHANNEL_URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-mono font-bold uppercase tracking-wider shadow-lg shadow-red-600/10 transition-all duration-300"
+                            >
+                              Visit My Channel
+                              <ArrowUpRight size={14} className="ml-1.5" />
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

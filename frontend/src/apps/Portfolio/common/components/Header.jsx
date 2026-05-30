@@ -138,10 +138,13 @@ const Header = () => {
                         {word}
                       </span>
                     ))}
-                    {/* Glowing status pulse dot for online aesthetic */}
-                    <span className="relative flex h-2 w-2 ml-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                    {/* Premium glass status pill */}
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 ml-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-mono font-bold tracking-wider text-emerald-400 select-none shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                      </span>
+                      ACTIVE
                     </span>
                   </div>
                   <div className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold group-hover:text-cyan-400 transition-colors duration-300 mt-1 flex items-center gap-1.5">
