@@ -16,7 +16,7 @@ import {
   ArrowRight,
   Sparkles,
   Radio,
-  Play
+  Play,
 } from "lucide-react";
 
 const Hero = () => {
@@ -26,27 +26,39 @@ const Hero = () => {
   const [terminalLogs, setTerminalLogs] = useState([]);
   const [clockTime, setClockTime] = useState("");
 
-  const { personalInfo, professionalSummary, projects, careerObjectives, technicalSkills } = portfolioData;
+  const {
+    personalInfo,
+    professionalSummary,
+    projects,
+    careerObjectives,
+    technicalSkills,
+  } = portfolioData;
 
   // Dynamic seek roles and descriptors
-  const skills = useMemo(() => [
-    personalInfo.title,
-    personalInfo.subtitle,
-    ...careerObjectives.seekingRoles.slice(0, 3),
-    "Full Stack Architect",
-    "Product Founder",
-  ], [personalInfo, careerObjectives]);
+  const skills = useMemo(
+    () => [
+      personalInfo.title,
+      personalInfo.subtitle,
+      ...careerObjectives.seekingRoles.slice(0, 3),
+      "Full Stack Architect",
+      "Product Founder",
+    ],
+    [personalInfo, careerObjectives],
+  );
 
   // Terminal logging messages
-  const bootLogs = useMemo(() => [
-    ">> SYSTEM BOOT SEQUENCE: INITIALIZED",
-    ">> SECURING SHELL ENCRYPTION [SSL V3]...",
-    ">> STACK DETECTED: [MERN FULL-STACK + TS]",
-    ">> GEO_REF: PATNA, BIHAR, INDIA [25.5941° N, 85.1376° E]",
-    ">> CORE MODULES: REACT, NODE, MONGO, EXPRESS",
-    ">> GLOBAL HIREABILITY STATUS: IMMEDIATE [REMOTE FIRST]",
-    ">> SECURITY CLEARANCE: LEVEL_01 SECURED. READY."
-  ], []);
+  const bootLogs = useMemo(
+    () => [
+      ">> SYSTEM BOOT SEQUENCE: INITIALIZED",
+      ">> SECURING SHELL ENCRYPTION [SSL V3]...",
+      ">> STACK DETECTED: [MERN FULL-STACK + TS]",
+      ">> GEO_REF: PATNA, BIHAR, INDIA [25.5941° N, 85.1376° E]",
+      ">> CORE MODULES: REACT, NODE, MONGO, EXPRESS",
+      ">> GLOBAL HIREABILITY STATUS: IMMEDIATE [REMOTE FIRST]",
+      ">> SECURITY CLEARANCE: LEVEL_01 SECURED. READY.",
+    ],
+    [],
+  );
 
   // Update clock every second with Asia/Kolkata timezone
   useEffect(() => {
@@ -58,7 +70,9 @@ const Hero = () => {
         second: "2-digit",
         hour12: false,
       };
-      setClockTime(new Intl.DateTimeFormat("en-US", options).format(new Date()));
+      setClockTime(
+        new Intl.DateTimeFormat("en-US", options).format(new Date()),
+      );
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
@@ -168,13 +182,18 @@ const Hero = () => {
           transition={{
             x: { type: "spring", stiffness: 50, damping: 25 },
             y: { type: "spring", stiffness: 50, damping: 25 },
-            scale: { duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 },
+            scale: {
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1,
+            },
           }}
         />
 
         {/* Tactical Cyber Grid Pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_50%,black,transparent)]" />
-        
+
         {/* Soft Vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(15,23,42,0.85)_100%)]" />
       </div>
@@ -187,10 +206,8 @@ const Hero = () => {
         className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full"
       >
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center min-h-screen py-10">
-          
           {/* Left Column - Cyber Console and Profile Information (7/12 cols) */}
           <div className="lg:col-span-7 text-left space-y-6">
-            
             {/* Status Beacon Badge */}
             <motion.div variants={itemVariants}>
               <motion.div
@@ -206,7 +223,9 @@ const Hero = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                 </span>
-                <span className="uppercase tracking-wider font-bold">{personalInfo.availability.status}</span>
+                <span className="uppercase tracking-wider font-bold">
+                  {personalInfo.availability.status}
+                </span>
               </motion.div>
             </motion.div>
 
@@ -227,7 +246,11 @@ const Hero = () => {
                         scale: 1.03,
                         textShadow: "0 0 30px rgba(6, 182, 212, 0.4)",
                       }}
-                      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                      }}
                     >
                       {word}
                     </motion.span>
@@ -237,8 +260,13 @@ const Hero = () => {
 
               {/* High-Fidelity Scrolling Role Subtitle */}
               <div className="h-8 sm:h-10 flex items-center text-lg sm:text-xl lg:text-2xl font-bold">
-                <span className="text-slate-400 mr-2 uppercase tracking-wide text-sm font-semibold">Role:</span>
-                <div className="relative overflow-hidden h-8 sm:h-10 flex items-center" style={{ minWidth: "280px" }}>
+                <span className="text-slate-400 mr-2 uppercase tracking-wide text-sm font-semibold">
+                  Role:
+                </span>
+                <div
+                  className="relative overflow-hidden h-8 sm:h-10 flex items-center"
+                  style={{ minWidth: "280px" }}
+                >
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={roleIndex}
@@ -264,7 +292,9 @@ const Hero = () => {
               <div className="flex items-center justify-between border-b border-slate-900 pb-2 mb-3">
                 <div className="flex items-center gap-2">
                   <TerminalIcon className="w-3.5 h-3.5 text-cyan-500" />
-                  <span className="text-slate-400 text-xs font-bold tracking-wider uppercase">Developer Console</span>
+                  <span className="text-slate-400 text-xs font-bold tracking-wider uppercase">
+                    Developer Console
+                  </span>
                 </div>
                 <div className="flex gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
@@ -286,8 +316,8 @@ const Hero = () => {
                         index === bootLogs.length - 1
                           ? "text-emerald-400 font-bold"
                           : log.startsWith(">> STACK")
-                          ? "text-purple-400"
-                          : "text-slate-300"
+                            ? "text-purple-400"
+                            : "text-slate-300"
                       }`}
                     >
                       {log}
@@ -355,7 +385,9 @@ const Hero = () => {
               <div className="h-3 w-px bg-slate-800" />
               <div className="flex items-center gap-2 text-cyan-400">
                 <Clock className="w-4 h-4 text-cyan-400" />
-                <span className="font-mono tracking-wider font-bold">IST: {clockTime || "13:24:39"}</span>
+                <span className="font-mono tracking-wider font-bold">
+                  IST: {clockTime || "13:24:39"}
+                </span>
               </div>
               <div className="h-3 w-px bg-slate-800" />
               <div className="flex items-center gap-2 text-emerald-400">
@@ -363,7 +395,6 @@ const Hero = () => {
                 <span className="font-mono">ONLINE & READY</span>
               </div>
             </motion.div>
-
           </div>
 
           {/* Right Column - Fully Holographic Dashboard Control Grid (5/12 cols) */}
@@ -372,7 +403,6 @@ const Hero = () => {
               variants={hudVariants}
               className="relative w-72 h-72 sm:w-96 sm:h-96 flex items-center justify-center"
             >
-              
               {/* Rotating Telemetry Ring 1 (Dashed Outer) */}
               <motion.div
                 className="absolute inset-0 rounded-full border border-dashed border-cyan-500/20 pointer-events-none"
@@ -404,7 +434,11 @@ const Hero = () => {
                 <motion.div
                   className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/20 via-blue-600/10 to-purple-600/20 opacity-70 blur-md group-hover:opacity-100 transition-opacity pointer-events-none"
                   animate={{ rotate: 360 }}
-                  style={{ animationDuration: "12s", animationTimingFunction: "linear", animationIterationCount: "infinite" }}
+                  style={{
+                    animationDuration: "12s",
+                    animationTimingFunction: "linear",
+                    animationIterationCount: "infinite",
+                  }}
                 />
 
                 {/* Actual Profile Image container */}
@@ -424,25 +458,35 @@ const Hero = () => {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
               >
-                
                 {/* Node 1: React (Top Center) */}
                 <motion.div
                   className="absolute top-[4%] left-[50%] -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                   whileHover={{ scale: 1.15 }}
                 >
                   <div className="flex items-center gap-1.5 bg-slate-950/90 border border-cyan-400/40 px-3 py-1.5 rounded-xl text-cyan-300 text-xs font-bold shadow-lg shadow-cyan-500/20 backdrop-blur-md cursor-pointer">
-                    <Cpu className="w-3.5 h-3.5 text-cyan-400" style={{ animation: "spin 8s linear infinite" }} />
+                    <Cpu
+                      className="w-3.5 h-3.5 text-cyan-400"
+                      style={{ animation: "spin 8s linear infinite" }}
+                    />
                     <span>React</span>
                   </div>
                 </motion.div>
-                
+
                 {/* Node 2: Node.js (Upper Right) */}
                 <motion.div
                   className="absolute top-[34%] left-[93.7%] -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                   whileHover={{ scale: 1.15 }}
                 >
                   <div className="flex items-center gap-1.5 bg-slate-950/90 border border-emerald-400/40 px-3 py-1.5 rounded-xl text-emerald-300 text-xs font-bold shadow-lg shadow-emerald-500/20 backdrop-blur-md cursor-pointer">
@@ -455,7 +499,11 @@ const Hero = () => {
                 <motion.div
                   className="absolute top-[87%] left-[76.7%] -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                   whileHover={{ scale: 1.15 }}
                 >
                   <div className="flex items-center gap-1.5 bg-slate-950/90 border border-purple-400/40 px-3 py-1.5 rounded-xl text-purple-300 text-xs font-bold shadow-lg shadow-purple-500/20 backdrop-blur-md cursor-pointer">
@@ -468,7 +516,11 @@ const Hero = () => {
                 <motion.div
                   className="absolute top-[87%] left-[23.3%] -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                   whileHover={{ scale: 1.15 }}
                 >
                   <div className="flex items-center gap-1.5 bg-slate-950/90 border border-green-400/40 px-3 py-1.5 rounded-xl text-green-300 text-xs font-bold shadow-lg shadow-green-500/20 backdrop-blur-md cursor-pointer">
@@ -481,7 +533,11 @@ const Hero = () => {
                 <motion.div
                   className="absolute top-[34%] left-[6.3%] -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                   whileHover={{ scale: 1.15 }}
                 >
                   <div className="flex items-center gap-1.5 bg-slate-950/90 border border-blue-400/40 px-3 py-1.5 rounded-xl text-blue-300 text-xs font-bold shadow-lg shadow-blue-500/20 backdrop-blur-md cursor-pointer">
@@ -489,7 +545,6 @@ const Hero = () => {
                     <span>TypeScript</span>
                   </div>
                 </motion.div>
-
               </motion.div>
 
               {/* Floating Stat Widget Left - Experience Tactician Card */}
@@ -504,11 +559,30 @@ const Hero = () => {
                   <span className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                     {professionalSummary.experience.split(" ")[0]}
                   </span>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Experience</div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+                    Experience
+                  </div>
                   {/* Decorative Micro Vector Grid */}
-                  <svg className="w-full h-4 mt-1 text-cyan-400/40" viewBox="0 0 100 20">
-                    <path d="M0 10 Q25 15 50 5 T100 10" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="2" />
-                    <line x1="0" y1="10" x2="100" y2="10" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.2" />
+                  <svg
+                    className="w-full h-4 mt-1 text-cyan-400/40"
+                    viewBox="0 0 100 20"
+                  >
+                    <path
+                      d="M0 10 Q25 15 50 5 T100 10"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeDasharray="2"
+                    />
+                    <line
+                      x1="0"
+                      y1="10"
+                      x2="100"
+                      y2="10"
+                      stroke="currentColor"
+                      strokeWidth="0.5"
+                      strokeOpacity="0.2"
+                    />
                   </svg>
                 </div>
               </motion.div>
@@ -525,7 +599,9 @@ const Hero = () => {
                   <span className="text-2xl font-black bg-gradient-to-r from-purple-400 to-rose-500 bg-clip-text text-transparent">
                     {projects.length}+
                   </span>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Projects</div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+                    Projects
+                  </div>
                   {/* Decorative Radar Target UI */}
                   <div className="flex justify-center items-center h-4 mt-1.5">
                     <span className="relative flex h-2.5 w-2.5">
@@ -535,10 +611,8 @@ const Hero = () => {
                   </div>
                 </div>
               </motion.div>
-
             </motion.div>
           </div>
-
         </div>
 
         {/* Tactile Immersive Scroll Controller */}
@@ -565,7 +639,6 @@ const Hero = () => {
             </div>
           </motion.div>
         </motion.div>
-
       </motion.div>
     </section>
   );

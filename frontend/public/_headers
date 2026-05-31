@@ -1,0 +1,31 @@
+# Cloudflare Pages _headers file
+# Fixes sitemap.xml not rendering the XSL stylesheet on live
+# Root cause: Cloudflare strips <?xml-stylesheet?> PI without proper Content-Type
+# Fix: Explicit Content-Type headers prevent Cloudflare from transforming XML files
+
+/sitemap.xml
+  Content-Type: text/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+  X-Robots-Tag: noindex
+
+/sitemap-blog.xml
+  Content-Type: text/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+  X-Robots-Tag: noindex
+
+/sitemap-marketplace.xml
+  Content-Type: text/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+  X-Robots-Tag: noindex
+
+/sitemap.xsl
+  Content-Type: text/xsl; charset=utf-8
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+
+# Security headers for all pages
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

@@ -23,7 +23,24 @@ const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const location = useLocation();
 
-  const { personalInfo } = portfolioData;
+  const { personalInfo, careerObjectives } = portfolioData;
+  
+  const skills = [
+    personalInfo.title,
+    personalInfo.subtitle,
+    ...careerObjectives.seekingRoles.slice(0, 3),
+    "Full Stack Architect",
+    "Product Founder",
+  ];
+
+  const [roleIndex, setRoleIndex] = useState(() => Math.floor(Date.now() / 2800) % skills.length);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRoleIndex(Math.floor(Date.now() / 2800) % skills.length);
+    }, 200);
+    return () => clearInterval(interval);
+  }, [skills.length]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -147,9 +164,22 @@ const Header = () => {
                       ACTIVE
                     </span>
                   </div>
-                  <div className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold group-hover:text-cyan-400 transition-colors duration-300 mt-1 flex items-center gap-1.5">
-                    <Activity size={8} className="text-cyan-500 animate-pulse" />
-                    {personalInfo.title}
+                  <div className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold mt-1 flex items-center gap-1.5 h-3 relative overflow-hidden" style={{ minWidth: "150px" }}>
+                    <Activity size={8} className="text-cyan-500 animate-pulse shrink-0" />
+                    <div className="relative h-3 w-full flex items-center overflow-hidden">
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={roleIndex}
+                          className="absolute left-0 text-slate-400 group-hover:text-cyan-400 transition-colors duration-300 truncate"
+                          initial={{ y: 8, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -8, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: "easeInOut" }}
+                        >
+                          {skills[roleIndex]}
+                        </motion.span>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </motion.div>
               </Link>
@@ -164,7 +194,7 @@ const Header = () => {
                       <Link
                         key={item.name}
                         to={item.path}
-                        className={`relative flex items-center h-16 px-1.5 text-sm font-semibold transition-all duration-300 font-mono tracking-tight group outline-none focus:outline-none focus-visible:outline-none ${
+                        className={`relative flex items-center h-16 px-2.5 text-sm font-semibold transition-all duration-300 font-mono tracking-tight group outline-none focus:outline-none focus-visible:outline-none ${
                           active
                             ? "text-cyan-300 font-bold"
                             : "text-slate-400 hover:text-white"
@@ -179,11 +209,11 @@ const Header = () => {
                           )}
                         </span>
 
-                        {/* Interactive sliding border (Framer Motion Magic) */}
+                        {/* Modern sliding capsule ambient backdrop glow (Vercel style) */}
                         {active && (
                           <motion.div
-                            layoutId="activeNavIndicator"
-                            className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full shadow-[0_-2px_10px_rgba(34,211,238,0.4)]"
+                            layoutId="activeNavBg"
+                            className="absolute inset-x-0 h-9 my-auto bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/10 rounded-xl -z-0 shadow-[0_0_15px_rgba(6,182,212,0.03)]"
                             transition={{ type: "spring", stiffness: 380, damping: 30 }}
                           />
                         )}
@@ -193,117 +223,159 @@ const Header = () => {
                 </div>
 
                 {/* More Dropdown Portal */}
-                <div className="relative h-full flex items-center">
-                  <button
-                    onClick={(e) => handleDropdownToggle("more", e)}
-                    className={`flex items-center gap-1.5 h-16 px-1.5 text-sm font-semibold transition-all duration-300 cursor-pointer font-mono tracking-tight border-b-2 outline-none focus:outline-none focus-visible:outline-none ${
-                      isDropdownActive(allDropdownItems) || activeDropdown === "more"
-                        ? "text-cyan-300 border-cyan-400"
-                        : "text-slate-400 border-transparent hover:text-white"
-                    }`}
-                  >
-                    <span>More</span>
-                    <ChevronDown
-                      size={14}
-                      className={`transition-transform duration-200 text-slate-500 ${activeDropdown === "more" ? "rotate-180 text-cyan-400" : ""}`}
-                    />
-                  </button>
+                {(() => {
+                  const activeMoreItem = allDropdownItems.find(item => isActive(item.path));
+                  const isDropdownActive = !!activeMoreItem;
+                  const isDropdownOpen = activeDropdown === "more";
 
-                  <AnimatePresence>
-                    {activeDropdown === "more" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute top-full right-0 mt-2.5 w-60 bg-slate-950/98 backdrop-blur-3xl border border-slate-900/90 rounded-2xl shadow-3xl overflow-hidden z-[60] p-4 space-y-4 shadow-[0_30px_70px_rgba(0,0,0,0.95)]"
+                  return (
+                    <div className="relative h-full flex items-center">
+                      <button
+                        onClick={(e) => handleDropdownToggle("more", e)}
+                        className={`relative flex items-center gap-1.5 h-16 px-2.5 text-sm font-semibold transition-all duration-300 cursor-pointer font-mono tracking-tight outline-none focus:outline-none focus-visible:outline-none ${
+                          isDropdownActive || isDropdownOpen
+                            ? "text-cyan-300 font-bold"
+                            : "text-slate-400 hover:text-white"
+                        }`}
                       >
-                        {/* Glowing radial ambient background dot inside dropdown */}
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
+                        <span className="relative z-10 flex items-center gap-1.5">
+                          {activeMoreItem ? (
+                            <span className="flex items-center gap-1.5">
+                              More
+                              <span className="bg-cyan-500/10 text-cyan-400 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border border-cyan-500/20 shadow-inner group-hover:border-cyan-400/40 transition-colors uppercase tracking-wide">
+                                {activeMoreItem.name}
+                              </span>
+                            </span>
+                          ) : (
+                            "More"
+                          )}
+                        </span>
+                        <ChevronDown
+                          size={14}
+                          className={`transition-transform duration-200 text-slate-500 ${isDropdownOpen ? "rotate-180 text-cyan-400" : ""}`}
+                        />
 
-                        {/* About Section */}
-                        <div className="space-y-2.5 relative z-10">
-                          <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-                            <Sparkles size={8} className="text-slate-500" />
-                            About
-                          </p>
-                          <div className="space-y-1">
-                            {moreAboutItems.map((item) => {
-                              const Icon = item.icon;
-                              const currentActive = isActive(item.path);
-                              return (
-                                <Link
-                                  key={item.name}
-                                  to={item.path}
-                                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
-                                    currentActive
-                                      ? "bg-cyan-500/10 text-cyan-300"
-                                      : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
-                                  }`}
-                                >
-                                  <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
-                                    currentActive 
-                                      ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 shadow-md"
-                                      : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
-                                  }`}>
-                                    <Icon size={14} />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
-                                    <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
-                                  </div>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
+                        {/* Modern sliding capsule ambient backdrop glow (unified with primary links!) */}
+                        {isDropdownActive && (
+                          <motion.div
+                            layoutId="activeNavBg"
+                            className="absolute inset-x-0 h-9 my-auto bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/10 rounded-xl -z-0 shadow-[0_0_15px_rgba(6,182,212,0.03)]"
+                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                          />
+                        )}
+                      </button>
 
-                        {/* Dropdown Divider */}
-                        <div className="border-t border-slate-900" />
+                      <AnimatePresence>
+                        {isDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            className="absolute top-full right-0 mt-2.5 w-60 bg-slate-950/98 backdrop-blur-3xl border border-slate-900/90 rounded-2xl shadow-3xl overflow-hidden z-[60] p-4 space-y-4 shadow-[0_30px_70px_rgba(0,0,0,0.95)]"
+                          >
+                            {/* Glowing radial ambient background dot inside dropdown */}
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
 
-                        {/* Services Section */}
-                        <div className="space-y-2.5 relative z-10">
-                          <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-                            <Zap size={8} className="text-slate-500" />
-                            Services
-                          </p>
-                          <div className="space-y-1">
-                            {moreServicesItems.map((item) => {
-                              const Icon = item.icon;
-                              const currentActive = isActive(item.path);
-                              const isAdmin = item.path === "/admin";
-                              return (
-                                <Link
-                                  key={item.name}
-                                  to={item.path}
-                                  className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
-                                    currentActive
-                                      ? isAdmin ? "bg-purple-500/10 text-purple-300" : "bg-cyan-500/10 text-cyan-300"
-                                      : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
-                                  }`}
-                                >
-                                  <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
-                                    currentActive 
-                                      ? isAdmin
-                                        ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
-                                        : "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
-                                      : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
-                                  }`}>
-                                    <Icon size={14} />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
-                                    <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
-                                  </div>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                            {/* About Section */}
+                            <div className="space-y-2.5 relative z-10">
+                              <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
+                                <Sparkles size={8} className="text-slate-500" />
+                                About
+                              </p>
+                              <div className="space-y-1">
+                                {moreAboutItems.map((item) => {
+                                  const Icon = item.icon;
+                                  const currentActive = isActive(item.path);
+                                  return (
+                                    <Link
+                                      key={item.name}
+                                      to={item.path}
+                                      className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
+                                        currentActive
+                                          ? "bg-cyan-500/10 text-cyan-300"
+                                          : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
+                                      }`}
+                                    >
+                                      <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
+                                        currentActive 
+                                          ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 shadow-md"
+                                          : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
+                                      }`}>
+                                        <Icon size={14} />
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
+                                        <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
+                                      </div>
+                                      {/* Tactile neon indicator dot with pulse effect */}
+                                      {currentActive && (
+                                        <span className="relative flex h-1.5 w-1.5 shrink-0 ml-auto mr-1">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
+                                        </span>
+                                      )}
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Dropdown Divider */}
+                            <div className="border-t border-slate-900" />
+
+                            {/* Services Section */}
+                            <div className="space-y-2.5 relative z-10">
+                              <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
+                                <Zap size={8} className="text-slate-500" />
+                                Services
+                              </p>
+                              <div className="space-y-1">
+                                {moreServicesItems.map((item) => {
+                                  const Icon = item.icon;
+                                  const currentActive = isActive(item.path);
+                                  const isAdmin = item.path === "/admin";
+                                  return (
+                                    <Link
+                                      key={item.name}
+                                      to={item.path}
+                                      className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
+                                        currentActive
+                                          ? isAdmin ? "bg-purple-500/10 text-purple-300" : "bg-cyan-500/10 text-cyan-300"
+                                          : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
+                                      }`}
+                                    >
+                                      <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
+                                        currentActive 
+                                          ? isAdmin
+                                            ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
+                                            : "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
+                                          : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
+                                      }`}>
+                                        <Icon size={14} />
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
+                                        <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
+                                      </div>
+                                      {/* Tactile neon indicator dot with pulse effect */}
+                                      {currentActive && (
+                                        <span className="relative flex h-1.5 w-1.5 shrink-0 ml-auto mr-1">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
+                                        </span>
+                                      )}
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Desktop Actions Cockpit */}
@@ -432,36 +504,58 @@ const Header = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                         {moreAboutItems.map((item) => {
                           const Icon = item.icon;
+                          const currentActive = isActive(item.path);
                           return (
                             <Link
                               key={item.name}
                               to={item.path}
-                              className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                                isActive(item.path)
-                                  ? "text-cyan-300 bg-cyan-500/10"
+                              className={`flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                                currentActive
+                                  ? "text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 font-bold"
                                   : "text-slate-400 hover:text-white hover:bg-slate-900/60"
                               }`}
                               onClick={() => setIsMenuOpen(false)}
                             >
-                              <Icon size={14} className="text-slate-500 shrink-0" />
-                              <span className="font-mono text-xs">{item.name}</span>
+                              <div className="flex items-center gap-3">
+                                <Icon size={14} className={currentActive ? "text-cyan-400 shrink-0" : "text-slate-500 shrink-0"} />
+                                <span className="font-mono text-xs">{item.name}</span>
+                              </div>
+                              {currentActive && (
+                                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
+                                </span>
+                              )}
                             </Link>
                           );
                         })}
 
                         {/* Admin panel listed secondary */}
-                        <Link
-                          to="/admin"
-                          className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                            isActive("/admin")
-                              ? "text-purple-300 bg-purple-500/10"
-                              : "text-slate-400 hover:text-purple-300 hover:bg-slate-900/60"
-                          }`}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <LayoutDashboard size={14} className="text-slate-500 shrink-0" />
-                          <span className="font-mono text-xs">Admin Panel</span>
-                        </Link>
+                        {(() => {
+                          const currentActive = isActive("/admin");
+                          return (
+                            <Link
+                              to="/admin"
+                              className={`flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                                currentActive
+                                  ? "text-purple-300 bg-purple-500/10 border border-purple-500/20 font-bold"
+                                  : "text-slate-400 hover:text-purple-300 hover:bg-slate-900/60"
+                              }`}
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <div className="flex items-center gap-3">
+                                <LayoutDashboard size={14} className={currentActive ? "text-purple-400 shrink-0" : "text-slate-500 shrink-0"} />
+                                <span className="font-mono text-xs">Admin Panel</span>
+                              </div>
+                              {currentActive && (
+                                <span className="relative flex h-1.5 w-1.5 shrink-0">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-purple-400 shadow-[0_0_8px_rgba(168,85,247,0.8)]"></span>
+                                </span>
+                              )}
+                            </Link>
+                          );
+                        })()}
                       </div>
                     </div>
 

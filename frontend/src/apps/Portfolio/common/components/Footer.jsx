@@ -18,16 +18,35 @@ import {
   Twitter,
   Zap,
   Phone,
-  Globe
+  Globe,
+  Activity
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSubscribeMutation } from "../../store/api/subscriberApiSlice";
 import { portfolioData } from "../../store/data/portfolioData";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { personalInfo, socialLinks } = portfolioData;
+  const { personalInfo, socialLinks, careerObjectives } = portfolioData;
+
+  // Same epoch-clock sync formula used in Header & Hero — all three stay in perfect lockstep
+  const skills = [
+    personalInfo.title,
+    personalInfo.subtitle,
+    ...careerObjectives.seekingRoles.slice(0, 3),
+    "Full Stack Architect",
+    "Product Founder",
+  ];
+
+  const [roleIndex, setRoleIndex] = useState(() => Math.floor(Date.now() / 2800) % skills.length);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRoleIndex(Math.floor(Date.now() / 2800) % skills.length);
+    }, 200);
+    return () => clearInterval(interval);
+  }, [skills.length]);
 
   // Newsletter form state
   const [email, setEmail] = useState("");
@@ -95,7 +114,7 @@ const Footer = () => {
       },
       { name: "Tech Stack", path: "/skills" },
       { name: "Case Studies", path: "/projects" },
-      { name: "Site Map", path: "/sitemap" },
+      { name: "Site Map", path: "/sitemap.xml", external: true },
       { name: "FAQ", path: "/faq" },
     ],
   };
@@ -144,26 +163,57 @@ const Footer = () => {
       {/* Decorative Cyber Grid Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.01)_1px,transparent_1px)] bg-[size:50px_50px]" />
-        
+
         {/* Glow sweeps */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-gradient-to-t from-cyan-500/5 to-transparent rounded-full blur-3xl" />
         <div className="absolute top-0 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 sm:px-8 lg:px-12">
-        
+
         {/* Top Segment: Brand Grid & Newsletter Input */}
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 pb-16 border-b border-slate-900">
-          
+
           {/* Brand Intro Card (7/12 cols) */}
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/10">
-                <Code className="w-6 h-6 text-white" />
+              {/* Profile Picture replacing the code icon */}
+              <div className="relative shrink-0">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-cyan-500/30 shadow-lg shadow-cyan-500/10">
+                  <img
+                    src={personalInfo.profileImage}
+                    alt={personalInfo.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                {/* Online indicator dot */}
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-slate-950"></span>
+                </span>
               </div>
+
               <div>
                 <h3 className="text-xl font-bold text-white tracking-wide">{personalInfo.name}</h3>
-                <p className="text-xs text-cyan-400 font-mono tracking-wider font-bold uppercase">{personalInfo.title}</p>
+                {/* Synced role ticker — same epoch clock as Header & Hero */}
+                <div className="flex items-center gap-1.5 mt-1" style={{ minWidth: '160px', height: '16px', overflow: 'hidden' }}>
+                  <Activity size={9} className="text-cyan-500 animate-pulse shrink-0" />
+                  <div className="relative flex-1 h-4 overflow-hidden">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={roleIndex}
+                        className="absolute inset-0 flex items-center text-[10px] text-cyan-400 font-mono font-bold uppercase tracking-wider whitespace-nowrap"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{ duration: 0.35, ease: "easeInOut" }}
+                      >
+                        {skills[roleIndex]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -262,7 +312,7 @@ const Footer = () => {
 
         {/* Center Segment: Quick Links Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-16 border-b border-slate-900 text-sm">
-          
+
           {/* Navigation Links */}
           <div className="space-y-4">
             <h4 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 font-mono">
@@ -383,7 +433,7 @@ const Footer = () => {
 
         {/* Bottom Segment: Copyright & Policies */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-10 text-xs text-slate-500 font-medium">
-          
+
           {/* Left copyright side */}
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
             <span>© {currentYear} {personalInfo.name}. All rights reserved.</span>
@@ -397,12 +447,9 @@ const Footer = () => {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <Link to="/privacy" className="hover:text-cyan-400 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-cyan-400 transition-colors">Terms of Service</Link>
-            <Link to="/sitemap" className="hover:text-cyan-400 transition-colors">Sitemap</Link>
-            
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-slate-400">
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span className="text-[10px] font-bold font-mono">v2.01</span>
-            </div>
+            <a href="/sitemap.xml" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Sitemap</a>
+
+           
           </div>
 
         </div>

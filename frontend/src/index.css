@@ -40,6 +40,11 @@
     -moz-appearance: textfield;
     appearance: textfield;
   }
+
+  /* Hide scrollbars across all browsers */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes shimmer {
