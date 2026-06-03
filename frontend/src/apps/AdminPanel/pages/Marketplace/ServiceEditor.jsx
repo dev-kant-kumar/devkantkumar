@@ -25,7 +25,7 @@ const ServiceEditor = () => {
     try {
       await createService(formData).unwrap();
       toast.success('Service created successfully');
-      navigate('/admin/marketplace/services');
+      navigate('/__dx9k_ctrl/marketplace/services');
     } catch (error) {
       toast.error(error?.data?.message || 'Failed to create service');
     }
@@ -35,14 +35,14 @@ const ServiceEditor = () => {
     try {
       await updateService({ id, ...formData }).unwrap();
       toast.success('Service updated successfully');
-      navigate('/admin/marketplace/services');
+      navigate('/__dx9k_ctrl/marketplace/services');
     } catch (error) {
       toast.error(error?.data?.message || 'Failed to update service');
     }
   };
 
   const handleCancel = () => {
-    navigate('/admin/marketplace/services');
+    navigate('/__dx9k_ctrl/marketplace/services');
   };
 
   if (isEditing && isLoadingService) {
@@ -58,7 +58,7 @@ const ServiceEditor = () => {
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white">Service not found</h3>
         <button
-          onClick={() => navigate('/admin/marketplace/services')}
+          onClick={() => navigate('/__dx9k_ctrl/marketplace/services')}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Go Back

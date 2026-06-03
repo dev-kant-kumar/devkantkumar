@@ -345,13 +345,13 @@ const Dashboard = () => {
                 <ArrowRight size={18} />
               </h3>
               <div className="grid grid-cols-1 gap-3">
-                <Link to="/admin/projects" className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all group">
+                <Link to="/__dx9k_ctrl/projects" className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all group">
                    <div className="flex items-center justify-between">
                       <span className="text-white text-sm font-medium">Add New Project</span>
                       <FolderOpen size={16} className="text-blue-300 group-hover:scale-110 transition-transform"/>
                    </div>
                 </Link>
-                <Link to="/admin/blog" className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all group">
+                <Link to="/__dx9k_ctrl/blog" className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl transition-all group">
                    <div className="flex items-center justify-between">
                       <span className="text-white text-sm font-medium">Write Blog Post</span>
                       <FileText size={16} className="text-purple-300 group-hover:scale-110 transition-transform"/>

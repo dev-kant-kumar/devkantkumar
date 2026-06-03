@@ -52,33 +52,33 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
   }, [location.pathname]);
 
   const portfolioItems = [
-    { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
-    { name: "Analytics", path: "/admin/analytics", icon: PieChart },
-    { name: "Messages", path: "/admin/messages", icon: Mail },
-    { name: "Projects", path: "/admin/projects", icon: FolderOpen },
-    { name: "Skills", path: "/admin/skills", icon: Code },
-    { name: "Content", path: "/admin/content", icon: FileText },
-    { name: "Blog", path: "/admin/blog", icon: PenTool },
-    { name: "Subscribers", path: "/admin/subscribers", icon: Users },
-    { name: "Announcements", path: "/admin/announcements", icon: Megaphone },
-    { name: "Emails", path: "/admin/emails", icon: MailCheck },
-    { name: "Email Templates", path: "/admin/email-templates", icon: Code },
-    { name: "Settings", path: "/admin/settings", icon: Settings },
+    { name: "Dashboard", path: "/__dx9k_ctrl", icon: LayoutDashboard },
+    { name: "Analytics", path: "/__dx9k_ctrl/analytics", icon: PieChart },
+    { name: "Messages", path: "/__dx9k_ctrl/messages", icon: Mail },
+    { name: "Projects", path: "/__dx9k_ctrl/projects", icon: FolderOpen },
+    { name: "Skills", path: "/__dx9k_ctrl/skills", icon: Code },
+    { name: "Content", path: "/__dx9k_ctrl/content", icon: FileText },
+    { name: "Blog", path: "/__dx9k_ctrl/blog", icon: PenTool },
+    { name: "Subscribers", path: "/__dx9k_ctrl/subscribers", icon: Users },
+    { name: "Announcements", path: "/__dx9k_ctrl/announcements", icon: Megaphone },
+    { name: "Emails", path: "/__dx9k_ctrl/emails", icon: MailCheck },
+    { name: "Email Templates", path: "/__dx9k_ctrl/email-templates", icon: Code },
+    { name: "Settings", path: "/__dx9k_ctrl/settings", icon: Settings },
   ];
 
   const marketplaceItems = [
-    { name: "Overview", path: "/admin/marketplace", icon: PieChart },
-    { name: "Analytics", path: "/admin/marketplace/analytics", icon: BarChart2 },
-    { name: "Products", path: "/admin/marketplace/products", icon: Package },
-    { name: "Services", path: "/admin/marketplace/services", icon: Code },
-    { name: "Orders", path: "/admin/marketplace/orders", icon: ShoppingBag },
-    { name: "Projects", path: "/admin/marketplace/projects", icon: Briefcase },
-    { name: "Customers", path: "/admin/marketplace/customers", icon: Users },
-    { name: "Coupons", path: "/admin/marketplace/coupons", icon: Ticket },
-    { name: "Referrals", path: "/admin/marketplace/referrals", icon: Gift },
-    { name: "Quotes", path: "/admin/marketplace/quotes", icon: MessageSquare },
-    { name: "Support", path: "/admin/support/tickets", icon: LifeBuoy },
-    { name: "Settings", path: "/admin/marketplace/settings", icon: Settings },
+    { name: "Overview", path: "/__dx9k_ctrl/marketplace", icon: PieChart },
+    { name: "Analytics", path: "/__dx9k_ctrl/marketplace/analytics", icon: BarChart2 },
+    { name: "Products", path: "/__dx9k_ctrl/marketplace/products", icon: Package },
+    { name: "Services", path: "/__dx9k_ctrl/marketplace/services", icon: Code },
+    { name: "Orders", path: "/__dx9k_ctrl/marketplace/orders", icon: ShoppingBag },
+    { name: "Projects", path: "/__dx9k_ctrl/marketplace/projects", icon: Briefcase },
+    { name: "Customers", path: "/__dx9k_ctrl/marketplace/customers", icon: Users },
+    { name: "Coupons", path: "/__dx9k_ctrl/marketplace/coupons", icon: Ticket },
+    { name: "Referrals", path: "/__dx9k_ctrl/marketplace/referrals", icon: Gift },
+    { name: "Quotes", path: "/__dx9k_ctrl/marketplace/quotes", icon: MessageSquare },
+    { name: "Support", path: "/__dx9k_ctrl/support/tickets", icon: LifeBuoy },
+    { name: "Settings", path: "/__dx9k_ctrl/marketplace/settings", icon: Settings },
   ];
 
   const navigationItems = activeMode === 'portfolio' ? portfolioItems : marketplaceItems;
@@ -89,7 +89,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
 
     // Index/Dashboard routes should ONLY be active on exact match
     // This prevents "Overview" from being active when visiting "Products"
-    if (path === "/admin" || path === "/admin/marketplace") return false;
+    if (path === "/__dx9k_ctrl" || path === "/__dx9k_ctrl/marketplace") return false;
 
     // For other routes, allow sub-path matching (e.g. "Products" active for "/products/new")
     if (location.pathname.startsWith(path)) {
@@ -142,7 +142,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
           {!isCollapsed ? (
             <div className="flex bg-gray-100/50 dark:bg-gray-800/50 p-1 rounded-xl backdrop-blur-md">
               <Link
-                to="/admin"
+                to="/__dx9k_ctrl"
                 onClick={() => {
                   setActiveMode('portfolio');
                   if (window.innerWidth < 1024) setIsSidebarOpen(false);
@@ -156,7 +156,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed 
                 Portfolio
               </Link>
               <Link
-                to="/admin/marketplace"
+                to="/__dx9k_ctrl/marketplace"
                 onClick={() => {
                   setActiveMode('marketplace');
                   if (window.innerWidth < 1024) setIsSidebarOpen(false);

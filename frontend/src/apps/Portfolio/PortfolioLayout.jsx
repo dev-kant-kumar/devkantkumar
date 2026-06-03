@@ -16,7 +16,7 @@ const PortfolioLayout = () => {
 
   // Scroll to top on route change
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
 
   // Show performance monitor in development mode

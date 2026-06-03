@@ -201,7 +201,7 @@ const Orders = () => {
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link to={`/admin/marketplace/orders/${order._id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all inline-flex" title="View Details">
+                      <Link to={`/__dx9k_ctrl/marketplace/orders/${order._id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all inline-flex" title="View Details">
                         <Eye size={18} />
                       </Link>
                     </td>

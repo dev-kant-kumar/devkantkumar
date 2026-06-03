@@ -165,7 +165,7 @@ const Customers = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link
-                        to={`/admin/marketplace/customers/${customer._id}`}
+                        to={`/__dx9k_ctrl/marketplace/customers/${customer._id}`}
                         className="p-2 text-gray-400 hover:text-blue-600 rounded-lg transition-colors inline-block"
                         title="View Details"
                       >

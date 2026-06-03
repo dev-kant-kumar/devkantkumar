@@ -1901,7 +1901,7 @@ const AdminProjectWorkspace = () => {
       {/* Header */}
       <div className="flex flex-col gap-4">
         <Link
-          to="/admin/marketplace/projects"
+          to="/__dx9k_ctrl/marketplace/projects"
           className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Projects

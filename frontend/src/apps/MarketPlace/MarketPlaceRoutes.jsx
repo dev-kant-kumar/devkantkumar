@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Loader from '../../shared/components/Loader';
 import MarketPlaceLayout from './MarketPlaceLayout';
+import ErrorBoundary from '../../common/ErrorBoundary';
 
 // Lazy load marketplace pages
 const Home = React.lazy(() => import('./pages/Home/Home'));
@@ -36,8 +37,8 @@ const FAQ = React.lazy(() => import('./pages/FAQ/FAQ'));
 const Tutorials = React.lazy(() => import('./pages/Tutorials/Tutorials'));
 const KnowledgeBase = React.lazy(() => import('./pages/KnowledgeBase/KnowledgeBase'));
 const CommunityForum = React.lazy(() => import('./pages/Community/CommunityForum'));
-const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
 const Wishlist = React.lazy(() => import('./pages/Wishlist/Wishlist'));
+const NotFound = React.lazy(() => import('./pages/NotFound/NotFound'));
 
 // User Management
 const AuthLayout = React.lazy(() => import('./pages/UserManagement/AuthLayout'));
@@ -55,62 +56,64 @@ const MarketPlaceRoutes = () => {
   return (
     <CurrencyProvider>
       <Suspense fallback={<Loader />}>
-        <Routes>
-          <Route element={<PersistLogin />}>
-            <Route path="/" element={<MarketPlaceLayout />}>
-              <Route index element={<Home />} />
-            <Route path="services" element={<Services />} />
-            <Route path="services/:serviceId" element={<ServiceDetail />} />
-            <Route path="products" element={<DigitalProducts />} />
-            <Route path="products/templates" element={<DigitalProducts category="templates" />} />
-            <Route path="products/components" element={<DigitalProducts category="components" />} />
-            <Route path="products/tools" element={<DigitalProducts category="tools" />} />
-            <Route path="products/courses" element={<DigitalProducts category="courses" />} />
-            <Route path="products/:productId" element={<ProductDetail />} />
-            <Route path="custom-solutions" element={<CustomSolutions />} />
-            <Route path="support" element={<Support />} />
-            <Route path="docs" element={<Docs />} />
-            <Route path="tutorials" element={<Tutorials />} />
-            <Route path="kb" element={<KnowledgeBase />} />
-            <Route path="community" element={<CommunityForum />} />
-            <Route path="contact" element={<Contact />} />
-            <Route path="faq" element={<FAQ />} />
-            <Route path="terms" element={<Terms />} />
-            <Route path="privacy" element={<Privacy />} />
-            <Route path="refunds" element={<Refunds />} />
-            <Route path="license" element={<License />} />
-            <Route path="cart" element={<Cart />} />
-            <Route path="checkout" element={<Checkout />} />
-            {/* Dashboard Routes */}
-            <Route path="dashboard" element={<DashboardLayout />}>
-              <Route index element={<DashboardOverview />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="services" element={<PurchasedServices />} />
-              <Route path="services/:serviceId" element={<ServiceWorkspace />} />
-              <Route path="products" element={<PurchasedProducts />} />
-              <Route path="products/:orderId/:productId" element={<PurchasedProductDetails />} />
-              <Route path="orders/:orderId/invoice" element={<Invoice />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="support" element={<SupportTickets />} />
-              <Route path="billing" element={<Billing />} />
-              <Route path="referral" element={<Referral />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="wishlist" element={<Wishlist />} />
-            </Route>
+        <ErrorBoundary>
+          <Routes>
+            <Route element={<PersistLogin />}>
+              <Route path="/" element={<MarketPlaceLayout />}>
+                <Route index element={<Home />} />
+                <Route path="services" element={<Services />} />
+                <Route path="services/:serviceId" element={<ServiceDetail />} />
+                <Route path="products" element={<DigitalProducts />} />
+                <Route path="products/templates" element={<DigitalProducts category="templates" />} />
+                <Route path="products/components" element={<DigitalProducts category="components" />} />
+                <Route path="products/tools" element={<DigitalProducts category="tools" />} />
+                <Route path="products/courses" element={<DigitalProducts category="courses" />} />
+                <Route path="products/:productId" element={<ProductDetail />} />
+                <Route path="custom-solutions" element={<CustomSolutions />} />
+                <Route path="support" element={<Support />} />
+                <Route path="docs" element={<Docs />} />
+                <Route path="tutorials" element={<Tutorials />} />
+                <Route path="kb" element={<KnowledgeBase />} />
+                <Route path="community" element={<CommunityForum />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="faq" element={<FAQ />} />
+                <Route path="terms" element={<Terms />} />
+                <Route path="privacy" element={<Privacy />} />
+                <Route path="refunds" element={<Refunds />} />
+                <Route path="license" element={<License />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="checkout" element={<Checkout />} />
+                {/* Dashboard Routes */}
+                <Route path="dashboard" element={<DashboardLayout />}>
+                  <Route index element={<DashboardOverview />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="services" element={<PurchasedServices />} />
+                  <Route path="services/:serviceId" element={<ServiceWorkspace />} />
+                  <Route path="products" element={<PurchasedProducts />} />
+                  <Route path="products/:orderId/:productId" element={<PurchasedProductDetails />} />
+                  <Route path="orders/:orderId/invoice" element={<Invoice />} />
+                  <Route path="notifications" element={<Notifications />} />
+                  <Route path="support" element={<SupportTickets />} />
+                  <Route path="billing" element={<Billing />} />
+                  <Route path="referral" element={<Referral />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="wishlist" element={<Wishlist />} />
+                </Route>
 
-            {/* User Management Routes */}
-            <Route path="auth" element={<AuthLayout />}>
-              <Route path="signin" element={<SignIn />} />
-              <Route path="signup" element={<SignUp />} />
-              <Route path="forgot-password" element={<ForgotPassword />} />
-              <Route path="reset-password/:token" element={<ResetPassword />} />
-              <Route path="verify-email/:token" element={<VerifyEmail />} />
-            </Route>
+                {/* User Management Routes */}
+                <Route path="auth" element={<AuthLayout />}>
+                  <Route path="signin" element={<SignIn />} />
+                  <Route path="signup" element={<SignUp />} />
+                  <Route path="forgot-password" element={<ForgotPassword />} />
+                  <Route path="reset-password/:token" element={<ResetPassword />} />
+                  <Route path="verify-email/:token" element={<VerifyEmail />} />
+                </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Route>
-          </Route>
-        </Routes>
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Route>
+          </Routes>
+        </ErrorBoundary>
       </Suspense>
     </CurrencyProvider>
   );

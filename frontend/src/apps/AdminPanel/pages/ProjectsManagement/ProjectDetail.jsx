@@ -115,7 +115,7 @@ const ProjectDetail = () => {
         await createProject(formData).unwrap();
         toast.success("Project created successfully");
       }
-      navigate("/admin/projects");
+      navigate("/__dx9k_ctrl/projects");
     } catch (error) {
       toast.error(error?.data?.message || "Something went wrong");
     }
@@ -135,7 +135,7 @@ const ProjectDetail = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/admin/projects")}
+            onClick={() => navigate("/__dx9k_ctrl/projects")}
             className="p-2.5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-md transition-all"
           >
             <ArrowLeft size={20} />
@@ -151,7 +151,7 @@ const ProjectDetail = () => {
         </div>
         <div className="flex items-center gap-3">
            <button
-             onClick={() => navigate("/admin/projects")}
+             onClick={() => navigate("/__dx9k_ctrl/projects")}
              className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all font-mono text-sm"
            >
              Cancel

@@ -2,18 +2,7 @@ import React, { Suspense } from "react";
 import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-const PortfolioRoutes = React.lazy(() =>
-  import("./apps/Portfolio/PortfolioRoutes")
-);
-const AdminPanelRoutes = React.lazy(() =>
-  import("./apps/AdminPanel/AdminPanelRoutes")
-);
-const MarketPlaceRoutes = React.lazy(() =>
-  import("./apps/MarketPlace/MarketPlaceRoutes")
-);
-
-const NotFound = React.lazy(() => import("./Pages/NotFound"));
-
+import ErrorBoundary from "./common/ErrorBoundary";
 import Loader from "./shared/components/Loader";
 
 import { useEffect } from "react";
@@ -25,6 +14,16 @@ import { fetchUserLocation } from "./store/region/regionSlice";
 
 // Add Toaster globally
 function App() {
+  const PortfolioRoutes = React.lazy(
+    () => import("./apps/Portfolio/PortfolioRoutes"),
+  );
+  const AdminPanelRoutes = React.lazy(
+    () => import("./apps/AdminPanel/AdminPanelRoutes"),
+  );
+  const MarketPlaceRoutes = React.lazy(
+    () => import("./apps/MarketPlace/MarketPlaceRoutes"),
+  );
+  const NotFound = React.lazy(() => import("./Pages/NotFound"));
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -37,13 +36,14 @@ function App() {
         <BrowserRouter>
           <Analytics />
           <Suspense fallback={<Loader />}>
-            <Routes>
-              {/* routes must be <Route> only */}
-              <Route path="/*" element={<PortfolioRoutes />} />
-              <Route path="/admin/*" element={<AdminPanelRoutes />} />
-              <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/__dx9k_ctrl/*" element={<AdminPanelRoutes />} />
+                <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
+                <Route path="/*" element={<PortfolioRoutes />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ErrorBoundary>
 
             {/* Toaster MUST be outside <Routes> */}
             <Toaster

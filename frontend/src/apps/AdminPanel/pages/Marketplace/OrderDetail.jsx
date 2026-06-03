@@ -195,7 +195,7 @@ const OrderDetail = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <Link to="/admin/marketplace/orders" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2">
+          <Link to="/__dx9k_ctrl/marketplace/orders" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2">
             <ArrowLeft className="h-4 w-4 mr-1" /> Back to Orders
           </Link>
           <div className="flex items-center gap-3">

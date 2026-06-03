@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AdminPanelLayout from "./AdminPanelLayout.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
+import ErrorBoundary from "../../common/ErrorBoundary.jsx";
 
 // Lazy load all pages for optimal performance and code splitting
 const Dashboard = React.lazy(() => import("./pages/Dashboard/Dashboard.jsx"));
@@ -43,95 +44,90 @@ const AdminProjectWorkspace = React.lazy(() => import("./pages/Marketplace/Proje
 const SupportTickets = React.lazy(() => import("./pages/Support/SupportTickets.jsx"));
 const TicketDetail = React.lazy(() => import("./pages/Support/TicketDetail.jsx"));
 const AdminNotifications = React.lazy(() => import("./pages/Notifications/AdminNotifications.jsx"));
+const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 
 const AdminPanelRoutes = () => {
   return (
     <ProtectedRoute>
-      <Routes>
-        {/* All admin routes wrapped in common layout */}
-        <Route path="/" element={<AdminPanelLayout />}>
-          {/* Dashboard - Analytics and overview */}
-          <Route index element={<Dashboard />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+      <ErrorBoundary>
+        <Routes>
+          {/* All admin routes wrapped in common layout */}
+          <Route path="/" element={<AdminPanelLayout />}>
+            {/* Dashboard - Analytics and overview */}
+            <Route index element={<Dashboard />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="dashboard" element={<Navigate to="/__dx9k_ctrl" replace />} />
 
-          {/* Messages Management */}
-          <Route path="messages">
-            <Route index element={<Messages />} />
-            <Route path=":id" element={<Messages />} />
+            {/* Messages Management */}
+            <Route path="messages">
+              <Route index element={<Messages />} />
+              <Route path=":id" element={<Messages />} />
+            </Route>
+
+            {/* Marketplace Routes */}
+            <Route path="marketplace">
+              <Route index element={<MarketplaceOverview />} />
+              <Route path="analytics" element={<MarketplaceAnalytics />} />
+              <Route path="products" element={<MarketProducts />} />
+              <Route path="products/new" element={<ProductEditor />} />
+              <Route path="products/edit/:id" element={<ProductEditor />} />
+              <Route path="products/:id/analytics" element={<ProductAnalytics />} />
+              <Route path="services" element={<MarketServices />} />
+              <Route path="services/new" element={<ServiceEditor />} />
+              <Route path="services/edit/:id" element={<ServiceEditor />} />
+              <Route path="services/:id/analytics" element={<ServiceAnalytics />} />
+              <Route path="orders" element={<MarketOrders />} />
+              <Route path="orders/:id" element={<MarketOrderDetail />} />
+              <Route path="projects" element={<AdminProjects />} />
+              <Route path="projects/:id" element={<AdminProjectWorkspace />} />
+              <Route path="customers" element={<MarketCustomers />} />
+              <Route path="customers/:id" element={<MarketCustomerDetail />} />
+              <Route path="quotes" element={<MarketQuoteRequests />} />
+              <Route path="settings" element={<MarketSettings />} />
+              <Route path="coupons" element={<CouponManagement />} />
+              <Route path="referrals" element={<AdminReferrals />} />
+            </Route>
+
+            {/* Support */}
+            <Route path="support/tickets">
+              <Route index element={<SupportTickets />} />
+              <Route path=":id" element={<TicketDetail />} />
+            </Route>
+
+            {/* Notifications */}
+            <Route path="notifications" element={<AdminNotifications />} />
+
+            {/* Content Management - General content editing */}
+            <Route path="content" element={<ContentManagement />} />
+
+            {/* Subscribers Management */}
+            <Route path="subscribers" element={<Subscribers />} />
+
+            {/* User and skills management */}
+            <Route path="skills" element={<SkillsManagement />} />
+
+            {/* Settings and configuration */}
+            <Route path="settings" element={<Settings />} />
+
+            {/* Blog management */}
+            <Route path="blog">
+              <Route index element={<BlogManagement />} />
+              <Route path="new" element={<BlogPost />} />
+              <Route path="edit/:id" element={<BlogPost />} />
+            </Route>
+
+            {/* Announcements */}
+            <Route path="announcements" element={<Announcements />} />
+
+            {/* Email Marketing */}
+            <Route path="emails">
+              <Route path="tracking" element={<EmailTracking />} />
+              <Route path="templates" element={<EmailTemplates />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
           </Route>
-
-          {/* Marketplace Routes */}
-          <Route path="marketplace">
-            <Route index element={<MarketplaceOverview />} />
-            <Route path="analytics" element={<MarketplaceAnalytics />} />
-            <Route path="products" element={<MarketProducts />} />
-            <Route path="products/new" element={<ProductEditor />} />
-            <Route path="products/edit/:id" element={<ProductEditor />} />
-            <Route path="products/:id/analytics" element={<ProductAnalytics />} />
-            <Route path="services" element={<MarketServices />} />
-            <Route path="services/new" element={<ServiceEditor />} />
-            <Route path="services/edit/:id" element={<ServiceEditor />} />
-            <Route path="services/:id/analytics" element={<ServiceAnalytics />} />
-            <Route path="orders" element={<MarketOrders />} />
-            <Route path="orders/:id" element={<MarketOrderDetail />} />
-            <Route path="projects" element={<AdminProjects />} />
-            <Route path="projects/:id" element={<AdminProjectWorkspace />} />
-            <Route path="customers" element={<MarketCustomers />} />
-            <Route path="customers/:id" element={<MarketCustomerDetail />} />
-            <Route path="quotes" element={<MarketQuoteRequests />} />
-            <Route path="settings" element={<MarketSettings />} />
-            <Route path="coupons" element={<CouponManagement />} />
-            <Route path="referrals" element={<AdminReferrals />} />
-          </Route>
-
-          {/* Support */}
-          <Route path="support/tickets">
-            <Route index element={<SupportTickets />} />
-            <Route path=":id" element={<TicketDetail />} />
-          </Route>
-
-          {/* Notifications */}
-          <Route path="notifications" element={<AdminNotifications />} />
-
-          {/* Content Management - General content editing */}
-          <Route path="content" element={<ContentManagement />} />
-
-          {/* Subscribers Management */}
-          <Route path="subscribers" element={<Subscribers />} />
-
-          {/* Announcements Management */}
-          <Route path="announcements" element={<Announcements />} />
-
-          {/* Projects Management - CRUD operations for projects */}
-          <Route path="projects">
-            <Route index element={<ProjectsManagement />} />
-            <Route path="new" element={<ProjectDetail />} /> {/* Reusing or will rename ProjectDetail */}
-            <Route path="edit/:projectId" element={<ProjectDetail />} />
-          </Route>
-
-          {/* Skills Management - Technical expertise management */}
-          <Route path="skills" element={<SkillsManagement />} />
-
-          {/* Blog Management - Blog posts CRUD */}
-          <Route path="blog">
-             <Route index element={<BlogManagement />} />
-             <Route path="new" element={<BlogPost />} />
-             <Route path="edit/:slug" element={<BlogPost />} />
-          </Route>
-
-
-
-          {/* Email Tracking */}
-          <Route path="emails" element={<EmailTracking />} />
-
-          {/* Email Templates */}
-          <Route path="email-templates" element={<EmailTemplates />} />
-
-          {/* Settings - Admin panel configuration */}
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </ErrorBoundary>
     </ProtectedRoute>
   );
 };

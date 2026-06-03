@@ -97,7 +97,7 @@ const SupportTickets = () => {
   const stats = statsData?.data || {};
 
   const handleOpenTicket = (ticket) => {
-    navigate(`/admin/support/tickets/${ticket._id}`);
+    navigate(`/__dx9k_ctrl/support/tickets/${ticket._id}`);
   };
 
   const handleDeleteTicket = async () => {

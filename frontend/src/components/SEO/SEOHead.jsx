@@ -76,6 +76,20 @@ const SEOHead = ({
     (typeof window !== "undefined" ? window.location.href : seoConfig.site.url);
   const pageKeywords = [...seoKeywords, ...keywords].join(", ");
 
+  // Helper to ensure canonical URL is always absolute (required for correct SEO)
+  const getAbsoluteCanonical = (rawCanonical) => {
+    if (!rawCanonical) return null;
+    if (rawCanonical.startsWith("http")) return rawCanonical;
+    const baseUrl = seoConfig.site.url.replace(/\/$/, "");
+    const path = rawCanonical.startsWith("/") ? rawCanonical : `/${rawCanonical}`;
+    return `${baseUrl}${path}`;
+  };
+
+  const canonicalHref =
+    getAbsoluteCanonical(canonical) ||
+    getAbsoluteCanonical(canonicalUrl) ||
+    pageUrl;
+
   return (
     <Helmet>
       <title>{pageTitle}</title>
@@ -90,7 +104,7 @@ const SEOHead = ({
           content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
         />
       )}
-      <link rel="canonical" href={canonical || canonicalUrl || pageUrl} />
+      <link rel="canonical" href={canonicalHref} />
 
       {/* Site Verifications */}
       <meta

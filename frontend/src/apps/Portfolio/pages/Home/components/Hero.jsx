@@ -1,29 +1,23 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { portfolioData } from "../../../store/data/portfolioData";
-import ParticleBackground from "../../../common/components/3D/ParticleBackground";
+import { motion } from "framer-motion";
 import {
-  Terminal as TerminalIcon,
-  Cpu,
-  Layers,
-  Database,
-  Shield,
   Activity,
-  Globe,
-  Clock,
-  MapPin,
   ArrowRight,
-  Sparkles,
-  Radio,
+  Clock,
+  Cpu,
+  Database,
+  Layers,
+  Mail,
+  MapPin,
   Play,
+  Shield,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import ParticleBackground from "../../../common/components/3D/ParticleBackground";
+import { portfolioData } from "../../../store/data/portfolioData";
 
 const Hero = () => {
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [terminalLogs, setTerminalLogs] = useState([]);
   const [clockTime, setClockTime] = useState("");
 
   const {
@@ -33,34 +27,6 @@ const Hero = () => {
     careerObjectives,
     technicalSkills,
   } = portfolioData;
-
-  // Dynamic seek roles and descriptors
-  const skills = useMemo(
-    () => [
-      personalInfo.title,
-      personalInfo.subtitle,
-      ...careerObjectives.seekingRoles.slice(0, 3),
-      "Full Stack Architect",
-      "Product Founder",
-    ],
-    [personalInfo, careerObjectives],
-  );
-
-  // Terminal logging messages
-  const bootLogs = useMemo(
-    () => [
-      ">> SYSTEM BOOT SEQUENCE: INITIALIZED",
-      ">> SECURING SHELL ENCRYPTION [SSL V3]...",
-      ">> STACK DETECTED: [MERN FULL-STACK + TS]",
-      ">> GEO_REF: PATNA, BIHAR, INDIA [25.5941° N, 85.1376° E]",
-      ">> CORE MODULES: REACT, NODE, MONGO, EXPRESS",
-      ">> GLOBAL HIREABILITY STATUS: IMMEDIATE [REMOTE FIRST]",
-      ">> SECURITY CLEARANCE: LEVEL_01 SECURED. READY.",
-    ],
-    [],
-  );
-
-  // Update clock every second with Asia/Kolkata timezone
   useEffect(() => {
     const updateTime = () => {
       const options = {
@@ -79,20 +45,6 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Animate Terminal Boot logs
-  useEffect(() => {
-    let currentLogIndex = 0;
-    const interval = setInterval(() => {
-      if (currentLogIndex < bootLogs.length) {
-        setTerminalLogs((prev) => [...prev, bootLogs[currentLogIndex]]);
-        currentLogIndex++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 500);
-    return () => clearInterval(interval);
-  }, [bootLogs]);
-
   // Mouse tracking
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -105,14 +57,6 @@ const Hero = () => {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-
-  // Dynamic Scroll Up Role switcher
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRoleIndex((prev) => (prev + 1) % skills.length);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [skills.length]);
 
   // Animation variants
   const containerVariants = {
@@ -153,35 +97,36 @@ const Hero = () => {
 
       {/* Advanced Aesthetic Background Overlays */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Dynamic mesh gradients */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(56,189,248,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,197,94,0.05),transparent_50%)]" />
+        {/* Dynamic mesh gradients - Enhanced */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(56,189,248,0.12),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,197,94,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(236,72,153,0.08),transparent_60%)]" />
 
-        {/* Dynamic Interactive Gradient Orbs */}
+        {/* Dynamic Interactive Gradient Orbs - Enhanced */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-cyan-500/15 to-blue-600/10 rounded-full blur-3xl"
           animate={{
-            x: mousePosition.x * 0.12 - 50,
-            y: mousePosition.y * 0.12 - 50,
-            scale: [1, 1.15, 1],
+            x: mousePosition.x * 0.15 - 50,
+            y: mousePosition.y * 0.15 - 50,
+            scale: [1, 1.2, 1],
           }}
           transition={{
-            x: { type: "spring", stiffness: 60, damping: 25 },
-            y: { type: "spring", stiffness: 60, damping: 25 },
+            x: { type: "spring", stiffness: 50, damping: 20 },
+            y: { type: "spring", stiffness: 50, damping: 20 },
             scale: { duration: 8, repeat: Infinity, ease: "easeInOut" },
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-tl from-purple-600/15 to-pink-600/10 rounded-full blur-3xl"
           animate={{
-            x: -mousePosition.x * 0.1 + 50,
-            y: -mousePosition.y * 0.1 + 50,
-            scale: [1, 1.2, 1],
+            x: -mousePosition.x * 0.12 + 50,
+            y: -mousePosition.y * 0.12 + 50,
+            scale: [1, 1.25, 1],
           }}
           transition={{
-            x: { type: "spring", stiffness: 50, damping: 25 },
-            y: { type: "spring", stiffness: 50, damping: 25 },
+            x: { type: "spring", stiffness: 40, damping: 20 },
+            y: { type: "spring", stiffness: 40, damping: 20 },
             scale: {
               duration: 10,
               repeat: Infinity,
@@ -190,12 +135,50 @@ const Hero = () => {
             },
           }}
         />
+        <motion.div
+          className="absolute top-1/2 right-1/3 w-72 h-72 bg-gradient-to-bl from-emerald-500/10 to-cyan-600/10 rounded-full blur-3xl"
+          animate={{
+            x: mousePosition.x * 0.08,
+            y: -mousePosition.y * 0.08,
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            x: { type: "spring", stiffness: 60, damping: 25 },
+            y: { type: "spring", stiffness: 60, damping: 25 },
+            scale: {
+              duration: 9,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            },
+          }}
+        />
 
-        {/* Tactical Cyber Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_50%,black,transparent)]" />
+        {/* Tactical Cyber Grid Pattern - Enhanced */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(56,189,248,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(56,189,248,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_90%_70%_at_50%_50%,black,transparent)]" />
 
-        {/* Soft Vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(15,23,42,0.85)_100%)]" />
+        {/* Enhanced Soft Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(15,23,42,0.8)_100%)]" />
+
+        {/* Floating particle accents */}
+        <motion.div
+          className="absolute top-1/3 left-1/3 w-1 h-1 bg-cyan-400 rounded-full opacity-50"
+          animate={{
+            y: [0, -30, 0],
+            x: [0, 10, 0],
+            opacity: [0.3, 0.8, 0.3],
+          }}
+          transition={{ duration: 6, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute top-2/3 right-1/4 w-1.5 h-1.5 bg-violet-400 rounded-full opacity-40"
+          animate={{
+            y: [0, 25, 0],
+            x: [0, -15, 0],
+            opacity: [0.2, 0.6, 0.2],
+          }}
+          transition={{ duration: 8, repeat: Infinity, delay: 1 }}
+        />
       </div>
 
       {/* Main Layout Container */}
@@ -211,164 +194,156 @@ const Hero = () => {
             {/* Status Beacon Badge */}
             <motion.div variants={itemVariants}>
               <motion.div
-                className="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-900/80 border border-cyan-500/30 rounded-xl text-cyan-300 text-xs font-semibold backdrop-blur-xl shadow-lg shadow-cyan-500/5 cursor-default"
+                className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-slate-900/80 to-slate-800/60 border-2 border-cyan-500/50 rounded-full text-cyan-300 text-xs sm:text-sm font-bold backdrop-blur-xl shadow-lg shadow-cyan-500/10 cursor-default"
                 whileHover={{
-                  scale: 1.04,
-                  borderColor: "rgba(34, 211, 238, 0.6)",
-                  boxShadow: "0 0 20px rgba(34, 211, 238, 0.15)",
+                  scale: 1.06,
+                  borderColor: "rgba(34, 211, 238, 0.8)",
+                  boxShadow: "0 0 30px rgba(34, 211, 238, 0.25)",
                 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
                 </span>
-                <span className="uppercase tracking-wider font-bold">
+                <span className="uppercase tracking-widest font-bold">
                   {personalInfo.availability.status}
                 </span>
               </motion.div>
             </motion.div>
 
             {/* Glowing Cyber Title */}
-            <motion.div variants={itemVariants} className="space-y-3">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.08] tracking-tight text-slate-100">
-                <span className="block text-slate-400 text-lg sm:text-xl font-medium uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
-                  Welcome to my portfolio
-                </span>
-                <span className="block font-black">
-                  {personalInfo.name.split(" ").map((word, index) => (
-                    <motion.span
-                      key={index}
-                      className="inline-block mr-3 bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent hover:brightness-125"
-                      whileHover={{
-                        y: -3,
-                        scale: 1.03,
-                        textShadow: "0 0 30px rgba(6, 182, 212, 0.4)",
-                      }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 15,
-                      }}
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </span>
-              </h1>
-
-              {/* High-Fidelity Scrolling Role Subtitle */}
-              <div className="h-8 sm:h-10 flex items-center text-lg sm:text-xl lg:text-2xl font-bold">
-                <span className="text-slate-400 mr-2 uppercase tracking-wide text-sm font-semibold">
-                  Role:
-                </span>
-                <div
-                  className="relative overflow-hidden h-8 sm:h-10 flex items-center"
-                  style={{ minWidth: "280px" }}
-                >
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={roleIndex}
-                      className="absolute bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent font-black"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -20, opacity: 0 }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      {skills[roleIndex]}
-                    </motion.span>
-                  </AnimatePresence>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Micro Terminal/Console Dashboard */}
             <motion.div
               variants={itemVariants}
-              className="bg-slate-950/90 border border-slate-800/80 rounded-2xl p-4 font-mono text-xs sm:text-sm text-cyan-400/90 shadow-2xl relative overflow-hidden backdrop-blur-xl max-w-xl"
+              className="space-y-4 lg:space-y-6"
             >
-              {/* Terminal Title Bar */}
-              <div className="flex items-center justify-between border-b border-slate-900 pb-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <TerminalIcon className="w-3.5 h-3.5 text-cyan-500" />
-                  <span className="text-slate-400 text-xs font-bold tracking-wider uppercase">
-                    Developer Console
-                  </span>
-                </div>
-                <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500/40 animate-pulse" />
-                </div>
+              <div className="space-y-1">
+                <span className="text-cyan-400 text-sm sm:text-base font-mono font-bold uppercase tracking-[0.3em] block">
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    ✦ FULL STACK DEVELOPER
+                  </motion.span>
+                </span>
               </div>
-
-              {/* Boot Log Stream */}
-              <div className="space-y-1.5 min-h-[135px] text-left">
-                <AnimatePresence>
-                  {terminalLogs.map((log, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className={`${
-                        index === bootLogs.length - 1
-                          ? "text-emerald-400 font-bold"
-                          : log.startsWith(">> STACK")
-                            ? "text-purple-400"
-                            : "text-slate-300"
-                      }`}
-                    >
-                      {log}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-slate-100">
+                <span className="block overflow-hidden py-1">
+                  <motion.span
+                    className="block"
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.9,
+                      ease: [0.16, 1, 0.3, 1],
+                      delay: 0.1,
+                    }}
+                  >
+                    Ready to Build
+                  </motion.span>
+                </span>
+                <span className="block overflow-hidden py-1">
+                  <motion.span
+                    className="block bg-gradient-to-r from-cyan-400 via-blue-500 via-45% to-violet-500 bg-clip-text text-transparent"
+                    animate={{ backgroundPosition: ["0%", "100%", "0%"] }}
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      y: {
+                        duration: 0.9,
+                        ease: [0.16, 1, 0.3, 1],
+                        delay: 0.25,
+                      },
+                      opacity: {
+                        duration: 0.9,
+                        ease: [0.16, 1, 0.3, 1],
+                        delay: 0.25,
+                      },
+                      backgroundPosition: {
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear",
+                      },
+                    }}
+                    style={{ backgroundSize: "200% 200%" }}
+                  >
+                    Something Amazing?
+                  </motion.span>
+                </span>
+              </h1>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="text-lg sm:text-xl lg:text-2xl text-slate-300 font-medium leading-relaxed max-w-2xl"
+              >
+                Let's work together to bring your ideas to life with clean code
+                and great design
+              </motion.p>
             </motion.div>
 
             {/* Immersive CTA Operations */}
             <motion.div
               variants={itemVariants}
-              className="flex flex-wrap gap-4 pt-3"
+              className="flex flex-col sm:flex-row flex-wrap gap-4 pt-6"
             >
               <Link to="/projects">
                 <motion.button
-                  className="group relative px-7 py-3.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-xl text-white font-bold text-sm tracking-wider uppercase overflow-hidden shadow-lg shadow-cyan-500/15 cursor-pointer"
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  className="group relative px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 rounded-xl sm:rounded-2xl text-white font-bold text-sm sm:text-base tracking-wider uppercase overflow-hidden shadow-2xl shadow-cyan-500/20 cursor-pointer w-full sm:w-auto"
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 0 40px rgba(6, 182, 212, 0.4)",
+                  }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <span className="relative z-10 flex items-center gap-2">
+                  {/* Shimmer effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.5 }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center sm:justify-start gap-2.5">
+                    <Play className="w-5 h-5" />
                     View My Work
                     <motion.span
-                      animate={{ x: isHovered ? 4 : 0 }}
+                      animate={{ x: 0 }}
+                      whileHover={{ x: 6 }}
                       transition={{ type: "spring", stiffness: 300 }}
                     >
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-5 h-5" />
                     </motion.span>
                   </span>
-                  {/* Glowing hover sweep overlay */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-violet-600 via-blue-600 to-cyan-500"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: 0 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                  />
                 </motion.button>
               </Link>
 
               <Link to="/contact">
                 <motion.button
-                  className="px-7 py-3.5 border border-slate-700 bg-slate-900/60 rounded-xl text-slate-300 font-bold text-sm tracking-wider uppercase hover:border-cyan-500/50 hover:text-white transition-all backdrop-blur-xl cursor-pointer"
+                  className="group relative px-8 sm:px-10 py-4 sm:py-5 border-2 border-cyan-500/60 bg-gradient-to-br from-slate-900/40 to-slate-950/60 rounded-xl sm:rounded-2xl text-cyan-300 font-bold text-sm sm:text-base tracking-wider uppercase hover:border-cyan-400 transition-all backdrop-blur-xl cursor-pointer w-full sm:w-auto hover:bg-gradient-to-br hover:from-slate-900/60 hover:to-slate-950/80 hover:shadow-lg hover:shadow-cyan-500/10 overflow-hidden"
                   whileHover={{
-                    scale: 1.03,
-                    boxShadow: "0 0 15px rgba(34, 211, 238, 0.1)",
+                    scale: 1.05,
+                    borderColor: "rgba(34, 211, 238, 1)",
                   }}
-                  whileTap={{ scale: 0.97 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Let's Talk
+                  {/* Recurring Glossy Flash/Shimmer Animation */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/25 to-transparent pointer-events-none"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{
+                      repeat: Infinity,
+                      repeatType: "loop",
+                      duration: 2.0,
+                      repeatDelay: 3.5,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center sm:justify-start gap-2.5">
+                    <Mail className="w-5 h-5" />
+                    Let's Connect
+                  </span>
                 </motion.button>
               </Link>
             </motion.div>
@@ -376,23 +351,31 @@ const Hero = () => {
             {/* Integrated Real-Time Clock & Location HUD */}
             <motion.div
               variants={itemVariants}
-              className="flex flex-wrap items-center gap-5 pt-2 text-xs sm:text-sm border-t border-slate-900/80 max-w-xl"
+              className="flex flex-col sm:flex-row flex-wrap items-center gap-6 pt-6 sm:pt-8 border-t border-slate-800/60 max-w-2xl"
             >
-              <div className="flex items-center gap-2 text-slate-400">
-                <MapPin className="w-4 h-4 text-rose-500" />
-                <span>{personalInfo.location.current}</span>
+              <div className="flex items-center gap-3 text-slate-300 text-xs sm:text-sm">
+                <div className="w-8 h-8 bg-rose-500/15 border border-rose-500/30 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-rose-500" />
+                </div>
+                <span className="font-medium">
+                  {personalInfo.location.current}
+                </span>
               </div>
-              <div className="h-3 w-px bg-slate-800" />
-              <div className="flex items-center gap-2 text-cyan-400">
-                <Clock className="w-4 h-4 text-cyan-400" />
+              <div className="hidden sm:block h-4 w-px bg-slate-700" />
+              <div className="flex items-center gap-3 text-cyan-300 text-xs sm:text-sm">
+                <div className="w-8 h-8 bg-cyan-500/15 border border-cyan-500/30 rounded-lg flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-cyan-400" />
+                </div>
                 <span className="font-mono tracking-wider font-bold">
                   IST: {clockTime || "13:24:39"}
                 </span>
               </div>
-              <div className="h-3 w-px bg-slate-800" />
-              <div className="flex items-center gap-2 text-emerald-400">
-                <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
-                <span className="font-mono">ONLINE & READY</span>
+              <div className="hidden sm:block h-4 w-px bg-slate-700" />
+              <div className="flex items-center gap-3 text-emerald-300 text-xs sm:text-sm">
+                <div className="w-8 h-8 bg-emerald-500/15 border border-emerald-500/30 rounded-lg flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
+                </div>
+                <span className="font-mono font-bold">ONLINE & READY</span>
               </div>
             </motion.div>
           </div>
@@ -445,8 +428,12 @@ const Hero = () => {
                 <div className="relative w-full h-full bg-gradient-to-br from-slate-900 to-slate-950 rounded-full p-1.5 overflow-hidden">
                   <img
                     src={personalInfo.profileImage}
-                    alt={personalInfo.name}
+                    alt={`${personalInfo.name} - ${personalInfo.title} Profile Picture`}
                     className="w-full h-full object-cover rounded-full filter brightness-95 contrast-105"
+                    loading="eager"
+                    width={256}
+                    height={256}
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-cyan-500/5 rounded-full pointer-events-none" />
                 </div>
@@ -490,7 +477,7 @@ const Hero = () => {
                   whileHover={{ scale: 1.15 }}
                 >
                   <div className="flex items-center gap-1.5 bg-slate-950/90 border border-emerald-400/40 px-3 py-1.5 rounded-xl text-emerald-300 text-xs font-bold shadow-lg shadow-emerald-500/20 backdrop-blur-md cursor-pointer">
-                    <TerminalIcon className="w-3.5 h-3.5 text-emerald-400" />
+                    <Cpu className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Node.js</span>
                   </div>
                 </motion.div>
@@ -614,31 +601,6 @@ const Hero = () => {
             </motion.div>
           </div>
         </div>
-
-        {/* Tactile Immersive Scroll Controller */}
-        <motion.div
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 hidden md:block"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.4 }}
-        >
-          <motion.div
-            className="flex flex-col items-center gap-1.5 cursor-pointer group"
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest group-hover:text-cyan-400 transition-colors">
-              SYSTEM_ENGAGED_SCROLL
-            </span>
-            <div className="w-5 h-9 border border-slate-800 group-hover:border-cyan-500/60 rounded-full flex justify-center transition-colors">
-              <motion.div
-                className="w-1 h-2 bg-slate-500 group-hover:bg-cyan-400 rounded-full mt-1.5"
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            </div>
-          </motion.div>
-        </motion.div>
       </motion.div>
     </section>
   );

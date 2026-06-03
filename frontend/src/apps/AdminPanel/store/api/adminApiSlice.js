@@ -615,64 +615,64 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     }),
 
     getAdminMarketplaceStats: builder.query({
-      query: () => "/admin/marketplace/stats",
+      query: () => "/__dx9k_ctrl/marketplace/stats",
       providesTags: ["Order", "Product", "Service"],
     }),
 
     getMarketplaceAnalytics: builder.query({
       query: (period) => ({
-        url: '/admin/marketplace/analytics',
+        url: '/__dx9k_ctrl/marketplace/analytics',
         params: period ? { period } : {},
       }),
       providesTags: ['Order', 'Product', 'Service'],
     }),
 
     getProductAnalytics: builder.query({
-      query: (id) => `/admin/products/${id}/analytics`,
+      query: (id) => `/__dx9k_ctrl/products/${id}/analytics`,
       providesTags: (result, error, id) => [{ type: 'Product', id }],
     }),
 
     getServiceAnalytics: builder.query({
-      query: (id) => `/admin/services/${id}/analytics`,
+      query: (id) => `/__dx9k_ctrl/services/${id}/analytics`,
       providesTags: (result, error, id) => [{ type: 'Service', id }],
     }),
 
     // Customers
     getAdminCustomers: builder.query({
       query: (params) => ({
-        url: "/admin/customers",
+        url: "/__dx9k_ctrl/customers",
         params,
       }),
       providesTags: ["Customer"],
     }),
 
     getAdminCustomerById: builder.query({
-      query: (id) => `/admin/customers/${id}`,
+      query: (id) => `/__dx9k_ctrl/customers/${id}`,
       providesTags: (result, error, id) => [{ type: "Customer", id }],
     }),
 
     // Quote Requests
     getAdminQuotes: builder.query({
       query: (params) => ({
-        url: "/admin/marketplace/quotes",
+        url: "/__dx9k_ctrl/marketplace/quotes",
         params,
       }),
       providesTags: ["Quote"],
     }),
 
     getAdminQuoteById: builder.query({
-      query: (id) => `/admin/marketplace/quotes/${id}`,
+      query: (id) => `/__dx9k_ctrl/marketplace/quotes/${id}`,
       providesTags: (result, error, id) => [{ type: "Quote", id }],
     }),
 
     getAdminQuoteStats: builder.query({
-      query: () => "/admin/marketplace/quotes/stats",
+      query: () => "/__dx9k_ctrl/marketplace/quotes/stats",
       providesTags: ["Quote"],
     }),
 
     updateAdminQuote: builder.mutation({
       query: ({ id, ...data }) => ({
-        url: `/admin/marketplace/quotes/${id}`,
+        url: `/__dx9k_ctrl/marketplace/quotes/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -681,7 +681,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     deleteAdminQuote: builder.mutation({
       query: (id) => ({
-        url: `/admin/marketplace/quotes/${id}`,
+        url: `/__dx9k_ctrl/marketplace/quotes/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Quote"],
@@ -690,20 +690,20 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
     // Support Tickets
     getAdminSupportTickets: builder.query({
       query: (params) => ({
-        url: "/admin/support/tickets",
+        url: "/__dx9k_ctrl/support/tickets",
         params,
       }),
       providesTags: ["SupportTicket"],
     }),
 
     getAdminSupportTicketById: builder.query({
-      query: (id) => `/admin/support/tickets/${id}`,
+      query: (id) => `/__dx9k_ctrl/support/tickets/${id}`,
       providesTags: (result, error, id) => [{ type: "SupportTicket", id }],
     }),
 
     updateAdminSupportTicket: builder.mutation({
       query: ({ id, ...data }) => ({
-        url: `/admin/support/tickets/${id}`,
+        url: `/__dx9k_ctrl/support/tickets/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -715,7 +715,7 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     respondToAdminSupportTicket: builder.mutation({
       query: ({ id, message }) => ({
-        url: `/admin/support/tickets/${id}/respond`,
+        url: `/__dx9k_ctrl/support/tickets/${id}/respond`,
         method: "POST",
         body: { message },
       }),
@@ -727,14 +727,14 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     deleteAdminSupportTicket: builder.mutation({
       query: (id) => ({
-        url: `/admin/support/tickets/${id}`,
+        url: `/__dx9k_ctrl/support/tickets/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["SupportTicket"],
     }),
 
     getAdminSupportStats: builder.query({
-      query: () => "/admin/support/stats",
+      query: () => "/__dx9k_ctrl/support/stats",
       providesTags: ["SupportTicket"],
     }),
 
@@ -782,12 +782,12 @@ export const adminApiSlice = baseApiSlice.injectEndpoints({
 
     // --- Email Templates ---
     getAdminEmailTemplates: builder.query({
-      query: () => "/admin/email-templates",
+      query: () => "/__dx9k_ctrl/email-templates",
       keepUnusedDataFor: 300,
     }),
     previewEmailTemplate: builder.mutation({
       query: (data) => ({
-        url: "/admin/email-templates/preview",
+        url: "/__dx9k_ctrl/email-templates/preview",
         method: "POST",
         body: data,
       }),

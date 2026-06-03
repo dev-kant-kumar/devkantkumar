@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import PortfolioLayout from "./PortfolioLayout.jsx";
+import ErrorBoundary from "../../common/ErrorBoundary";
 
 // Lazy load all pages for optimal performance and code splitting
 const Home = React.lazy(() => import("./pages/Home/Home.jsx"));
@@ -27,51 +28,55 @@ const TermsOfService = React.lazy(
 // Tools pages
 const Tools = React.lazy(() => import("./pages/Tools/Tools.jsx"));
 const ToolPage = React.lazy(() => import("./pages/Tools/ToolPage.jsx"));
+const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 
 import Loader from "../../shared/components/Loader.jsx";
 
 const PortfolioRoutes = () => {
   return (
     <React.Suspense fallback={<Loader />}>
-      <Routes>
-        {/* All portfolio routes wrapped in common layout */}
-        <Route path="/" element={<PortfolioLayout />}>
-          {/* Home page - Hero + Featured work */}
-          <Route index element={<Home />} />
+      <ErrorBoundary>
+        <Routes>
+          {/* All portfolio routes wrapped in common layout */}
+          <Route path="/" element={<PortfolioLayout />}>
+            {/* Home page - Hero + Featured work */}
+            <Route index element={<Home />} />
 
-          {/* About page - Personal story, values, certifications */}
-          <Route path="about" element={<About />} />
+            {/* About page - Personal story, values, certifications */}
+            <Route path="about" element={<About />} />
 
-          {/* Projects listing page - Grid with filters */}
-          <Route path="projects" element={<Projects />} />
+            {/* Projects listing page - Grid with filters */}
+            <Route path="projects" element={<Projects />} />
 
-          {/* Skills page - Technical expertise matrix */}
-          <Route path="skills" element={<Skills />} />
+            {/* Skills page - Technical expertise matrix */}
+            <Route path="skills" element={<Skills />} />
 
-          {/* Content hub page - YouTube + LinkedIn + Blog */}
-          <Route path="content" element={<Content />} />
+            {/* Content hub page - YouTube + LinkedIn + Blog */}
+            <Route path="content" element={<Content />} />
 
-          {/* Blog listing page */}
-          <Route path="blog" element={<Blog />} />
+            {/* Blog listing page */}
+            <Route path="blog" element={<Blog />} />
 
-          {/* Individual blog post */}
-          <Route path="blog/:slug" element={<BlogPost />} />
+            {/* Individual blog post */}
+            <Route path="blog/:slug" element={<BlogPost />} />
 
-          {/* Contact page - Form + alternative methods */}
-          <Route path="contact" element={<Contact />} />
+            {/* Contact page - Form + alternative methods */}
+            <Route path="contact" element={<Contact />} />
 
-          {/* FAQ page - Frequently asked questions */}
-          <Route path="faq" element={<FAQ />} />
+            {/* FAQ page - Frequently asked questions */}
+            <Route path="faq" element={<FAQ />} />
 
-          {/* Legal pages */}
-          <Route path="privacy" element={<PrivacyPolicy />} />
-          <Route path="terms" element={<TermsOfService />} />
+            {/* Legal pages */}
+            <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="terms" element={<TermsOfService />} />
 
-          {/* Tools pages - Free developer tools */}
-          <Route path="tools" element={<Tools />} />
-          <Route path="tools/:toolSlug" element={<ToolPage />} />
-        </Route>
-      </Routes>
+            {/* Tools pages - Free developer tools */}
+            <Route path="tools" element={<Tools />} />
+            <Route path="tools/:toolSlug" element={<ToolPage />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ErrorBoundary>
     </React.Suspense>
   );
 };

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { useState } from 'react';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -23,6 +24,14 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <MarketPlaceSEO
+        title="Contact Us — Dev Kant Kumar Marketplace"
+        description="Get in touch with the Dev Kant Kumar Marketplace team for support, inquiries about digital products, development services, or custom solutions."
+        keywords={["contact marketplace", "developer support", "get in touch", "custom solutions inquiry", "digital products help"]}
+        url="https://www.devkantkumar.com/marketplace/contact"
+        canonical="https://www.devkantkumar.com/marketplace/contact"
+        type="website"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

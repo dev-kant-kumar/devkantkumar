@@ -301,7 +301,7 @@ const AdminProjects = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link
-                        to={`/admin/marketplace/projects/${project._id}`}
+                        to={`/__dx9k_ctrl/marketplace/projects/${project._id}`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors shadow-sm shadow-purple-500/20"
                       >
                         <Eye size={16} />

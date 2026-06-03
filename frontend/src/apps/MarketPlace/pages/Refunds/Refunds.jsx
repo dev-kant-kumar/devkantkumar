@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 
 const Refunds = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <MarketPlaceSEO
+        title="Refund Policy — Dev Kant Kumar Marketplace"
+        description="Learn about our 14-day refund policy for digital products on the Dev Kant Kumar Marketplace. Understand eligibility, non-refundable cases, and how to request a refund."
+        keywords={["refund policy", "marketplace refunds", "14-day refund", "digital product refund", "money back guarantee"]}
+        url="https://www.devkantkumar.com/marketplace/refunds"
+        canonical="https://www.devkantkumar.com/marketplace/refunds"
+        type="website"
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

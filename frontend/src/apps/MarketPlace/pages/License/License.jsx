@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 
 const License = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <MarketPlaceSEO
+        title="License Agreement — Dev Kant Kumar Marketplace"
+        description="Read the Dev Kant Kumar Marketplace license agreement. Understand Standard and Extended License terms for using digital products including templates, source code, and design assets."
+        keywords={["license agreement", "standard license", "extended license", "digital product license", "commercial use license"]}
+        url="https://www.devkantkumar.com/marketplace/license"
+        canonical="https://www.devkantkumar.com/marketplace/license"
+        type="website"
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

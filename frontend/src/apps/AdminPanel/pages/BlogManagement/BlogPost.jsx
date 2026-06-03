@@ -130,7 +130,7 @@ const BlogPost = () => {
         await createPost(formData).unwrap();
         toast.success("Article published successfully");
       }
-      navigate("/admin/blog");
+      navigate("/__dx9k_ctrl/blog");
     } catch (error) {
       toast.error(error?.data?.message || "Operation failed");
     }
@@ -150,7 +150,7 @@ const BlogPost = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-4 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/admin/blog")}
+            onClick={() => navigate("/__dx9k_ctrl/blog")}
             className="p-2.5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-blue-600 transition-all"
           >
             <ArrowLeft size={18} />

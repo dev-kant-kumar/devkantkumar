@@ -9,7 +9,7 @@ export const emailTrackingApiSlice = baseApiSlice.injectEndpoints({
     // Get email statistics
     getEmailStats: builder.query({
       query: (params = {}) => ({
-        url: '/admin/emails/stats',
+        url: '/__dx9k_ctrl/emails/stats',
         params
       }),
       providesTags: ['EmailStats']
@@ -18,7 +18,7 @@ export const emailTrackingApiSlice = baseApiSlice.injectEndpoints({
     // Get paginated email logs
     getEmailLogs: builder.query({
       query: (params = {}) => ({
-        url: '/admin/emails',
+        url: '/__dx9k_ctrl/emails',
         params: {
           page: params.page || 1,
           limit: params.limit || 20,
@@ -42,20 +42,20 @@ export const emailTrackingApiSlice = baseApiSlice.injectEndpoints({
 
     // Get single email details
     getEmailById: builder.query({
-      query: (id) => `/admin/emails/${id}`,
+      query: (id) => `/__dx9k_ctrl/emails/${id}`,
       providesTags: (result, error, id) => [{ type: 'EmailLog', id }]
     }),
 
     // Get all email types for filtering
     getEmailTypes: builder.query({
-      query: () => '/admin/emails/types',
+      query: () => '/__dx9k_ctrl/emails/types',
       providesTags: ['EmailTypes']
     }),
 
     // Retry a failed email
     retryEmail: builder.mutation({
       query: (id) => ({
-        url: `/admin/emails/${id}/retry`,
+        url: `/__dx9k_ctrl/emails/${id}/retry`,
         method: 'POST'
       }),
       invalidatesTags: (result, error, id) => [
@@ -68,7 +68,7 @@ export const emailTrackingApiSlice = baseApiSlice.injectEndpoints({
     // Cleanup old email logs
     cleanupEmailLogs: builder.mutation({
       query: (daysOld = 90) => ({
-        url: '/admin/emails/cleanup',
+        url: '/__dx9k_ctrl/emails/cleanup',
         method: 'DELETE',
         body: { daysOld }
       }),

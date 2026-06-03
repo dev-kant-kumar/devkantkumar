@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 
 const Terms = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <MarketPlaceSEO
+        title="Terms of Service — Dev Kant Kumar Marketplace"
+        description="Read the Terms of Service for the Dev Kant Kumar Marketplace. Understand your rights and obligations when purchasing digital products and development services."
+        keywords={["marketplace terms", "terms of service", "user agreement", "digital products terms", "developer marketplace legal"]}
+        url="https://www.devkantkumar.com/marketplace/terms"
+        canonical="https://www.devkantkumar.com/marketplace/terms"
+        type="website"
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

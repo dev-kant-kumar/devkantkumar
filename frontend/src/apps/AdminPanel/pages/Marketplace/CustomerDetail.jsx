@@ -53,7 +53,7 @@ const CustomerDetail = () => {
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <User size={48} className="text-gray-300 mb-4" />
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Customer Not Found</h2>
-        <Link to="/admin/marketplace/customers" className="mt-4 text-blue-600 hover:text-blue-700 font-medium">
+        <Link to="/__dx9k_ctrl/marketplace/customers" className="mt-4 text-blue-600 hover:text-blue-700 font-medium">
           Back to Customers
         </Link>
       </div>
@@ -65,7 +65,7 @@ const CustomerDetail = () => {
       {/* Header */}
       <div>
         <Link
-          to="/admin/marketplace/customers"
+          to="/__dx9k_ctrl/marketplace/customers"
           className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 mb-4 transition-colors"
         >
           <ArrowLeft size={16} className="mr-1" />

@@ -9,7 +9,8 @@ import {
   ShoppingBag,
   Sparkles,
   Zap,
-  Activity
+  Activity,
+  Mail
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -398,12 +399,23 @@ const Header = () => {
                   to="/contact"
                   className="relative group/btn overflow-hidden px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-950 text-xs font-mono font-black tracking-wider uppercase rounded-xl transition-all duration-300 shrink-0 select-none shadow-[0_0_20px_rgba(255,255,255,0.18)] hover:shadow-[0_0_30px_rgba(255,255,255,0.38)] hover:scale-[1.03] active:scale-[0.96] active:bg-slate-200 active:shadow-[0_0_10px_rgba(255,255,255,0.1)] border border-transparent active:border-slate-350"
                 >
-                  {/* Dynamic Glossy Sheen Sweep on Hover */}
-                  <span className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-slate-950/[0.04] to-transparent -translate-x-full group-hover/btn:animate-[projectMarquee_1.2s_linear_infinite]" />
+                  {/* Recurring Glossy Sheen Sweep (Desktop) */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-950/[0.08] to-transparent pointer-events-none"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{
+                      repeat: Infinity,
+                      repeatType: "loop",
+                      duration: 1.8,
+                      repeatDelay: 4.0,
+                      ease: "easeInOut",
+                    }}
+                  />
                   
                   <span className="relative z-10 flex items-center gap-1.5">
-                    Hire me
-                    <Zap size={11} className="fill-current text-slate-950" />
+                    Let's Connect
+                    <Mail size={12} className="text-slate-950" />
                   </span>
                 </Link>
               </div>
@@ -413,9 +425,24 @@ const Header = () => {
                 {/* Persistent Stark Contrast White Button with Tactile Active State */}
                 <Link
                   to="/contact"
-                  className="px-3.5 py-1.5 bg-white text-slate-950 text-xs font-mono font-black uppercase tracking-wide rounded-xl shadow-lg shadow-white/10 transition-all hover:scale-[1.03] active:scale-[0.95] active:bg-slate-200 active:shadow-[0_0_5px_rgba(255,255,255,0.05)] shrink-0"
+                  className="relative overflow-hidden px-3.5 py-1.5 bg-white text-slate-950 text-xs font-mono font-black uppercase tracking-wide rounded-xl shadow-lg shadow-white/10 transition-all hover:scale-[1.03] active:scale-[0.95] active:bg-slate-200 active:shadow-[0_0_5px_rgba(255,255,255,0.05)] shrink-0"
                 >
-                  Hire me
+                  {/* Recurring Glossy Sheen Sweep (Mobile) */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-950/[0.08] to-transparent pointer-events-none"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{
+                      repeat: Infinity,
+                      repeatType: "loop",
+                      duration: 1.8,
+                      repeatDelay: 4.0,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <span className="relative z-10">
+                    Let's Connect
+                  </span>
                 </Link>
 
                 {/* Mobile menu button */}

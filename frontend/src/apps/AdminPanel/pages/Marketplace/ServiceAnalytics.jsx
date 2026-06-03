@@ -155,7 +155,7 @@ const ServiceAnalytics = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center gap-3">
                     <Link
-                        to="/admin/marketplace/services"
+                        to="/__dx9k_ctrl/marketplace/services"
                         className="p-2 rounded-xl text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all"
                     >
                         <ArrowLeft size={18} />
@@ -192,7 +192,7 @@ const ServiceAnalytics = () => {
                         Refresh
                     </button>
                     <Link
-                        to={`/admin/marketplace/services/edit/${id}`}
+                        to={`/__dx9k_ctrl/marketplace/services/edit/${id}`}
                         className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all"
                     >
                         Edit Service
@@ -430,7 +430,7 @@ const ServiceAnalytics = () => {
                                         <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                             <td className="py-3 pr-4">
                                                 <Link
-                                                    to={`/admin/marketplace/orders/${order._id}`}
+                                                    to={`/__dx9k_ctrl/marketplace/orders/${order._id}`}
                                                     className="font-mono text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
                                                 >
                                                     {order.orderNumber || order._id?.slice(-8)}

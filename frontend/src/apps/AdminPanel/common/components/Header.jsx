@@ -40,23 +40,23 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   }, []);
 
   const navigationItems = [
-    { name: "Dashboard", path: "/admin" },
-    { name: "Content", path: "/admin/content" },
-    { name: "Projects", path: "/admin/projects" },
-    { name: "Skills", path: "/admin/skills" },
-    { name: "Blog", path: "/admin/blog" },
-    { name: "Settings", path: "/admin/settings" },
+    { name: "Dashboard", path: "/__dx9k_ctrl" },
+    { name: "Content", path: "/__dx9k_ctrl/content" },
+    { name: "Projects", path: "/__dx9k_ctrl/projects" },
+    { name: "Skills", path: "/__dx9k_ctrl/skills" },
+    { name: "Blog", path: "/__dx9k_ctrl/blog" },
+    { name: "Settings", path: "/__dx9k_ctrl/settings" },
   ];
 
   const panelSwitchItems = [
     { name: "Portfolio", path: "/" },
     { name: "Marketplace", path: "/marketplace" },
-    { name: "Admin", path: "/admin", current: true },
+    { name: "Admin", path: "/__dx9k_ctrl", current: true },
   ];
 
   const isActive = (path) => {
-    if (path === "/admin" && location.pathname === "/admin") return true;
-    if (path !== "/admin" && location.pathname.startsWith(path)) return true;
+    if (path === "/__dx9k_ctrl" && location.pathname === "/__dx9k_ctrl") return true;
+    if (path !== "/__dx9k_ctrl" && location.pathname.startsWith(path)) return true;
     return false;
   };
 
@@ -89,7 +89,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             </button>
 
             {/* Logo */}
-            <Link to="/admin" className="flex items-center group">
+            <Link to="/__dx9k_ctrl" className="flex items-center group">
               <motion.div
                 className="relative"
                 whileHover={{ scale: 1.05 }}
@@ -159,7 +159,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
                         </div>
                       )}
                       <Link
-                        to="/admin/settings"
+                        to="/__dx9k_ctrl/settings"
                         className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         <Settings size={16} />

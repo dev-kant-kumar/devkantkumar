@@ -205,7 +205,7 @@ const TicketDetail = () => {
           </p>
         </div>
         <PremiumButton
-          onClick={() => navigate("/admin/support/tickets")}
+          onClick={() => navigate("/__dx9k_ctrl/support/tickets")}
           label="Back to Tickets"
           icon={ArrowLeft}
         />
@@ -229,7 +229,7 @@ const TicketDetail = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/admin/support/tickets")}
+            onClick={() => navigate("/__dx9k_ctrl/support/tickets")}
             className="p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/10 transition-all shadow-xl group"
           >
             <ArrowLeft className="w-5 h-5 text-gray-300 group-hover:-translate-x-1 transition-transform" />

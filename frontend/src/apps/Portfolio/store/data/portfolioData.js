@@ -420,7 +420,7 @@ export const portfolioData = {
     },
     communication: {
       telegram: "https://t.me/devkantkumar",
-      discord: "devkantkumar.in",
+      discord: "https://discord.com/users/devkantkumar",
       whatsapp: "https://wa.me/917294177563",
     },
     community: {

@@ -1,20 +1,19 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
-  ArrowLeft,
-  CheckCircle,
   Eye,
   EyeOff,
   Lock,
-  Mail,
   Shield,
-  Sparkles,
   XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { useAdminLoginMutation, useVerifyAdmin2FALoginMutation } from "../../store/api/adminApiSlice";
+import { useNavigate } from "react-router-dom";
+import {
+  useAdminLoginMutation,
+  useVerifyAdmin2FALoginMutation,
+} from "../../store/api/adminApiSlice";
 import {
   clearError,
   loginSuccess,
@@ -32,10 +31,11 @@ const AdminLogin = () => {
   const authError = useSelector(selectAuthError);
 
   // 2FA State
-  const [verify2FALogin, { isLoading: isVerifying2FA }] = useVerifyAdmin2FALoginMutation();
+  const [verify2FALogin, { isLoading: isVerifying2FA }] =
+    useVerifyAdmin2FALoginMutation();
   const [authFlow, setAuthFlow] = useState({
     show2FA: false,
-    tempToken: null
+    tempToken: null,
   });
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
@@ -48,9 +48,32 @@ const AdminLogin = () => {
   const [touched, setTouched] = useState({ email: false, password: false });
   const [fieldErrors, setFieldErrors] = useState({ email: "", password: "" });
 
+  // Mouse Parallax & Spotlight Effects
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleCardMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      setCoords({
+        x: (e.clientX - window.innerWidth / 2) / 35,
+        y: (e.clientY - window.innerHeight / 2) / 35,
+      });
+    };
+    window.addEventListener("mousemove", handleGlobalMouseMove);
+    return () => window.removeEventListener("mousemove", handleGlobalMouseMove);
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/admin");
+      navigate("/__dx9k_ctrl");
     }
   }, [isAuthenticated, navigate]);
 
@@ -73,7 +96,8 @@ const AdminLogin = () => {
 
     // Real-time validation as user types
     if (touched[name]) {
-      const error = name === "email" ? validateEmail(value) : validatePassword(value);
+      const error =
+        name === "email" ? validateEmail(value) : validatePassword(value);
       setFieldErrors((prev) => ({ ...prev, [name]: error }));
     }
 
@@ -117,26 +141,30 @@ const AdminLogin = () => {
       // Check if 2FA is required - be explicit about the check
       const requires2FA = Boolean(
         result?.otpRequired === true ||
-        result?.twoFactorRequired === true ||
-        (result?.tempToken && result?.tempToken.length > 0)
+          result?.twoFactorRequired === true ||
+          (result?.tempToken && result?.tempToken.length > 0),
       );
 
       if (requires2FA) {
         if (!result.tempToken) {
-          console.error('❌ [Login] ERROR: 2FA required but no tempToken provided!');
-          setServerError("Authentication error: Missing verification token. Please try again.");
+          console.error(
+            "❌ [Login] ERROR: 2FA required but no tempToken provided!",
+          );
+          setServerError(
+            "Authentication error: Missing verification token. Please try again.",
+          );
           return;
         }
 
         setAuthFlow({
           show2FA: true,
-          tempToken: result.tempToken
+          tempToken: result.tempToken,
         });
         setServerError("");
         return;
       }
 
-      navigate("/admin");
+      navigate("/__dx9k_ctrl");
     } catch (error) {
       // Extract error message from various possible error structures
       const errorMessage =
@@ -155,7 +183,7 @@ const AdminLogin = () => {
       ) {
         setFieldErrors({
           email: "No account found with this email address",
-          password: ""
+          password: "",
         });
         setServerError("");
       } else if (
@@ -165,23 +193,45 @@ const AdminLogin = () => {
       ) {
         setFieldErrors({
           email: "",
-          password: "Incorrect password. Please try again."
+          password: "Incorrect password. Please try again.",
         });
         setServerError("");
-      } else if (lowerMsg.includes("account locked") || lowerMsg.includes("too many")) {
-        setServerError("Your account has been temporarily locked due to too many failed login attempts. Please try again later.");
+      } else if (
+        lowerMsg.includes("account locked") ||
+        lowerMsg.includes("too many")
+      ) {
+        setServerError(
+          "Your account has been temporarily locked due to too many failed login attempts. Please try again later.",
+        );
         setFieldErrors({ email: "", password: "" });
-      } else if (lowerMsg.includes("deactivated") || lowerMsg.includes("inactive")) {
-        setServerError("Your account has been deactivated. Please contact support for assistance.");
+      } else if (
+        lowerMsg.includes("deactivated") ||
+        lowerMsg.includes("inactive")
+      ) {
+        setServerError(
+          "Your account has been deactivated. Please contact support for assistance.",
+        );
         setFieldErrors({ email: "", password: "" });
-      } else if (lowerMsg.includes("verify") || lowerMsg.includes("verification")) {
-        setServerError("Please verify your email address before logging in. Check your inbox for the verification link.");
+      } else if (
+        lowerMsg.includes("verify") ||
+        lowerMsg.includes("verification")
+      ) {
+        setServerError(
+          "Please verify your email address before logging in. Check your inbox for the verification link.",
+        );
         setFieldErrors({ email: "", password: "" });
       } else if (error.status === 429) {
-        setServerError("Too many login attempts. Please wait a few minutes and try again.");
+        setServerError(
+          "Too many login attempts. Please wait a few minutes and try again.",
+        );
         setFieldErrors({ email: "", password: "" });
-      } else if (error.status === "FETCH_ERROR" || lowerMsg.includes("network")) {
-        setServerError("Network error. Please check your internet connection and try again.");
+      } else if (
+        error.status === "FETCH_ERROR" ||
+        lowerMsg.includes("network")
+      ) {
+        setServerError(
+          "Network error. Please check your internet connection and try again.",
+        );
         setFieldErrors({ email: "", password: "" });
       } else {
         // Generic error for anything else
@@ -192,23 +242,23 @@ const AdminLogin = () => {
   };
 
   const handleOtpChange = (index, value) => {
-  if (value.length > 1) value = value[0];
-  if (!/^\d*$/.test(value)) return;
+    if (value.length > 1) value = value[0];
+    if (!/^\d*$/.test(value)) return;
 
-  const newOtp = [...otp];
-  newOtp[index] = value;
-  setOtp(newOtp);
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
 
-  // Auto focus next input with proper delay
-  if (value && index < 5) {
-    requestAnimationFrame(() => {
-      const nextInput = document.getElementById(`login-otp-${index + 1}`);
-      if (nextInput) {
-        nextInput.focus();
-      }
-    });
-  }
-};
+    // Auto focus next input with proper delay
+    if (value && index < 5) {
+      requestAnimationFrame(() => {
+        const nextInput = document.getElementById(`login-otp-${index + 1}`);
+        if (nextInput) {
+          nextInput.focus();
+        }
+      });
+    }
+  };
 
   const handle2FASubmit = async (e) => {
     e.preventDefault();
@@ -216,18 +266,23 @@ const AdminLogin = () => {
     // Clear any previous errors
     setServerError("");
 
-    if (otp.some(d => !d)) {
+    if (otp.some((d) => !d)) {
       setServerError("Please enter the complete 6-digit code");
       return;
     }
 
     try {
-      const result = await verify2FALogin({ tempToken: authFlow.tempToken, otp: otp.join("") }).unwrap();
-      console.log('🔐 [2FA] verify response:', result);
+      const result = await verify2FALogin({
+        tempToken: authFlow.tempToken,
+        otp: otp.join(""),
+      }).unwrap();
+      console.log("🔐 [2FA] verify response:", result);
 
       // Normalize response shape to find token/user in common locations
-      const token = result?.token || result?.data?.token || result?.data?.data?.token;
-      const user = result?.user || result?.data?.user || result?.data?.data?.user;
+      const token =
+        result?.token || result?.data?.token || result?.data?.data?.token;
+      const user =
+        result?.user || result?.data?.user || result?.data?.data?.user;
 
       if (token) {
         // Persist in localStorage and update auth slice (mirrors loginSuccess behavior)
@@ -235,13 +290,15 @@ const AdminLogin = () => {
         // Ensure local state cleared
         setAuthFlow({ show2FA: false, tempToken: null });
         setOtp(["", "", "", "", "", ""]);
-        navigate("/admin");
+        navigate("/__dx9k_ctrl");
         return;
       }
 
       // If we don't have a token, surface an error instead of navigating
-      setServerError("Verification succeeded but no authentication token was returned. Please try logging in again.");
-      console.error('❌ [2FA] Missing token in verify response', result);
+      setServerError(
+        "Verification succeeded but no authentication token was returned. Please try logging in again.",
+      );
+      console.error("❌ [2FA] Missing token in verify response", result);
     } catch (error) {
       const errorMessage =
         error?.data?.message ||
@@ -276,74 +333,72 @@ const AdminLogin = () => {
     !fieldErrors.password;
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-900">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-indigo-600/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-br from-cyan-400/20 to-blue-600/20 rounded-full blur-3xl animate-pulse delay-2000" />
+    <div className="min-h-screen flex items-center justify-center bg-[#070809] text-slate-100 transition-colors duration-300 relative overflow-hidden select-none">
+      {/* Background radial soft lights */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div
+          animate={{
+            x: coords.x * -1.5,
+            y: coords.y * -1.5,
+          }}
+          transition={{ type: "spring", stiffness: 80, damping: 25 }}
+          className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-rose-500/5 rounded-full blur-[140px]"
+        />
+        <motion.div
+          animate={{
+            x: coords.x * 1.5,
+            y: coords.y * 1.5,
+          }}
+          transition={{ type: "spring", stiffness: 80, damping: 25 }}
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-slate-900/50 rounded-full blur-[120px]"
+        />
       </div>
 
-      {/* Left Side - Login Form */}
-      <div className="relative flex-1 flex flex-col justify-center px-6 sm:px-8 lg:px-16 xl:px-24 z-10">
-        <div className="mx-auto w-full max-w-md">
-          {/* Back Button */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-8"
-          >
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span>Back to Portfolio</span>
-            </Link>
-          </motion.div>
+      <div className="relative z-10 w-full max-w-sm px-4">
+        {/* Glow behind card top-left corner */}
+        <div className="absolute -top-12 -left-12 w-32 h-32 rounded-full bg-rose-600/15 blur-2xl pointer-events-none" />
+
+        {/* The Glass Login Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          onMouseMove={handleCardMouseMove}
+          style={{
+            background: `radial-gradient(350px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 255, 255, 0.03), transparent 80%), rgba(12, 13, 14, 0.65)`,
+          }}
+          className="p-9 rounded-[32px] border border-white/[0.08] shadow-2xl backdrop-blur-3xl relative overflow-hidden group"
+        >
+          {/* Bevel highlights */}
+          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-white/15 via-white/5 to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 bottom-0 w-[1.5px] bg-gradient-to-b from-white/15 via-white/5 to-transparent pointer-events-none" />
 
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-10"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/25">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                  Welcome Back
-                </h1>
-                <Sparkles className="w-5 h-5 text-yellow-500 animate-pulse" />
-              </div>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-              Sign in to access your admin dashboard and manage your portfolio
-              with powerful tools.
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-extrabold text-white tracking-tight leading-none flex items-center justify-center gap-2">
+              <Shield className="w-6 h-6 text-[#ff1a53] flex-shrink-0" /> Restricted Access
+            </h1>
+            <p className="text-xs text-slate-500 mt-3 font-medium px-4 leading-normal">
+              Authorised personnel only. Verify your credentials to continue.
             </p>
-          </motion.div>
+          </div>
 
-          {/* Error Alert */}
+          {/* Alert Error Box */}
           <AnimatePresence mode="wait">
             {(authError || loginError || serverError) && (
               <motion.div
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl"
+                className="mb-5 p-4 bg-rose-950/20 border border-rose-900/30 rounded-2xl backdrop-blur-sm text-left"
               >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-500" />
-                  </div>
+                <div className="flex items-start gap-2.5">
+                  <XCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-red-900 dark:text-red-200 mb-1">
+                    <p className="text-[11px] font-bold text-rose-200">
                       Authentication Failed
                     </p>
-                    <p className="text-xs text-red-700 dark:text-red-400 leading-relaxed">
+                    <p className="text-[10px] text-rose-400/90 leading-relaxed font-medium mt-0.5">
                       {getErrorMessage()}
                     </p>
                   </div>
@@ -352,7 +407,7 @@ const AdminLogin = () => {
             )}
           </AnimatePresence>
 
-          {/* Login Form */}
+          {/* Dynamic forms */}
           <AnimatePresence mode="wait">
             {authFlow.show2FA && authFlow.tempToken ? (
               <motion.form
@@ -361,15 +416,19 @@ const AdminLogin = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6"
+                className="space-y-5"
                 onSubmit={handle2FASubmit}
               >
-                <div className="text-center mb-6">
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">Two-Factor Authentication</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Enter the 6-digit code from your authenticator app</p>
+                <div className="text-center">
+                  <h3 className="text-sm font-bold text-slate-200 flex items-center justify-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-rose-500" /> Two-Factor Verify
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    Enter the 6-digit verification code from your authenticator app
+                  </p>
                 </div>
 
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-1.5 justify-center py-2">
                   {otp.map((digit, idx) => (
                     <input
                       key={`otp-input-${idx}`}
@@ -381,12 +440,14 @@ const AdminLogin = () => {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Backspace' && !digit && idx > 0) {
-                          const prevInput = document.getElementById(`login-otp-${idx-1}`);
+                        if (e.key === "Backspace" && !digit && idx > 0) {
+                          const prevInput = document.getElementById(
+                            `login-otp-${idx - 1}`,
+                          );
                           if (prevInput) prevInput.focus();
                         }
                       }}
-                      className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                      className="w-10 h-12 text-center text-md font-bold rounded-xl border border-white/10 bg-white/5 text-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 outline-none transition-all"
                       autoFocus={idx === 0}
                     />
                   ))}
@@ -394,18 +455,18 @@ const AdminLogin = () => {
 
                 <motion.button
                   type="submit"
-                  disabled={isVerifying2FA || otp.some(d => !d)}
+                  disabled={isVerifying2FA || otp.some((d) => !d)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg hover:shadow-blue-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-rose-600 to-orange-600 shadow-md hover:shadow-lg hover:shadow-rose-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider cursor-pointer"
                 >
                   {isVerifying2FA ? (
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Verifying...</span>
                     </div>
                   ) : (
-                    "Verify Code"
+                    "Verify security token"
                   )}
                 </motion.button>
 
@@ -416,322 +477,130 @@ const AdminLogin = () => {
                     setOtp(["", "", "", "", "", ""]);
                     setServerError("");
                   }}
-                  className="w-full text-center text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                  className="w-full text-center text-[10px] font-semibold text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
                 >
-                  Back to Login
+                  Back to credentials login
                 </button>
               </motion.form>
             ) : (
-          <motion.form
-            key="login-form"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Email Address
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                  <Mail
-                    className={`w-5 h-5 transition-colors flex-shrink-0 ${
-                      touched.email && !fieldErrors.email && formData.email
-                        ? "text-green-500"
-                        : touched.email && fieldErrors.email
-                        ? "text-red-500"
-                        : "text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500"
-                    }`}
-                  />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("email")}
-                  className={`block w-full pl-12 pr-12 py-3.5 text-sm bg-white dark:bg-slate-800/50 border-2 rounded-xl transition-all duration-200 backdrop-blur-sm ${
-                    touched.email && fieldErrors.email
-                      ? "border-red-300 dark:border-red-800 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
-                      : touched.email && !fieldErrors.email && formData.email
-                      ? "border-green-300 dark:border-green-800 focus:border-green-500 focus:ring-4 focus:ring-green-500/10"
-                      : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                  } text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none`}
-                  placeholder="admin@devkantkumar.com"
-                />
-                {touched.email && formData.email && (
-                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                    {fieldErrors.email ? (
-                      <XCircle className="w-5 h-5 text-red-500" />
-                    ) : (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+              <motion.form
+                key="login-form"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4 }}
+                onSubmit={handleSubmit}
+                className="space-y-4"
+              >
+                {/* Email Field */}
+                <div className="space-y-1">
+                  <div className="px-5 py-2.5 rounded-2xl bg-[#131415] border border-white/10 focus-within:border-white/20 focus-within:ring-2 focus-within:ring-white/5 transition-all">
+                    <label className="block text-[10px] font-medium text-slate-500 text-left">
+                      Email Address:
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur("email")}
+                      className="block w-full bg-transparent border-0 p-0 text-sm text-slate-200 placeholder-slate-600 focus:ring-0 outline-none text-left mt-0.5 autofill:shadow-[inset_0_0_0_1000px_#131415]"
+                      style={formData.email ? { WebkitTextFillColor: "#f1f5f9" } : {}}
+                      placeholder="admin@domain.com"
+                    />
+                  </div>
+                  <AnimatePresence>
+                    {touched.email && fieldErrors.email && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="text-[10px] text-rose-500 font-semibold flex items-center gap-1 pl-2 pt-0.5"
+                      >
+                        <AlertCircle className="w-3 h-3" />
+                        {fieldErrors.email}
+                      </motion.p>
                     )}
-                  </div>
-                )}
-              </div>
-              <AnimatePresence>
-                {touched.email && fieldErrors.email && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-1"
-                  >
-                    <AlertCircle className="w-3 h-3" />
-                    {fieldErrors.email}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Password
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                  <Lock
-                    className={`w-5 h-5 transition-colors flex-shrink-0 ${
-                      touched.password &&
-                      !fieldErrors.password &&
-                      formData.password
-                        ? "text-green-500"
-                        : touched.password && fieldErrors.password
-                        ? "text-red-500"
-                        : "text-slate-500 dark:text-slate-400 group-focus-within:text-blue-500"
-                    }`}
-                  />
+                  </AnimatePresence>
                 </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  onBlur={() => handleBlur("password")}
-                  className={`block w-full pl-12 pr-12 py-3.5 text-sm bg-white dark:bg-slate-800/50 border-2 rounded-xl transition-all duration-200 backdrop-blur-sm ${
-                    touched.password && fieldErrors.password
-                      ? "border-red-300 dark:border-red-800 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
-                      : touched.password &&
-                        !fieldErrors.password &&
-                        formData.password
-                      ? "border-green-300 dark:border-green-800 focus:border-green-500 focus:ring-4 focus:ring-green-500/10"
-                      : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                  } text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none`}
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center"
+
+                {/* Password Field */}
+                <div className="space-y-1">
+                  <div className="relative px-5 py-2.5 rounded-2xl bg-[#131415] border border-white/10 focus-within:border-white/20 focus-within:ring-2 focus-within:ring-white/5 transition-all flex items-center justify-between">
+                    <div className="flex-1 pr-8">
+                      <label className="block text-[10px] font-medium text-slate-500 text-left">
+                        Password:
+                      </label>
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("password")}
+                        className="block w-full bg-transparent border-0 p-0 text-sm text-slate-200 placeholder-slate-700 focus:ring-0 outline-none text-left mt-0.5 autofill:shadow-[inset_0_0_0_1000px_#131415]"
+                        style={formData.password ? { WebkitTextFillColor: "#f1f5f9" } : {}}
+                        placeholder="••••••••••••"
+                      />
+                    </div>
+
+                    {/* Visibility Toggle Button inside password box */}
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <AnimatePresence>
+                    {touched.password && fieldErrors.password && (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="text-[10px] text-rose-500 font-semibold flex items-center gap-1 pl-2 pt-0.5"
+                      >
+                        <AlertCircle className="w-3 h-3" />
+                        {fieldErrors.password}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Dedicated full-width premium submit button */}
+                <motion.button
+                  type="submit"
+                  disabled={isLoginLoading || !isFormValid}
+                  whileHover={{ scale: isLoginLoading ? 1 : 1.01 }}
+                  whileTap={{ scale: isLoginLoading ? 1 : 0.99 }}
+                  className="w-full py-3.5 px-4 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-[#ff1a53] to-[#ff6a00] shadow-[0_4px_20px_rgba(255,26,83,0.3)] hover:shadow-[0_4px_25px_rgba(255,26,83,0.55)] transition-all uppercase tracking-wider cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 mt-5"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" />
+                  {isLoginLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Authorizing Credentials...</span>
+                    </>
                   ) : (
-                    <Eye className="w-5 h-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" />
+                    <>
+                      <Shield className="w-3.5 h-3.5" />
+                      <span>Unlock Portal Gateway</span>
+                    </>
                   )}
-                </button>
-              </div>
-              <AnimatePresence>
-                {touched.password && fieldErrors.password && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-1"
-                  >
-                    <AlertCircle className="w-3 h-3" />
-                    {fieldErrors.password}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Submit Button */}
-            <motion.button
-              type="submit"
-              disabled={isLoginLoading || !isFormValid}
-              whileHover={{ scale: isLoginLoading ? 1 : 1.01 }}
-              whileTap={{ scale: isLoginLoading ? 1 : 0.99 }}
-              className={`relative w-full py-3.5 px-4 rounded-xl font-semibold text-sm text-white shadow-lg transition-all duration-200 overflow-hidden ${
-                isLoginLoading || !isFormValid
-                  ? "bg-slate-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:shadow-xl hover:shadow-blue-500/25"
-              }`}
-            >
-              {!isLoginLoading && (
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 opacity-0 hover:opacity-20 transition-opacity" />
-              )}
-              <span className="relative flex items-center justify-center gap-2">
-                {isLoginLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Authenticating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Shield className="w-4 h-4" />
-                    <span>Sign In Securely</span>
-                  </>
-                )}
-              </span>
-            </motion.button>
-          </motion.form>
-          )}
+                </motion.button>
+              </motion.form>
+            )}
           </AnimatePresence>
-
-
-          {/* Footer */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-8 text-center"
-          >
-            <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-              <Shield className="w-3.5 h-3.5" />
-              <span>Protected by enterprise-grade security</span>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Right Side - Branding */}
-      <div className="hidden lg:flex lg:flex-1 relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950">
-        {/* Animated Grid Background */}
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)`,
-              backgroundSize: "48px 48px",
-            }}
-          />
-        </div>
-
-        {/* Gradient Orbs */}
-        <div className="absolute top-20 right-20 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-purple-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-16 py-12 text-white">
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Logo */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mb-12"
-            >
-              <div className="inline-flex items-center gap-3 p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                  <Shield className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">Admin Portal</h3>
-                  <p className="text-xs text-blue-200">Dev Kant Kumar</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Heading */}
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-indigo-200 bg-clip-text text-transparent"
-            >
-              Manage Your Digital Empire
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg text-blue-100 mb-12 leading-relaxed"
-            >
-              Access powerful tools to showcase your work and connect with
-              opportunities
-            </motion.p>
-
-            {/* Features */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="space-y-4 mb-12"
-            >
-              {[
-                {
-                  icon: "🎨",
-                  title: "Portfolio Management",
-                  desc: "Showcase your best projects",
-                },
-                {
-                  icon: "📊",
-                  title: "Analytics Dashboard",
-                  desc: "Track visitor engagement",
-                },
-                {
-                  icon: "✉️",
-                  title: "Message Center",
-                  desc: "Connect with opportunities",
-                },
-                {
-                  icon: "🔒",
-                  title: "Security First",
-                  desc: "Enterprise-grade protection",
-                },
-              ].map((feature, index) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="flex items-start gap-4 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 group"
-                >
-                  <span className="text-3xl group-hover:scale-110 transition-transform">
-                    {feature.icon}
-                  </span>
-                  <div>
-                    <h4 className="font-semibold text-white mb-1">
-                      {feature.title}
-                    </h4>
-                    <p className="text-sm text-blue-200">{feature.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Quote */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="p-6 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl"
-            >
-              <p className="text-blue-100 italic mb-3 leading-relaxed">
-                "Excellence is not a skill, it's an attitude. Keep building
-                amazing things."
-              </p>
-              <p className="text-blue-300 text-sm font-semibold">
-                — Ralph Marston
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

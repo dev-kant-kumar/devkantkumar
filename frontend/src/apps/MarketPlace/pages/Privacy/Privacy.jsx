@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import MarketPlaceSEO from '../../components/SEO/MarketPlaceSEO';
 
 const Privacy = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      <MarketPlaceSEO
+        title="Privacy Policy — Dev Kant Kumar Marketplace"
+        description="Read the Dev Kant Kumar Marketplace privacy policy. Learn how we collect, use, and protect your personal data when you use our digital products and services."
+        keywords={["marketplace privacy policy", "data protection", "personal data", "GDPR", "developer marketplace privacy"]}
+        url="https://www.devkantkumar.com/marketplace/privacy"
+        canonical="https://www.devkantkumar.com/marketplace/privacy"
+        type="website"
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

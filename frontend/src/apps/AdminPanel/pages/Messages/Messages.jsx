@@ -53,7 +53,7 @@ const Messages = () => {
     try {
       await deleteMsg(msgToDelete).unwrap();
       toast.success("Message deleted");
-      if (id === msgToDelete) navigate('/admin/messages');
+      if (id === msgToDelete) navigate('/__dx9k_ctrl/messages');
       setMsgToDelete(null);
     } catch {
       toast.error("Failed to delete message");
@@ -134,7 +134,7 @@ const Messages = () => {
                     filteredMessages.map((msg) => (
                       <div
                         key={msg._id}
-                        onClick={() => navigate(`/admin/messages/${msg._id}`)}
+                        onClick={() => navigate(`/__dx9k_ctrl/messages/${msg._id}`)}
                         className={`flex items-center gap-4 px-4 md:px-6 py-2.5 border-b border-gray-50 dark:border-gray-800/50 group cursor-pointer transition-all hover:bg-white/60 dark:hover:bg-gray-800/20 relative overflow-hidden ${!msg.isRead ? 'bg-white dark:bg-gray-800/10' : 'bg-transparent filter grayscale-[0.2]'}`}
                       >
                          {!msg.isRead && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-600" />}
@@ -184,7 +184,7 @@ const Messages = () => {
              <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between bg-white/40 dark:bg-gray-800/20">
                 <div className="flex items-center gap-1.5">
                    <button
-                    onClick={() => navigate('/admin/messages')}
+                    onClick={() => navigate('/__dx9k_ctrl/messages')}
                     className="p-2 text-gray-500 hover:bg-gray-200/50 dark:hover:bg-gray-800 rounded-full transition-all group"
                    >
                       <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
