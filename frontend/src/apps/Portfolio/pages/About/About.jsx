@@ -1,61 +1,110 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  BookOpen,
-  Gem,
-  GraduationCap,
-  Handshake,
-  Rocket,
-  Target,
-  Zap,
-  Code,
-  MapPin,
-  Clock,
   ArrowUpRight,
   Award,
-  Sparkles
+  BookOpen,
+  CalendarDays,
+  Check,
+  Copy,
+  ExternalLink,
+  Gem,
+  Globe2,
+  GraduationCap,
+  Handshake,
+  Mail,
+  MapPin,
+  Rocket,
+  Sparkles,
+  Target,
+  Volume2,
+  VolumeX,
+  Zap,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { portfolioData } from "../../store/data/portfolioData";
 import SEOHead from "../../../../components/SEO/SEOHead";
+import { portfolioData } from "../../store/data/portfolioData";
 
 const About = () => {
   const [activeTab, setActiveTab] = useState("story");
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = () => {
+    const email = personalInfo.contact?.email || "hello@devkantkumar.com";
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const {
     personalInfo = {},
     professionalSummary = {},
     workExperience = [],
     education = {},
-    achievements = [],
     interests = [],
     careerObjectives = {},
   } = portfolioData || {};
 
-  const tabs = useMemo(() => [
-    { id: "story", label: "My Story", icon: BookOpen },
-    { id: "journey", label: "Journey", icon: Rocket },
-    { id: "values", label: "Values", icon: Gem },
-    { id: "goals", label: "Goals", icon: Target },
-  ], []);
+  const educationSchema = useMemo(() => JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "EducationalOccupationalCredential",
+    name: education.degree,
+    description: `${education.degree} in ${education.field} from ${education.institution}, ${education.location}`,
+    educationalLevel: "Bachelor",
+    credentialCategory: "degree",
+    recognizedBy: {
+      "@type": "CollegeOrUniversity",
+      name: education.institution,
+      url: education.website,
+      address: { "@type": "PostalAddress", addressLocality: "Hazaribagh", addressRegion: "Jharkhand", addressCountry: "IN" },
+    },
+    holder: { "@type": "Person", name: "Dev Kant Kumar", url: "https://www.devkantkumar.com" },
+  }), [education]);
 
-  const coreValues = useMemo(() => [
-    {
-      title: "Quality First",
-      description: "Every line of code is written with precision and purpose, ensuring clean, robust, and maintainable solutions.",
-      icon: Zap
-    },
-    {
-      title: "Continuous Growth",
-      description: "Constantly exploring new libraries, frameworks, and best practices to stay at the cutting edge.",
-      icon: GraduationCap
-    },
-    {
-      title: "Collaboration",
-      description: "Believing in clear, friendly teamwork and open communication to bring exceptional digital ideas to life.",
-      icon: Handshake
-    }
-  ], []);
+  const tabs = useMemo(
+    () => [
+      { id: "story", label: "My Story", icon: BookOpen },
+      { id: "journey", label: "Journey", icon: Rocket },
+      { id: "values", label: "Values", icon: Gem },
+      { id: "goals", label: "Goals", icon: Target },
+    ],
+    [],
+  );
+
+  const coreValues = useMemo(
+    () => [
+      {
+        title: "Quality First",
+        description:
+          "Every line of code is written with precision and purpose, ensuring clean, robust, and maintainable solutions.",
+        icon: Zap,
+      },
+      {
+        title: "Continuous Growth",
+        description:
+          "Constantly exploring new libraries, frameworks, and best practices to stay at the cutting edge.",
+        icon: GraduationCap,
+      },
+      {
+        title: "Collaboration",
+        description:
+          "Believing in clear, friendly teamwork and open communication to bring exceptional digital ideas to life.",
+        icon: Handshake,
+      },
+    ],
+    [],
+  );
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -98,7 +147,6 @@ const About = () => {
       />
 
       <div className="bg-slate-950 text-slate-100 min-h-screen selection:bg-cyan-500/30 selection:text-cyan-300">
-        
         {/* Hero Section */}
         <section className="relative pt-32 pb-16 overflow-hidden">
           {/* Advanced Background Effects */}
@@ -141,7 +189,6 @@ const About = () => {
             className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12"
           >
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-              
               {/* Left Content */}
               <div className="text-left space-y-6">
                 <motion.div variants={itemVariants}>
@@ -154,7 +201,9 @@ const About = () => {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                     </span>
-                    <span className="uppercase tracking-wider font-bold">ABOUT ME</span>
+                    <span className="uppercase tracking-wider font-bold">
+                      ABOUT ME
+                    </span>
                   </motion.div>
                 </motion.div>
 
@@ -194,25 +243,50 @@ const About = () => {
                 </motion.div>
               </div>
 
-              {/* Right Content - Elegant Profile Image Deck */}
-              <motion.div variants={itemVariants} className="relative flex justify-center">
-                <div className="relative w-72 h-72 sm:w-80 sm:h-80">
+              {/* Right Content — Reel Video */}
+              <motion.div
+                variants={itemVariants}
+                className="relative flex justify-center"
+              >
+                <div className="relative w-64 sm:w-72" style={{ aspectRatio: "9/16", maxHeight: "480px" }}>
+                  {/* Glow */}
                   <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 rounded-3xl blur-2xl pointer-events-none" />
-                  
-                  <div className="relative w-full h-full bg-slate-950/80 rounded-3xl p-2.5 border border-slate-900 backdrop-blur-2xl shadow-2xl overflow-hidden group">
-                    {/* Floating HUD ring */}
-                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-cyan-500/10 via-transparent to-purple-600/10 pointer-events-none" />
 
-                    <img
-                      src={personalInfo.profileImage}
-                      alt={personalInfo.name}
-                      className="w-full h-full object-cover rounded-2xl filter brightness-95 contrast-105"
+                  {/* Video */}
+                  <div className="relative w-full h-full rounded-3xl border border-slate-800 overflow-hidden shadow-2xl group">
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-cyan-500/10 via-transparent to-purple-600/10 pointer-events-none z-10" />
+                    <video
+                      ref={videoRef}
+                      src="https://res.cloudinary.com/dmcdecnoz/video/upload/cap-theorem_z6chek.mp4"
+                      poster="https://res.cloudinary.com/dmcdecnoz/video/upload/so_0/cap-theorem_z6chek.jpg"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                      aria-label="Dev Kant Kumar explaining CAP Theorem in 2 minutes"
                     />
+                    {/* Mute/Unmute toggle */}
+                    <button
+                      onClick={toggleMute}
+                      className="absolute bottom-3 right-3 z-20 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white hover:bg-black/80 hover:border-white/20 transition-all duration-200"
+                      aria-label={isMuted ? "Unmute video" : "Mute video"}
+                    >
+                      {isMuted
+                        ? <VolumeX className="w-3.5 h-3.5" />
+                        : <Volume2 className="w-3.5 h-3.5" />}
+                     </button>
+
+                    {/* Top overlay label */}
+                    <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest">System Design</span>
+                    </div>
                   </div>
 
-                  {/* High Tech Accent Nodes */}
+                  {/* Accent nodes */}
                   <motion.div
-                    className="absolute -top-3 -right-3 w-6 h-6 rounded-xl bg-slate-900 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-lg shadow-cyan-500/10"
+                    className="absolute -top-3 -right-3 w-6 h-6 rounded-xl bg-slate-900 border border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10 z-20"
                     animate={{ y: [-6, 6, -6] }}
                     transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                   >
@@ -220,15 +294,29 @@ const About = () => {
                   </motion.div>
 
                   <motion.div
-                    className="absolute -bottom-3 -left-3 w-6 h-6 rounded-xl bg-slate-900 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-lg shadow-purple-500/10"
+                    className="absolute -bottom-3 -left-3 w-6 h-6 rounded-xl bg-slate-900 border border-purple-500/30 flex items-center justify-center shadow-lg shadow-purple-500/10 z-20"
                     animate={{ y: [6, -6, 6] }}
                     transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                   >
                     <Award className="w-3 h-3 text-purple-400" />
                   </motion.div>
                 </div>
-              </motion.div>
 
+                {/* Caption badge below video */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5 }}
+                  className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 shadow-lg"
+                >
+                  <span className="text-[11px] font-semibold text-slate-300">CAP Theorem explained</span>
+                  <span className="text-slate-600 text-[10px]">·</span>
+                  <span className="text-[11px] text-cyan-400 font-mono">2 min</span>
+                </motion.div>
+
+
+
+              </motion.div>
             </div>
           </motion.div>
         </section>
@@ -236,7 +324,6 @@ const About = () => {
         {/* Interactive Story, Journey, Values, Goals Tabs Section */}
         <section className="py-20 bg-slate-950 border-t border-slate-900/60 relative z-10">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-            
             {/* Tab Navigation Menu */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -283,22 +370,34 @@ const About = () => {
               transition={{ duration: 0.5 }}
               className="max-w-4xl mx-auto"
             >
-              
               {/* Tab 1: Story sheet */}
               {activeTab === "story" && (
                 <div className="space-y-8 text-center">
-                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-wide">My Story</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-wide">
+                    My Story
+                  </h2>
                   <div className="grid md:grid-cols-2 gap-8 text-left">
                     <div className="bg-slate-950/80 border border-slate-900 rounded-2xl p-8 backdrop-blur-xl shadow-2xl">
-                      <h3 className="text-lg font-bold text-cyan-300 mb-4 tracking-wide">The Beginning</h3>
+                      <h3 className="text-lg font-bold text-cyan-300 mb-4 tracking-wide">
+                        The Beginning
+                      </h3>
                       <p className="text-slate-400 text-sm leading-relaxed">
-                        My entry into the digital space was driven by raw curiosity and a clear passion for creating digital solutions. What started as simple experiments writing HTML and CSS grew into a deep, career-long focus on full-stack MERN engineering.
+                        My entry into the digital space was driven by raw
+                        curiosity and a clear passion for creating digital
+                        solutions. What started as simple experiments writing
+                        HTML and CSS grew into a deep, career-long focus on
+                        full-stack MERN engineering.
                       </p>
                     </div>
                     <div className="bg-slate-950/80 border border-slate-900 rounded-2xl p-8 backdrop-blur-xl shadow-2xl">
-                      <h3 className="text-lg font-bold text-purple-300 mb-4 tracking-wide">The Growth</h3>
+                      <h3 className="text-lg font-bold text-purple-300 mb-4 tracking-wide">
+                        The Growth
+                      </h3>
                       <p className="text-slate-400 text-sm leading-relaxed">
-                        Through continuous learning and building real projects, I've built expertise in building modern, scalable React applications, robust Node.js backend APIs, and efficient MongoDB architectures.
+                        Through continuous learning and building real projects,
+                        I've built expertise in building modern, scalable React
+                        applications, robust Node.js backend APIs, and efficient
+                        MongoDB architectures.
                       </p>
                     </div>
                   </div>
@@ -339,9 +438,13 @@ const About = () => {
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-3 text-xs mb-4">
-                              <span className="text-cyan-400 font-bold uppercase tracking-wider">{experience.company}</span>
+                              <span className="text-cyan-400 font-bold uppercase tracking-wider">
+                                {experience.company}
+                              </span>
                               <span className="text-slate-600">•</span>
-                              <span className="text-slate-400 font-medium font-mono">{experience.duration}</span>
+                              <span className="text-slate-400 font-medium font-mono">
+                                {experience.duration}
+                              </span>
                             </div>
                             <p className="text-slate-400 text-sm leading-relaxed mb-4">
                               {experience.description}
@@ -387,7 +490,9 @@ const About = () => {
                         <h3 className="text-lg font-bold text-white mb-3 tracking-wide">
                           {value.title}
                         </h3>
-                        <p className="text-slate-400 text-xs leading-relaxed">{value.description}</p>
+                        <p className="text-slate-400 text-xs leading-relaxed">
+                          {value.description}
+                        </p>
                       </motion.div>
                     ))}
                   </div>
@@ -407,7 +512,10 @@ const About = () => {
                       </h3>
                       <ul className="space-y-3 text-slate-400 text-xs">
                         {careerObjectives.goals.map((goal, index) => (
-                          <li key={index} className="flex items-start gap-2.5 leading-relaxed">
+                          <li
+                            key={index}
+                            className="flex items-start gap-2.5 leading-relaxed"
+                          >
                             <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0" />
                             <span>{goal}</span>
                           </li>
@@ -432,92 +540,273 @@ const About = () => {
                   </div>
                 </div>
               )}
-
             </motion.div>
           </div>
         </section>
 
-        {/* Key Achievements Grid Section */}
-        <section className="py-24 bg-slate-950 border-t border-slate-900/60 relative z-10">
-          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-            
-            {/* Header */}
-            <motion.div variants={itemVariants} className="text-center mb-16 space-y-4">
+
+        {/* Education Section */}
+        <section
+          className="py-24 bg-slate-950 border-t border-slate-900/60 relative z-10"
+          aria-label="Education Background"
+          itemScope
+          itemType="https://schema.org/EducationalOccupationalCredential"
+        >
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: educationSchema }}
+          />
+
+          <div className="max-w-5xl mx-auto px-6 sm:px-8 lg:px-12">
+
+            {/* Section Header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-16 space-y-4"
+            >
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase">
-                <Award className="w-3.5 h-3.5 text-cyan-400" />
-                ACCOMPLISHMENTS // 02
+                <GraduationCap className="w-3.5 h-3.5" />
+                EDUCATION
               </span>
               <h2 className="text-4xl lg:text-5xl font-black tracking-tight text-white">
-                Milestones & <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">Achievements</span>
+                Academic{" "}
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">
+                  Background
+                </span>
               </h2>
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                Core milestones that showcase my dedicated progression as a MERN full-stack developer.
+              <p className="text-slate-400 text-base max-w-xl mx-auto">
+                Formal education building the theoretical foundation behind every system I engineer.
               </p>
             </motion.div>
 
-            {/* Achievements Grid */}
-            <div className="grid md:grid-cols-3 gap-6 text-left">
-              {achievements.map((achievement, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  className="bg-slate-950/80 border border-slate-900 rounded-2xl p-6 backdrop-blur-xl shadow-2xl hover:border-cyan-500/30 transition-all duration-300 group flex items-start gap-3.5"
-                  whileHover={{ y: -4 }}
-                >
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/10 group-hover:border-cyan-400/30 transition-colors flex-shrink-0 shadow-sm">
-                    <Sparkles className="w-4 h-4" />
+            {/* Main Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.65 }}
+            >
+              <div className="relative bg-slate-950/80 border border-slate-800 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
+
+                {/* Top gradient accent */}
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+
+                {/* Institution Header */}
+                <div className="p-8 sm:p-10 pb-0">
+                  <div className="flex flex-wrap items-start justify-between gap-6">
+
+                    {/* Left — Degree + Institution */}
+                    <div className="flex gap-4 items-start">
+                      <div className="w-14 h-14 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="w-7 h-7 text-cyan-400" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <h3
+                          className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight"
+                          itemProp="name"
+                        >
+                          {education.degree}
+                        </h3>
+                        <p className="text-xs text-slate-500 font-medium" itemProp="description">
+                          {education.field}
+                        </p>
+                        <a
+                          href={education.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-cyan-400 font-bold text-sm hover:text-cyan-300 transition-colors group"
+                          aria-label={`Visit ${education.institution} official website`}
+                          itemProp="url"
+                        >
+                          {education.institution}
+                          <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Right — Meta badges */}
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/50 text-emerald-400 text-xs rounded-xl border border-emerald-500/25 font-bold uppercase tracking-wider">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        {education.status}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-slate-400 text-xs rounded-xl border border-slate-800 font-mono">
+                        <CalendarDays className="w-3.5 h-3.5" />
+                        {education.duration}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-slate-400 text-sm leading-relaxed group-hover:text-white transition-colors duration-300 font-medium pt-1">
-                    {achievement}
+
+                  {/* Meta row */}
+                  <div className="flex flex-wrap gap-4 mt-5 mb-8 text-xs text-slate-500 font-medium">
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-slate-600" />
+                      {education.location}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Globe2 className="w-3.5 h-3.5 text-slate-600" />
+                      {education.type}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="mx-8 sm:mx-10 border-t border-slate-800/80" />
+
+                {/* Core Subjects */}
+                <div className="p-8 sm:p-10">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">
+                    Core Subjects
                   </p>
-                </motion.div>
-              ))}
-            </div>
+                  <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
+                    {education.focusAreas?.map((subject) => (
+                      <div key={subject} className="flex items-center gap-2 text-slate-300 text-sm">
+                        <span className="w-1 h-1 rounded-full bg-cyan-500 flex-shrink-0" />
+                        {subject}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+
+                {/* Bottom gradient accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+              </div>
+            </motion.div>
 
           </div>
         </section>
 
         {/* CTA Segment */}
         <section className="py-24 bg-slate-950 border-t border-slate-900/60 relative overflow-hidden z-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.02),transparent_70%)] pointer-events-none" />
+          {/* Ambient Background Lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(6,182,212,0.03),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.03),transparent_70%)] pointer-events-none" />
           
-          <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
-            <motion.div 
-              variants={itemVariants}
-              className="bg-slate-950/80 border border-slate-800/80 rounded-3xl p-10 sm:p-14 backdrop-blur-2xl shadow-2xl relative overflow-hidden text-center space-y-8"
-              whileHover={{ borderColor: "rgba(6, 182, 212, 0.25)" }}
-            >
-              <div className="space-y-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase">
-                  <Handshake className="w-3.5 h-3.5 text-cyan-400" />
-                  COLLABORATE // 03
-                </span>
-                <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none">
-                  Ready to build <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">something amazing?</span>
-                </h2>
-                <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                  Let's work together to bring your ideas to life with clean code and great design.
-                </p>
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+            <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+              
+              {/* Left Column - Headline & Main CTA */}
+              <div className="lg:col-span-7 space-y-8 text-left">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="space-y-6"
+                >
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase">
+                    <Handshake className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                    COLLABORATE // 03
+                  </span>
+                  
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] max-w-2xl">
+                    Ready to build{" "}
+                    <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">
+                      something amazing?
+                    </span>
+                  </h2>
+                  
+                  <p className="text-lg text-slate-400 max-w-xl leading-relaxed font-medium">
+                    Let's work together to bring your ideas to life with clean, scalable code and exceptional user-centric design.
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="flex flex-col sm:flex-row gap-4 pt-2"
+                >
+                  <Link
+                    to="/contact"
+                    className="group px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 transition-all text-center tracking-wider uppercase text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>Get In Touch</span>
+                    <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </Link>
+                  <Link
+                    to="/projects"
+                    className="px-8 py-4 border border-slate-800 bg-slate-900/60 text-slate-300 font-bold rounded-xl hover:border-slate-650 hover:text-white transition-all text-center tracking-wider uppercase text-xs sm:text-sm backdrop-blur-xl cursor-pointer"
+                  >
+                    Explore Projects
+                  </Link>
+                </motion.div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                <Link
-                  to="/contact"
-                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 transition-all text-center tracking-wider uppercase text-xs sm:text-sm cursor-pointer"
+              {/* Right Column - Status Deck & Copy Card */}
+              <div className="lg:col-span-5">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="bg-slate-900/30 border border-slate-800/80 rounded-3xl p-8 relative overflow-hidden backdrop-blur-xl shadow-2xl space-y-6 group/deck"
+                  whileHover={{ borderColor: "rgba(6, 182, 212, 0.2)" }}
                 >
-                  GET IN TOUCH
-                </Link>
-                <Link
-                  to="/projects"
-                  className="px-8 py-4 border border-slate-800 bg-slate-900/60 text-slate-300 font-bold rounded-xl hover:border-slate-600 hover:text-white transition-all text-center tracking-wider uppercase text-xs sm:text-sm backdrop-blur-xl cursor-pointer"
-                >
-                  EXPLORE PROJECTS
-                </Link>
+                  {/* Subtle Glowing Corner */}
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full group-hover/deck:bg-cyan-500/15 transition-all duration-500" />
+                  
+                  {/* Status Item 1: Availability Status */}
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/40 border border-slate-900/60 hover:border-slate-800/50 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 relative">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping absolute" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 relative" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider">Availability Status</div>
+                      <div className="text-sm font-semibold text-slate-200">{personalInfo.availability?.status || "Open to Opportunities"}</div>
+                    </div>
+                  </div>
+
+                  {/* Status Item 2: Timezone & Location */}
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/40 border border-slate-900/60 hover:border-slate-800/50 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0 text-cyan-400">
+                      <Globe2 className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="text-[11px] font-mono text-cyan-400 font-bold uppercase tracking-wider">Active Timezone</div>
+                      <div className="text-sm font-semibold text-slate-200">{personalInfo.location?.timezone || "IST (UTC+5:30)"}</div>
+                      <div className="text-xs text-slate-500">{personalInfo.location?.current || "Patna, India"}</div>
+                    </div>
+                  </div>
+
+                  {/* Status Item 3: Quick Email Copier Card */}
+                  <button
+                    onClick={handleCopyEmail}
+                    className="w-full text-left flex items-center justify-between p-4 rounded-2xl bg-slate-950/60 hover:bg-slate-950 border border-slate-800/60 hover:border-cyan-500/40 transition-all cursor-pointer group/email shadow-inner relative overflow-hidden"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${copied ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-violet-500/10 border border-violet-500/20 text-violet-400'}`}>
+                        {copied ? <Check className="w-5 h-5" /> : <Mail className="w-5 h-5" />}
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] font-mono text-violet-400 font-bold uppercase tracking-wider group-hover/email:text-cyan-400 transition-colors">Quick Connect</div>
+                        <div className="text-sm font-mono text-slate-300 font-medium select-all">{personalInfo.contact?.email || "hello@devkantkumar.com"}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-mono group-hover/email:border-cyan-500/30 group-hover/email:text-cyan-400 transition-all flex-shrink-0">
+                      {copied ? (
+                        <span className="text-emerald-400 font-semibold">Copied!</span>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Copy</span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                </motion.div>
               </div>
-            </motion.div>
+
+            </div>
           </div>
         </section>
-
       </div>
     </>
   );

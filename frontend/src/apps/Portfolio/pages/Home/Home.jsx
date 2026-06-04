@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import SEOHead from "../../../../components/SEO/SEOHead";
@@ -6,6 +7,7 @@ import { useMetadata } from "../../../../utils/useMetadata";
 import { portfolioData } from "../../store/data/portfolioData";
 import Hero from "./components/Hero";
 import {
+  ArrowUpRight,
   Zap,
   Palette,
   Cpu,
@@ -21,13 +23,25 @@ import {
   Server,
   Mail,
   User,
+  Check,
+  Copy,
+  Globe2,
 } from "lucide-react";
 
 const Home = () => {
-  const { projects, technicalSkills } = portfolioData;
+  const { projects, technicalSkills, personalInfo = {} } = portfolioData || {};
   const featuredProjects = projects
     .filter((project) => project.featured)
     .slice(0, 3);
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = () => {
+    const email = portfolioData.personalInfo?.contact?.email || "hello@devkantkumar.com";
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Update metadata for home page
   useMetadata({
@@ -269,17 +283,7 @@ const Home = () => {
                         <span>LIVE DEMO</span>
                       </a>
                     )}
-                    {project.links.github && project.links.github !== "#" && (
-                      <a
-                        href={project.links.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 border border-slate-800 bg-slate-900/40 text-slate-400 font-bold text-xs rounded-xl hover:border-slate-700 hover:text-white hover:bg-slate-900 transition-all cursor-pointer"
-                      >
-                        <Code className="w-3.5 h-3.5" />
-                        <span>VIEW CODE</span>
-                      </a>
-                    )}
+                    
                   </div>
                 </motion.div>
               ))}
@@ -453,7 +457,6 @@ const Home = () => {
             </div>
           </div>
         </motion.section>
-
         {/* Section 04: Call to Action (CTA) */}
         <motion.section
           variants={containerVariants}
@@ -462,46 +465,120 @@ const Home = () => {
           viewport={{ once: true, margin: "-100px" }}
           className="py-24 bg-slate-950 border-t border-slate-900/60 relative overflow-hidden"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.03),transparent_70%)] pointer-events-none" />
-
-          <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-10">
-            <motion.div
-              variants={itemVariants}
-              className="bg-slate-950/80 border border-slate-800/80 rounded-3xl p-10 sm:p-14 backdrop-blur-2xl shadow-2xl relative overflow-hidden text-center space-y-8"
-              whileHover={{ borderColor: "rgba(6, 182, 212, 0.25)" }}
-            >
-              <div className="space-y-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase">
-                  <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                  GET IN TOUCH // 04
-                </span>
-                <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none">
-                  Ready to build{" "}
-                  <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">
-                    something amazing?
+          {/* Ambient Background Lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(6,182,212,0.03),transparent_70%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.03),transparent_70%)] pointer-events-none" />
+          
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+            <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+              
+              {/* Left Column - Headline & Main CTA */}
+              <div className="lg:col-span-7 space-y-8 text-left">
+                <motion.div
+                  variants={itemVariants}
+                  className="space-y-6"
+                >
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 border border-cyan-500/20 rounded-lg text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase">
+                    <Mail className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                    GET IN TOUCH // 04
                   </span>
-                </h2>
-                <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
-                  Let's work together to bring your ideas to life with clean
-                  code and great design.
-                </p>
+                  
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] max-w-2xl">
+                    Ready to build{" "}
+                    <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 bg-clip-text text-transparent">
+                      something amazing?
+                    </span>
+                  </h2>
+                  
+                  <p className="text-lg text-slate-400 max-w-xl leading-relaxed font-medium">
+                    Let's work together to bring your ideas to life with clean, scalable code and exceptional user-centric design.
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="flex flex-col sm:flex-row gap-4 pt-2"
+                >
+                  <Link
+                    to="/contact"
+                    className="group px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 transition-all text-center tracking-wider uppercase text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>Get In Touch</span>
+                    <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </Link>
+                  <Link
+                    to="/about"
+                    className="px-8 py-4 border border-slate-800 bg-slate-900/60 text-slate-300 font-bold rounded-xl hover:border-slate-655 hover:text-white transition-all text-center tracking-wider uppercase text-xs sm:text-sm backdrop-blur-xl cursor-pointer"
+                  >
+                    About Me
+                  </Link>
+                </motion.div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                <Link
-                  to="/contact"
-                  className="px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/15 hover:shadow-xl hover:shadow-cyan-500/25 transition-all text-center tracking-wider uppercase text-xs sm:text-sm cursor-pointer"
+              {/* Right Column - Status Deck & Copy Card */}
+              <div className="lg:col-span-5">
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-slate-900/30 border border-slate-800/80 rounded-3xl p-8 relative overflow-hidden backdrop-blur-xl shadow-2xl space-y-6 group/deck text-left"
+                  whileHover={{ borderColor: "rgba(6, 182, 212, 0.2)" }}
                 >
-                  GET IN TOUCH
-                </Link>
-                <Link
-                  to="/about"
-                  className="px-8 py-4 border border-slate-800 bg-slate-900/60 text-slate-300 font-bold rounded-xl hover:border-slate-600 hover:text-white transition-all text-center tracking-wider uppercase text-xs sm:text-sm backdrop-blur-xl cursor-pointer"
-                >
-                  ABOUT ME
-                </Link>
+                  {/* Subtle Glowing Corner */}
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full group-hover/deck:bg-cyan-500/15 transition-all duration-500" />
+                  
+                  {/* Status Item 1: Availability Status */}
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/40 border border-slate-900/60 hover:border-slate-800/50 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 relative">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping absolute" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 relative" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider">Availability Status</div>
+                      <div className="text-sm font-semibold text-slate-200">{personalInfo.availability?.status || "Open to Opportunities"}</div>
+                    </div>
+                  </div>
+
+                  {/* Status Item 2: Timezone & Location */}
+                  <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-950/40 border border-slate-900/60 hover:border-slate-800/50 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0 text-cyan-400">
+                      <Globe2 className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="text-[11px] font-mono text-cyan-400 font-bold uppercase tracking-wider">Active Timezone</div>
+                      <div className="text-sm font-semibold text-slate-200">{personalInfo.location?.timezone || "IST (UTC+5:30)"}</div>
+                      <div className="text-xs text-slate-500">{personalInfo.location?.current || "Patna, India"}</div>
+                    </div>
+                  </div>
+
+                  {/* Status Item 3: Quick Email Copier Card */}
+                  <button
+                    onClick={handleCopyEmail}
+                    className="w-full text-left flex items-center justify-between p-4 rounded-2xl bg-slate-950/60 hover:bg-slate-950 border border-slate-800/60 hover:border-cyan-500/40 transition-all cursor-pointer group/email shadow-inner relative overflow-hidden"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${copied ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-violet-500/10 border border-violet-500/20 text-violet-400'}`}>
+                        {copied ? <Check className="w-5 h-5" /> : <Mail className="w-5 h-5" />}
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] font-mono text-violet-400 font-bold uppercase tracking-wider group-hover/email:text-cyan-400 transition-colors">Quick Connect</div>
+                        <div className="text-sm font-mono text-slate-300 font-medium select-all">{personalInfo.contact?.email || "hello@devkantkumar.com"}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 font-mono group-hover/email:border-cyan-500/30 group-hover/email:text-cyan-400 transition-all flex-shrink-0">
+                      {copied ? (
+                        <span className="text-emerald-400 font-semibold">Copied!</span>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Copy</span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                </motion.div>
               </div>
-            </motion.div>
+
+            </div>
           </div>
         </motion.section>
       </div>

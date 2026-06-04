@@ -69,7 +69,7 @@ export const portfolioData = {
     },
     tools: {
       expert: ["Git/GitHub", "VS Code", "npm/yarn"],
-      advanced: ["Postman", "MongoDB Compass", "Chrome DevTools"],
+      advanced: ["Postman", "MongoDB Compass", "Chrome DevTools", "Docker"],
       intermediate: ["Webpack", "Vercel", "Netlify", "Figma"],
     },
     concepts: [
@@ -87,11 +87,42 @@ export const portfolioData = {
   workExperience: [
     {
       id: 1,
+      position: "Founder & CEO",
+      company: "Unyrise Tech",
+      companyType: "Technology Company",
+      duration: "March 2026 - Present",
+      location: "Hybrid",
+      status: "Current",
+      website: "https://unyrisetech.com",
+      description:
+        "Founded and leading Unyrise Tech — a global software engineering company specializing in custom web development, mobile apps, SaaS products, and UI/UX design. Building world-class digital products for startups and businesses worldwide.",
+      keyAchievements: [
+        "Leading product strategy, engineering, and business development",
+        "Building Hostel Ease — a SaaS platform for hostel & PG management",
+        "Delivering end-to-end digital solutions (web, mobile, desktop) for global clients",
+        "Full-stack development using MERN stack (MongoDB, Express, React, Node.js)",
+        "Serving clients across USA, UK, Australia, Europe, and India",
+      ],
+      technologies: [
+        "React.js",
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+        "TypeScript",
+        "Tailwind CSS",
+        "Next.js",
+        "Docker",
+      ],
+      impact:
+        "Engineering world-class software products that define industries — from concept to global scale",
+    },
+    {
+      id: 2,
       position: "Founder & Full Stack Developer",
-      company: "HostelEase",
+      company: "Hostel Ease",
       companyType: "SaaS Startup",
-      duration: "June 2024 - Present",
-      location: "Remote",
+      duration: "June 2025 - Present",
+      location: "Jharkhand, India",
       status: "Current",
       website: "https://hostelease.com",
       description:
@@ -117,12 +148,38 @@ export const portfolioData = {
         "Building scalable hostel management solutions for the accommodation sector",
     },
     {
-      id: 2,
-      position: "Web Developer",
+      id: 3,
+      position: "Web Developer Intern",
       company: "Techies Gateway",
       companyType: "Digital Agency",
-      duration: "March 2024 - November 2024",
-      location: "Hazaribag, India (Hybrid)",
+      duration: "March 2025 - April 2025",
+      location: "Hazaribag, Jharkhand, India (Hybrid)",
+      status: "Completed",
+      description:
+        "Worked on client-facing web projects, building responsive interfaces and integrating APIs as part of a hybrid internship role.",
+      keyAchievements: [
+        "Built responsive web interfaces using HTML5, CSS3, and JavaScript",
+        "Integrated REST APIs into frontend projects",
+        "Collaborated with team members on client deliverables",
+        "Delivered projects on time maintaining code quality standards",
+      ],
+      technologies: [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "Git",
+        "GitHub",
+      ],
+      impact:
+        "Contributed to client-facing web projects in a fast-paced agency environment",
+    },
+    {
+      id: 4,
+      position: "Full-Stack Developer",
+      company: "Techies Gateway",
+      companyType: "Digital Agency",
+      duration: "April 2024 - November 2024",
+      location: "Hazaribagh, Jharkhand, India (Hybrid)",
       status: "Completed",
       description:
         "Contributed to diverse client projects including travel, finance, and social media management sectors. Focused on frontend development and full-stack solutions.",
@@ -387,21 +444,22 @@ export const portfolioData = {
 
   education: {
     degree: "Bachelor of Computer Applications (BCA)",
+    field: "Mathematics & Computer Science",
     institution: "Vinoba Bhave University",
+    institutionShort: "VBU",
+    website: "https://www.vbu.ac.in/",
     location: "Hazaribagh, Jharkhand, India",
-    duration: "2023 - 2026",
+    type: "State University",
+    duration: "2023 – 2026",
     status: "Pursuing",
     focusAreas: [
-      "Software Development",
-      "Data Structures",
-      "Web Technologies",
-      "Database Management",
-    ],
-    continuousLearning: [
-      "Advanced React.js patterns and hooks",
-      "Node.js backend optimization",
-      "Modern JavaScript ES6+ features",
-      "Cloud deployment and DevOps practices",
+      "Data Structures & Algorithms",
+      "Database Management Systems & SQL",
+      "Computer Networks & Security",
+      "Operating Systems & Linux",
+      "Web Technologies (HTML, CSS, PHP, JS)",
+      "Object-Oriented Programming (C++, Java)",
+      "System Analysis & Design / SDLC",
     ],
   },
 
@@ -493,15 +551,17 @@ export const portfolioData = {
   },
 
   achievements: [
-    "Built and deployed production applications serving real users",
-    "Founded successful SaaS startup (HostelEase)",
-    "Completed 10+ full-stack projects from concept to deployment",
-    "Successfully collaborated on 8+ client projects across various industries",
-    "Maintained 100% project delivery rate with quality standards",
-    "Expert in modern JavaScript frameworks and full-stack development",
-    "Active open-source contributor with growing GitHub profile",
-    "Strong problem-solving skills with focus on scalable solutions",
+    "Founded Unyrise Tech (Mar 2026) — a software engineering company building web, mobile & SaaS products for clients globally",
+    "Founded Hostel Ease (Jun 2025) — a SaaS platform for hostel & PG management, built from scratch and deployed to production",
+    "Launched first paid digital product on Gumroad — a React-based Restaurant & Banquet website template ($25), no coding required post-setup",
+    "Containerized a Node.js app and published a custom Docker image to Docker Hub — proving full deployment portability",
+    "Completed 2 internships at Techies Gateway (2024–2025), shipping 8+ client projects across travel, finance & social media sectors",
+    "Built and published a comprehensive Node.js API guide covering REST, GraphQL, gRPC, WebSockets, SSE, tRPC, Kafka & more",
+    "Created a Tailwind CSS v4 + React video tutorial series on YouTube, teaching responsive UI development from scratch",
+    "Pursuing BCA at Vinoba Bhave University (2023–2026) while simultaneously running a tech company and shipping production software",
+    "Built 10+ full-stack applications from concept to deployment, including live tools at devkantkumar.com",
   ],
+
 
   testimonials: [],
 
@@ -665,8 +725,8 @@ export const portfolioData = {
   },
 
   metadata: {
-    lastUpdated: "2025-01-17",
-    version: "2.0",
+    lastUpdated: "2026-06-04",
+    version: "2.1",
     dataAccuracy: "100% verified and authentic",
     globalHireability: true,
     searchOptimized: true,
