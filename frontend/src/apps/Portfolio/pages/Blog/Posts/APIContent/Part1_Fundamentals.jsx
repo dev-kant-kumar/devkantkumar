@@ -12,7 +12,7 @@ export default function Part1_Fundamentals() {
 
         <div className="prose prose-xl prose-invert max-w-none">
           <p className="text-lg text-slate-300 leading-relaxed mb-6">
-            An <strong className="text-white">API (Application Programming Interface)</strong> is a contract between two software systems that defines how they communicate — what requests can be made, what data to send, and what responses to expect.
+            An <strong className="text-white">API (Application Programming Interface)</strong> is a contract between two software systems that defines how they communicate - what requests can be made, what data to send, and what responses to expect.
           </p>
 
           <p className="text-lg text-slate-300 leading-relaxed mb-8">
@@ -33,7 +33,7 @@ export default function Part1_Fundamentals() {
             ].map((item, i) => (
               <div key={i} className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
                 <span className="font-bold text-emerald-400">{item.term}</span>
-                <span className="text-slate-400"> — {item.desc}</span>
+                <span className="text-slate-400"> - {item.desc}</span>
               </div>
             ))}
           </div>
@@ -91,7 +91,7 @@ HTTP Response   →  Travels back through same connection
     ▼
 Client receives →  Parses JSON / handles data`} />
 
-          <h3 className="text-2xl font-bold text-white mt-10 mb-6">OSI Model — Relevant Layers</h3>
+          <h3 className="text-2xl font-bold text-white mt-10 mb-6">OSI Model - Relevant Layers</h3>
           <ComparisonTable
             headers={["Layer", "Name", "What You Interact With"]}
             rows={[
@@ -171,19 +171,19 @@ server.listen(8443);`} />
             <p><strong>Safe</strong> = does not modify server state.</p>
           </InfoBox>
 
-          <h3 className="text-2xl font-bold text-white mt-10 mb-6">HTTP Status Codes — Complete Reference</h3>
+          <h3 className="text-2xl font-bold text-white mt-10 mb-6">HTTP Status Codes - Complete Reference</h3>
           <div className="grid md:grid-cols-2 gap-4 my-6">
             {[
-              { cat: "2xx — Success", color: "green", codes: [
+              { cat: "2xx - Success", color: "green", codes: [
                 "200 OK", "201 Created (POST success)", "202 Accepted (async job)", "204 No Content (DELETE)", "206 Partial Content (streaming)"
               ]},
-              { cat: "3xx — Redirection", color: "blue", codes: [
+              { cat: "3xx - Redirection", color: "blue", codes: [
                 "301 Moved Permanently", "302 Found (temporary)", "304 Not Modified (cache hit)", "307 Temporary Redirect", "308 Permanent Redirect"
               ]},
-              { cat: "4xx — Client Errors", color: "yellow", codes: [
+              { cat: "4xx - Client Errors", color: "yellow", codes: [
                 "400 Bad Request", "401 Unauthorized", "403 Forbidden", "404 Not Found", "409 Conflict", "422 Unprocessable Entity", "429 Too Many Requests"
               ]},
-              { cat: "5xx — Server Errors", color: "red", codes: [
+              { cat: "5xx - Server Errors", color: "red", codes: [
                 "500 Internal Server Error", "502 Bad Gateway", "503 Service Unavailable", "504 Gateway Timeout"
               ]},
             ].map((group, i) => (
@@ -225,13 +225,13 @@ Retry-After: 60`} />
             </div>
           </div>
 
-          <h3 className="text-2xl font-bold text-white mt-10 mb-4">CORS — Complete Explanation</h3>
+          <h3 className="text-2xl font-bold text-white mt-10 mb-4">CORS - Complete Explanation</h3>
           <p className="text-lg text-slate-300 leading-relaxed mb-4">
             CORS (Cross-Origin Resource Sharing) is enforced by <strong className="text-white">browsers</strong> to prevent malicious sites from reading your API responses.
           </p>
           <CodeBlock language="js" code={`const cors = require('cors');
 
-// Permissive (dev only — never in production)
+// Permissive (dev only - never in production)
 app.use(cors());
 
 // Production CORS

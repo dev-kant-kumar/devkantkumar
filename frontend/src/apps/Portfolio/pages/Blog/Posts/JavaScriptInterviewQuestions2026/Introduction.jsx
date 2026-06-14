@@ -27,7 +27,7 @@ const Introduction = () => {
 
       <div className="prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-code:text-cyan-300 prose-strong:text-white">
         <p className="lead text-xl text-slate-300 mb-8">
-            Let's be real—JavaScript interviews can be brutal. You think you know the language, then someone asks you to explain the output of a tricky closure loop or <a href="#microtask-queue" className="text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 transition-colors">how the microtask queue really works</a>.
+            Let's be real-JavaScript interviews can be brutal. You think you know the language, then someone asks you to explain the output of a tricky closure loop or <a href="#microtask-queue" className="text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 transition-colors">how the microtask queue really works</a>.
         </p>
 
         <p>

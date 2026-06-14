@@ -97,7 +97,7 @@ const Section3 = () => {
            <div className="border-l-4 border-indigo-500 pl-6 py-2 my-8">
              <p className="text-lg text-slate-300 italic">
                "I spent 2 weeks adding Redux to a project that had 5 components. The entire state could've been managed by useState and props. Don't be me."
-               <span className="block text-sm text-slate-500 mt-2 not-italic font-bold">— Every developer, eventually</span>
+               <span className="block text-sm text-slate-500 mt-2 not-italic font-bold">- Every developer, eventually</span>
              </p>
            </div>
 

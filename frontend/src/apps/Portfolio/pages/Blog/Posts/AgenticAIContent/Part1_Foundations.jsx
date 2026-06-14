@@ -167,8 +167,8 @@ export default function Part1_Foundations() {
                 </p>
 
                 <div className="pl-6 border-l-4 border-cyan-500/50 italic text-slate-300 text-lg bg-cyan-950/10 py-4 pr-4 rounded-r-lg">
-                    "Think of a standard LLM as a <strong className="text-white">Brilliant Librarian</strong>—it knows everything but sits at a desk waiting for questions.
-                    Agentic AI is a <strong className="text-white">Smart Employee</strong>—you give it a goal ('Improve sales'), and it goes out, researches, creates a plan, drafts emails, and sends them."
+                    "Think of a standard LLM as a <strong className="text-white">Brilliant Librarian</strong>-it knows everything but sits at a desk waiting for questions.
+                    Agentic AI is a <strong className="text-white">Smart Employee</strong>-you give it a goal ('Improve sales'), and it goes out, researches, creates a plan, drafts emails, and sends them."
                 </div>
 
                 <h4 className="text-lg font-bold text-slate-200 pt-4">Interactive: Librarian vs. Agent</h4>
@@ -222,7 +222,7 @@ export default function Part1_Foundations() {
                 <ComparisonDeck />
 
                 <InfoBox type="info" title="The Reasoning Gap">
-                    LLMs alone have a short-term horizon—they predict the next word. Agents bridge the <strong>"Reasoning Gap"</strong> by adding scaffolding that allows the model to "think" before it speaks (or acts), giving it working memory and a scratchpad to plan complex sequences.
+                    LLMs alone have a short-term horizon-they predict the next word. Agents bridge the <strong>"Reasoning Gap"</strong> by adding scaffolding that allows the model to "think" before it speaks (or acts), giving it working memory and a scratchpad to plan complex sequences.
                 </InfoBox>
             </section>
 

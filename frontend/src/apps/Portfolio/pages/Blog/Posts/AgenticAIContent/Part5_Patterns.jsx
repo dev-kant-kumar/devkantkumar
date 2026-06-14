@@ -93,7 +93,7 @@ export default function Part5_Patterns() {
                 'General-purpose agent tasks',
                 'When you need transparent reasoning',
                 'Multi-step problems requiring tool use',
-                'Debugging—the thought process is visible'
+                'Debugging-the thought process is visible'
             ],
             codeExample: {
                 filename: 'react_loop.py',
@@ -119,7 +119,7 @@ print(result["output"])`
             tips: [
                 'Always set verbose=True during development',
                 'Limit max iterations to prevent infinite loops',
-                'The ReAct prompt template matters—customize it for your domain'
+                'The ReAct prompt template matters-customize it for your domain'
             ]
         },
         {
@@ -355,7 +355,7 @@ def divide_numbers(a: float, b: float) -> str:
 tools = [search_web, create_task, divide_numbers]`
             },
             tips: [
-                'Docstrings are CRITICAL—the LLM reads them to decide when to use tools',
+                'Docstrings are CRITICAL-the LLM reads them to decide when to use tools',
                 'Always handle errors gracefully within tools',
                 'Use Pydantic for tools with 3+ parameters'
             ]
@@ -680,7 +680,7 @@ limiter = ActionLimiter(max_actions=15, max_cost=0.50)`
             <InfoBox type="warning" title="Critical: Combine Patterns">
                 Real production agents combine multiple patterns. A typical setup:
                 <strong> Routing → ReAct (with Tools) → Reflection → Human Approval → Guardrails on output.</strong>
-                Don't pick one—layer them appropriately.
+                Don't pick one-layer them appropriately.
             </InfoBox>
         </div>
     );

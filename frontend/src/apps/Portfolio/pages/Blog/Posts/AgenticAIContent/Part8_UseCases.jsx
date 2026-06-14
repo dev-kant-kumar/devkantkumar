@@ -115,10 +115,10 @@ export default function Part8_UseCases() {
             title: 'Customer Support Automation',
             subtitle: 'Resolve tickets without human intervention',
             stat: '70% Auto-Resolution',
-            description: 'Not just a chatbot. A true agentic support system can check order status in Shopify, issue a refund in Stripe, reset passwords, and email users—all autonomously. This is the #1 deployed use case for enterprise agents in 2025.',
+            description: 'Not just a chatbot. A true agentic support system can check order status in Shopify, issue a refund in Stripe, reset passwords, and email users-all autonomously. This is the #1 deployed use case for enterprise agents in 2025.',
             caseStudy: {
                 company: 'Klarna',
-                text: 'In 2024, Klarna reported their AI assistant handles 2.3 million customer conversations monthly—equivalent to 700 full-time agents. It processes refunds, updates accounts, and resolves tickets with 90%+ satisfaction.',
+                text: 'In 2024, Klarna reported their AI assistant handles 2.3 million customer conversations monthly-equivalent to 700 full-time agents. It processes refunds, updates accounts, and resolves tickets with 90%+ satisfaction.',
                 link: 'https://www.klarna.com/international/press/klarna-ai-assistant-handles-two-thirds-of-customer-service-chats-in-its-first-month/'
             },
             implementation: [
@@ -214,7 +214,7 @@ executor = AgentExecutor(agent=agent, tools=tools)`
             description: 'Agents that research prospects on LinkedIn, craft personalized emails, send follow-ups, and qualify leads based on responses. Handles the top of the funnel so reps focus on closing.',
             caseStudy: {
                 company: '11x.ai (Alice)',
-                text: '11x.ai\'s Alice SDR agent has been deployed at 100+ companies. It researches prospects, writes personalized outreach, handles objections, and books meetings—generating $50M+ in pipeline.',
+                text: '11x.ai\'s Alice SDR agent has been deployed at 100+ companies. It researches prospects, writes personalized outreach, handles objections, and books meetings-generating $50M+ in pipeline.',
                 link: 'https://www.11x.ai/'
             },
             implementation: [
@@ -312,7 +312,7 @@ def research_topic(topic: str) -> str:
             description: 'Agents that read contracts, flag risky clauses, compare against templates, and generate redlines. Handles the grunt work so lawyers focus on strategy.',
             caseStudy: {
                 company: 'Harvey AI',
-                text: 'Harvey AI has raised $100M+ and is deployed at top law firms including A&O. It reviews contracts, researches case law, and drafts documents—saving junior associate hours.',
+                text: 'Harvey AI has raised $100M+ and is deployed at top law firms including A&O. It reviews contracts, researches case law, and drafts documents-saving junior associate hours.',
                 link: 'https://www.harvey.ai/'
             },
             implementation: [

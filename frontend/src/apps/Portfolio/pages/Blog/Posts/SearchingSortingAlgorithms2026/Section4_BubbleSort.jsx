@@ -175,13 +175,13 @@ int main() {
 
             <div className="prose prose-invert prose-lg max-w-none">
                 <p className="lead text-xl text-slate-300 mb-8">
-                    Bubble Sort is the simplest sorting algorithm. It repeatedly steps through the list, compares adjacent elements, and swaps them if they're in the wrong order—like bubbles rising to the surface.
+                    Bubble Sort is the simplest sorting algorithm. It repeatedly steps through the list, compares adjacent elements, and swaps them if they're in the wrong order-like bubbles rising to the surface.
                 </p>
 
                 <SubSectionHeader title="How Bubble Sort Works" />
 
                 <p>
-                    Imagine bubbles in a glass of soda—heavier elements "sink" to the bottom while lighter ones "bubble up" to the top with each pass through the array.
+                    Imagine bubbles in a glass of soda-heavier elements "sink" to the bottom while lighter ones "bubble up" to the top with each pass through the array.
                 </p>
 
                 {/* Visual Example */}
@@ -238,7 +238,7 @@ END FUNCTION`}
                 />
 
                 <InfoBox type="info" title="Why O(n) Best Case?">
-                    With the <code className="text-cyan-300">swapped</code> optimization, if the array is already sorted, we detect it in one pass and exit early—making it O(n) in the best case.
+                    With the <code className="text-cyan-300">swapped</code> optimization, if the array is already sorted, we detect it in one pass and exit early-making it O(n) in the best case.
                 </InfoBox>
 
                 <SubSectionHeader title="When to Use Bubble Sort" />

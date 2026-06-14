@@ -1,5 +1,18 @@
 export const blogData = [
   {
+    id: "react-js-complete-guide-2026",
+    slug: "react-js-complete-guide-2026",
+    title: "React JS Complete Guide 2026: Beginner to Master (with 200+ Interview Questions)",
+    excerpt: "The only React JS guide you need in 2026. Master components, hooks, state management, performance, React 19, and more - with 200+ interview questions and real code examples.",
+    category: "React",
+    author: "Dev Kant Kumar",
+    readTime: "90 min read",
+    publishDate: "2026-06-14",
+    image: "/images/blog/react-js-complete-guide-2026-og.png",
+    featured: true,
+    tags: ["React", "JavaScript", "Frontend", "Web Development", "Interview Prep", "React 19", "Hooks", "State Management"]
+  },
+  {
     id: "golpo-ai-review-2026",
     slug: "golpo-ai-review-2026",
     title: "Golpo AI Review 2026: Is This Video Tool Worth It?",

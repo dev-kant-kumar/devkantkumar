@@ -192,7 +192,7 @@ result = app.invoke({"input": "Explain quantum computing"})`
         {
             id: 'crewai',
             name: 'CrewAI',
-            tagline: 'Role-based multi-agent framework. Define agents with roles, goals, and backstories—they collaborate like a real team.',
+            tagline: 'Role-based multi-agent framework. Define agents with roles, goals, and backstories-they collaborate like a real team.',
             icon: Users,
             iconColor: 'text-green-400',
             bgGradient: 'bg-gradient-to-br from-green-950/20 to-emerald-950/20',
@@ -583,7 +583,7 @@ const { messages, input, handleSubmit } = useChat();`
                 </h3>
                 <div className="space-y-4 text-slate-300">
                     <p>
-                        <strong className="text-white">Start with CrewAI</strong> if you're new—it's the most intuitive way to understand multi-agent concepts.
+                        <strong className="text-white">Start with CrewAI</strong> if you're new-it's the most intuitive way to understand multi-agent concepts.
                     </p>
                     <p>
                         <strong className="text-white">Graduate to LangGraph</strong> when you need conditional routing, human-in-the-loop, or complex state management.
@@ -592,7 +592,7 @@ const { messages, input, handleSubmit } = useChat();`
                         <strong className="text-white">Use Vercel AI SDK</strong> if you're building a web product with React/Next.js.
                     </p>
                     <p className="text-slate-400 text-sm">
-                        All of these can be combined—many production systems use LlamaIndex for RAG + LangGraph for orchestration.
+                        All of these can be combined-many production systems use LlamaIndex for RAG + LangGraph for orchestration.
                     </p>
                 </div>
             </section>

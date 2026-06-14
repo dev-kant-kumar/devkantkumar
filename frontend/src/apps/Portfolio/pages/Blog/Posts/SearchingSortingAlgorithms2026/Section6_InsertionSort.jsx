@@ -161,7 +161,7 @@ int main() {
 
             <div className="prose prose-invert prose-lg max-w-none">
                 <p className="lead text-xl text-slate-300 mb-8">
-                    Insertion Sort builds the final sorted array one item at a time. It's like sorting playing cards in your hand—you pick each card and insert it into its correct position among the already-sorted cards.
+                    Insertion Sort builds the final sorted array one item at a time. It's like sorting playing cards in your hand-you pick each card and insert it into its correct position among the already-sorted cards.
                 </p>
 
                 <InfoBox type="tip" title="Real-World Favorite">
@@ -177,7 +177,7 @@ int main() {
                     <div className="space-y-4 text-sm">
                         <div className="p-3 rounded bg-slate-800/50">
                             <span className="text-cyan-400 font-bold">Start:</span>
-                            <span className="text-slate-300 ml-2">[<span className="text-green-400">12</span> | 11, 13, 5, 6] — First element is "sorted"</span>
+                            <span className="text-slate-300 ml-2">[<span className="text-green-400">12</span> | 11, 13, 5, 6] - First element is "sorted"</span>
                         </div>
                         <div className="p-3 rounded bg-slate-800/50">
                             <span className="text-cyan-400 font-bold">Insert 11:</span>
@@ -235,7 +235,7 @@ END FUNCTION`}
                 <div className="my-8 p-6 rounded-xl bg-gradient-to-r from-green-500/10 to-cyan-500/10 border border-green-500/20">
                     <h4 className="text-green-400 font-bold mb-4">🚀 Why O(n) Best Case?</h4>
                     <p className="text-slate-300 text-sm">
-                        When the array is <strong>already sorted</strong>, the inner while loop never executes—each element is already greater than the previous one. We only do one comparison per element, giving us O(n).
+                        When the array is <strong>already sorted</strong>, the inner while loop never executes-each element is already greater than the previous one. We only do one comparison per element, giving us O(n).
                     </p>
                     <p className="text-slate-400 text-sm mt-2">
                         This makes Insertion Sort <strong>ideal for nearly-sorted data</strong> or as a final pass after a more efficient algorithm.

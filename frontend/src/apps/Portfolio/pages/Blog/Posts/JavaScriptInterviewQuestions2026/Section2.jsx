@@ -19,7 +19,7 @@ const Section2 = () => {
         answer={
           <>
             <p className="mb-4">
-               A <strong>Closure</strong> is created when a function is defined inside another function, allowing the inner function to access the outer function's variables—even after the outer function has finished executing.
+               A <strong>Closure</strong> is created when a function is defined inside another function, allowing the inner function to access the outer function's variables-even after the outer function has finished executing.
             </p>
 
             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-800 mb-6">

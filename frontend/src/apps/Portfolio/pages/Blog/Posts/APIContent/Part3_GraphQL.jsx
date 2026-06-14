@@ -10,7 +10,7 @@ export default function Part3_GraphQL() {
 
       <div className="prose prose-xl prose-invert max-w-none">
         <p className="text-lg text-slate-300 leading-relaxed mb-6">
-          GraphQL is a query language for APIs developed by Facebook (2015). Clients request <strong className="text-white">exactly the data they need</strong> — no over-fetching, no under-fetching.
+          GraphQL is a query language for APIs developed by Facebook (2015). Clients request <strong className="text-white">exactly the data they need</strong> - no over-fetching, no under-fetching.
         </p>
 
         {/* Schema */}
@@ -75,7 +75,7 @@ const resolvers = {
     },
   },
 
-  // Field-level resolver — runs for every User
+  // Field-level resolver - runs for every User
   User: {
     orders: async (parent, _, context) => {
       // DataLoader batches to prevent N+1 queries
@@ -101,14 +101,14 @@ const { url } = await startStandaloneServer(server, { listen: { port: 4000 } });
           When resolving a list of users with their orders, GraphQL fires 1 query for users + N queries for each user's orders. DataLoader solves this by <strong>batching</strong> all order lookups into a single query.
         </InfoBox>
 
-        <CodeBlock language="js" code={`// ❌ N+1 PROBLEM — fires a DB query for EVERY user
+        <CodeBlock language="js" code={`// ❌ N+1 PROBLEM - fires a DB query for EVERY user
 const resolvers = {
   User: {
     orders: (user) => db.orders.findByUserId(user.id),
   }
 };
 
-// ✅ SOLUTION — DataLoader batches & caches
+// ✅ SOLUTION - DataLoader batches & caches
 const DataLoader = require('dataloader');
 
 // Create once per request (in context factory)
@@ -141,11 +141,11 @@ const server = new ApolloServer({
   introspection: process.env.NODE_ENV !== 'production',
 });`} />
 
-        <InfoBox type="tip" title="REST vs GraphQL — When to Use Which" icon={Lightbulb}>
+        <InfoBox type="tip" title="REST vs GraphQL - When to Use Which" icon={Lightbulb}>
           <ul className="space-y-2 text-sm">
             <li><strong>Use REST</strong> when you have simple CRUD, public APIs, or need easy caching with HTTP semantics.</li>
             <li><strong>Use GraphQL</strong> when clients need flexible queries, you have deeply nested data, or you're building a BFF (Backend for Frontend).</li>
-            <li><strong>Hybrid approach</strong> — many teams use REST for public APIs and GraphQL for internal/client-facing applications.</li>
+            <li><strong>Hybrid approach</strong> - many teams use REST for public APIs and GraphQL for internal/client-facing applications.</li>
           </ul>
         </InfoBox>
       </div>

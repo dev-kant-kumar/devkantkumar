@@ -129,7 +129,7 @@ stream.on('error', (err) => console.error(err));`} />
 
         <div className="prose prose-xl prose-invert max-w-none">
           <p className="text-lg text-slate-300 leading-relaxed mb-6">
-            SOAP (Simple Object Access Protocol) is an XML-based protocol common in enterprise/legacy systems — banking, ERP, and government.
+            SOAP (Simple Object Access Protocol) is an XML-based protocol common in enterprise/legacy systems - banking, ERP, and government.
           </p>
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">SOAP Envelope Structure</h3>
@@ -159,7 +159,7 @@ console.log(result.AddResult); // 15
 // With authentication
 client.addHttpHeader('Authorization', \`Basic \${btoa('user:pass')}\`);`} />
 
-          <InfoBox type="info" title="SOAP vs REST — Legacy Integration" icon={Lightbulb}>
+          <InfoBox type="info" title="SOAP vs REST - Legacy Integration" icon={Lightbulb}>
             SOAP is still heavily used in banking, healthcare, and government APIs. You'll rarely build new SOAP services, but you'll often need to <strong>consume</strong> them from Node.js backends.
           </InfoBox>
         </div>

@@ -72,7 +72,7 @@ export default function Part7_Enterprise() {
       {/* Reality Check */}
       <section className="space-y-6">
         <InfoBox type="warning" title="The Scaling Gap">
-          According to McKinsey's 2025 State of AI report, while 88% of organizations use AI regularly, only 23% have successfully scaled agentic AI systems beyond pilots. The primary barriers? Infrastructure complexity, security concerns, and cost management—the exact challenges we tackle in this section.
+          According to McKinsey's 2025 State of AI report, while 88% of organizations use AI regularly, only 23% have successfully scaled agentic AI systems beyond pilots. The primary barriers? Infrastructure complexity, security concerns, and cost management-the exact challenges we tackle in this section.
         </InfoBox>
       </section>
 
@@ -84,7 +84,7 @@ export default function Part7_Enterprise() {
         </h3>
 
         <p className="text-slate-400 leading-8">
-          Agents are <strong className="text-white">fundamentally slow</strong>. A typical agent workflow takes 30-90 seconds to complete—far exceeding standard HTTP timeout limits (usually 30 seconds). You cannot run this synchronously inside a web request. <strong className="text-white">Async queue architecture is mandatory for production.</strong>
+          Agents are <strong className="text-white">fundamentally slow</strong>. A typical agent workflow takes 30-90 seconds to complete-far exceeding standard HTTP timeout limits (usually 30 seconds). You cannot run this synchronously inside a web request. <strong className="text-white">Async queue architecture is mandatory for production.</strong>
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -156,7 +156,7 @@ export default function Part7_Enterprise() {
         </h3>
 
         <InfoBox type="danger" title="Prompt Injection Is The #1 Vulnerability">
-          According to OWASP's 2025 Top 10 for LLM Applications, prompt injection appears in 73% of production AI deployments during security audits. In March 2025, a Fortune 500 financial services firm experienced weeks of data leakage from their customer service AI due to prompt injection—costing millions in regulatory fines.
+          According to OWASP's 2025 Top 10 for LLM Applications, prompt injection appears in 73% of production AI deployments during security audits. In March 2025, a Fortune 500 financial services firm experienced weeks of data leakage from their customer service AI due to prompt injection-costing millions in regulatory fines.
         </InfoBox>
 
         <p className="text-slate-400 leading-8">
@@ -410,7 +410,7 @@ export default function Part7_Enterprise() {
             Remember: 85% of AI Projects Fail
           </div>
           <div className="text-slate-300 max-w-2xl mx-auto">
-            The difference between the 15% that succeed and the 85% that fail isn't the AI model—it's production infrastructure, security architecture, and operational discipline. Build these foundations first.
+            The difference between the 15% that succeed and the 85% that fail isn't the AI model-it's production infrastructure, security architecture, and operational discipline. Build these foundations first.
           </div>
         </div>
       </section>

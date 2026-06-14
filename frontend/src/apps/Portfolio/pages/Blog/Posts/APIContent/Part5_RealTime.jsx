@@ -12,7 +12,7 @@ export default function Part5_RealTime() {
 
         <div className="prose prose-xl prose-invert max-w-none">
           <p className="text-lg text-slate-300 leading-relaxed mb-6">
-            WebSockets provide <strong className="text-white">full-duplex</strong>, persistent connections — both client and server can send messages at any time. Perfect for chat, gaming, and live collaboration.
+            WebSockets provide <strong className="text-white">full-duplex</strong>, persistent connections - both client and server can send messages at any time. Perfect for chat, gaming, and live collaboration.
           </p>
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">WebSocket Handshake</h3>
@@ -28,7 +28,7 @@ Server → Client:
   Connection: Upgrade
   Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
 
-# After handshake, HTTP is gone — raw WebSocket frames flow over TCP.`} />
+# After handshake, HTTP is gone - raw WebSocket frames flow over TCP.`} />
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">Raw WebSocket Server with ws</h3>
           <CodeBlock language="js" code={`const WebSocket = require('ws');
@@ -212,7 +212,7 @@ es.addEventListener('notification', (e) => {
                     (after ICE negotiation)
 
 # The signaling server only helps browsers find each other
-# — actual media flows P2P.`} />
+# - actual media flows P2P.`} />
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">Node.js Signaling Server</h3>
           <CodeBlock language="js" code={`const io = require('socket.io')(server);
@@ -280,9 +280,9 @@ socket.emit('offer', { roomId, offer });`} />
 
           <InfoBox type="tip" title="When to Use What" icon={Lightbulb}>
             <ul className="space-y-1 text-sm">
-              <li>• <strong>WebSockets</strong> — bidirectional real-time (chat, games, live collaboration)</li>
-              <li>• <strong>SSE</strong> — server push only (notifications, AI streaming, live feeds)</li>
-              <li>• <strong>WebRTC</strong> — peer-to-peer (video calls, screen sharing, P2P data)</li>
+              <li>• <strong>WebSockets</strong> - bidirectional real-time (chat, games, live collaboration)</li>
+              <li>• <strong>SSE</strong> - server push only (notifications, AI streaming, live feeds)</li>
+              <li>• <strong>WebRTC</strong> - peer-to-peer (video calls, screen sharing, P2P data)</li>
             </ul>
           </InfoBox>
         </div>

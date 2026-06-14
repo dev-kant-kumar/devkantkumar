@@ -51,11 +51,11 @@ const Introduction = () => {
             <div className="prose prose-invert prose-sm sm:prose-base md:prose-lg max-w-none prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300">
 
                 <p className="lead text-base sm:text-lg md:text-xl text-slate-300 mb-6 sm:mb-8">
-                    Imagine you're in a library with a million books, and you need to find a specific one. Would you check every single book from the first shelf? Or would you use a smarter approach—perhaps starting from the middle and eliminating half the options with each step?
+                    Imagine you're in a library with a million books, and you need to find a specific one. Would you check every single book from the first shelf? Or would you use a smarter approach-perhaps starting from the middle and eliminating half the options with each step?
                 </p>
 
                 <p className="text-sm sm:text-base">
-                    This is the essence of <strong>searching and sorting algorithms</strong>—the backbone of computer science and the foundation of every software system you interact with daily. From the autocomplete in your search bar to the way your social media feed is organized, these algorithms are working silently behind the scenes.
+                    This is the essence of <strong>searching and sorting algorithms</strong>-the backbone of computer science and the foundation of every software system you interact with daily. From the autocomplete in your search bar to the way your social media feed is organized, these algorithms are working silently behind the scenes.
                 </p>
 
                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mt-6 sm:mt-8 md:mt-10 mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
@@ -105,27 +105,27 @@ const Introduction = () => {
                 <ul className="space-y-2 sm:space-y-3 my-4 sm:my-6 md:my-8">
                     <li className="flex gap-2 sm:gap-3 items-start">
                         <span className="text-cyan-400 mt-1 sm:mt-1.5 flex-shrink-0">•</span>
-                        <span className="text-sm sm:text-base"><strong className="text-white">Algorithm Complexity Analysis</strong> — Understanding Big O notation and how to evaluate algorithm efficiency</span>
+                        <span className="text-sm sm:text-base"><strong className="text-white">Algorithm Complexity Analysis</strong> - Understanding Big O notation and how to evaluate algorithm efficiency</span>
                     </li>
                     <li className="flex gap-2 sm:gap-3 items-start">
                         <span className="text-cyan-400 mt-1 sm:mt-1.5 flex-shrink-0">•</span>
-                        <span className="text-sm sm:text-base"><strong className="text-white">Searching Algorithms</strong> — Linear Search, Binary Search, Jump Search, and Interpolation Search</span>
+                        <span className="text-sm sm:text-base"><strong className="text-white">Searching Algorithms</strong> - Linear Search, Binary Search, Jump Search, and Interpolation Search</span>
                     </li>
                     <li className="flex gap-2 sm:gap-3 items-start">
                         <span className="text-cyan-400 mt-1 sm:mt-1.5 flex-shrink-0">•</span>
-                        <span className="text-sm sm:text-base"><strong className="text-white">Simple Sorting Algorithms</strong> — Bubble Sort, Selection Sort, and Insertion Sort</span>
+                        <span className="text-sm sm:text-base"><strong className="text-white">Simple Sorting Algorithms</strong> - Bubble Sort, Selection Sort, and Insertion Sort</span>
                     </li>
                     <li className="flex gap-2 sm:gap-3 items-start">
                         <span className="text-cyan-400 mt-1 sm:mt-1.5 flex-shrink-0">•</span>
-                        <span className="text-sm sm:text-base"><strong className="text-white">Advanced Sorting Algorithms</strong> — Merge Sort, Quick Sort, and Heap Sort</span>
+                        <span className="text-sm sm:text-base"><strong className="text-white">Advanced Sorting Algorithms</strong> - Merge Sort, Quick Sort, and Heap Sort</span>
                     </li>
                     <li className="flex gap-2 sm:gap-3 items-start">
                         <span className="text-cyan-400 mt-1 sm:mt-1.5 flex-shrink-0">•</span>
-                        <span className="text-sm sm:text-base"><strong className="text-white">Non-Comparison Sorts</strong> — Counting Sort and Radix Sort</span>
+                        <span className="text-sm sm:text-base"><strong className="text-white">Non-Comparison Sorts</strong> - Counting Sort and Radix Sort</span>
                     </li>
                     <li className="flex gap-2 sm:gap-3 items-start">
                         <span className="text-cyan-400 mt-1 sm:mt-1.5 flex-shrink-0">•</span>
-                        <span className="text-sm sm:text-base"><strong className="text-white">Practical Applications</strong> — Real-world use cases and interview patterns</span>
+                        <span className="text-sm sm:text-base"><strong className="text-white">Practical Applications</strong> - Real-world use cases and interview patterns</span>
                     </li>
                 </ul>
 

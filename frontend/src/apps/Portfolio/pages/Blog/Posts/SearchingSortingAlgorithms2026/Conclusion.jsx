@@ -32,8 +32,8 @@ const Conclusion = () => {
                             <Code size={20} /> Searching Algorithms
                         </h3>
                         <ul className="space-y-2 text-slate-300 text-sm">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Linear Search — O(n) for unsorted data</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Binary Search — O(log n) for sorted data</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Linear Search - O(n) for unsorted data</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Binary Search - O(log n) for sorted data</li>
                             <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> When to use each approach</li>
                         </ul>
                     </div>
@@ -43,9 +43,9 @@ const Conclusion = () => {
                             <Code size={20} /> Simple Sorting Algorithms
                         </h3>
                         <ul className="space-y-2 text-slate-300 text-sm">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Bubble Sort — Educational baseline</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Selection Sort — Minimize swaps</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Insertion Sort — Best for small/nearly sorted</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Bubble Sort - Educational baseline</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Selection Sort - Minimize swaps</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Insertion Sort - Best for small/nearly sorted</li>
                         </ul>
                     </div>
 
@@ -54,8 +54,8 @@ const Conclusion = () => {
                             <Code size={20} /> Advanced Sorting Algorithms
                         </h3>
                         <ul className="space-y-2 text-slate-300 text-sm">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Merge Sort — Stable, guaranteed O(n log n)</li>
-                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Quick Sort — Fastest in practice</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Merge Sort - Stable, guaranteed O(n log n)</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Quick Sort - Fastest in practice</li>
                             <li className="flex items-center gap-2"><CheckCircle2 size={14} className="text-green-400" /> Algorithm trade-offs & comparisons</li>
                         </ul>
                     </div>
@@ -77,10 +77,10 @@ const Conclusion = () => {
 
                 <div className="space-y-4 my-8">
                     {[
-                        "Binary Search is essential—it appears in 30%+ of coding interviews and is the foundation for many advanced algorithms.",
+                        "Binary Search is essential-it appears in 30%+ of coding interviews and is the foundation for many advanced algorithms.",
                         "Quick Sort is the go-to for general sorting, but always use randomized pivot selection to avoid O(n²) worst case.",
                         "Merge Sort is your friend when stability matters or when sorting linked lists and external data.",
-                        "Insertion Sort isn't just educational—it's used in production as part of hybrid algorithms like TimSort.",
+                        "Insertion Sort isn't just educational-it's used in production as part of hybrid algorithms like TimSort.",
                         "Understanding WHY an algorithm works is more important than memorizing code. Focus on the core logic."
                     ].map((takeaway, idx) => (
                         <div key={idx} className="flex items-start gap-4 p-4 rounded-lg bg-slate-800/30">

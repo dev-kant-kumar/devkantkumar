@@ -223,7 +223,7 @@ function AntiGravityPost() {
         {/* Introduction */}
         <section className="mb-16">
           <p className="text-2xl text-slate-300 leading-relaxed font-light mb-8">
-            For decades, software engineering has been a battle against friction. We spend hours fighting syntax errors, wrestling with boilerplate, managing complex dependencies, and context-switching between documentation and code. <strong className="text-white">Google's Project Anti Gravity</strong> isn't just another AI autocomplete tool—it's a fundamental paradigm shift that promises to lift the heavy lifting off your shoulders, allowing you to focus purely on architecture and logic.
+            For decades, software engineering has been a battle against friction. We spend hours fighting syntax errors, wrestling with boilerplate, managing complex dependencies, and context-switching between documentation and code. <strong className="text-white">Google's Project Anti Gravity</strong> isn't just another AI autocomplete tool-it's a fundamental paradigm shift that promises to lift the heavy lifting off your shoulders, allowing you to focus purely on architecture and logic.
           </p>
 
         </section>

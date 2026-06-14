@@ -292,7 +292,7 @@ function AssembliesPost() {
 
           <div className="prose prose-xl prose-invert max-w-none">
             <p className="text-lg text-slate-300 leading-relaxed mb-6">
-              Before .NET, developers struggled with DLL Hell—a nightmare of versioning conflicts and dependency management. COM components required complex registration, and distributing applications was fraught with compatibility issues. .NET assemblies revolutionized this landscape by introducing a self-describing, version-aware deployment model.
+              Before .NET, developers struggled with DLL Hell-a nightmare of versioning conflicts and dependency management. COM components required complex registration, and distributing applications was fraught with compatibility issues. .NET assemblies revolutionized this landscape by introducing a self-describing, version-aware deployment model.
             </p>
 
             <p className="text-lg text-slate-300 leading-relaxed mb-6">
@@ -350,7 +350,7 @@ function AssembliesPost() {
                   <h4 className="text-xl font-bold text-blue-300">Type Metadata</h4>
                 </div>
                 <p className="text-slate-400 leading-relaxed">
-                  Complete information about every type defined in the assembly—classes, interfaces, enums, delegates, etc.
+                  Complete information about every type defined in the assembly-classes, interfaces, enums, delegates, etc.
                 </p>
               </div>
 
@@ -540,7 +540,7 @@ function AssembliesPost() {
                   Simple Deployment
                 </h4>
                 <p className="text-slate-300 leading-relaxed">
-                  Deployment is as easy as copying files. XCOPY deployment works perfectly—just copy the application folder to any location, and it runs. No registry entries, no GAC installation, no complex setup procedures required.
+                  Deployment is as easy as copying files. XCOPY deployment works perfectly-just copy the application folder to any location, and it runs. No registry entries, no GAC installation, no complex setup procedures required.
                 </p>
               </div>
 
@@ -820,7 +820,7 @@ Breaking it down:
                   <h4 className="text-xl font-bold text-indigo-300">No Registration Required</h4>
                 </div>
                 <p className="text-slate-300 leading-relaxed">
-                  Simply copy the files—no regsvr32, no COM registration, no installer complexity. This dramatically simplifies deployment and testing scenarios.
+                  Simply copy the files-no regsvr32, no COM registration, no installer complexity. This dramatically simplifies deployment and testing scenarios.
                 </p>
               </div>
             </div>
@@ -1728,7 +1728,7 @@ gacutil /l MySharedLibrary
                 Understanding .NET assemblies is fundamental to building robust, maintainable, and scalable applications. Whether you're creating simple console apps with private assemblies or enterprise systems with shared libraries, the principles we've covered form the foundation of professional .NET development.
               </p>
               <p className="text-lg text-slate-300 leading-relaxed mb-6">
-                As you continue your journey with .NET, remember that assembly management is not just about technical implementation—it's about architecting systems that are easy to deploy, update, and maintain over time. The side-by-side execution model and strong naming eliminate the versioning nightmares of the past, giving you the freedom to innovate without fear of breaking existing systems.
+                As you continue your journey with .NET, remember that assembly management is not just about technical implementation-it's about architecting systems that are easy to deploy, update, and maintain over time. The side-by-side execution model and strong naming eliminate the versioning nightmares of the past, giving you the freedom to innovate without fear of breaking existing systems.
               </p>
               <div className="flex flex-wrap gap-4 mt-8">
                 <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-400/30 text-purple-300">

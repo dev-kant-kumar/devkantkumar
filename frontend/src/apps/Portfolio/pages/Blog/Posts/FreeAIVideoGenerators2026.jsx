@@ -26,7 +26,7 @@ export const info = {
     slug: "free-ai-video-generators-2026",
     title: "5 Best FREE AI Video Generators 2026 (No Credit Card & Limits)",
     description: "Tired of paywalls? These 5 AI video generators are 100% FREE in 2026. No credit card, no watermarks, no credit limits. Arena, Qwen, Wan, Vheer & Digen compared.",
-    excerpt: "Most \"free\" AI video tools are lying. Here are 5 that genuinely give you unlimited generations — no credit card, no watermark, no catch.",
+    excerpt: "Most \"free\" AI video tools are lying. Here are 5 that genuinely give you unlimited generations - no credit card, no watermark, no catch.",
     publishDate: "2026-03-21",
     modifiedDate: "2026-03-21",
     category: "Tools",
@@ -276,7 +276,7 @@ const FreeAIVideoGenerators2026 = () => {
 
                     <div className="prose prose-invert max-w-none">
                         <p className="text-xl text-slate-200 leading-relaxed mb-6">
-                            You find a promising AI video generator. Sign up. Generate one video. Then the paywall hits — <strong className="text-white">2 credits left, upgrade for $29/month.</strong> Sound familiar?
+                            You find a promising AI video generator. Sign up. Generate one video. Then the paywall hits - <strong className="text-white">2 credits left, upgrade for $29/month.</strong> Sound familiar?
                         </p>
                         <p className="text-lg text-slate-300 leading-relaxed mb-8">
                             In 2026, the bait-and-switch is everywhere. But there are tools that genuinely give you <strong className="text-purple-400">unlimited generations</strong> with no watermarks and no credit card required. I've tested over 30 platforms to find the 5 that actually deliver on the promise of free.
@@ -479,7 +479,7 @@ const FreeAIVideoGenerators2026 = () => {
                 <section className="text-center py-12 border-t border-slate-800">
                     <h2 className="text-2xl md:text-3xl font-black text-white mb-4">Final Thought</h2>
                     <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-                        The barrier to professional video production has collapsed in 2026. These tools aren't compromises — they're legitimate
+                        The barrier to professional video production has collapsed in 2026. These tools aren't compromises - they're legitimate
                         alternatives to paid platforms. Start with Arena to understand quality, then use Qwen for audio support.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">

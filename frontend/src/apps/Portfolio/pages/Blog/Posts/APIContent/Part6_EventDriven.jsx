@@ -12,7 +12,7 @@ export default function Part6_EventDriven() {
 
         <div className="prose prose-xl prose-invert max-w-none">
           <p className="text-lg text-slate-300 leading-relaxed mb-6">
-            Webhooks are <strong className="text-white">user-defined HTTP callbacks</strong> — your server calls someone else's server when an event occurs. The push model is far more efficient than polling.
+            Webhooks are <strong className="text-white">user-defined HTTP callbacks</strong> - your server calls someone else's server when an event occurs. The push model is far more efficient than polling.
           </p>
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">Receiving Webhooks Securely</h3>
@@ -107,7 +107,7 @@ webhookQueue.defaultJobOptions = {
 
         <div className="prose prose-xl prose-invert max-w-none">
           <p className="text-lg text-slate-300 leading-relaxed mb-6">
-            tRPC provides <strong className="text-white">end-to-end type-safe APIs</strong> between Node.js backend and TypeScript frontend — no code generation, no schemas, just types that flow.
+            tRPC provides <strong className="text-white">end-to-end type-safe APIs</strong> between Node.js backend and TypeScript frontend - no code generation, no schemas, just types that flow.
           </p>
 
           <CodeBlock language="ts" filename="server/router.ts" code={`import { initTRPC } from '@trpc/server';
@@ -131,7 +131,7 @@ export const appRouter = t.router({
   }),
 });
 
-// Client (React + TypeScript) — fully typed!
+// Client (React + TypeScript) - fully typed!
 const { data } = trpc.users.list.useQuery({ page: 1 });
 //       ^-- inferred: User[]`} />
 

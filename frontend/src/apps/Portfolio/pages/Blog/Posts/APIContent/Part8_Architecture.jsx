@@ -17,13 +17,13 @@ export default function Part8_Architecture() {
        Validates        Business
        HTTP layer        Logic`} />
 
-          <CodeBlock language="js" code={`// Repository — only DB queries
+          <CodeBlock language="js" code={`// Repository - only DB queries
 class UserRepository {
   async findById(id) { return db.query('SELECT * FROM users WHERE id = $1', [id]); }
   async create(data) { return db.query('INSERT INTO users...', [...Object.values(data)]); }
 }
 
-// Service — business logic
+// Service - business logic
 class UserService {
   constructor(userRepo, emailService) {
     this.userRepo = userRepo;
@@ -47,7 +47,7 @@ class UserService {
   }
 }
 
-// Controller — HTTP concern only
+// Controller - HTTP concern only
 const createUser = async (req, res, next) => {
   try {
     const user = await userService.create(req.body);
@@ -60,7 +60,7 @@ const createUser = async (req, res, next) => {
 };`} />
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">Long-Running Jobs (202 Accepted)</h3>
-          <CodeBlock language="js" code={`// POST /exports — start async job
+          <CodeBlock language="js" code={`// POST /exports - start async job
 app.post('/exports', authenticate, async (req, res) => {
   const jobId = uuidv4();
 
@@ -72,7 +72,7 @@ app.post('/exports', authenticate, async (req, res) => {
      .json({ jobId, status: 'queued' });
 });
 
-// GET /exports/:jobId/status — poll for status
+// GET /exports/:jobId/status - poll for status
 app.get('/exports/:jobId/status', authenticate, async (req, res) => {
   const job = await exportQueue.getJob(req.params.jobId);
   const state = await job.getState();
@@ -169,8 +169,8 @@ const result = await breaker.fire(paymentData);`} />
 
           <InfoBox type="warning" title="Microservices Communication Rules" icon={AlertTriangle}>
             <ul className="space-y-1 text-sm">
-              <li>• <strong>Sync (HTTP/gRPC)</strong> — only for request-response where you need an immediate answer</li>
-              <li>• <strong>Async (Message Queue)</strong> — for fire-and-forget events, decoupled processing</li>
+              <li>• <strong>Sync (HTTP/gRPC)</strong> - only for request-response where you need an immediate answer</li>
+              <li>• <strong>Async (Message Queue)</strong> - for fire-and-forget events, decoupled processing</li>
               <li>• Always implement <strong>circuit breakers</strong> for inter-service calls</li>
               <li>• Use <strong>service discovery</strong> instead of hardcoded URLs</li>
               <li>• Implement the <strong>Saga pattern</strong> for distributed transactions</li>

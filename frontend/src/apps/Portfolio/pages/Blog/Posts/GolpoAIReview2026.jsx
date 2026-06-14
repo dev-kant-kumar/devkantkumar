@@ -22,7 +22,7 @@ import { useState } from "react";
 export const info = {
     slug: "golpo-ai-review-2026",
     title: "Golpo AI Review 2026: Is This Video Tool Worth It?",
-    description: "Honest Golpo AI review 2026 — real results, full pricing breakdown, free vs paid, and whether it's worth it for YouTubers, educators, and developers. Read before you buy.",
+    description: "Honest Golpo AI review 2026 - real results, full pricing breakdown, free vs paid, and whether it's worth it for YouTubers, educators, and developers. Read before you buy.",
     excerpt: "Genuinely impressive whiteboard explainer videos from text prompts. Is Golpo AI worth $39/month? Read our full 2026 review.",
     publishDate: "2026-03-08",
     modifiedDate: "2026-03-08",
@@ -43,7 +43,7 @@ export const info = {
     faqs: [
         {
             question: "Is Golpo AI free?",
-            answer: "Golpo AI has a free plan that gives you 1 credit (enough for a 1-minute video). However, you cannot download the video on the free plan—it serves mostly as a demo of the output quality."
+            answer: "Golpo AI has a free plan that gives you 1 credit (enough for a 1-minute video). However, you cannot download the video on the free plan-it serves mostly as a demo of the output quality."
         },
         {
             question: "How much does Golpo AI cost?",
@@ -117,7 +117,7 @@ const VerdictBox = () => (
             </CTAButton>
         </div>
         <p className="mt-4 text-slate-300 italic\">
-            "The output quality is real. But the free plan is severely limited, the download is paywalled, and $39/month is steep — especially outside the US. Here's what you need to know before spending a rupee."
+            "The output quality is real. But the free plan is severely limited, the download is paywalled, and $39/month is steep - especially outside the US. Here's what you need to know before spending a rupee."
         </p>
     </div>
 );
@@ -401,14 +401,14 @@ const GolpoAIReview2026 = () => {
                 {/* Step by step */}
                 <section className="mb-16">
                     <h2 className="text-2xl font-bold text-white mb-6">How Golpo AI Actually Works (Step by Step)</h2>
-                    <p className="text-slate-300 mb-6">The generation itself is genuinely fast — mostly under 5 minutes for a 1-minute video. The sketch-style animation looks clean and professional, not like a cheap slideshow. Here's the workflow:</p>
+                    <p className="text-slate-300 mb-6">The generation itself is genuinely fast - mostly under 5 minutes for a 1-minute video. The sketch-style animation looks clean and professional, not like a cheap slideshow. Here's the workflow:</p>
                     <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-6 space-y-4">
                         <p className="text-slate-300"><strong className="text-indigo-400">1.</strong> Go to <a href={AFFILIATE_LINKS.main} className="text-blue-400 hover:underline">video.golpoai.com</a></p>
-                        <p className="text-slate-300"><strong className="text-indigo-400">2.</strong> Sign up free — you get 1 credit (= 1 minute of video)</p>
+                        <p className="text-slate-300"><strong className="text-indigo-400">2.</strong> Sign up free - you get 1 credit (= 1 minute of video)</p>
                         <p className="text-slate-300"><strong className="text-indigo-400">3.</strong> Type your topic or paste a document into the prompt box</p>
                         <p className="text-slate-300"><strong className="text-indigo-400">4.</strong> Choose style: <strong>Golpo Sketch</strong> (B&W line art) or <strong>Golpo Canvas</strong> (older 2.0 style)</p>
                         <p className="text-slate-300"><strong className="text-indigo-400">5.</strong> Set your voice tone, accent, and language (50+ supported)</p>
-                        <p className="text-slate-300"><strong className="text-indigo-400">6.</strong> Hit generate — your high-quality video is ready in minutes</p>
+                        <p className="text-slate-300"><strong className="text-indigo-400">6.</strong> Hit generate - your high-quality video is ready in minutes</p>
 
                         {/* Screenshot Embed */}
                         <div className="my-6 rounded-xl overflow-hidden border border-slate-700/50 shadow-2xl relative">
@@ -468,7 +468,7 @@ const GolpoAIReview2026 = () => {
                     </h2>
                     <p className="text-slate-300 mb-6">
                         The brutal truth about the Free Plan: You can generate and watch your video for free, but you <strong className="text-white">cannot download it without paying</strong>. It is practically a demo.
-                        Golpo operates on a credit system: 1 credit = 1 minute of video generation. Notice that essential features—like Script Mode, Color Videos, and Multilingual Support—are locked behind higher tiers ($199.99/mo Growth) or paid Add-ons.
+                        Golpo operates on a credit system: 1 credit = 1 minute of video generation. Notice that essential features-like Script Mode, Color Videos, and Multilingual Support-are locked behind higher tiers ($199.99/mo Growth) or paid Add-ons.
                     </p>
                     <PricingTable />
                     <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-4 flex items-center gap-4">
@@ -501,7 +501,7 @@ const GolpoAIReview2026 = () => {
                             Is Golpo AI Worth It in 2026?
                         </h2>
                         <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-                            Yes, if you're a business, educator, or developer advocate who currently pays external editors to make explainer videos—Golpo will save you significant money and hours. But for individual beginners, it might be tough to justify.
+                            Yes, if you're a business, educator, or developer advocate who currently pays external editors to make explainer videos-Golpo will save you significant money and hours. But for individual beginners, it might be tough to justify.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <CTAButton href={AFFILIATE_LINKS.main} variant="primary">
@@ -542,7 +542,7 @@ const GolpoAIReview2026 = () => {
                 {/* Standard Disclosure */}
                 <div className="text-center text-slate-500 text-sm border-t border-slate-800 pt-8">
                     <p>
-                        <strong>About the Author:</strong> Written by Dev Kant Kumar — Full Stack Developer & YouTuber at Dev Code Space. Details are based on personal testing of Golpo AI's output and capabilities.
+                        <strong>About the Author:</strong> Written by Dev Kant Kumar - Full Stack Developer & YouTuber at Dev Code Space. Details are based on personal testing of Golpo AI's output and capabilities.
                     </p>
                 </div>
 

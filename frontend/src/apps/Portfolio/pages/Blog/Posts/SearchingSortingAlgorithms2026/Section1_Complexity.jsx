@@ -146,10 +146,10 @@ const Section1_Complexity = () => {
                             Require additional memory for temporary storage.
                         </p>
                         <ul className="text-slate-300 text-sm space-y-1">
-                            <li>⚠️ Merge Sort — O(n)</li>
-                            <li>⚠️ Counting Sort — O(k)</li>
-                            <li>⚠️ Radix Sort — O(n + k)</li>
-                            <li>⚠️ Bucket Sort — O(n)</li>
+                            <li>⚠️ Merge Sort - O(n)</li>
+                            <li>⚠️ Counting Sort - O(k)</li>
+                            <li>⚠️ Radix Sort - O(n + k)</li>
+                            <li>⚠️ Bucket Sort - O(n)</li>
                         </ul>
                     </div>
                 </div>

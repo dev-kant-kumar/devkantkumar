@@ -329,7 +329,7 @@ int main() {
             <div className="prose prose-invert prose-lg max-w-none">
                 <p className="lead text-xl text-slate-300 mb-8">
                     Binary Search is the <strong>most important searching algorithm</strong> you'll ever learn.
-                    It reduces search time from O(n) to O(log n) by repeatedly dividing the search space in half—a concept called <strong>divide and conquer</strong>.
+                    It reduces search time from O(n) to O(log n) by repeatedly dividing the search space in half-a concept called <strong>divide and conquer</strong>.
                 </p>
 
                 <InfoBox type="warning" title="Critical Prerequisite" icon={AlertTriangle}>
@@ -341,7 +341,7 @@ int main() {
                 <SubSectionHeader title="How Binary Search Works" />
 
                 <p>
-                    Imagine you're looking for a word in a dictionary. You don't start from page 1—you open to the middle,
+                    Imagine you're looking for a word in a dictionary. You don't start from page 1-you open to the middle,
                     see if your word comes before or after, and eliminate half the pages with each step. That's binary search!
                 </p>
 
@@ -492,7 +492,7 @@ END FUNCTION`}
                         <div>
                             <h5 className="text-red-400 font-bold mb-1">Infinite Loop</h5>
                             <p className="text-slate-300 text-sm mt-1">
-                                Wrong: <code className="text-red-300 bg-slate-800 px-1 rounded">while (left {'<'} right)</code> — misses edge case
+                                Wrong: <code className="text-red-300 bg-slate-800 px-1 rounded">while (left {'<'} right)</code> - misses edge case
                             </p>
                             <p className="text-slate-400 text-sm mt-1">
                                 ✅ Fix: <code className="text-green-300 bg-slate-800 px-1 rounded">while (left {'<'}= right)</code>
@@ -516,11 +516,11 @@ END FUNCTION`}
                 {/* Edge Cases */}
                 <InfoBox type="tip" title="Edge Cases to Handle">
                     <ul className="space-y-1 mt-2">
-                        <li>• <strong>Empty array</strong> — return -1</li>
-                        <li>• <strong>Single element</strong> — check if it matches</li>
-                        <li>• <strong>Target smaller than all elements</strong> — return -1</li>
-                        <li>• <strong>Target larger than all elements</strong> — return -1</li>
-                        <li>• <strong>Duplicate elements</strong> — returns any matching index (variations exist for first/last)</li>
+                        <li>• <strong>Empty array</strong> - return -1</li>
+                        <li>• <strong>Single element</strong> - check if it matches</li>
+                        <li>• <strong>Target smaller than all elements</strong> - return -1</li>
+                        <li>• <strong>Target larger than all elements</strong> - return -1</li>
+                        <li>• <strong>Duplicate elements</strong> - returns any matching index (variations exist for first/last)</li>
                     </ul>
                 </InfoBox>
 
@@ -571,7 +571,7 @@ END FUNCTION`}
                 <KeyTakeaway>
                     <p>
                         Binary Search is <strong>the gold standard for searching sorted data</strong>.
-                        Its O(log n) complexity makes it incredibly efficient—searching through a billion elements takes only about 30 comparisons!
+                        Its O(log n) complexity makes it incredibly efficient-searching through a billion elements takes only about 30 comparisons!
                         Master both iterative and recursive implementations, as interviewers love testing edge cases and variations.
                     </p>
                 </KeyTakeaway>

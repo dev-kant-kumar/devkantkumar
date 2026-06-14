@@ -11,7 +11,7 @@ export default function Part7_Security() {
         </SectionHeading>
 
         <div className="prose prose-xl prose-invert max-w-none">
-          <h3 className="text-2xl font-bold text-white mt-6 mb-4">JWT — Production Implementation</h3>
+          <h3 className="text-2xl font-bold text-white mt-6 mb-4">JWT - Production Implementation</h3>
           <CodeBlock language="js" code={`const jwt = require('jsonwebtoken');
 
 // Access token: short-lived (15 minutes)
@@ -97,7 +97,7 @@ app.post('/auth/login', authLimiter, loginHandler);`} />
                 </span>
                 <div>
                   <span className="font-bold text-red-300 text-sm">{item.title}</span>
-                  <span className="text-slate-400 text-sm"> — {item.desc}</span>
+                  <span className="text-slate-400 text-sm"> - {item.desc}</span>
                 </div>
               </div>
             ))}
@@ -153,7 +153,7 @@ app.get('/users/:id', async (req, res) => {
   res.setHeader('ETag', etag);
   res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
 
-  // Conditional GET — avoid sending body if unchanged
+  // Conditional GET - avoid sending body if unchanged
   if (req.headers['if-none-match'] === etag) {
     return res.status(304).end();
   }

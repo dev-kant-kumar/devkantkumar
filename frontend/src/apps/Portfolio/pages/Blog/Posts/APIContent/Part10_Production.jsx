@@ -152,7 +152,7 @@ app.post('/uploads/presigned', authenticate, async (req, res) => {
 app.post('/payments', authenticate, idempotency, processPayment);`} />
 
           <h3 className="text-2xl font-bold text-white mt-10 mb-4">API Versioning & Sunset Headers</h3>
-          <CodeBlock language="js" code={`// Sunset header — warn clients about deprecation
+          <CodeBlock language="js" code={`// Sunset header - warn clients about deprecation
 app.use('/api/v1', (req, res, next) => {
   res.setHeader('Deprecation', 'true');
   res.setHeader('Sunset', 'Sat, 31 Dec 2025 23:59:59 GMT');
@@ -216,7 +216,7 @@ app.use('/api/v1', (req, res, next) => {
         <div className="p-8 rounded-2xl bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/30 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">You're Now an API Master! 🚀</h2>
           <p className="text-slate-300 text-lg mb-6 max-w-3xl mx-auto">
-            You've covered the full API landscape for Node.js — from HTTP fundamentals to production deployment. Work through the code examples, implement them in your projects, and architect any API system with confidence.
+            You've covered the full API landscape for Node.js - from HTTP fundamentals to production deployment. Work through the code examples, implement them in your projects, and architect any API system with confidence.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a href="#what-is-api" className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-colors inline-flex items-center gap-2">

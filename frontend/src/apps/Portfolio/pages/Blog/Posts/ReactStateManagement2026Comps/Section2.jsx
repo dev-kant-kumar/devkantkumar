@@ -117,7 +117,7 @@ function SearchBar() {
 
           <InfoBox type="warning" title="The Kitchen Rule" icon={AlertTriangle}>
             <p className="italic font-medium text-slate-200">
-              "If you're trying to cook on the stove, while reaching into the fridge every second, while someone's reorganizing the counter—you're going to burn something. Separate your zones."
+              "If you're trying to cook on the stove, while reaching into the fridge every second, while someone's reorganizing the counter-you're going to burn something. Separate your zones."
             </p>
           </InfoBox>
 

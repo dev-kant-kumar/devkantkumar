@@ -152,7 +152,7 @@ export const info = {
       answer: "It depends on your use case. REST is best for public APIs due to simplicity and caching. GraphQL excels for flexible client queries. gRPC is ideal for high-performance microservices. Most production systems use a hybrid approach."
     },
     {
-      question: "REST vs GraphQL vs gRPC — which should I use?",
+      question: "REST vs GraphQL vs gRPC - which should I use?",
       answer: "Use REST for public APIs, GraphQL for BFF (Backend for Frontend) patterns with complex data needs, and gRPC for internal microservice communication. Many teams use all three strategically."
     },
     {

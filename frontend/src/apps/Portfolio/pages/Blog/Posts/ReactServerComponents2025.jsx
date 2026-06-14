@@ -1548,7 +1548,7 @@ async function UserActivity({ userId }) {
                 Final Thoughts
               </h3>
               <p className="text-lg text-slate-300 leading-relaxed mb-4">
-                React Server Components aren't just another React feature—they
+                React Server Components aren't just another React feature-they
                 represent a fundamental rethinking ofhow we architect web
                 applications. By embracing a server-first mindset and strategic
                 use of client interactivity, you can build applications that are

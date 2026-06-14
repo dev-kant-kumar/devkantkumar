@@ -52,7 +52,7 @@ function JSFeaturedImage({ className = "" }) {
           <span className="text-white">JavaScript </span>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500">Internals</span>
         </h2>
-        <p className="text-slate-400 text-lg">How JS Works Under the Hood — From Engine to Event Loop</p>
+        <p className="text-slate-400 text-lg">How JS Works Under the Hood - From Engine to Event Loop</p>
       </div>
     </div>
   );
@@ -273,7 +273,7 @@ function JavaScriptInternals2026() {
         {/* Intro */}
         <section className="mb-16">
           <p className="text-2xl text-slate-300 leading-relaxed font-light mb-8">
-            Every line of JavaScript you write goes through a breathtaking journey — from raw text to optimized machine code, through execution contexts, call stacks, and event loops. This is the <strong className="text-white">most comprehensive guide on the internet</strong> to understanding <em>how JavaScript actually works under the hood</em>. Whether you're preparing for a senior-level interview or simply want to write better code, mastering these internals is what separates good developers from great ones.
+            Every line of JavaScript you write goes through a breathtaking journey - from raw text to optimized machine code, through execution contexts, call stacks, and event loops. This is the <strong className="text-white">most comprehensive guide on the internet</strong> to understanding <em>how JavaScript actually works under the hood</em>. Whether you're preparing for a senior-level interview or simply want to write better code, mastering these internals is what separates good developers from great ones.
           </p>
           <InfoBox type="info" title="Who is this for?" icon={Target}>
             <p>This 20-chapter deep-dive covers everything from V8 engine internals to garbage collection. It's designed for developers who want to go beyond syntax and truly understand the <strong className="text-white">mechanics behind their code</strong>. Diagrams, code examples, and real-world analogies are used throughout.</p>
@@ -286,7 +286,7 @@ function JavaScriptInternals2026() {
         <section className="mb-20">
           <SectionHeader id="big-picture" number="01" title="The Big Picture" icon={Target} gradient="from-yellow-500 to-amber-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">Before diving deep, let's trace the complete journey of your JavaScript code — from the moment you write it to the moment it produces results on screen.</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">Before diving deep, let's trace the complete journey of your JavaScript code - from the moment you write it to the moment it produces results on screen.</p>
 
             <DiagramBox title="JavaScript Code Lifecycle" color="yellow">{`You write JS code
        ↓
@@ -312,7 +312,7 @@ Async work → Web APIs / libuv → Queues → Event Loop → Call Stack`}</Diag
                 { title: "Single-Threaded", desc: "One call stack, one thing at a time. No parallel execution in the main thread.", color: "yellow" },
                 { title: "Non-Blocking", desc: "Async operations are offloaded so the main thread never freezes.", color: "green" },
                 { title: "Dynamically Typed", desc: "Types are checked at runtime, not compile time. Variables can hold any type.", color: "cyan" },
-                { title: "JIT Compiled", desc: "Not purely interpreted or compiled — it's a hybrid approach for maximum performance.", color: "purple" },
+                { title: "JIT Compiled", desc: "Not purely interpreted or compiled - it's a hybrid approach for maximum performance.", color: "purple" },
               ].map((item, i) => (
                 <div key={i} className={`p-5 rounded-xl bg-${item.color}-900/20 border border-${item.color}-700/30`}>
                   <h4 className="text-lg font-bold text-white mb-2 flex items-center gap-2"><Check size={18} className={`text-${item.color}-400`} />{item.title}</h4>
@@ -381,7 +381,7 @@ Async work → Web APIs / libuv → Queues → Event Loop → Call Stack`}</Diag
         <section className="mb-20">
           <SectionHeader id="jit-compilation" number="03" title="How JS Code is Compiled" icon={Zap} gradient="from-green-500 to-emerald-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">JavaScript uses <strong className="text-white">JIT (Just-In-Time) Compilation</strong> — a hybrid approach that combines the fast startup of an interpreter with the raw speed of a compiler.</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">JavaScript uses <strong className="text-white">JIT (Just-In-Time) Compilation</strong> - a hybrid approach that combines the fast startup of an interpreter with the raw speed of a compiler.</p>
 
             <DiagramBox title="JIT Compilation Pipeline" color="green">{`Source Code
      ↓
@@ -397,7 +397,7 @@ Async work → Web APIs / libuv → Queues → Event Loop → Call Stack`}</Diag
 │ INTERPRETER │  → converts to Bytecode, starts executing immediately
 │  (Ignition) │    (fast startup, slower execution)
 └─────────────┘
-     ↓ (profiler detects "hot" functions — called repeatedly)
+     ↓ (profiler detects "hot" functions - called repeatedly)
 ┌─────────────┐
 │JIT COMPILER │  → recompiles hot code into optimized Machine Code
 │ (TurboFan)  │    (slower to compile, much faster to run)
@@ -453,7 +453,7 @@ const x = 5 + 3
               </div>
               <div className="p-5 rounded-xl bg-red-900/20 border border-red-700/30">
                 <h4 className="text-lg font-bold text-red-300 mb-2">Eval Execution Context</h4>
-                <p className="text-slate-300">Created inside <code className="text-yellow-300">eval()</code>. Avoid using eval — it's a security risk and blocks engine optimizations.</p>
+                <p className="text-slate-300">Created inside <code className="text-yellow-300">eval()</code>. Avoid using eval - it's a security risk and blocks engine optimizations.</p>
               </div>
             </div>
 
@@ -483,7 +483,7 @@ const x = 5 + 3
           <div className="prose prose-xl prose-invert max-w-none">
             <p className="text-lg text-slate-300 leading-relaxed mb-6">Every Execution Context is created in <strong className="text-white">two distinct phases</strong>. Understanding these phases is the key to understanding hoisting.</p>
 
-            <h3 className="text-2xl font-bold text-white mt-8 mb-6">Phase 1 — Memory Creation (Hoisting Phase)</h3>
+            <h3 className="text-2xl font-bold text-white mt-8 mb-6">Phase 1 - Memory Creation (Hoisting Phase)</h3>
             <p className="text-lg text-slate-300 leading-relaxed mb-4">The JS engine scans the <em>entire</em> code BEFORE executing a single line:</p>
 
             <DiagramBox title="Memory Allocation Rules" color="yellow">{`For var declarations  → stored with value: undefined
@@ -492,29 +492,29 @@ For function declarations → stored with FULL function definition
 For function expressions → treated like var (undefined)`}</DiagramBox>
 
             <CodeBlock language="javascript" filename="memory-phase.js" code={`// What you write:
-console.log(a)      // undefined (not error — var hoisted)
-console.log(b)      // ReferenceError — TDZ
-console.log(greet)  // [Function: greet] — fully hoisted
+console.log(a)      // undefined (not error - var hoisted)
+console.log(b)      // ReferenceError - TDZ
+console.log(greet)  // [Function: greet] - fully hoisted
 
 var a = 10
 let b = 20
 function greet() { return "hello" }`} />
 
-            <DiagramBox title="Memory Phase — Before Any Code Runs" color="cyan">{`┌────────────────────────────────────────┐
+            <DiagramBox title="Memory Phase - Before Any Code Runs" color="cyan">{`┌────────────────────────────────────────┐
 │  Variable Environment                  │
 │                                        │
 │  a        →  undefined                 │
-│  b        →  <TDZ — uninitialized>     │
+│  b        →  <TDZ - uninitialized>     │
 │  greet    →  function greet() {...}    │
 └────────────────────────────────────────┘`}</DiagramBox>
 
-            <h3 className="text-2xl font-bold text-white mt-12 mb-6">Phase 2 — Code Execution Phase</h3>
+            <h3 className="text-2xl font-bold text-white mt-12 mb-6">Phase 2 - Code Execution Phase</h3>
             <p className="text-lg text-slate-300 leading-relaxed mb-4">Code runs <strong className="text-white">line by line</strong>, top to bottom. Values get assigned to previously allocated memory slots.</p>
 
-            <DiagramBox title="Code Execution — Line by Line" color="green">{`┌────────────────────────────────────────┐
+            <DiagramBox title="Code Execution - Line by Line" color="green">{`┌────────────────────────────────────────┐
 │  Line 4: a = 10  →  a updated from undefined to 10  │
 │  Line 5: b = 20  →  b initialized, TDZ ends         │
-│  Line 6: greet already stored — no update needed     │
+│  Line 6: greet already stored - no update needed     │
 └────────────────────────────────────────┘`}</DiagramBox>
           </div>
         </section>
@@ -523,7 +523,7 @@ function greet() { return "hello" }`} />
         <section className="mb-20">
           <SectionHeader id="hoisting" number="06" title="Hoisting" icon={TrendingUp} gradient="from-red-500 to-rose-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">Hoisting is the behavior where <strong className="text-white">declarations are processed during the Memory Phase</strong> before any code executes. It's not that code physically moves — rather, the engine already knows about declarations before running anything.</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">Hoisting is the behavior where <strong className="text-white">declarations are processed during the Memory Phase</strong> before any code executes. It's not that code physically moves - rather, the engine already knows about declarations before running anything.</p>
 
             <h3 className="text-2xl font-bold text-white mt-8 mb-6">var Hoisting</h3>
             <CodeBlock language="javascript" code={`console.log(x)  // undefined (hoisted, not initialized)
@@ -536,7 +536,7 @@ console.log(x)  // undefined
 x = 5           // assignment stays here
 console.log(x)  // 5`} />
 
-            <h3 className="text-2xl font-bold text-white mt-12 mb-6">let & const — Temporal Dead Zone (TDZ)</h3>
+            <h3 className="text-2xl font-bold text-white mt-12 mb-6">let & const - Temporal Dead Zone (TDZ)</h3>
             <CodeBlock language="javascript" code={`console.log(y)  // ❌ ReferenceError: Cannot access 'y' before initialization
 let y = 10
 
@@ -552,15 +552,15 @@ let y = 10
 └──────────────────────────────────────────┘`}</DiagramBox>
 
             <h3 className="text-2xl font-bold text-white mt-12 mb-6">Function Hoisting</h3>
-            <CodeBlock language="javascript" code={`// Function DECLARATION — fully hoisted
-greet()  // ✅ "Hello" — works before declaration
+            <CodeBlock language="javascript" code={`// Function DECLARATION - fully hoisted
+greet()  // ✅ "Hello" - works before declaration
 function greet() { console.log("Hello") }
 
-// Function EXPRESSION — NOT fully hoisted (treated like var)
+// Function EXPRESSION - NOT fully hoisted (treated like var)
 sayHi()  // ❌ TypeError: sayHi is not a function
 var sayHi = function() { console.log("Hi") }
 
-// Arrow function — same as function expression
+// Arrow function - same as function expression
 sayBye() // ❌ TypeError
 var sayBye = () => console.log("Bye")`} />
 
@@ -634,7 +634,7 @@ Step 9: Global EC           → POPPED (program ends)`}</DiagramBox>
 }
 infinite()
 // ❌ RangeError: Maximum call stack size exceeded
-// Stack grows until memory runs out — this is a "stack overflow"`} />
+// Stack grows until memory runs out - this is a "stack overflow"`} />
 
             <InfoBox type="danger" title="Interview Tip" icon={AlertTriangle}>
               The call stack has a <strong className="text-white">finite size limit</strong> (varies by engine, typically ~10,000–25,000 frames). Infinite recursion without a base case will always crash. Use tail-call optimization or convert recursion to iteration for deep call chains.
@@ -681,7 +681,7 @@ function outer() {
             console.log(c)  // ✅ found in middle scope (1 level up)
             console.log(b)  // ✅ found in outer scope (2 levels up)
             console.log(a)  // ✅ found in global scope (3 levels up)
-            console.log(e)  // ❌ ReferenceError — not found anywhere
+            console.log(e)  // ❌ ReferenceError - not found anywhere
         }
         inner()
     }
@@ -693,7 +693,7 @@ outer()`} />
      d                  c                   b                  a`}</DiagramBox>
 
             <InfoBox type="tip" title="Key Insight" icon={Lightbulb}>
-              The scope chain is determined by where functions are <strong className="text-white">written</strong> (lexical scope), NOT where they are <em>called</em>. This is called <strong className="text-white">lexical scoping</strong> — the physical position in your code determines variable access.
+              The scope chain is determined by where functions are <strong className="text-white">written</strong> (lexical scope), NOT where they are <em>called</em>. This is called <strong className="text-white">lexical scoping</strong> - the physical position in your code determines variable access.
             </InfoBox>
           </div>
         </section>
@@ -714,7 +714,7 @@ outer()`} />
 }
 
 const counter = makeCounter()
-// makeCounter() has finished — its EC is gone from call stack
+// makeCounter() has finished - its EC is gone from call stack
 // BUT count still lives because the inner function holds a reference
 
 console.log(counter())  // 1
@@ -734,7 +734,7 @@ because the inner function still references it`}</DiagramBox>
             <h3 className="text-2xl font-bold text-white mt-12 mb-6">Real-World Uses of Closures</h3>
             <CodeBlock language="javascript" filename="closure-patterns.js" code={`// 1. DATA PRIVACY (encapsulation)
 function createBankAccount(initialBalance) {
-    let balance = initialBalance  // private — can't access directly
+    let balance = initialBalance  // private - can't access directly
     return {
         deposit: (amount) => { balance += amount },
         withdraw: (amount) => { balance -= amount },
@@ -744,7 +744,7 @@ function createBankAccount(initialBalance) {
 const account = createBankAccount(1000)
 account.deposit(500)
 console.log(account.getBalance())  // 1500
-console.log(account.balance)       // undefined — no direct access!
+console.log(account.balance)       // undefined - no direct access!
 
 // 2. FUNCTION FACTORIES
 function multiply(x) {
@@ -766,20 +766,20 @@ function memoize(fn) {
 }`} />
 
             <h3 className="text-2xl font-bold text-white mt-12 mb-6 flex items-center gap-3"><AlertTriangle size={24} className="text-red-400" />Classic Closure Gotcha</h3>
-            <CodeBlock language="javascript" filename="closure-gotcha.js" code={`// ❌ BUG — var doesn't create new scope per iteration
+            <CodeBlock language="javascript" filename="closure-gotcha.js" code={`// ❌ BUG - var doesn't create new scope per iteration
 for (var i = 0; i < 3; i++) {
     setTimeout(() => console.log(i), 1000)
 }
 // Output: 3, 3, 3  (NOT 0, 1, 2)
 // All closures share the SAME i (var is function scoped)
 
-// ✅ FIX 1 — use let (block scoped, new binding per iteration)
+// ✅ FIX 1 - use let (block scoped, new binding per iteration)
 for (let i = 0; i < 3; i++) {
     setTimeout(() => console.log(i), 1000)
 }
 // Output: 0, 1, 2
 
-// ✅ FIX 2 — use IIFE to create new scope
+// ✅ FIX 2 - use IIFE to create new scope
 for (var i = 0; i < 3; i++) {
     ((j) => {
         setTimeout(() => console.log(j), 1000)
@@ -798,20 +798,20 @@ for (var i = 0; i < 3; i++) {
             <CodeBlock language="javascript" filename="this-rules.js" code={`// RULE 1: Global context
 console.log(this)  // window (browser) / {} (Node module)
 
-// RULE 2: Object method — this = the object
+// RULE 2: Object method - this = the object
 const user = {
     name: "Dev Kant",
     greet() { console.log(this.name) }  // "Dev Kant"
 }
 user.greet()
 
-// RULE 3: Regular function — this = undefined (strict) or window
+// RULE 3: Regular function - this = undefined (strict) or window
 function standalone() {
     console.log(this)  // undefined in strict mode
 }
 standalone()
 
-// RULE 4: Arrow function — this = inherited from surrounding scope
+// RULE 4: Arrow function - this = inherited from surrounding scope
 const obj = {
     name: "Dev Kant",
     greet: () => {
@@ -823,7 +823,7 @@ const obj = {
     }
 }
 
-// RULE 5: Constructor / new keyword — this = newly created object
+// RULE 5: Constructor / new keyword - this = newly created object
 function Person(name) {
     this.name = name    // this = new empty object
 }
@@ -836,13 +836,13 @@ console.log(dev.name)  // "Dev Kant"`} />
 }
 const person = { name: "Dev Kant" }
 
-// call — invoke immediately, pass args individually
+// call - invoke immediately, pass args individually
 introduce.call(person, "Hello")
 
-// apply — invoke immediately, pass args as array
+// apply - invoke immediately, pass args as array
 introduce.apply(person, ["Hi"])
 
-// bind — returns NEW function with this permanently bound
+// bind - returns NEW function with this permanently bound
 const boundIntroduce = introduce.bind(person)
 boundIntroduce("Hey")`} />
 
@@ -871,11 +871,11 @@ boundIntroduce("Hey")`} />
         <section className="mb-20">
           <SectionHeader id="prototype" number="11" title="Prototype & Prototype Chain" icon={GitBranch} gradient="from-emerald-500 to-green-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">Every object in JS has a hidden <code className="text-yellow-300">[[Prototype]]</code> property pointing to another object. This forms the <strong className="text-white">prototype chain</strong> — JavaScript's inheritance system.</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">Every object in JS has a hidden <code className="text-yellow-300">[[Prototype]]</code> property pointing to another object. This forms the <strong className="text-white">prototype chain</strong> - JavaScript's inheritance system.</p>
 
             <CodeBlock language="javascript" filename="prototype-basics.js" code={`const arr = [1, 2, 3]
 // arr has access to .map(), .filter(), .push() etc.
-// but YOU didn't define them — where do they come from?
+// but YOU didn't define them - where do they come from?
 // Answer: arr → Array.prototype → Object.prototype → null
 
 function Dog(name) {
@@ -927,15 +927,15 @@ class Dog extends Animal {
         <section className="mb-20">
           <SectionHeader id="async-js" number="12" title="Asynchronous JavaScript" icon={Repeat} gradient="from-blue-500 to-indigo-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">JS is single-threaded — it can only do one thing at a time. But the real world needs async operations: network requests, timers, file reads. How does JS handle this without freezing?</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">JS is single-threaded - it can only do one thing at a time. But the real world needs async operations: network requests, timers, file reads. How does JS handle this without freezing?</p>
 
             <h3 className="text-2xl font-bold text-white mt-8 mb-6 flex items-center gap-3"><AlertTriangle size={24} className="text-red-400" />The Problem</h3>
             <CodeBlock language="javascript" code={`// If JS were purely synchronous:
 const data = fetch('https://api.example.com/data')  // takes 2 seconds
 console.log(data)   // everything FREEZES for 2 seconds
-// User can't click, scroll, type — completely blocked`} />
+// User can't click, scroll, type - completely blocked`} />
 
-            <h3 className="text-2xl font-bold text-white mt-12 mb-6 flex items-center gap-3"><Rocket size={24} className="text-green-400" />The Solution — Offloading to the Environment</h3>
+            <h3 className="text-2xl font-bold text-white mt-12 mb-6 flex items-center gap-3"><Rocket size={24} className="text-green-400" />The Solution - Offloading to the Environment</h3>
             <p className="text-lg text-slate-300 leading-relaxed mb-4">JS doesn't handle async work itself. It hands it off to the <strong className="text-white">environment</strong>:</p>
             <div className="grid md:grid-cols-2 gap-4 my-6">
               <div className="p-5 rounded-xl bg-cyan-900/20 border border-cyan-700/30">
@@ -967,7 +967,7 @@ console.log(data)   // everything FREEZES for 2 seconds
         <section className="mb-20">
           <SectionHeader id="web-apis" number="13" title="Web APIs & libuv" icon={Server} gradient="from-violet-500 to-purple-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <h3 className="text-2xl font-bold text-white mt-4 mb-6">In the Browser — Web APIs</h3>
+            <h3 className="text-2xl font-bold text-white mt-4 mb-6">In the Browser - Web APIs</h3>
             <div className="overflow-x-auto my-8">
               <table className="w-full text-left border-collapse">
                 <thead><tr className="border-b border-slate-700">
@@ -984,7 +984,7 @@ console.log(data)   // everything FREEZES for 2 seconds
               </table>
             </div>
 
-            <h3 className="text-2xl font-bold text-white mt-12 mb-6">In Node.js — libuv</h3>
+            <h3 className="text-2xl font-bold text-white mt-12 mb-6">In Node.js - libuv</h3>
             <p className="text-lg text-slate-300 leading-relaxed mb-4">libuv is a C++ library that gives Node.js async I/O capabilities.</p>
             <div className="overflow-x-auto my-8">
               <table className="w-full text-left border-collapse">
@@ -1045,23 +1045,23 @@ console.log(data)   // everything FREEZES for 2 seconds
               </div>
             </div>
 
-            <h3 className="text-2xl font-bold text-white mt-12 mb-6">Proof — Queue Priority</h3>
-            <CodeBlock language="javascript" filename="queue-priority.js" code={`console.log('1 — synchronous')
+            <h3 className="text-2xl font-bold text-white mt-12 mb-6">Proof - Queue Priority</h3>
+            <CodeBlock language="javascript" filename="queue-priority.js" code={`console.log('1 - synchronous')
 
-setTimeout(() => console.log('2 — macrotask'), 0)
+setTimeout(() => console.log('2 - macrotask'), 0)
 
-Promise.resolve().then(() => console.log('3 — microtask'))
+Promise.resolve().then(() => console.log('3 - microtask'))
 
-console.log('4 — synchronous')
+console.log('4 - synchronous')
 
 // OUTPUT:
-// 1 — synchronous
-// 4 — synchronous
-// 3 — microtask      ← runs BEFORE macrotask even with 0ms timeout!
-// 2 — macrotask`} />
+// 1 - synchronous
+// 4 - synchronous
+// 3 - microtask      ← runs BEFORE macrotask even with 0ms timeout!
+// 2 - macrotask`} />
 
             <InfoBox type="warning" title="This Is an Interview Favorite!" icon={AlertTriangle}>
-              The order of execution (sync → microtasks → macrotasks) is one of the most commonly asked questions in JavaScript interviews. Understanding <em>why</em> microtasks run before macrotasks requires understanding the event loop — covered next.
+              The order of execution (sync → microtasks → macrotasks) is one of the most commonly asked questions in JavaScript interviews. Understanding <em>why</em> microtasks run before macrotasks requires understanding the event loop - covered next.
             </InfoBox>
           </div>
         </section>
@@ -1073,14 +1073,14 @@ console.log('4 — synchronous')
             <p className="text-lg text-slate-300 leading-relaxed mb-6">The Event Loop is the <strong className="text-white">heart of JavaScript's asynchronous model</strong>. It bridges the call stack to the task queues, ensuring non-blocking execution.</p>
 
             <h3 className="text-2xl font-bold text-white mt-8 mb-6">The Event Loop Algorithm</h3>
-            <DiagramBox title="Event Loop Tick — Exact Order" color="cyan">{`1. Execute ALL synchronous code (drain the call stack)
+            <DiagramBox title="Event Loop Tick - Exact Order" color="cyan">{`1. Execute ALL synchronous code (drain the call stack)
 2. Process ALL microtasks (drain microtask queue completely)
    → if microtasks add more microtasks, process those too
    → keep going until microtask queue is EMPTY
 3. Pick ONE macrotask from macrotask queue
 4. Execute it (may add to call stack)
 5. Process ALL microtasks again (step 2)
-6. Render (browser only — if needed)
+6. Render (browser only - if needed)
 7. Pick next macrotask (step 3)
 8. Repeat forever`}</DiagramBox>
 
@@ -1162,7 +1162,7 @@ const p = new Promise((resolve, reject) => {
 // p is in PENDING state right now
 
 p.then(value => console.log(value))
-// .then() registers a callback — doesn't run yet
+// .then() registers a callback - doesn't run yet
 // when resolve(42) fires after 1 second:
 // → callback goes to MICROTASK QUEUE
 // → event loop picks it up → runs it → prints 42`} />
@@ -1175,7 +1175,7 @@ p.then(value => console.log(value))
     .catch(err => console.error(err))      // catches any error above
     .finally(() => console.log('done'))    // always runs
 
-// Each .then() returns a NEW Promise — this enables chaining`} />
+// Each .then() returns a NEW Promise - this enables chaining`} />
 
             <h3 className="text-2xl font-bold text-white mt-12 mb-6">Promise Static Methods</h3>
             <div className="overflow-x-auto my-8">
@@ -1209,7 +1209,7 @@ function getUser() {
         .then(data => data.name)
 }
 
-// async/await version — same thing, cleaner syntax
+// async/await version - same thing, cleaner syntax
 async function getUser() {
     const res = await fetch('/api/user')   // pauses HERE
     const data = await res.json()         // pauses HERE
@@ -1269,18 +1269,18 @@ async function resumes after await line`}</DiagramBox>
         <section className="mb-20">
           <SectionHeader id="memory-gc" number="18" title="Memory Management & Garbage Collection" icon={Shield} gradient="from-red-500 to-pink-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">JS automatically manages memory — you don't free it manually like C/C++. Understanding how it works helps you avoid <strong className="text-white">memory leaks</strong>.</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">JS automatically manages memory - you don't free it manually like C/C++. Understanding how it works helps you avoid <strong className="text-white">memory leaks</strong>.</p>
 
             <h3 className="text-2xl font-bold text-white mt-8 mb-6">Memory Lifecycle</h3>
             <DiagramBox title="Three Stages of Memory" color="red">{`1. ALLOCATE   → JS allocates memory when you declare variables, objects
 2. USE        → read/write the value
 3. RELEASE    → garbage collector frees memory when no longer needed`}</DiagramBox>
 
-            <h3 className="text-2xl font-bold text-white mt-12 mb-6">Garbage Collection — Mark & Sweep</h3>
+            <h3 className="text-2xl font-bold text-white mt-12 mb-6">Garbage Collection - Mark & Sweep</h3>
             <DiagramBox title="V8 Mark & Sweep Algorithm" color="green">{`1. Start from "roots" (global variables, call stack variables)
 2. Mark everything reachable from roots
 3. Sweep (delete) everything NOT marked
-4. Compact memory (optional — reduces fragmentation)
+4. Compact memory (optional - reduces fragmentation)
 
 "Reachable" = can be accessed from root via references
 "Unreachable" = garbage, will be collected`}</DiagramBox>
@@ -1301,7 +1301,7 @@ setInterval(() => {
 // ❌ LEAK 3: Detached DOM nodes
 let element = document.getElementById('btn')
 document.body.removeChild(element)  // removed from DOM
-// BUT element variable still holds reference — NOT garbage collected
+// BUT element variable still holds reference - NOT garbage collected
 element = null  // ✅ fix: explicitly null the reference
 
 // ❌ LEAK 4: Closures holding large data
@@ -1314,7 +1314,7 @@ function process() {
 }`} />
 
             <InfoBox type="warning" title="Pro Tip" icon={Lightbulb}>
-              Use Chrome DevTools Memory tab to detect leaks. Take heap snapshots before and after user actions — if memory keeps growing without being released, you have a leak.
+              Use Chrome DevTools Memory tab to detect leaks. Take heap snapshots before and after user actions - if memory keeps growing without being released, you have a leak.
             </InfoBox>
           </div>
         </section>
@@ -1323,9 +1323,9 @@ function process() {
         <section className="mb-20">
           <SectionHeader id="complete-flow" number="19" title="Complete Flow Diagram" icon={Rocket} gradient="from-yellow-500 to-amber-600" />
           <div className="prose prose-xl prose-invert max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed mb-6">Here's the <strong className="text-white">master diagram</strong> that ties every concept together — from source code to execution to async handling. This is the single most important visualization in this entire guide.</p>
+            <p className="text-lg text-slate-300 leading-relaxed mb-6">Here's the <strong className="text-white">master diagram</strong> that ties every concept together - from source code to execution to async handling. This is the single most important visualization in this entire guide.</p>
 
-            <DiagramBox title="JavaScript Complete Flow — Master Diagram" color="yellow">{`SOURCE CODE
+            <DiagramBox title="JavaScript Complete Flow - Master Diagram" color="yellow">{`SOURCE CODE
     │
     ▼
 ┌─────────────────────┐
@@ -1382,10 +1382,10 @@ function process() {
           </div>
         </section>
 
-        {/* ═══════ INTERNAL LINKS — Related Articles ═══════ */}
+        {/* ═══════ INTERNAL LINKS - Related Articles ═══════ */}
         <section className="mb-20">
           <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-800/40 border border-slate-700/50">
-            <h2 className="text-2xl font-bold text-white mb-2">Keep Learning — Related Articles</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">Keep Learning - Related Articles</h2>
             <p className="text-slate-400 mb-8">These posts complement what you just learned. Reading them together will solidify your understanding.</p>
             <div className="grid md:grid-cols-3 gap-4">
               {[
@@ -1470,10 +1470,10 @@ call/apply→ explicitly set`}</pre>
               <div className="p-6 rounded-xl bg-slate-900/60 border border-slate-700/50">
                 <h4 className="text-lg font-bold text-yellow-300 mb-4">Async Priority Order</h4>
                 <pre className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{`1. Synchronous code (call stack)
-2. Microtask queue (ALL) — Promises, await
-3. ONE Macrotask — setTimeout, I/O
+2. Microtask queue (ALL) - Promises, await
+3. ONE Macrotask - setTimeout, I/O
 4. Microtask queue again (ALL)
-5. Next Macrotask — repeat`}</pre>
+5. Next Macrotask - repeat`}</pre>
               </div>
               <div className="p-6 rounded-xl bg-slate-900/60 border border-slate-700/50 md:col-span-2">
                 <h4 className="text-lg font-bold text-yellow-300 mb-4">Memory</h4>
@@ -1489,11 +1489,11 @@ Leaks  → globals, forgotten timers, detached DOM, closures`}</pre>
               <h3 className="text-2xl font-bold text-yellow-300 mb-6 flex items-center gap-3"><Rocket size={24} />Recommended Next Steps</h3>
               <div className="space-y-4">
                 {[
-                  { emoji: "📖", text: "Read: You Don't Know JS (free on GitHub) — github.com/getify/You-Dont-Know-JS" },
-                  { emoji: "🎬", text: 'Watch: "What the heck is the event loop?" — Philip Roberts (JSConf EU, YouTube)' },
-                  { emoji: "💻", text: "Practice: javascript.info — best interactive JS reference" },
-                  { emoji: "🔍", text: "Visualize: latentflip.com/loupe — visualize call stack + event loop live" },
-                  { emoji: "🌳", text: "AST Explorer: astexplorer.net — see how V8 parses your code" },
+                  { emoji: "📖", text: "Read: You Don't Know JS (free on GitHub) - github.com/getify/You-Dont-Know-JS" },
+                  { emoji: "🎬", text: 'Watch: "What the heck is the event loop?" - Philip Roberts (JSConf EU, YouTube)' },
+                  { emoji: "💻", text: "Practice: javascript.info - best interactive JS reference" },
+                  { emoji: "🔍", text: "Visualize: latentflip.com/loupe - visualize call stack + event loop live" },
+                  { emoji: "🌳", text: "AST Explorer: astexplorer.net - see how V8 parses your code" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3 text-slate-300">
                     <span className="text-xl">{item.emoji}</span>

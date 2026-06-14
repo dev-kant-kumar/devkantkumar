@@ -18,7 +18,7 @@ const Introduction = () => {
             The specific problem
           </h3>
           <p className="text-slate-300 italic mb-4">
-            "Your React app is like a busy kitchen. If you're reaching into the fridge (API) to get ingredients every time someone orders, AND trying to cook on the stove, AND managing multiple counters—everything becomes chaos."
+            "Your React app is like a busy kitchen. If you're reaching into the fridge (API) to get ingredients every time someone orders, AND trying to cook on the stove, AND managing multiple counters-everything becomes chaos."
           </p>
           <p className="text-slate-300">
             By the end of this guide, you'll have a clear, practical decision framework for ANY app. We're moving beyond "it depends" to concrete rules used in production in 2026.

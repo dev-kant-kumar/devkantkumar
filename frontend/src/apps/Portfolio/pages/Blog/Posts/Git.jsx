@@ -516,7 +516,7 @@ function GitSurvivalGuide() {
             🚀 Final Thoughts
           </h3>
           <p className="text-gray-300 leading-relaxed mb-6">
-            Git isn't scary when you understand its logic — it's a{" "}
+            Git isn't scary when you understand its logic - it's a{" "}
             <strong className="text-cyan-400">
               time machine for your code
             </strong>

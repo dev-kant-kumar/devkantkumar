@@ -21,7 +21,7 @@ export default function Part2_Architecture() {
                     <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-cyan-900/30 group-hover:text-cyan-400 transition-colors"><Cpu size={20}/></div>
                     <h4 className="font-bold text-white">1. Perception</h4>
                 </div>
-                <p className="text-slate-400 text-sm">How agents interpret input—not just text, but images (Vision), audio, and data streams.</p>
+                <p className="text-slate-400 text-sm">How agents interpret input-not just text, but images (Vision), audio, and data streams.</p>
             </div>
              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl hover:border-purple-500/50 transition-colors group">
                 <div className="flex items-center gap-3 mb-3">

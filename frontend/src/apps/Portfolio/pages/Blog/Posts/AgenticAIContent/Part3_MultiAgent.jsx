@@ -152,7 +152,7 @@ export default function Part3_MultiAgent() {
             tag: 'Most Common',
             tagColor: 'text-purple-400',
             description: 'A "Manager" agent breaks down tasks and delegates to specialist workers who report back.',
-            bestFor: 'Complex goals requiring diverse skills—"Build a marketing campaign" → Researcher + Copywriter + Designer + Analyst.',
+            bestFor: 'Complex goals requiring diverse skills-"Build a marketing campaign" → Researcher + Copywriter + Designer + Analyst.',
             example: 'CrewAI uses this pattern. A "CEO" agent coordinates "Marketing Lead" and "Tech Lead" agents for product launches.',
             codeExample: {
                 filename: 'hierarchical_crew.py',
@@ -197,7 +197,7 @@ result = crew.kickoff(inputs={"topic": "AI in Healthcare 2025"})`
             title: '2. The Pipeline (Sequential)',
             tag: 'Predictable',
             tagColor: 'text-blue-400',
-            description: 'Like an assembly line—output of Agent A becomes input for Agent B, in a fixed order.',
+            description: 'Like an assembly line-output of Agent A becomes input for Agent B, in a fixed order.',
             bestFor: 'Step-by-step workflows where order matters: Research → Outline → Draft → Edit → Publish.',
             example: 'LangGraph pipelines for content generation. Each stage has clear inputs/outputs.',
             codeExample: {
@@ -253,7 +253,7 @@ result = app.invoke({"topic": "Quantum Computing for Beginners"})`
             tagColor: 'text-emerald-400',
             description: 'Agents share a conversation and "jump in" when relevant. Requires a controller to prevent chaos.',
             bestFor: 'Brainstorming, debates, and problems requiring multiple perspectives simultaneously.',
-            example: 'Microsoft AutoGen GroupChat—agents with different expertise discuss and build on each other\'s ideas.',
+            example: 'Microsoft AutoGen GroupChat-agents with different expertise discuss and build on each other\'s ideas.',
             codeExample: {
                 filename: 'group_chat.py',
                 code: `from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
@@ -497,7 +497,7 @@ response = client.run(
 
                 <InfoBox type="warning" title="Context Window Pressure">
                     In multi-agent systems, the shared history grows fast. A 10-agent discussion can hit 100K tokens quickly.
-                    <strong> Always implement summarization</strong>—periodically compress old messages to keep within limits.
+                    <strong> Always implement summarization</strong>-periodically compress old messages to keep within limits.
                 </InfoBox>
             </section>
 

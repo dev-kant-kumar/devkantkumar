@@ -16,7 +16,7 @@ const FAQs = () => {
         },
         {
             question: "What does 'stable sort' mean and why does it matter?",
-            answer: "A stable sort maintains the relative order of equal elements. This matters when sorting by multiple keys—e.g., sort students by name, then by grade. A stable sort preserves the name order within each grade. Merge Sort and Insertion Sort are stable; Quick Sort and Heap Sort are not."
+            answer: "A stable sort maintains the relative order of equal elements. This matters when sorting by multiple keys-e.g., sort students by name, then by grade. A stable sort preserves the name order within each grade. Merge Sort and Insertion Sort are stable; Quick Sort and Heap Sort are not."
         },
         {
             question: "What's the difference between in-place and out-of-place sorting?",
@@ -28,7 +28,7 @@ const FAQs = () => {
         },
         {
             question: "Why is Bubble Sort taught if it's so inefficient?",
-            answer: "Bubble Sort is educational—it clearly demonstrates comparison and swapping concepts. Understanding why it's inefficient (many unnecessary comparisons) helps appreciate why Quick Sort and Merge Sort are better. It's also easy to implement and debug."
+            answer: "Bubble Sort is educational-it clearly demonstrates comparison and swapping concepts. Understanding why it's inefficient (many unnecessary comparisons) helps appreciate why Quick Sort and Merge Sort are better. It's also easy to implement and debug."
         },
         {
             question: "What is the best algorithm for nearly sorted data?",
@@ -36,7 +36,7 @@ const FAQs = () => {
         },
         {
             question: "Can I use Binary Search on a linked list?",
-            answer: "Technically yes, but it's inefficient. Binary Search requires O(1) random access to find the middle element. In a linked list, finding the middle takes O(n), making the overall complexity O(n log n)—worse than Linear Search's O(n). Use Linear Search for linked lists."
+            answer: "Technically yes, but it's inefficient. Binary Search requires O(1) random access to find the middle element. In a linked list, finding the middle takes O(n), making the overall complexity O(n log n)-worse than Linear Search's O(n). Use Linear Search for linked lists."
         },
         {
             question: "What sorting algorithm do programming languages use internally?",
@@ -63,7 +63,7 @@ const FAQs = () => {
 
             <div className="prose prose-invert prose-lg max-w-none">
                 <p className="lead text-xl text-slate-300 mb-8">
-                    Answers to the most common questions about searching and sorting algorithms—from interview prep to real-world implementation decisions.
+                    Answers to the most common questions about searching and sorting algorithms-from interview prep to real-world implementation decisions.
                 </p>
 
                 <div className="space-y-4">

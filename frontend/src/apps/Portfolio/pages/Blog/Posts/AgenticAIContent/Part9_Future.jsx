@@ -79,7 +79,7 @@ export default function Part9_Future() {
             color: "cyan",
             items: [
                 { icon: Bot, title: "Agent-First Products Ship", desc: "Devin, GitHub Copilot Workspace, Replit Agent, and dozens more move from beta to GA. First real production deployments at scale." },
-                { icon: Monitor, title: "Computer Use Goes Mainstream", desc: "Claude Computer Use, OpenAI Operator—agents that control your screen like a human. Browser automation becomes trivial." },
+                { icon: Monitor, title: "Computer Use Goes Mainstream", desc: "Claude Computer Use, OpenAI Operator-agents that control your screen like a human. Browser automation becomes trivial." },
                 { icon: Layers, title: "Framework War Heats Up", desc: "LangGraph, CrewAI, AutoGen battle for dominance. Expect consolidation and clearer winners by year-end." },
                 { icon: Briefcase, title: "Enterprise Pilots Everywhere", desc: "93% of Fortune 500 running agentic pilots. Focus on customer service, code generation, and data processing." }
             ]
@@ -90,7 +90,7 @@ export default function Part9_Future() {
             color: "blue",
             items: [
                 { icon: Shield, title: "Safety Standards Emerge", desc: "First formal certifications for agentic AI safety. OWASP-style guidelines become mandatory for enterprise." },
-                { icon: Brain, title: "Domain-Specific Agents", desc: "Legal agents, medical agents, financial agents—each with specialized training and regulatory compliance." },
+                { icon: Brain, title: "Domain-Specific Agents", desc: "Legal agents, medical agents, financial agents-each with specialized training and regulatory compliance." },
                 { icon: Users, title: "Agent-to-Agent Protocols", desc: "Standardized protocols for agents to communicate. Early versions of the 'Internet of Agents'." },
                 { icon: TrendingUp, title: "First Unicorns", desc: "Agent-native startups hit $1B+ valuations. The 'Salesforce of Agents' emerges." }
             ]
@@ -111,9 +111,9 @@ export default function Part9_Future() {
             title: "The Autonomous Enterprise",
             color: "pink",
             items: [
-                { icon: Globe, title: "Agent Marketplaces", desc: "Hire specialized agents via APIs—legal, accounting, design. Pay-per-task economy. Agent-to-agent commerce." },
+                { icon: Globe, title: "Agent Marketplaces", desc: "Hire specialized agents via APIs-legal, accounting, design. Pay-per-task economy. Agent-to-agent commerce." },
                 { icon: Sparkles, title: "Self-Improving Systems", desc: "Agents use RL to update their own prompts and tools based on success rates. Continuous learning on the job." },
-                { icon: Rocket, title: "Full Workflow Automation", desc: "Complete business processes—from customer inquiry to fulfillment—run by agent orchestrations." },
+                { icon: Rocket, title: "Full Workflow Automation", desc: "Complete business processes-from customer inquiry to fulfillment-run by agent orchestrations." },
                 { icon: Target, title: "AGI Agents?", desc: "The line between narrow agents and general intelligence blurs. Agents that can learn any task." }
             ]
         }
@@ -251,7 +251,7 @@ export default function Part9_Future() {
                         },
                         {
                             title: "Cost at Scale",
-                            desc: "Agent loops are expensive—20-100 LLM calls per task. At enterprise volumes, costs can spiral without careful engineering.",
+                            desc: "Agent loops are expensive-20-100 LLM calls per task. At enterprise volumes, costs can spiral without careful engineering.",
                             level: "Medium"
                         },
                         {
@@ -300,7 +300,7 @@ export default function Part9_Future() {
                             role: "For Tech Leaders",
                             actions: [
                                 "Identify 2-3 high-volume, rules-based processes for pilot automation",
-                                "Start with human-in-the-loop—build trust before full autonomy",
+                                "Start with human-in-the-loop-build trust before full autonomy",
                                 "Build or hire agent expertise now; the talent market will tighten",
                                 "Budget for observability and safety infrastructure"
                             ]
@@ -340,8 +340,8 @@ export default function Part9_Future() {
                 <div className="space-y-4">
                     {[
                         { num: 1, text: "90% of Level 1 support will be fully autonomous agents." },
-                        { num: 2, text: "Every developer will work with AI agents daily—pair programming becomes pair-with-agent." },
-                        { num: 3, text: "Agent marketplaces will be a $50B+ industry—hire an agent like you hire a contractor." },
+                        { num: 2, text: "Every developer will work with AI agents daily-pair programming becomes pair-with-agent." },
+                        { num: 3, text: "Agent marketplaces will be a $50B+ industry-hire an agent like you hire a contractor." },
                         { num: 4, text: "'Agent Engineer' will be a top-5 highest-paid tech role." },
                         { num: 5, text: "The majority of new software will be built by agents, reviewed by humans." }
                     ].map((pred) => (

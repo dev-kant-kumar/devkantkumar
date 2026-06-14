@@ -635,7 +635,7 @@ const roadmapData = {
                 }
             ],
             resources: {
-                projectDescription: "Build a Web Research Agent that can navigate websites, extract information, fill forms, and compile research—all controlled by natural language commands.",
+                projectDescription: "Build a Web Research Agent that can navigate websites, extract information, fill forms, and compile research-all controlled by natural language commands.",
                 packages: ["playwright", "browser-use"],
                 links: [
                     { title: "Playwright Docs", url: "https://playwright.dev/python/", icon: BookOpen, iconColor: "text-emerald-400", type: "Documentation" },
@@ -773,7 +773,7 @@ export default function Part10_Resources() {
 
                 <InfoBox type="tip" title="How to Use This Roadmap">
                     <strong>Click any week to expand</strong> and see detailed topics, subtopics, the build project, and curated resources.
-                    <strong>Estimated time: 10-15 hours per week.</strong> Go at your own pace—consistency beats speed.
+                    <strong>Estimated time: 10-15 hours per week.</strong> Go at your own pace-consistency beats speed.
                 </InfoBox>
             </section>
 

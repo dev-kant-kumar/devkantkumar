@@ -28,7 +28,7 @@ export default function Part2_REST() {
               <span className="w-7 h-7 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 font-bold text-sm flex-shrink-0 mt-0.5">{i + 1}</span>
               <div>
                 <span className="font-bold text-orange-300">{item.title}</span>
-                <span className="text-slate-400"> — {item.desc}</span>
+                <span className="text-slate-400"> - {item.desc}</span>
               </div>
             </div>
           ))}
@@ -133,7 +133,7 @@ const validate = (req, res, next) => {
   next();
 };
 
-// GET /users — list with pagination & filtering
+// GET /users - list with pagination & filtering
 router.get('/',
   query('page').optional().isInt({ min: 1 }).toInt(),
   query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
@@ -181,7 +181,7 @@ module.exports = router;`} />
     });
   }
 
-  // Unknown errors — don't leak details
+  // Unknown errors - don't leak details
   res.status(500).json({
     error: { message: 'Internal server error', code: 'INTERNAL_ERROR' }
   });

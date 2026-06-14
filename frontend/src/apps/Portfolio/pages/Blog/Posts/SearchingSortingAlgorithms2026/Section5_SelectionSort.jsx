@@ -225,7 +225,7 @@ END FUNCTION`}
                 />
 
                 <InfoBox type="warning" title="Not Stable!">
-                    Selection Sort is <strong>not stable</strong>—it can change the relative order of equal elements.
+                    Selection Sort is <strong>not stable</strong>-it can change the relative order of equal elements.
                     If stability matters (e.g., sorting by multiple fields), use Insertion Sort or Merge Sort instead.
                 </InfoBox>
 

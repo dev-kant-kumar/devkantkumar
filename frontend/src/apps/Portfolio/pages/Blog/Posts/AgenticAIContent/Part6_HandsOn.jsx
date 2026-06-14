@@ -102,7 +102,7 @@ print(f"\\n✅ Final Answer:\\n{result['output']}")`} />
                Project 2: Email Automation Agent
            </h3>
            <p className="text-slate-400 leading-8">
-               This agent can read an email from your inbox, understand its intent, draft a professional reply, and send it—all with one command.
+               This agent can read an email from your inbox, understand its intent, draft a professional reply, and send it-all with one command.
                We'll use <strong>Gmail API</strong> and custom LangChain tools.
            </p>
 

@@ -246,7 +246,7 @@ function SystemDesign2026() {
         <SectionHeading icon={Shield}>Why System Design is the Career Moat</SectionHeading>
         <div className="prose prose-xl prose-invert max-w-none">
             <p>
-                Think of the software industry as a hierarchy of skills. The bottom tier—basic CRUD, boilerplate, simple UI—is being eroded by automation. But the top tier is actually <strong className="text-white">expanding</strong>.
+                Think of the software industry as a hierarchy of skills. The bottom tier-basic CRUD, boilerplate, simple UI-is being eroded by automation. But the top tier is actually <strong className="text-white">expanding</strong>.
             </p>
 
             <h3 className="text-2xl font-bold text-white mt-8 mb-4">1. AI Writes Code; Architects Decide What Code to Write</h3>
@@ -356,7 +356,7 @@ function SystemDesign2026() {
                 </div>
             </div>
             <p className="text-center italic text-slate-400">
-                "Recent graduates may not be ready to ship code on day one—but AI can. The experience gap is now an architecture gap."
+                "Recent graduates may not be ready to ship code on day one-but AI can. The experience gap is now an architecture gap."
             </p>
          </div>
 

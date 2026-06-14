@@ -204,7 +204,7 @@ function CodeBlock({ language = "bash", filename, code }) {
       }
 
       if (!matched) {
-        // Plain text — grab until next special char
+        // Plain text - grab until next special char
         const plainMatch = remaining.match(/^[^\s"'$\-|&;><]+/);
         if (plainMatch) {
           tokens.push(<span key={key++} style={{ color: "#D4D4D4" }}>{plainMatch[0]}</span>);
@@ -225,7 +225,7 @@ function CodeBlock({ language = "bash", filename, code }) {
 
   return (
     <div className="relative my-6 rounded-xl border border-[#3c3c3c] bg-[#1e1e1e] overflow-hidden shadow-2xl max-w-full" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-      {/* Title bar — VS Code style */}
+      {/* Title bar - VS Code style */}
       <div className="flex items-center justify-between px-3 md:px-4 py-2 bg-[#2d2d2d] border-b border-[#3c3c3c]">
         <div className="flex items-center gap-3">
           {/* Traffic light dots */}
@@ -602,7 +602,7 @@ function YtDlpUltimateGuide() {
                 </div>
               ) : (
                 <div className="px-5 py-6 text-center text-gray-500 text-sm">
-                  No results for "{searchQuery}" — try "Netflix", "install", "cookies", or "not working"
+                  No results for "{searchQuery}" - try "Netflix", "install", "cookies", or "not working"
                 </div>
               )}
             </div>
@@ -665,7 +665,7 @@ function YtDlpUltimateGuide() {
             yt-dlp Not Working? The Complete Fix & Download Guide (2026)
           </h2>
           <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-4 md:mb-6">
-            Welcome to the most comprehensive yt-dlp guide on the internet. Whether you're getting errors, slow downloads, or just starting out — this guide covers installation, troubleshooting, and 100+ commands that professionals use daily.
+            Welcome to the most comprehensive yt-dlp guide on the internet. Whether you're getting errors, slow downloads, or just starting out - this guide covers installation, troubleshooting, and 100+ commands that professionals use daily.
           </p>
           <div className="grid md:grid-cols-3 gap-4 my-8">
             <div className="p-4 md:p-6 bg-gradient-to-br from-green-900/20 to-emerald-900/20 border border-green-500/30 rounded-xl">
@@ -1913,7 +1913,7 @@ yt-dlp --user-agent "Mozilla/5.0..." URL' />
                 a: "Use browser cookies: yt-dlp --cookies-from-browser chrome URL. This sends your logged-in session with the request, bypassing YouTube's bot detection. If Chrome doesn't work, try Firefox: yt-dlp --cookies-from-browser firefox URL"
               },
               {
-                q: "Which browser works best for yt-dlp cookies — Firefox or Chrome?",
+                q: "Which browser works best for yt-dlp cookies - Firefox or Chrome?",
                 a: "Both work well. Chrome is most commonly used, but Firefox cookies can be more reliable on some systems since Firefox doesn't encrypt cookies as aggressively. Try: yt-dlp --cookies-from-browser firefox URL if Chrome fails."
               },
               {
@@ -1930,7 +1930,7 @@ yt-dlp --user-agent "Mozilla/5.0..." URL' />
               },
               {
                 q: "How do I fix 'Requested format is not available' in yt-dlp?",
-                a: "List available formats first with: yt-dlp -F URL. Then pick a valid format ID. Or use flexible selection: yt-dlp -f 'bestvideo[height<=1080]+bestaudio/best' URL — the /best fallback handles cases where separate streams aren't available."
+                a: "List available formats first with: yt-dlp -F URL. Then pick a valid format ID. Or use flexible selection: yt-dlp -f 'bestvideo[height<=1080]+bestaudio/best' URL - the /best fallback handles cases where separate streams aren't available."
               },
               {
                 q: "How do I fix yt-dlp N challenge solving failed?",
@@ -2293,7 +2293,7 @@ YtDlpUltimateGuide.info = {
   slug: "yt-dlp-ultimate-guide-2026",
   // Balanced title for both informational ("yt-dlp 2026") and troubleshooting ("yt-dlp not working") intent
   title: "yt-dlp Ultimate Guide 2026: Download, Fix Errors & 100+ Commands",
-  // Optimized meta description for CTR — hits top GSC queries and includes freshness signal
+  // Optimized meta description for CTR - hits top GSC queries and includes freshness signal
   excerpt: "Master yt-dlp in 2026. Download videos from YouTube, TikTok and 1800+ sites. Fix bot detection errors and speed up downloads with aria2c. 100+ commands.",
   // SEO keywords based on actual GSC search queries
   keywords: "yt-dlp 2026, yt-dlp not working, yt-dlp not working 2026, does yt-dlp still work, yt-dlp still working 2026, yt-dlp stopped working, yt-dlp netflix, yt-dlp netflix support 2026, yt-dlp widevine l3, yt-dlp drm, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp age restricted, yt-dlp n challenge solving failed, yt-dlp requested format not available, yt-dlp installation guide 2026, yt-dlp supported sites, yt-dlp tutorial 2026, yt-dlp instagram 2026, yt-dlp tiktok 2026, yt-dlp rumble 2026, yt-dlp patreon 2026, yt-dlp pornhub not working 2026, yt-dlp safe 2026, yt-dlp status 2026, yt-dlp aria2c, yt-dlp ffmpeg",
@@ -2451,7 +2451,7 @@ YtDlpUltimateGuide.info = {
       answer: "Use browser cookies: yt-dlp --cookies-from-browser chrome URL. If Chrome fails, try Firefox: yt-dlp --cookies-from-browser firefox URL"
     },
     {
-      question: "Which browser works best for yt-dlp cookies — Firefox or Chrome?",
+      question: "Which browser works best for yt-dlp cookies - Firefox or Chrome?",
       answer: "Both work well. Firefox cookies can be more reliable on some systems since Firefox doesn't encrypt cookies as aggressively. Try yt-dlp --cookies-from-browser firefox URL if Chrome fails."
     },
     {
