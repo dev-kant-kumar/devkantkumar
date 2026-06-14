@@ -2,6 +2,9 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // We use dynamic imports to handle the different environments
 // This prevents crashes if dependencies are missing locally or on Vercel
@@ -97,8 +100,10 @@ async function prerender() {
     { slug: 'static-website-development' }
   ];
 
+  const apiBase = process.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
   try {
-    const response = await fetch('http://localhost:5000/api/v1/marketplace/products?limit=100');
+    const response = await fetch(`${apiBase}/api/v1/marketplace/products?limit=100`);
     if (response.ok) {
       const data = await response.json();
       products = data.products || [];
@@ -112,7 +117,7 @@ async function prerender() {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/v1/marketplace/services?limit=100');
+    const response = await fetch(`${apiBase}/api/v1/marketplace/services?limit=100`);
     if (response.ok) {
       const data = await response.json();
       services = data.services || [];
@@ -240,6 +245,14 @@ async function prerender() {
       fs.writeFileSync(filePath, html);
     }
     await page.close();
+
+    // Copy index.html to 200.html for Cloudflare Pages SPA fallback support
+    const indexHtmlPath = path.join(distPath, "index.html");
+    const fallbackHtmlPath = path.join(distPath, "200.html");
+    if (fs.existsSync(indexHtmlPath)) {
+      fs.copyFileSync(indexHtmlPath, fallbackHtmlPath);
+      console.log("✅ Copied index.html to 200.html for Cloudflare Pages SPA fallback.");
+    }
   } catch (error) {
     console.error("❌ Prerendering failed:", error);
     // Soft fail in CI to prevent blocking deployments, hard fail locally for debugging

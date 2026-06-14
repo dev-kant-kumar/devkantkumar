@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import { blogData } from '../apps/Portfolio/pages/Blog/data/blogData.js';
 import { portfolioData } from '../apps/Portfolio/store/data/portfolioData.js';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,8 +79,10 @@ const generateSitemap = async () => {
         { slug: 'static-website-development', updatedAt: currentDate }
     ];
 
+    const apiBase = process.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
     try {
-        const response = await fetch('http://localhost:5000/api/v1/marketplace/products?limit=100');
+        const response = await fetch(`${apiBase}/api/v1/marketplace/products?limit=100`);
         if (response.ok) {
             const data = await response.json();
             products = data.products || [];
@@ -91,7 +96,7 @@ const generateSitemap = async () => {
     }
 
     try {
-        const response = await fetch('http://localhost:5000/api/v1/marketplace/services?limit=100');
+        const response = await fetch(`${apiBase}/api/v1/marketplace/services?limit=100`);
         if (response.ok) {
             const data = await response.json();
             services = data.services || [];

@@ -463,7 +463,7 @@ const BlogPost = () => {
     <>
       <SEOHead
         title={blogPost.title}
-        description={blogPost.excerpt}
+        description={blogPost.description || blogPost.excerpt}
         keywords={blogPost.keywords || blogPost.tags?.join(", ")}
         canonicalUrl={`/blog/${blogPost.slug}`}
         image={blogPost.image}

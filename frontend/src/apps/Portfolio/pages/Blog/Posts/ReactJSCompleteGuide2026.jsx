@@ -168,9 +168,10 @@ ReactJSCompleteGuide2026.CardImage = CardImage;
 ReactJSCompleteGuide2026.info = {
   id: "react-js-complete-guide-2026",
   slug: "react-js-complete-guide-2026",
-  title: "React JS Complete Guide 2026: Beginner to Master (with 200+ Interview Questions)",
+  title: "React JS Complete Guide 2026: Beginner to Master",
   excerpt:
     "The only React JS guide you need in 2026. Master components, hooks, state management, performance, React 19, and more - with 200+ interview questions and real code examples.",
+  description: "Master React JS in 2026. Learn components, hooks, state management, performance, React 19, and 200+ interview questions with code examples.",
   category: "React",
   author: "Dev Kant Kumar",
   readTime: "90 min read",

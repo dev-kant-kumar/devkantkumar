@@ -1,8 +1,21 @@
 export const blogData = [
   {
+    id: "react-native-roadmap-2026",
+    slug: "react-native-roadmap-2026",
+    title: "React Native Job-Ready Roadmap 2026",
+    excerpt: "The complete 14-week interactive roadmap to land high-paying remote React Native roles in 2026. Focuses on the New Architecture, Expo Router v7, and performance optimization.",
+    category: "React Native",
+    author: "Dev Kant Kumar",
+    readTime: "15 min read",
+    publishDate: "2026-06-14",
+    image: "/images/blog/react-native-roadmap-2026.png",
+    featured: true,
+    tags: ["React Native", "Expo", "Mobile Development", "TypeScript", "Redux Toolkit", "Reanimated", "Software Architecture", "Career Roadmap"]
+  },
+  {
     id: "react-js-complete-guide-2026",
     slug: "react-js-complete-guide-2026",
-    title: "React JS Complete Guide 2026: Beginner to Master (with 200+ Interview Questions)",
+    title: "React JS Complete Guide 2026: Beginner to Master",
     excerpt: "The only React JS guide you need in 2026. Master components, hooks, state management, performance, React 19, and more - with 200+ interview questions and real code examples.",
     category: "React",
     author: "Dev Kant Kumar",

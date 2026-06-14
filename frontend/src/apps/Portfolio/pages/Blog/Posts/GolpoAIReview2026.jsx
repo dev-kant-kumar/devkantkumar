@@ -22,7 +22,7 @@ import { useState } from "react";
 export const info = {
     slug: "golpo-ai-review-2026",
     title: "Golpo AI Review 2026: Is This Video Tool Worth It?",
-    description: "Honest Golpo AI review 2026 - real results, full pricing breakdown, free vs paid, and whether it's worth it for YouTubers, educators, and developers. Read before you buy.",
+    description: "Honest Golpo AI review 2026: real results, pricing breakdown, free vs paid, and whether it's worth it for YouTubers and educators. Read before you buy.",
     excerpt: "Genuinely impressive whiteboard explainer videos from text prompts. Is Golpo AI worth $39/month? Read our full 2026 review.",
     publishDate: "2026-03-08",
     modifiedDate: "2026-03-08",

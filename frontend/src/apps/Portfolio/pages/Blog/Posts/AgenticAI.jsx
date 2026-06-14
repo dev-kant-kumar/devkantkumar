@@ -114,7 +114,7 @@ const AgenticAI = () => {
 export const info = {
     slug: "agentic-ai-guide",
     title: "Build AI Agents That Work: Complete 2026 Guide",
-    description: "Master agentic AI with this guide. Learn to build autonomous AI agents using LangChain, CrewAI, and AutoGen. Covers ReAct pattern, RAG, and production deployment.",
+    description: "Master agentic AI. Learn to build autonomous AI agents using LangChain, CrewAI, and AutoGen. Covers ReAct pattern, RAG, and production deployment.",
     excerpt: "Build production-ready AI agents in 2026. Step-by-step tutorials with LangChain, CrewAI & AutoGen. Build autonomous systems today.",
     publishDate: "2026-01-07",
     category: "AI Resources",

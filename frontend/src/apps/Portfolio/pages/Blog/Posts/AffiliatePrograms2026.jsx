@@ -29,7 +29,7 @@ import { useMemo, useState } from "react";
 export const info = {
     slug: "best-affiliate-programs-2026",
     title: "75+ Best Affiliate Programs 2026 (Verified Payouts)",
-    description: "Discover the best affiliate programs for 2026 with verified commission rates up to $2,500/sale. Complete guide to high-paying programs including Shopify, Amazon, and 70+ more.",
+    description: "Discover the best affiliate programs for 2026 with verified commission rates up to $2,500/sale. High-paying programs including Shopify, Amazon, and 70+ more.",
     excerpt: "75+ best affiliate programs for 2026 with verified commissions up to $2,500. Verified payouts, cookie durations, and strategies.",
     publishDate: "2026-01-07",
     modifiedDate: "2026-01-07",
