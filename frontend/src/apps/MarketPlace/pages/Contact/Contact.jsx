@@ -25,7 +25,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <MarketPlaceSEO
-        title="Contact Us — Dev Kant Kumar Marketplace"
+        title="Contact Us - Dev Kant Kumar Marketplace"
         description="Get in touch with the Dev Kant Kumar Marketplace team for support, inquiries about digital products, development services, or custom solutions."
         keywords={["contact marketplace", "developer support", "get in touch", "custom solutions inquiry", "digital products help"]}
         url="https://www.devkantkumar.com/marketplace/contact"

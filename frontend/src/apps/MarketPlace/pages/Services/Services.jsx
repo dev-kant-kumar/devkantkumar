@@ -122,7 +122,7 @@ const Services = () => {
       />
       <ItemListSchema
         items={services.map((s) => ({ ...s, type: "service" }))}
-        listName="Web Development Services — Dev Kant Kumar Marketplace"
+        listName="Web Development Services - Dev Kant Kumar Marketplace"
         listUrl="https://www.devkantkumar.com/marketplace/services"
       />
       {/* Hero Section */}

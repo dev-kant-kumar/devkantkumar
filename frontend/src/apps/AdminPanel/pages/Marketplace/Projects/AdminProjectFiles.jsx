@@ -143,7 +143,7 @@ const AdminProjectFiles = ({ orderId, order }) => {
         downloadUrl = file.url.replace('/upload/', '/upload/fl_attachment/');
       }
     } catch (_) {
-      // Not a valid absolute URL — use as-is
+      // Not a valid absolute URL - use as-is
     }
     const a = document.createElement('a');
     a.href = downloadUrl;

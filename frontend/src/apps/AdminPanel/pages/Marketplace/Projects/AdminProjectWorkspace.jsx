@@ -126,7 +126,7 @@ const PHASES = [
 
 // Returns the index of the CURRENTLY ACTIVE phase (the one in progress right now).
 // order.currentPhase is set by the backend to the NEXT phase when the previous one
-// is completed — so it IS the active phase, not a completed one.
+// is completed - so it IS the active phase, not a completed one.
 const getActivePhaseIndex = (order) => {
   if (!order) return 0;
   if (order.status === "completed") return PHASES.length - 1;
@@ -140,7 +140,7 @@ const getActivePhaseIndex = (order) => {
     revision_window_closed: "support_window",
   };
 
-  // PRIMARY: use currentPhase directly — it IS the active (in-progress) phase
+  // PRIMARY: use currentPhase directly - it IS the active (in-progress) phase
   if (order.currentPhase) {
     const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
     const currentIdx = phaseIds.indexOf(mappedCurrent);
@@ -254,7 +254,7 @@ const handleDeliverableDownload = (url, name = "download") => {
       downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
     }
   } catch (_) {
-    // Not a valid absolute URL — use as-is
+    // Not a valid absolute URL - use as-is
   }
   const a = document.createElement("a");
   a.href = downloadUrl;
@@ -875,7 +875,7 @@ const PhaseOutputContent = ({
         <div className="mt-2 pt-8 border-t border-gray-100 dark:border-gray-800 space-y-6">
           <div className="bg-blue-50/50 dark:bg-blue-900/40 rounded-3xl p-6 border border-blue-100 dark:border-blue-800/60 shadow-inner">
             <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase mb-5 tracking-widest">
-              FINALIZE {currentPhaseConfig?.title} — Mark Complete
+              FINALIZE {currentPhaseConfig?.title} - Mark Complete
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {currentPhaseConfig?.requiresUpload && (

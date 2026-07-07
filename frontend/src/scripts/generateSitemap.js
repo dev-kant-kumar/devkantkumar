@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import dotenv from 'dotenv';
 import { blogData } from '../apps/Portfolio/pages/Blog/data/blogData.js';
 import { portfolioData } from '../apps/Portfolio/store/data/portfolioData.js';
+import { aiToolSlugs } from '../apps/Portfolio/pages/AITools/utils.js';
 
 dotenv.config();
 
@@ -61,7 +62,11 @@ const generateSitemap = async () => {
         'css-gradient-generator',
         'meta-tag-generator',
         'markdown-previewer',
-        'og-preview'
+        'og-preview',
+        'jwt-decoder',
+        'hash-generator',
+        'timestamp-converter',
+        'url-encoder-decoder'
     ];
 
     // Try to fetch products and services from local API
@@ -128,6 +133,19 @@ const generateSitemap = async () => {
             changeFrequency: 'monthly',
             priority: '0.7'
         })),
+        // AI Tools directory hub + per-tool review pages (programmatic SEO)
+        {
+            url: `${siteUrl}/ai-tools`,
+            lastModified: currentDate,
+            changeFrequency: 'weekly',
+            priority: '0.8'
+        },
+        ...aiToolSlugs.map(slug => ({
+            url: `${siteUrl}/ai-tools/${slug}`,
+            lastModified: currentDate,
+            changeFrequency: 'monthly',
+            priority: '0.6'
+        })),
         ...products.map(product => ({
             url: `${siteUrl}/marketplace/products/${product.slug}`,
             lastModified: product.updatedAt ? product.updatedAt.split('T')[0] : currentDate,
@@ -162,6 +180,7 @@ ${sitemapItems.map(item => `  <url>
     console.log(`✅ Sitemap generated successfully with ${sitemapItems.length} URLs!`);
 };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run when executed directly (cross-platform: pathToFileURL handles Windows drive paths).
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     generateSitemap();
 }

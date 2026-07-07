@@ -6,7 +6,7 @@ const License = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <MarketPlaceSEO
-        title="License Agreement — Dev Kant Kumar Marketplace"
+        title="License Agreement - Dev Kant Kumar Marketplace"
         description="Read the Dev Kant Kumar Marketplace license agreement. Understand Standard and Extended License terms for using digital products including templates, source code, and design assets."
         keywords={["license agreement", "standard license", "extended license", "digital product license", "commercial use license"]}
         url="https://www.devkantkumar.com/marketplace/license"

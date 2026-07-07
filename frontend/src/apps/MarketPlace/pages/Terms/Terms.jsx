@@ -6,7 +6,7 @@ const Terms = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <MarketPlaceSEO
-        title="Terms of Service — Dev Kant Kumar Marketplace"
+        title="Terms of Service - Dev Kant Kumar Marketplace"
         description="Read the Terms of Service for the Dev Kant Kumar Marketplace. Understand your rights and obligations when purchasing digital products and development services."
         keywords={["marketplace terms", "terms of service", "user agreement", "digital products terms", "developer marketplace legal"]}
         url="https://www.devkantkumar.com/marketplace/terms"

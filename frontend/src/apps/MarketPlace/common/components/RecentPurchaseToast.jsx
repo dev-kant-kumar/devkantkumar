@@ -1,9 +1,9 @@
 /**
- * RecentPurchaseToast — social-proof "live sale" notification
+ * RecentPurchaseToast - social-proof "live sale" notification
  *
  * Displays a small animated toast in the bottom-left corner of the page
  * to show that other customers have recently purchased this item.
- * No real API call is made — the data is deterministically generated
+ * No real API call is made - the data is deterministically generated
  * from the productId, providing consistent social proof across page loads.
  *
  * Usage (render once per detail page):
@@ -15,7 +15,7 @@ import { ShoppingBag, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 // ---------------------------------------------------------------------------
-// Static pools — seeded by productId to look realistic
+// Static pools - seeded by productId to look realistic
 // ---------------------------------------------------------------------------
 
 const CITIES = [

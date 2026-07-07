@@ -1,14 +1,14 @@
 import { memo, useMemo } from "react";
 
 /**
- * FormattedText — intelligently renders plain-text descriptions with
+ * FormattedText - intelligently renders plain-text descriptions with
  * preserved formatting: line breaks, emoji/symbol bullets, section headers,
  * and clickable URLs.
  *
  * Props:
  *  - text: string (plain text, possibly with \n, emojis, etc.)
  *  - className: optional wrapper class
- *  - truncate: number | false — if set, truncates to N chars with "..." (for cards)
+ *  - truncate: number | false - if set, truncates to N chars with "..." (for cards)
  *  - variant: "full" (detail page) | "card" (listing card, compact)
  */
 
@@ -16,7 +16,7 @@ import { memo, useMemo } from "react";
 // Use alternation instead of character class to handle combined emoji (emoji + variation selector)
 const BULLET_PATTERNS = [
   /^(?:✅|☑️|✓|✔️|🔹|🔸|▶️|➤|➡️|→|►|●|•|◆|◇|■|□|▪|▫|‣|⭐|⚡|🎯|💡|🔥|📌|🎨|📦|💰|🚀|✨|🛠️|💎|🎁|📊|📈|🏆|🔑|🌟|💪|🎉|📋|🆕|⬆️)/u,
-  /^[-–—]\s/,
+  /^[-–-]\s/,
   /^\d+[.)]\s/,
 ];
 
@@ -96,7 +96,7 @@ function parseBlocks(text) {
     const raw = lines[i];
     const trimmed = raw.trim();
 
-    // Skip empty lines — they become paragraph separators
+    // Skip empty lines - they become paragraph separators
     if (!trimmed) {
       flushBullets();
       // Add spacer only if previous block isn't already a spacer
@@ -165,7 +165,7 @@ function FormattedText({
       );
     }
 
-    // Full variant — parse and render all blocks
+    // Full variant - parse and render all blocks
     const blocks = parseBlocks(text);
 
     return blocks.map((block, idx) => {
@@ -241,11 +241,11 @@ function extractBulletIcon(line) {
   }
 
   // Dash bullets
-  if (/^[-–—]\s/.test(trimmed)) {
+  if (/^[-–-]\s/.test(trimmed)) {
     return <span className="text-gray-400">•</span>;
   }
 
-  // Emoji/symbol bullets — extract the leading emoji
+  // Emoji/symbol bullets - extract the leading emoji
   const emojiMatch = trimmed.match(
     /^([\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[✅☑✓✔→►●•◆◇■□▪▫‣⭐⚡➤➡][\uFE0F]?)/u,
   );
@@ -267,10 +267,10 @@ function stripBulletPrefix(line) {
   if (numStripped !== trimmed) return numStripped;
 
   // Remove dash prefix
-  const dashStripped = trimmed.replace(/^[-–—]\s+/, "");
+  const dashStripped = trimmed.replace(/^[-–-]\s+/, "");
   if (dashStripped !== trimmed) return dashStripped;
 
-  // Remove emoji prefix — match one emoji + optional space
+  // Remove emoji prefix - match one emoji + optional space
   const emojiStripped = trimmed.replace(
     /^([\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|[\u{FE00}-\u{FEFF}]|[✅☑✓✔→►●•◆◇■□▪▫‣⭐⚡➤➡][\uFE0F]?)\s*/u,
     "",

@@ -126,7 +126,7 @@ const CLIENT_PHASE_INFO = {
       "A QA report confirming the project is delivery-ready",
     ],
     clientAction:
-      "No action needed. Sit tight — quality checks are in progress!",
+      "No action needed. Sit tight - quality checks are in progress!",
   },
   delivery: {
     title: "Project Delivery",
@@ -277,7 +277,7 @@ const ClientPhaseOutputContent = ({
         downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
       }
     } catch (_) {
-      // Not a valid absolute URL — use as-is
+      // Not a valid absolute URL - use as-is
     }
     const a = document.createElement("a");
     a.href = downloadUrl;

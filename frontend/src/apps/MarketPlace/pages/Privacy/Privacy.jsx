@@ -6,7 +6,7 @@ const Privacy = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <MarketPlaceSEO
-        title="Privacy Policy — Dev Kant Kumar Marketplace"
+        title="Privacy Policy - Dev Kant Kumar Marketplace"
         description="Read the Dev Kant Kumar Marketplace privacy policy. Learn how we collect, use, and protect your personal data when you use our digital products and services."
         keywords={["marketplace privacy policy", "data protection", "personal data", "GDPR", "developer marketplace privacy"]}
         url="https://www.devkantkumar.com/marketplace/privacy"

@@ -1,16 +1,15 @@
 /* eslint-disable no-unused-vars */
 import { AnimatePresence, motion } from "framer-motion";
-import { 
-  ChevronDown, 
-  LayoutDashboard, 
-  User, 
-  Grid3X3, 
-  Video, 
+import {
+  Activity,
+  ChevronDown,
+  Grid3X3,
+  LayoutDashboard,
+  Mail,
   ShoppingBag,
   Sparkles,
-  Zap,
-  Activity,
-  Mail
+  User,
+  Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -25,7 +24,7 @@ const Header = () => {
   const location = useLocation();
 
   const { personalInfo, careerObjectives } = portfolioData;
-  
+
   const skills = [
     personalInfo.title,
     personalInfo.subtitle,
@@ -34,7 +33,9 @@ const Header = () => {
     "Product Founder",
   ];
 
-  const [roleIndex, setRoleIndex] = useState(() => Math.floor(Date.now() / 2800) % skills.length);
+  const [roleIndex, setRoleIndex] = useState(
+    () => Math.floor(Date.now() / 2800) % skills.length,
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,7 +69,7 @@ const Header = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  const toolsCount = 12; // True actual developer tools count
+  const toolsCount = 16; // True actual developer tools count
 
   // Top level navigation links (excluding dropdown)
   const primaryNavLinks = [
@@ -76,22 +77,33 @@ const Header = () => {
     { name: "Projects", path: "/projects" },
     { name: "Blog", path: "/blog" },
     { name: "Tools", path: "/tools", badge: toolsCount.toString() },
+    { name: "AI Tools", path: "/ai-tools", badge: "100+" },
   ];
 
   // More Dropdown items by section
   const moreAboutItems = [
-    { name: "About me", path: "/about", icon: User, description: "My journey & background" },
-    { name: "Skills", path: "/skills", icon: Grid3X3, description: "Technical expertise matrix" },
-    { name: "Content", path: "/content", icon: Video, description: "Masterclasses & media stream" },
-  ];
-
-  const moreServicesItems = [
-    { name: "Marketplace", path: "/marketplace", icon: ShoppingBag, description: "SaaS templates & custom solutions" },
-    { name: "Admin Panel", path: "/admin", icon: LayoutDashboard, description: "Secure control panel dashboard" },
+    {
+      name: "About me",
+      path: "/about",
+      icon: User,
+      description: "My journey & background",
+    },
+    {
+      name: "Skills",
+      path: "/skills",
+      icon: Grid3X3,
+      description: "Technical expertise matrix",
+    },
+    {
+      name: "Content",
+      path: "/content",
+      icon: Video,
+      description: "Masterclasses & media stream",
+    },
   ];
 
   // Helper arrays for route checks
-  const allDropdownItems = [...moreAboutItems, ...moreServicesItems];
+  const allDropdownItems = [...moreAboutItems];
 
   const isActive = (path) => {
     if (path === "/" && location.pathname === "/") return true;
@@ -100,7 +112,7 @@ const Header = () => {
   };
 
   const isDropdownActive = (items) => {
-    return items.some(item => isActive(item.path));
+    return items.some((item) => isActive(item.path));
   };
 
   const handleDropdownToggle = (dropdownName, e) => {
@@ -111,13 +123,15 @@ const Header = () => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
       <AnnouncementBanner />
-      
+
       {/* Floating Capsule Header Container */}
-      <div className={`w-full transition-all duration-500 ease-in-out ${
-        scrolled 
-          ? "pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" 
-          : "pt-0 px-0 max-w-full"
-      }`}>
+      <div
+        className={`w-full transition-all duration-500 ease-in-out ${
+          scrolled
+            ? "pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+            : "pt-0 px-0 max-w-full"
+        }`}
+      >
         <motion.header
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -135,9 +149,11 @@ const Header = () => {
 
           <nav className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16 relative">
-              
               {/* Logo / Brand Cockpit */}
-              <Link to="/" className="flex items-center group shrink-0 relative z-10">
+              <Link
+                to="/"
+                className="flex items-center group shrink-0 relative z-10"
+              >
                 <motion.div
                   className="relative flex flex-col justify-center"
                   whileHover={{ scale: 1.01 }}
@@ -165,8 +181,14 @@ const Header = () => {
                       ACTIVE
                     </span>
                   </div>
-                  <div className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold mt-1 flex items-center gap-1.5 h-3 relative overflow-hidden" style={{ minWidth: "150px" }}>
-                    <Activity size={8} className="text-cyan-500 animate-pulse shrink-0" />
+                  <div
+                    className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold mt-1 flex items-center gap-1.5 h-3 relative overflow-hidden"
+                    style={{ minWidth: "150px" }}
+                  >
+                    <Activity
+                      size={8}
+                      className="text-cyan-500 animate-pulse shrink-0"
+                    />
                     <div className="relative h-3 w-full flex items-center overflow-hidden">
                       <AnimatePresence mode="wait">
                         <motion.span
@@ -215,7 +237,11 @@ const Header = () => {
                           <motion.div
                             layoutId="activeNavBg"
                             className="absolute inset-x-0 h-9 my-auto bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/10 rounded-xl -z-0 shadow-[0_0_15px_rgba(6,182,212,0.03)]"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 380,
+                              damping: 30,
+                            }}
                           />
                         )}
                       </Link>
@@ -225,7 +251,9 @@ const Header = () => {
 
                 {/* More Dropdown Portal */}
                 {(() => {
-                  const activeMoreItem = allDropdownItems.find(item => isActive(item.path));
+                  const activeMoreItem = allDropdownItems.find((item) =>
+                    isActive(item.path),
+                  );
                   const isDropdownActive = !!activeMoreItem;
                   const isDropdownOpen = activeDropdown === "more";
 
@@ -261,7 +289,11 @@ const Header = () => {
                           <motion.div
                             layoutId="activeNavBg"
                             className="absolute inset-x-0 h-9 my-auto bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border border-cyan-500/10 rounded-xl -z-0 shadow-[0_0_15px_rgba(6,182,212,0.03)]"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 380,
+                              damping: 30,
+                            }}
                           />
                         )}
                       </button>
@@ -272,7 +304,10 @@ const Header = () => {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            transition={{
+                              duration: 0.2,
+                              ease: [0.16, 1, 0.3, 1],
+                            }}
                             className="absolute top-full right-0 mt-2.5 w-60 bg-slate-950/98 backdrop-blur-3xl border border-slate-900/90 rounded-2xl shadow-3xl overflow-hidden z-[60] p-4 space-y-4 shadow-[0_30px_70px_rgba(0,0,0,0.95)]"
                           >
                             {/* Glowing radial ambient background dot inside dropdown */}
@@ -298,66 +333,22 @@ const Header = () => {
                                           : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
                                       }`}
                                     >
-                                      <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
-                                        currentActive 
-                                          ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 shadow-md"
-                                          : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
-                                      }`}>
+                                      <div
+                                        className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
+                                          currentActive
+                                            ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 shadow-md"
+                                            : "bg-slate-900 border-slate-800 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
+                                        }`}
+                                      >
                                         <Icon size={14} />
                                       </div>
                                       <div className="min-w-0 flex-1">
-                                        <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
-                                        <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
-                                      </div>
-                                      {/* Tactile neon indicator dot with pulse effect */}
-                                      {currentActive && (
-                                        <span className="relative flex h-1.5 w-1.5 shrink-0 ml-auto mr-1">
-                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
-                                        </span>
-                                      )}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            {/* Dropdown Divider */}
-                            <div className="border-t border-slate-900" />
-
-                            {/* Services Section */}
-                            <div className="space-y-2.5 relative z-10">
-                              <p className="px-2.5 text-[9px] font-mono uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-                                <Zap size={8} className="text-slate-500" />
-                                Services
-                              </p>
-                              <div className="space-y-1">
-                                {moreServicesItems.map((item) => {
-                                  const Icon = item.icon;
-                                  const currentActive = isActive(item.path);
-                                  const isAdmin = item.path === "/admin";
-                                  return (
-                                    <Link
-                                      key={item.name}
-                                      to={item.path}
-                                      className={`flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-300 group ${
-                                        currentActive
-                                          ? isAdmin ? "bg-purple-500/10 text-purple-300" : "bg-cyan-500/10 text-cyan-300"
-                                          : "text-slate-300 hover:bg-slate-900/60 hover:text-white"
-                                      }`}
-                                    >
-                                      <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-lg border transition-all ${
-                                        currentActive 
-                                          ? isAdmin
-                                            ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
-                                            : "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
-                                          : "bg-slate-900 border-slate-850 text-slate-400 group-hover:text-cyan-400 group-hover:border-cyan-500/20 shadow-inner"
-                                      }`}>
-                                        <Icon size={14} />
-                                      </div>
-                                      <div className="min-w-0 flex-1">
-                                        <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">{item.name}</div>
-                                        <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">{item.description}</div>
+                                        <div className="font-semibold text-xs text-slate-200 group-hover:text-white transition-colors">
+                                          {item.name}
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">
+                                          {item.description}
+                                        </div>
                                       </div>
                                       {/* Tactile neon indicator dot with pulse effect */}
                                       {currentActive && (
@@ -412,7 +403,7 @@ const Header = () => {
                       ease: "easeInOut",
                     }}
                   />
-                  
+
                   <span className="relative z-10 flex items-center gap-1.5">
                     Let's Connect
                     <Mail size={12} className="text-slate-950" />
@@ -440,9 +431,7 @@ const Header = () => {
                       ease: "easeInOut",
                     }}
                   />
-                  <span className="relative z-10">
-                    Let's Connect
-                  </span>
+                  <span className="relative z-10">Let's Connect</span>
                 </Link>
 
                 {/* Mobile menu button */}
@@ -526,7 +515,7 @@ const Header = () => {
                         <Sparkles size={8} />
                         More Pages
                       </p>
-                      
+
                       {/* Secondary Smaller Links with Icons */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                         {moreAboutItems.map((item) => {
@@ -544,8 +533,17 @@ const Header = () => {
                               onClick={() => setIsMenuOpen(false)}
                             >
                               <div className="flex items-center gap-3">
-                                <Icon size={14} className={currentActive ? "text-cyan-400 shrink-0" : "text-slate-500 shrink-0"} />
-                                <span className="font-mono text-xs">{item.name}</span>
+                                <Icon
+                                  size={14}
+                                  className={
+                                    currentActive
+                                      ? "text-cyan-400 shrink-0"
+                                      : "text-slate-500 shrink-0"
+                                  }
+                                />
+                                <span className="font-mono text-xs">
+                                  {item.name}
+                                </span>
                               </div>
                               {currentActive && (
                                 <span className="relative flex h-1.5 w-1.5 shrink-0">
@@ -571,8 +569,17 @@ const Header = () => {
                               onClick={() => setIsMenuOpen(false)}
                             >
                               <div className="flex items-center gap-3">
-                                <LayoutDashboard size={14} className={currentActive ? "text-purple-400 shrink-0" : "text-slate-500 shrink-0"} />
-                                <span className="font-mono text-xs">Admin Panel</span>
+                                <LayoutDashboard
+                                  size={14}
+                                  className={
+                                    currentActive
+                                      ? "text-purple-400 shrink-0"
+                                      : "text-slate-500 shrink-0"
+                                  }
+                                />
+                                <span className="font-mono text-xs">
+                                  Admin Panel
+                                </span>
                               </div>
                               {currentActive && (
                                 <span className="relative flex h-1.5 w-1.5 shrink-0">

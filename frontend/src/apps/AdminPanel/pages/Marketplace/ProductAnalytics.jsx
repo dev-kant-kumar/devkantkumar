@@ -158,7 +158,7 @@ const ProductAnalytics = () => {
                             )}
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 capitalize">
-                            {product.category || '—'} • ₹{product.price || '—'}
+                            {product.category || '-'} • ₹{product.price || '-'}
                         </p>
                     </div>
                 </div>
@@ -349,7 +349,7 @@ const ProductAnalytics = () => {
                                             </Link>
                                         </td>
                                         <td className="py-3 pr-4 text-xs text-gray-600 dark:text-gray-400">
-                                            {order.billing?.email || '—'}
+                                            {order.billing?.email || '-'}
                                         </td>
                                         <td className="py-3 pr-4 font-semibold text-emerald-600 dark:text-emerald-400 text-sm">
                                             {formatCurrency(order.payment?.amount?.total)}

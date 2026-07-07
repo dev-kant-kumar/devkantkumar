@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
 import {
     ArrowRight,
+    Clock,
     Code,
     Eye,
     FileJson,
     Hash,
+    KeyRound,
+    Link2,
     Lock,
     Palette,
     QrCode,
@@ -201,6 +204,66 @@ const tools = [
     category: 'Developer',
     popular: true,
     keywords: ['typing test', 'wpm test', 'typing speed', 'developer typing', 'code typing']
+  },
+  {
+    id: 'jwt-decoder',
+    slug: 'jwt-decoder',
+    name: 'JWT Decoder & Secret Generator',
+    shortName: 'JWT Toolkit',
+    description: 'Decode JWT header & payload, check token expiry, and generate secure HS256 signing secrets. 100% client-side.',
+    icon: KeyRound,
+    color: 'from-cyan-500 to-sky-600',
+    bgColor: 'bg-cyan-500/10',
+    borderColor: 'border-cyan-500/30',
+    textColor: 'text-cyan-400',
+    category: 'Security',
+    popular: true,
+    keywords: ['jwt decoder', 'jwt secret generator', 'decode jwt', 'json web token', 'hs256 secret', 'jwt parser']
+  },
+  {
+    id: 'hash-generator',
+    slug: 'hash-generator',
+    name: 'Hash Generator (SHA-256 / SHA-512)',
+    shortName: 'Hash Generator',
+    description: 'Generate SHA-1, SHA-256, SHA-384 and SHA-512 hashes from any text instantly, computed in your browser.',
+    icon: Hash,
+    color: 'from-teal-500 to-emerald-600',
+    bgColor: 'bg-teal-500/10',
+    borderColor: 'border-teal-500/30',
+    textColor: 'text-teal-400',
+    category: 'Security',
+    popular: true,
+    keywords: ['hash generator', 'sha256 generator', 'sha512 hash', 'sha1 hash', 'checksum generator', 'online hash']
+  },
+  {
+    id: 'timestamp-converter',
+    slug: 'timestamp-converter',
+    name: 'Unix Timestamp Converter',
+    shortName: 'Epoch Converter',
+    description: 'Convert Unix epoch timestamps to human dates and back - seconds or milliseconds, local and UTC, with a live clock.',
+    icon: Clock,
+    color: 'from-sky-500 to-blue-600',
+    bgColor: 'bg-sky-500/10',
+    borderColor: 'border-sky-500/30',
+    textColor: 'text-sky-400',
+    category: 'Developer',
+    popular: true,
+    keywords: ['unix timestamp converter', 'epoch converter', 'timestamp to date', 'date to epoch', 'unix time']
+  },
+  {
+    id: 'url-encoder-decoder',
+    slug: 'url-encoder-decoder',
+    name: 'URL Encoder / Decoder',
+    shortName: 'URL Encoder',
+    description: 'Percent-encode and decode URLs and query strings instantly, with full-URI or single-component modes.',
+    icon: Link2,
+    color: 'from-violet-500 to-purple-600',
+    bgColor: 'bg-violet-500/10',
+    borderColor: 'border-violet-500/30',
+    textColor: 'text-violet-400',
+    category: 'Developer',
+    popular: false,
+    keywords: ['url encoder', 'url decoder', 'percent encoding', 'encodeuricomponent', 'url encode online']
   }
 ];
 
@@ -288,7 +351,7 @@ const Tools = () => {
               </h1>
               <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8 font-medium leading-relaxed">
                 Powerful online tools to boost your productivity. Format JSON, generate passwords,
-                create color palettes, and more — all in your browser.
+                create color palettes, and more - all in your browser.
               </p>
 
               {/* Search Bar */}

@@ -74,7 +74,7 @@ const Invoice = () => {
     } catch (err) {
       // Log for debugging, then fall back to the print dialog
       console.error('Server PDF generation failed:', err);
-      toast.error('Server PDF unavailable — opening print dialog as fallback');
+      toast.error('Server PDF unavailable - opening print dialog as fallback');
       handlePrintToPDF();
     }
   };

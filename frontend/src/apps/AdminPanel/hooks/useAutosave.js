@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const AUTOSAVE_DELAY = 2000; // 2 seconds debounce
 
 /**
- * Autosave hook — persists form data to localStorage with debounce.
+ * Autosave hook - persists form data to localStorage with debounce.
  *
  * @param {string} storageKey  - unique key, e.g. "product-draft" or "service-draft"
  * @param {object} formData    - the current form state
@@ -49,7 +49,7 @@ export default function useAutosave(
         setDraftTimestamp(saved.timestamp);
       }
     } catch {
-      // Corrupted data — remove it
+      // Corrupted data - remove it
       localStorage.removeItem(key);
     }
   }, [key]);
@@ -73,7 +73,7 @@ export default function useAutosave(
         const payload = { data: formData, timestamp: Date.now() };
         localStorage.setItem(key, JSON.stringify(payload));
       } catch {
-        // localStorage full or unavailable — silently ignore
+        // localStorage full or unavailable - silently ignore
       }
     }, AUTOSAVE_DELAY);
 
@@ -104,7 +104,7 @@ export default function useAutosave(
   }, [key]);
 
   const ignoreDraft = useCallback(() => {
-    // User chose to discard — remove draft and hide banner
+    // User chose to discard - remove draft and hide banner
     localStorage.removeItem(key);
     setHasDraft(false);
     setDraftTimestamp(null);

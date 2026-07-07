@@ -276,15 +276,15 @@ const OgPreviewTool = () => {
                         <div className="space-y-2 text-sm">
                           <div className="p-3 bg-slate-800/50 rounded-lg">
                             <span className="text-slate-500 text-xs block mb-1">og:title</span>
-                            <span className="text-white">{data.title || '—'}</span>
+                            <span className="text-white">{data.title || '-'}</span>
                           </div>
                           <div className="p-3 bg-slate-800/50 rounded-lg">
                             <span className="text-slate-500 text-xs block mb-1">og:description</span>
-                            <span className="text-white text-sm">{data.description || '—'}</span>
+                            <span className="text-white text-sm">{data.description || '-'}</span>
                           </div>
                           <div className="p-3 bg-slate-800/50 rounded-lg">
                             <span className="text-slate-500 text-xs block mb-1">og:image</span>
-                            <span className="text-cyan-400 text-sm break-all">{data.ogImage || '—'}</span>
+                            <span className="text-cyan-400 text-sm break-all">{data.ogImage || '-'}</span>
                           </div>
                         </div>
                       </div>

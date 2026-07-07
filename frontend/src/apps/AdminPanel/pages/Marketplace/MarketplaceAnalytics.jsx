@@ -403,7 +403,7 @@ const MarketplaceAnalytics = () => {
                                 {card.trend !== null ? (
                                     <TrendBadge value={card.trend} />
                                 ) : (
-                                    <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">—</span>
+                                    <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">-</span>
                                 )}
                                 <span className="text-xs text-gray-400 truncate">{card.sub}</span>
                             </div>
@@ -416,7 +416,7 @@ const MarketplaceAnalytics = () => {
             <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Revenue + Orders Timeline */}
                 <GlassCard className="lg:col-span-2 p-6">
-                    <SectionTitle icon={TrendingUp} title="Revenue & Orders Trend" subtitle={`Daily breakdown — last ${period} days`} />
+                    <SectionTitle icon={TrendingUp} title="Revenue & Orders Trend" subtitle={`Daily breakdown - last ${period} days`} />
                     <div className="h-72">
                         {analytics.revenueTimeline?.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
@@ -759,12 +759,12 @@ const MarketplaceAnalytics = () => {
                                                     <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                                         <td className="py-3 pr-4">
                                                             <p className="font-medium text-gray-900 dark:text-white max-w-[180px] truncate">
-                                                                {p.title || '—'}
+                                                                {p.title || '-'}
                                                             </p>
                                                         </td>
                                                         <td className="py-3 pr-4 text-gray-500 capitalize text-xs">
                                                             <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full">
-                                                                {p.category || '—'}
+                                                                {p.category || '-'}
                                                             </span>
                                                         </td>
                                                         <td className="py-3 pr-4 font-semibold text-gray-800 dark:text-gray-200">{p.orders}</td>
@@ -836,12 +836,12 @@ const MarketplaceAnalytics = () => {
                                                     <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                                         <td className="py-3 pr-4">
                                                             <p className="font-medium text-gray-900 dark:text-white max-w-[200px] truncate">
-                                                                {s.title || '—'}
+                                                                {s.title || '-'}
                                                             </p>
                                                         </td>
                                                         <td className="py-3 pr-4 text-gray-500 text-xs capitalize">
                                                             <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full">
-                                                                {s.category?.replace(/-/g, ' ') || '—'}
+                                                                {s.category?.replace(/-/g, ' ') || '-'}
                                                             </span>
                                                         </td>
                                                         <td className="py-3 pr-4 font-semibold text-gray-800 dark:text-gray-200">{s.orders}</td>
@@ -877,7 +877,7 @@ const MarketplaceAnalytics = () => {
                         <GlassCard className="p-6">
                             <SectionTitle
                                 icon={BarChart2}
-                                title="Google Analytics — Marketplace"
+                                title="Google Analytics - Marketplace"
                                 subtitle="Traffic data for /marketplace pages (last 30 days)"
                             />
                             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -885,7 +885,7 @@ const MarketplaceAnalytics = () => {
                                     { label: 'Page Views', value: (marketplaceGa.overview?.pageViews ?? 0).toLocaleString(), icon: Eye, color: 'text-blue-500' },
                                     { label: 'Users', value: (marketplaceGa.overview?.users ?? 0).toLocaleString(), icon: Users, color: 'text-emerald-500' },
                                     { label: 'Sessions', value: (marketplaceGa.overview?.sessions ?? 0).toLocaleString(), icon: Activity, color: 'text-violet-500' },
-                                    { label: 'Bounce Rate', value: marketplaceGa.overview?.bounceRate ?? '—', icon: MousePointer2, color: 'text-orange-500' },
+                                    { label: 'Bounce Rate', value: marketplaceGa.overview?.bounceRate ?? '-', icon: MousePointer2, color: 'text-orange-500' },
                                 ].map((m) => {
                                     const Icon = m.icon;
                                     return (
@@ -920,7 +920,7 @@ const MarketplaceAnalytics = () => {
                         <GlassCard className="p-6">
                             <SectionTitle
                                 icon={Search}
-                                title="Search Console — Marketplace"
+                                title="Search Console - Marketplace"
                                 subtitle="Organic search performance for /marketplace (last 30 days)"
                             />
                             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -928,7 +928,7 @@ const MarketplaceAnalytics = () => {
                                     { label: 'Clicks', value: (marketplaceGsc.overview?.clicks ?? 0).toLocaleString(), icon: MousePointer2, color: 'text-blue-500' },
                                     { label: 'Impressions', value: (marketplaceGsc.overview?.impressions ?? 0).toLocaleString(), icon: Eye, color: 'text-purple-500' },
                                     { label: 'CTR', value: `${marketplaceGsc.overview?.ctr ?? 0}%`, icon: TrendingUp, color: 'text-emerald-500' },
-                                    { label: 'Avg. Position', value: marketplaceGsc.overview?.position ?? '—', icon: Globe, color: 'text-orange-500' },
+                                    { label: 'Avg. Position', value: marketplaceGsc.overview?.position ?? '-', icon: Globe, color: 'text-orange-500' },
                                 ].map((m) => {
                                     const Icon = m.icon;
                                     return (

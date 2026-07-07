@@ -92,7 +92,7 @@ const Projects = () => {
 
   const { projects = [] } = portfolioData || {};
 
-  // Stable particle positions — avoid Math.random() in render
+  // Stable particle positions - avoid Math.random() in render
   const particles = useMemo(() =>
     Array.from({ length: 20 }, (_, i) => ({
       id: i,

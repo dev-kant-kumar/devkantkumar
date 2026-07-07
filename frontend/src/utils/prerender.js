@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, "../../dist");
 
 import { blogData } from "../apps/Portfolio/pages/Blog/data/blogData.js";
+import { aiToolSlugs } from "../apps/Portfolio/pages/AITools/utils.js";
 
 // Routes to prerender
 const baseRoutes = [
@@ -24,6 +25,7 @@ const baseRoutes = [
   "/blog",
   "/contact",
   "/tools",
+  "/ai-tools",
   "/faq",
   "/sitemap",
   "/privacy",
@@ -50,6 +52,10 @@ const toolSlugs = [
   "meta-tag-generator",
   "markdown-previewer",
   "og-preview",
+  "jwt-decoder",
+  "hash-generator",
+  "timestamp-converter",
+  "url-encoder-decoder",
 ];
 
 async function getBrowser() {
@@ -134,6 +140,7 @@ async function prerender() {
     ...baseRoutes,
     ...blogData.map((post) => `/blog/${post.slug}`),
     ...toolSlugs.map((slug) => `/tools/${slug}`),
+    ...aiToolSlugs.map((slug) => `/ai-tools/${slug}`),
     ...products.map((p) => `/marketplace/products/${p.slug}`),
     ...services.map((s) => `/marketplace/services/${s.slug}`)
   ];

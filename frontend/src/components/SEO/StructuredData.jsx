@@ -247,6 +247,34 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
       "description": tool.description
     };
   };
+  const getAiToolSchema = (tool) => {
+    const siteUrl = seoConfig?.site?.url || "https://www.devkantkumar.com";
+    const isFree = tool.pricing === "Free" || tool.pricing === "Open Source";
+    return {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": tool.name,
+      "operatingSystem": "Web Browser",
+      "applicationCategory": "BusinessApplication",
+      "url": `${siteUrl}/ai-tools/${tool.slug || ""}`,
+      "sameAs": tool.url,
+      "description": tool.description,
+      "featureList": Array.isArray(tool.tags) ? tool.tags.join(", ") : undefined,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/OnlineOnly",
+        "description": isFree ? "Free" : tool.pricing,
+      },
+      "review": {
+        "@type": "Review",
+        "author": { "@type": "Person", "name": personalInfo.name },
+        "reviewBody": tool.description,
+      },
+    };
+  };
+
   const getHowToSchema = () => ({
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -282,6 +310,8 @@ const StructuredData = ({ type = 'person', pageData = {} }) => {
         return getFAQSchema();
       case 'software':
         return getSoftwareApplicationSchema(pageData);
+      case 'aiTool':
+        return getAiToolSchema(pageData);
       case 'howto':
         return getHowToSchema();
       default:

@@ -42,7 +42,7 @@ const fmtDate = (d) =>
         day: 'numeric',
         year: 'numeric',
       })
-    : '—';
+    : '-';
 
 const statusBadge = (status) => {
   const map = {
@@ -568,17 +568,17 @@ const Referral = () => {
                     <tr key={c._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-gray-900">{c.referredUserName || '—'}</p>
-                          <p className="text-xs text-gray-400">{c.referredUserEmail || '—'}</p>
+                          <p className="font-medium text-gray-900">{c.referredUserName || '-'}</p>
+                          <p className="text-xs text-gray-400">{c.referredUserEmail || '-'}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-600">{fmtDate(c.signedUpAt)}</td>
                       <td className="px-6 py-4 text-gray-600">
-                        {c.orderAmount ? fmt(c.orderAmount) : '—'}
+                        {c.orderAmount ? fmt(c.orderAmount) : '-'}
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-semibold text-green-600">
-                          {c.commissionAmount ? fmt(c.commissionAmount) : '—'}
+                          {c.commissionAmount ? fmt(c.commissionAmount) : '-'}
                         </span>
                       </td>
                       <td className="px-6 py-4">

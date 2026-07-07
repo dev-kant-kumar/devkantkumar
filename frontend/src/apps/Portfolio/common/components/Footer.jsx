@@ -30,7 +30,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { personalInfo, socialLinks, careerObjectives } = portfolioData;
 
-  // Same epoch-clock sync formula used in Header & Hero — all three stay in perfect lockstep
+  // Same epoch-clock sync formula used in Header & Hero - all three stay in perfect lockstep
   const skills = [
     personalInfo.title,
     personalInfo.subtitle,
@@ -196,7 +196,7 @@ const Footer = () => {
 
               <div>
                 <h3 className="text-xl font-bold text-white tracking-wide">{personalInfo.name}</h3>
-                {/* Synced role ticker — same epoch clock as Header & Hero */}
+                {/* Synced role ticker - same epoch clock as Header & Hero */}
                 <div className="flex items-center gap-1.5 mt-1" style={{ minWidth: '160px', height: '16px', overflow: 'hidden' }}>
                   <Activity size={9} className="text-cyan-500 animate-pulse shrink-0" />
                   <div className="relative flex-1 h-4 overflow-hidden">

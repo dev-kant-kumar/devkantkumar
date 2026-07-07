@@ -222,7 +222,7 @@ export const OrganizationSchema = ({
   const schema = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    name: "Dev Kant Kumar — Full Stack Developer & Marketplace",
+    name: "Dev Kant Kumar - Full Stack Developer & Marketplace",
     description:
       "Premium React templates, MERN boilerplates, and full-stack web development services by Dev Kant Kumar.",
     url: `${baseUrl}/marketplace`,

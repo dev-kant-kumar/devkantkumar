@@ -208,7 +208,7 @@ const ToolLayout = ({
                   return (
                     <div
                       key={index}
-                      className="bg-slate-900/30 border border-slate-850 rounded-2xl overflow-hidden transition-all duration-350 hover:border-slate-800"
+                      className="bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-350 hover:border-slate-700"
                     >
                       <button
                         onClick={() => toggleFaq(index)}
@@ -233,7 +233,7 @@ const ToolLayout = ({
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.3, ease: 'easeInOut' }}
                           >
-                            <div className="px-6 pb-6 pt-1 text-slate-400 text-xs sm:text-sm border-t border-slate-900/40 leading-relaxed">
+                            <div className="px-6 pb-6 pt-1 text-slate-300 text-sm border-t border-slate-800/60 leading-relaxed">
                               {faq.answer}
                             </div>
                           </motion.div>

@@ -214,7 +214,7 @@ const DigitalProducts = ({ category: propCategory }) => {
       />
       <ItemListSchema
         items={products.map((p) => ({ ...p, type: "product" }))}
-        listName="React Templates & Digital Products — Dev Kant Kumar Marketplace"
+        listName="React Templates & Digital Products - Dev Kant Kumar Marketplace"
         listUrl="https://www.devkantkumar.com/marketplace/products"
       />
       {/* Featured Product Hero Section */}

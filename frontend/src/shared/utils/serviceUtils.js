@@ -12,7 +12,7 @@ export const calculateProjectProgress = (order) => {
   if (order.timeline && order.timeline.length > 0) {
     const completedStatuses = order.timeline.map(entry => entry.status);
 
-    // SDLC Phase Weights — statuses match what completePhase stores (phaseKey itself)
+    // SDLC Phase Weights - statuses match what completePhase stores (phaseKey itself)
     if (completedStatuses.includes('support_window')) return 97;
     if (completedStatuses.includes('revision_window')) return 92;
     if (completedStatuses.includes('delivery')) return 82;

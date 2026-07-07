@@ -37,7 +37,7 @@ const PHASES = [
 
 // Returns the index of the CURRENTLY ACTIVE phase (the one in progress right now).
 // order.currentPhase is set by the backend to the NEXT phase when the previous one
-// is completed — so it IS the active phase, not a completed one.
+// is completed - so it IS the active phase, not a completed one.
 const getActivePhaseIndex = (order) => {
   if (!order) return 0;
   if (order.status === 'completed') return PHASES.length - 1;
@@ -50,7 +50,7 @@ const getActivePhaseIndex = (order) => {
     'revision_window_closed': 'support_window'
   };
 
-  // PRIMARY: use currentPhase directly — it IS the active (in-progress) phase
+  // PRIMARY: use currentPhase directly - it IS the active (in-progress) phase
   if (order.currentPhase) {
     const mappedCurrent = legacyMap[order.currentPhase] || order.currentPhase;
     const currentIdx = phaseIds.indexOf(mappedCurrent);

@@ -23,6 +23,7 @@ import {
     Zap
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 // Simple Icons imports
 import {
@@ -183,15 +184,43 @@ const toolIconMap = {
 };
 
 // Tool icon component
-function ToolIcon({ name, logo, size = 24 }) {
+function ToolIcon({ name, logo, url, size = 24 }) {
+    const [errored, setErrored] = useState(false);
     const brandKey = toolIconMap[name];
     const BrandIcon = brandKey ? brandIcons[brandKey] : null;
+
+    // Real brand logo pulled from the tool's live domain favicon.
+    let domain = "";
+    try {
+        domain = url ? new URL(url).hostname.replace(/^www\./, "") : "";
+    } catch {
+        domain = "";
+    }
+    const favicon = domain
+        ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
+        : "";
+
+    // Favicon first (real logo) → Simple Icon → emoji, so every tool resolves.
+    if (favicon && !errored) {
+        return (
+            <img
+                src={favicon}
+                alt={`${name} logo`}
+                width={size}
+                height={size}
+                loading="lazy"
+                onError={() => setErrored(true)}
+                className="object-contain rounded"
+                style={{ width: size, height: size }}
+            />
+        );
+    }
 
     if (BrandIcon) {
         return <BrandIcon size={size} className="text-slate-300" />;
     }
 
-    // Fallback to emoji
+    // Final fallback to emoji
     return <span className="text-2xl">{logo}</span>;
 }
 
@@ -242,15 +271,9 @@ function ToolCard({ tool }) {
             transition={{ duration: 0.2 }}
             className="group block bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 hover:border-cyan-500/40 hover:bg-slate-800/80 transition-all duration-200 no-underline relative"
         >
-            {/* Best For Badge */}
-            {tool.bestFor && (
-                <div className="absolute -top-2 -right-2 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
-                    🏆 {tool.bestFor}
-                </div>
-            )}
             <div className="flex items-start gap-3 mb-3">
                 <div className="shrink-0 w-12 h-12 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden">
-                    <ToolIcon name={tool.name} logo={tool.logo} size={22} />
+                    <ToolIcon name={tool.name} logo={tool.logo} url={tool.url} size={22} />
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -262,6 +285,11 @@ function ToolCard({ tool }) {
                         )}
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
+                        {tool.bestFor && (
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                🏆 {tool.bestFor}
+                            </span>
+                        )}
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
                             tool.pricing === 'Free' ? 'bg-emerald-500/20 text-emerald-400' :
                             tool.pricing === 'Freemium' ? 'bg-blue-500/20 text-blue-400' :
@@ -556,6 +584,30 @@ export default function AIToolsDirectory() {
                 </div>
             </div>
 
+            {/* CTA → dedicated AI Tools hub (each tool has its own review page) */}
+            <Link
+                to="/ai-tools"
+                className="group no-underline flex items-center justify-between gap-4 flex-wrap mb-10 p-5 bg-slate-900/60 border border-cyan-500/20 rounded-2xl hover:border-cyan-500/50 hover:bg-slate-900/90 transition-all"
+            >
+                <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/25 shrink-0">
+                        <Zap size={22} className="text-cyan-400" />
+                    </div>
+                    <div>
+                        <div className="text-white font-bold text-base group-hover:text-cyan-300 transition-colors">
+                            Explore the full AI Tools Directory
+                        </div>
+                        <div className="text-sm text-slate-400">
+                            Every tool has its own review page - features, pricing, ratings & alternatives.
+                        </div>
+                    </div>
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-cyan-500 text-slate-950 font-bold text-sm rounded-xl group-hover:bg-cyan-400 transition-colors shrink-0">
+                    Open directory
+                    <ExternalLink size={15} />
+                </span>
+            </Link>
+
             {/* Hero Section */}
             <div className="text-center mb-10">
                 <div className="flex justify-center gap-3 mb-6">
@@ -692,7 +744,7 @@ function AIToolsThumbnail({ className = "" }) {
 // Card Image - for blog listing
 function AIToolsCardImage({ className = "" }) {
     return (
-        <div className={`bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 relative overflow-hidden ${className}`}>
+        <div className={`bg-gradient-to-br from-slate-900 via-slate-800 to-slate-800 relative overflow-hidden ${className}`}>
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
 

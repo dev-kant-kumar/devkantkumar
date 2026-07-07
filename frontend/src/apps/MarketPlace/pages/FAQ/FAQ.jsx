@@ -37,7 +37,7 @@ const FAQ = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <MarketPlaceSEO
-        title="FAQ — Marketplace Help & Support | Dev Kant Kumar"
+        title="FAQ - Marketplace Help & Support | Dev Kant Kumar"
         description="Find answers to common questions about purchasing digital products, payment methods, refunds, licensing, and support on the Dev Kant Kumar Marketplace."
         keywords={["marketplace FAQ", "digital products help", "refund policy", "license terms", "developer marketplace support"]}
         url="https://www.devkantkumar.com/marketplace/faq"

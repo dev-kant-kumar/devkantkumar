@@ -108,7 +108,7 @@ const Checkout = () => {
     // Surcharge Amount for display (rounded to 2 decimal places)
     const surchargeAmount = Math.round((totalWithSurcharge - subtotal) * 100) / 100;
 
-    // Apply coupon discount if present — use explicit null/undefined check so
+    // Apply coupon discount if present - use explicit null/undefined check so
     // that a legitimate $0 discount coupon still works
     let discountAmount = 0;
     if (appliedCoupon && appliedCoupon.discountAmount != null) {

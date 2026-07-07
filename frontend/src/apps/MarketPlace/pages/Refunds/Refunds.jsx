@@ -6,7 +6,7 @@ const Refunds = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <MarketPlaceSEO
-        title="Refund Policy — Dev Kant Kumar Marketplace"
+        title="Refund Policy - Dev Kant Kumar Marketplace"
         description="Learn about our 14-day refund policy for digital products on the Dev Kant Kumar Marketplace. Understand eligibility, non-refundable cases, and how to request a refund."
         keywords={["refund policy", "marketplace refunds", "14-day refund", "digital product refund", "money back guarantee"]}
         url="https://www.devkantkumar.com/marketplace/refunds"

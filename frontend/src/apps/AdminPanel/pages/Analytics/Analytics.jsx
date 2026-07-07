@@ -179,7 +179,7 @@ const Analytics = () => {
                 {[
                     { label: 'Total Page Views', value: ga.overview?.pageViews || 0, icon: Eye, color: 'blue', desc: 'Cumulative total of all platform views in the last 30 days.' },
                     { label: 'Active Users', value: ga.overview?.users || 0, icon: Users, color: 'purple', desc: 'Distinct unique individuals who initiated interaction sequences.' },
-                    { label: 'Retention Rate', value: ga.overview?.bounceRate ? (100 - parseFloat(ga.overview.bounceRate)).toFixed(2) + '%' : '0%', icon: Activity, color: 'emerald', desc: 'Inverse of bounce rate—percentage of users who stayed for multiple actions.' },
+                    { label: 'Retention Rate', value: ga.overview?.bounceRate ? (100 - parseFloat(ga.overview.bounceRate)).toFixed(2) + '%' : '0%', icon: Activity, color: 'emerald', desc: 'Inverse of bounce rate-percentage of users who stayed for multiple actions.' },
                     { label: 'Avg Duration', value: formatDuration(ga.overview?.avgSessionDuration), icon: Clock, color: 'orange', desc: 'Median engagement time within a single active user session.' },
                 ].map((stat, i) => (
                     <GlassCard key={i} delay={i * 0.1} className="group hover:scale-[1.02] transition-transform duration-300">

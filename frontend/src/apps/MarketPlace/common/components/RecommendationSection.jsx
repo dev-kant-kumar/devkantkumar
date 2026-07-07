@@ -219,7 +219,7 @@ const RecommendationSection = ({
 
   const hasContent = products.length > 0 || services.length > 0;
 
-  // For "related" mode: silently hide when there are no similar products — cleaner UX
+  // For "related" mode: silently hide when there are no similar products - cleaner UX
   // on product detail pages that haven't built up enough inventory yet.
   if (!isLoading && !hasContent && !isError && effectiveMode === "related")
     return null;
@@ -285,7 +285,7 @@ const RecommendationSection = ({
             </p>
             <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
               {effectiveMode === "personalized"
-                ? "Start exploring products and services — your personalized picks will appear here."
+                ? "Start exploring products and services - your personalized picks will appear here."
                 : "Be the first to discover our products and services as they launch."}
             </p>
           </div>

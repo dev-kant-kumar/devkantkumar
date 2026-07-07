@@ -205,7 +205,7 @@ function InteractiveRoadmap() {
     {
       id: "p1",
       number: 1,
-      title: "Foundation — React Native + TypeScript core",
+      title: "Foundation - React Native + TypeScript core",
       duration: "Weeks 1–2",
       subtitle: "Every job listing requires this",
       bgColor: "bg-indigo-500/10 border-indigo-500/20",
@@ -213,38 +213,38 @@ function InteractiveRoadmap() {
       skills: [
         { id: "p1-s1", label: "Core Components", desc: "View, Text, Image, TextInput, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform", tag: "must" },
         { id: "p1-s2", label: "StyleSheet + Flexbox", desc: "Mobile-first layout, responsive sizing with Dimensions, platform-specific styles", tag: "must" },
-        { id: "p1-s3", label: "TypeScript throughout", desc: "Typed props, typed state, typed navigation params — non-negotiable for 2026 roles", tag: "must" },
+        { id: "p1-s3", label: "TypeScript throughout", desc: "Typed props, typed state, typed navigation params - non-negotiable for 2026 roles", tag: "must" },
         { id: "p1-s4", label: "FlatList / FlashList", desc: "Virtualized lists, keyExtractor, renderItem, ListEmptyComponent, pagination", tag: "must" },
       ]
     },
     {
       id: "p2",
       number: 2,
-      title: "Navigation — React Navigation v7",
+      title: "Navigation - React Navigation v7",
       duration: "Weeks 3–4",
       subtitle: "Asked in every interview",
       bgColor: "bg-emerald-500/10 border-emerald-500/20",
       numBg: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
       skills: [
         { id: "p2-s1", label: "Stack + Tab + Drawer", desc: "Native Stack, Bottom Tabs, Drawer navigators and how to compose them", tag: "must" },
-        { id: "p2-s2", label: "Typed navigation params", desc: "RootStackParamList, useNavigation with generics, typed route params — interviewers love this", tag: "hot" },
+        { id: "p2-s2", label: "Typed navigation params", desc: "RootStackParamList, useNavigation with generics, typed route params - interviewers love this", tag: "hot" },
         { id: "p2-s3", label: "Deep linking", desc: "URL scheme config, universal links, linking config object", tag: "plus" },
-        { id: "p2-s4", label: "Expo Router v7", desc: "File-based routing — new standard in 2026. If you know Next.js routing you already know this", tag: "new" },
+        { id: "p2-s4", label: "Expo Router v7", desc: "File-based routing - new standard in 2026. If you know Next.js routing you already know this", tag: "new" },
       ]
     },
     {
       id: "p3",
       number: 3,
-      title: "State management — Redux Toolkit + RTK Query",
+      title: "State management - Redux Toolkit + RTK Query",
       duration: "Weeks 5–6",
-      subtitle: "Your current focus — keep going",
+      subtitle: "Your current focus - keep going",
       bgColor: "bg-amber-500/10 border-amber-500/20",
       numBg: "bg-amber-500/20 text-amber-300 border-amber-500/30",
       skills: [
         { id: "p3-s1", label: "Redux Toolkit", desc: "configureStore, createSlice, createAsyncThunk, feature-based folder structure", tag: "must" },
         { id: "p3-s2", label: "RTK Query", desc: "createApi, endpoints, cache invalidation with tags, optimistic updates", tag: "must" },
         { id: "p3-s3", label: "Typed Redux", desc: "RootState, AppDispatch, typed useSelector + useDispatch hooks", tag: "hot" },
-        { id: "p3-s4", label: "Zustand (awareness)", desc: "Lightweight alternative — many startups use this. Know when to choose it over RTK", tag: "plus" },
+        { id: "p3-s4", label: "Zustand (awareness)", desc: "Lightweight alternative - many startups use this. Know when to choose it over RTK", tag: "plus" },
       ]
     },
     {
@@ -256,10 +256,10 @@ function InteractiveRoadmap() {
       bgColor: "bg-blue-500/10 border-blue-500/20",
       numBg: "bg-blue-500/20 text-blue-300 border-blue-500/30",
       skills: [
-        { id: "p4-s1", label: "React Hook Form + Zod", desc: "Controlled vs uncontrolled, schema validation, error display — industry standard combo", tag: "must" },
+        { id: "p4-s1", label: "React Hook Form + Zod", desc: "Controlled vs uncontrolled, schema validation, error display - industry standard combo", tag: "must" },
         { id: "p4-s2", label: "AsyncStorage + SecureStore", desc: "Persisting tokens, user prefs. SecureStore for sensitive data (Expo)", tag: "must" },
         { id: "p4-s3", label: "JWT auth flow", desc: "Login → store token → attach to headers → refresh token on 401 interceptor", tag: "hot" },
-        { id: "p4-s4", label: "Expo SecureStore", desc: "Biometric auth, encrypted key-value storage — shows production awareness", tag: "hot" },
+        { id: "p4-s4", label: "Expo SecureStore", desc: "Biometric auth, encrypted key-value storage - shows production awareness", tag: "hot" },
       ]
     },
     {
@@ -272,9 +272,9 @@ function InteractiveRoadmap() {
       numBg: "bg-teal-500/20 text-teal-300 border-teal-500/30",
       skills: [
         { id: "p5-s1", label: "FlatList optimization", desc: "getItemLayout, windowSize, removeClippedSubviews, FlashList over FlatList for large lists", tag: "must" },
-        { id: "p5-s2", label: "Reanimated 3", desc: "useSharedValue, useAnimatedStyle, withSpring, withTiming — runs on UI thread at 60fps", tag: "new" },
-        { id: "p5-s3", label: "Gesture Handler", desc: "Pan, Tap, Swipe gestures with GestureDetector — pairs with Reanimated", tag: "hot" },
-        { id: "p5-s4", label: "memo + useCallback", desc: "Preventing re-renders in list items — critical for smooth scrolling on Android", tag: "must" },
+        { id: "p5-s2", label: "Reanimated 3", desc: "useSharedValue, useAnimatedStyle, withSpring, withTiming - runs on UI thread at 60fps", tag: "new" },
+        { id: "p5-s3", label: "Gesture Handler", desc: "Pan, Tap, Swipe gestures with GestureDetector - pairs with Reanimated", tag: "hot" },
+        { id: "p5-s4", label: "memo + useCallback", desc: "Preventing re-renders in list items - critical for smooth scrolling on Android", tag: "must" },
       ]
     },
     {
@@ -282,12 +282,12 @@ function InteractiveRoadmap() {
       number: 6,
       title: "New architecture + Expo production",
       duration: "Weeks 11–12",
-      subtitle: "2026 table stakes — old arch is EOL",
+      subtitle: "2026 table stakes - old arch is EOL",
       bgColor: "bg-rose-500/10 border-rose-500/20",
       numBg: "bg-rose-500/20 text-rose-300 border-rose-500/30",
       skills: [
-        { id: "p6-s1", label: "New Architecture (JSI)", desc: "JSI replaces the old bridge. Synchronous native calls. Default since RN 0.76 — old arch EOL March 2026", tag: "new" },
-        { id: "p6-s2", label: "Hermes engine", desc: "Default JS engine — bytecode precompilation, faster startup, lower memory. Mandatory with New Arch", tag: "new" },
+        { id: "p6-s1", label: "New Architecture (JSI)", desc: "JSI replaces the old bridge. Synchronous native calls. Default since RN 0.76 - old arch EOL March 2026", tag: "new" },
+        { id: "p6-s2", label: "Hermes engine", desc: "Default JS engine - bytecode precompilation, faster startup, lower memory. Mandatory with New Arch", tag: "new" },
         { id: "p6-s3", label: "EAS Build + Submit", desc: "Cloud builds for iOS + Android, OTA updates with EAS Update, App Store submission", tag: "hot" },
         { id: "p6-s4", label: "Expo Router v7", desc: "File-based routing now ships with SDK 55. Know layouts, dynamic routes, auth guards", tag: "new" },
       ]
@@ -301,9 +301,9 @@ function InteractiveRoadmap() {
       bgColor: "bg-slate-500/10 border-slate-500/20",
       numBg: "bg-slate-500/20 text-slate-300 border-slate-500/30",
       skills: [
-        { id: "p7-s1", label: "Jest + RNTL", desc: "Unit tests for reducers, component tests with React Native Testing Library — basic coverage is enough", tag: "plus" },
-        { id: "p7-s2", label: "Git + PR workflow", desc: "Feature branches, clean commits, PR descriptions — remote teams care about this deeply", tag: "must" },
-        { id: "p7-s3", label: "English communication", desc: "Written async communication is the #1 soft skill for remote roles — every job listing says this", tag: "must" },
+        { id: "p7-s1", label: "Jest + RNTL", desc: "Unit tests for reducers, component tests with React Native Testing Library - basic coverage is enough", tag: "plus" },
+        { id: "p7-s2", label: "Git + PR workflow", desc: "Feature branches, clean commits, PR descriptions - remote teams care about this deeply", tag: "must" },
+        { id: "p7-s3", label: "English communication", desc: "Written async communication is the #1 soft skill for remote roles - every job listing says this", tag: "must" },
         { id: "p7-s4", label: "Android Studio + Xcode basics", desc: "Reading build logs, running on simulators, understanding Gradle and iOS folder structure", tag: "plus" },
       ]
     }
@@ -605,7 +605,7 @@ export default function ReactNativeRoadmap2026() {
           <section id="phase-1-foundation" className="scroll-mt-24">
             <h2 className="text-3xl font-extrabold text-white flex items-center gap-3 border-b border-slate-800 pb-3">
               <span className="text-indigo-400 font-mono">01.</span>
-              Foundation — React Native & TypeScript Core
+              Foundation - React Native & TypeScript Core
             </h2>
             
             <p>
@@ -637,7 +637,7 @@ export default function ReactNativeRoadmap2026() {
           <section id="phase-2-navigation" className="scroll-mt-24">
             <h2 className="text-3xl font-extrabold text-white flex items-center gap-3 border-b border-slate-800 pb-3">
               <span className="text-emerald-400 font-mono">02.</span>
-              Navigation Architecture — React Navigation v7 & Expo Router
+              Navigation Architecture - React Navigation v7 & Expo Router
             </h2>
             
             <p>
@@ -675,7 +675,7 @@ export type HomeScreenNavigationProp = NativeStackNavigationProp<
           <section id="phase-3-state" className="scroll-mt-24">
             <h2 className="text-3xl font-extrabold text-white flex items-center gap-3 border-b border-slate-800 pb-3">
               <span className="text-amber-400 font-mono">03.</span>
-              Data Fetching & State — RTK Query & Zustand
+              Data Fetching & State - RTK Query & Zustand
             </h2>
             
             <p>
@@ -684,7 +684,7 @@ export type HomeScreenNavigationProp = NativeStackNavigationProp<
 
             <h3 className="text-xl font-bold text-slate-200 mt-6 mb-3">Caching & Optimistic Updates</h3>
             <p>
-              Mobile network conditions are volatile. The app must feel instant, regardless of latency. RTK Query excels here through its automatic cache tags and <span className="text-emerald-400 font-extrabold">optimistic updates</span> support—allowing the UI to instantly reflect a toggled transaction status before the server responds:
+              Mobile network conditions are volatile. The app must feel instant, regardless of latency. RTK Query excels here through its automatic cache tags and <span className="text-emerald-400 font-extrabold">optimistic updates</span> support-allowing the UI to instantly reflect a toggled transaction status before the server responds:
             </p>
 
             <CodeEditor 
@@ -753,7 +753,7 @@ export const transactionApi = createApi({
 
             <h3 className="text-xl font-bold text-slate-200 mt-6 mb-3">Reanimated Worklets</h3>
             <p>
-              <strong>React Native Reanimated 3</strong> solves this by using "worklets"—small JavaScript functions that are serialized and compiled to run directly on the native <span className="text-indigo-400 font-extrabold">UI thread</span>. Since they run independently, your animations will remain at 60/120 FPS even if the <span className="text-rose-400 font-extrabold">JS thread</span> is fully blocked.
+              <strong>React Native Reanimated 3</strong> solves this by using "worklets"-small JavaScript functions that are serialized and compiled to run directly on the native <span className="text-indigo-400 font-extrabold">UI thread</span>. Since they run independently, your animations will remain at 60/120 FPS even if the <span className="text-rose-400 font-extrabold">JS thread</span> is fully blocked.
             </p>
 
             <h3 className="text-xl font-bold text-slate-200 mt-6 mb-3">List Performance Tuning</h3>

@@ -37,7 +37,7 @@ const fmtDate = (d) =>
         day: 'numeric',
         year: 'numeric',
       })
-    : '—';
+    : '-';
 
 const statusColor = {
   pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',

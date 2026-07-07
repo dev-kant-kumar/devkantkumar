@@ -28,6 +28,10 @@ const TermsOfService = React.lazy(
 // Tools pages
 const Tools = React.lazy(() => import("./pages/Tools/Tools.jsx"));
 const ToolPage = React.lazy(() => import("./pages/Tools/ToolPage.jsx"));
+
+// AI Tools directory (programmatic SEO - one page per tool)
+const AITools = React.lazy(() => import("./pages/AITools/AITools.jsx"));
+const AIToolPage = React.lazy(() => import("./pages/AITools/AIToolPage.jsx"));
 const Sitemap = React.lazy(() => import("./pages/Sitemap.jsx"));
 const NotFound = React.lazy(() => import("./pages/NotFound.jsx"));
 
@@ -75,6 +79,10 @@ const PortfolioRoutes = () => {
             {/* Tools pages - Free developer tools */}
             <Route path="tools" element={<Tools />} />
             <Route path="tools/:toolSlug" element={<ToolPage />} />
+
+            {/* AI Tools directory - hub + per-tool review pages */}
+            <Route path="ai-tools" element={<AITools />} />
+            <Route path="ai-tools/:slug" element={<AIToolPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

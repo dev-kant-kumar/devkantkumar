@@ -92,7 +92,7 @@ export const supportApi = baseApiSlice.injectEndpoints({
       ],
     }),
 
-    // Get support page settings (FAQs, categories, etc.) — public
+    // Get support page settings (FAQs, categories, etc.) - public
     getSupportSettings: builder.query({
       query: () => "/marketplace/support/settings",
       keepUnusedDataFor: 300, // cache for 5 minutes

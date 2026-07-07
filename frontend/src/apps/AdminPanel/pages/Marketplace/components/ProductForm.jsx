@@ -480,7 +480,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
     const tagsToAdd = newTags.slice(0, allowed);
     if (newTags.length > allowed) {
       toast.error(
-        `Only ${allowed} more tag(s) allowed — extra tags were dropped`,
+        `Only ${allowed} more tag(s) allowed - extra tags were dropped`,
       );
     }
 
@@ -669,7 +669,7 @@ const ProductForm = ({ initialData, onSubmit, isLoading, onCancel }) => {
             />
           </div>
           <p className="text-xs text-gray-400 mt-1 ml-1">
-            Type or paste tags separated by comma — they are added automatically
+            Type or paste tags separated by comma - they are added automatically
           </p>
         </div>
       </section>

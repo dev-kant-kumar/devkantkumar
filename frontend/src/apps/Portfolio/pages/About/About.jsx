@@ -243,7 +243,7 @@ const About = () => {
                 </motion.div>
               </div>
 
-              {/* Right Content — Reel Video */}
+              {/* Right Content - Reel Video */}
               <motion.div
                 variants={itemVariants}
                 className="relative flex justify-center"
@@ -598,7 +598,7 @@ const About = () => {
                 <div className="p-8 sm:p-10 pb-0">
                   <div className="flex flex-wrap items-start justify-between gap-6">
 
-                    {/* Left — Degree + Institution */}
+                    {/* Left - Degree + Institution */}
                     <div className="flex gap-4 items-start">
                       <div className="w-14 h-14 bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
                         <GraduationCap className="w-7 h-7 text-cyan-400" />
@@ -627,7 +627,7 @@ const About = () => {
                       </div>
                     </div>
 
-                    {/* Right — Meta badges */}
+                    {/* Right - Meta badges */}
                     <div className="flex flex-wrap gap-2 items-center">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/50 text-emerald-400 text-xs rounded-xl border border-emerald-500/25 font-bold uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

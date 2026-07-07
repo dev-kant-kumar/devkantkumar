@@ -95,10 +95,10 @@ export const portfolioData = {
       status: "Current",
       website: "https://unyrisetech.com",
       description:
-        "Founded and leading Unyrise Tech — a global software engineering company specializing in custom web development, mobile apps, SaaS products, and UI/UX design. Building world-class digital products for startups and businesses worldwide.",
+        "Founded and leading Unyrise Tech - a global software engineering company specializing in custom web development, mobile apps, SaaS products, and UI/UX design. Building world-class digital products for startups and businesses worldwide.",
       keyAchievements: [
         "Leading product strategy, engineering, and business development",
-        "Building Hostel Ease — a SaaS platform for hostel & PG management",
+        "Building Hostel Ease - a SaaS platform for hostel & PG management",
         "Delivering end-to-end digital solutions (web, mobile, desktop) for global clients",
         "Full-stack development using MERN stack (MongoDB, Express, React, Node.js)",
         "Serving clients across USA, UK, Australia, Europe, and India",
@@ -114,7 +114,7 @@ export const portfolioData = {
         "Docker",
       ],
       impact:
-        "Engineering world-class software products that define industries — from concept to global scale",
+        "Engineering world-class software products that define industries - from concept to global scale",
     },
     {
       id: 2,
@@ -551,10 +551,10 @@ export const portfolioData = {
   },
 
   achievements: [
-    "Founded Unyrise Tech (Mar 2026) — a software engineering company building web, mobile & SaaS products for clients globally",
-    "Founded Hostel Ease (Jun 2025) — a SaaS platform for hostel & PG management, built from scratch and deployed to production",
-    "Launched first paid digital product on Gumroad — a React-based Restaurant & Banquet website template ($25), no coding required post-setup",
-    "Containerized a Node.js app and published a custom Docker image to Docker Hub — proving full deployment portability",
+    "Founded Unyrise Tech (Mar 2026) - a software engineering company building web, mobile & SaaS products for clients globally",
+    "Founded Hostel Ease (Jun 2025) - a SaaS platform for hostel & PG management, built from scratch and deployed to production",
+    "Launched first paid digital product on Gumroad - a React-based Restaurant & Banquet website template ($25), no coding required post-setup",
+    "Containerized a Node.js app and published a custom Docker image to Docker Hub - proving full deployment portability",
     "Completed 2 internships at Techies Gateway (2024–2025), shipping 8+ client projects across travel, finance & social media sectors",
     "Built and published a comprehensive Node.js API guide covering REST, GraphQL, gRPC, WebSockets, SSE, tRPC, Kafka & more",
     "Created a Tailwind CSS v4 + React video tutorial series on YouTube, teaching responsive UI development from scratch",

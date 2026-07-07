@@ -48,5 +48,11 @@ coverage/
 pmlog/
 
 
-# Google Analytics
+# Google service-account keys — NEVER commit any of these
 portfolio-devkantkumar-82bda3f92cc1.json
+portfolio-devkantkumar-*.json
+*-service-account*.json
+*serviceaccount*.json
+gcp-*.json
+# Catch any file that is a raw service_account key
+*.serviceaccount.json

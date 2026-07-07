@@ -233,7 +233,7 @@ const Blog = () => {
               >
                 <Search size={16} className="text-slate-500 group-hover:text-cyan-400 transition-colors" />
                 <span className="text-xs font-mono font-bold uppercase tracking-wider">Search posts...</span>
-                <kbd className="hidden lg:inline-flex items-center ml-auto px-2 py-0.5 text-[10px] bg-slate-950 border border-slate-850 rounded text-slate-500 font-mono">⌘K</kbd>
+                <kbd className="hidden lg:inline-flex items-center ml-auto px-2 py-0.5 text-[10px] bg-slate-950 border border-slate-800 rounded text-slate-500 font-mono">⌘K</kbd>
               </button>
             </motion.div>
           </div>
@@ -539,7 +539,7 @@ const Blog = () => {
                             month: "short", day: "numeric"
                           })}
                         </span>
-                        <span className="w-1 h-1 rounded-full bg-slate-850" />
+                        <span className="w-1 h-1 rounded-full bg-slate-800" />
                         <span className="flex items-center gap-1">
                           <Clock size={12} />
                           {post.readTime}

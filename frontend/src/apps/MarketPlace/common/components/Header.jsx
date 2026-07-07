@@ -179,7 +179,6 @@ const Header = () => {
   const panelSwitchItems = [
     { name: "Portfolio", path: "/" },
     { name: "Marketplace", path: "/marketplace", current: true },
-    { name: "Admin", path: "/admin" },
   ];
 
   const isActive = (path) => {

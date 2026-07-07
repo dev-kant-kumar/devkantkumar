@@ -3,7 +3,7 @@
  * Simulates a backend database for users.
  *
  * WARNING: This module is for LOCAL DEVELOPMENT ONLY.
- * It uses btoa() (base64) — this is NOT cryptographic security.
+ * It uses btoa() (base64) - this is NOT cryptographic security.
  * It must never be used in production. Delete this file once fully migrated
  * to real backend authentication.
  */

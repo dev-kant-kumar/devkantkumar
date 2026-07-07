@@ -178,7 +178,7 @@ const ServiceAnalytics = () => {
                             )}
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 capitalize">
-                            {service.category?.replace(/-/g, ' ') || '—'}
+                            {service.category?.replace(/-/g, ' ') || '-'}
                         </p>
                     </div>
                 </div>
@@ -257,7 +257,7 @@ const ServiceAnalytics = () => {
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Category</p>
                             <div className="flex items-center gap-1.5 font-bold text-gray-900 dark:text-white capitalize">
                                 <Box size={15} className="text-purple-500" />
-                                {service.category?.replace(/-/g, ' ') || '—'}
+                                {service.category?.replace(/-/g, ' ') || '-'}
                             </div>
                         </div>
                     </div>
@@ -285,7 +285,7 @@ const ServiceAnalytics = () => {
                         </div>
                         <div>
                             <h3 className="text-base font-bold text-gray-900 dark:text-white">Monthly Performance</h3>
-                            <p className="text-xs text-gray-500">Revenue and orders — last 6 months</p>
+                            <p className="text-xs text-gray-500">Revenue and orders - last 6 months</p>
                         </div>
                     </div>
                     <div className="h-52">
@@ -437,7 +437,7 @@ const ServiceAnalytics = () => {
                                                 </Link>
                                             </td>
                                             <td className="py-3 pr-4 text-xs text-gray-600 dark:text-gray-400">
-                                                {order.billing?.email || '—'}
+                                                {order.billing?.email || '-'}
                                             </td>
                                             <td className="py-3 pr-4">
                                                 {pkg ? (
@@ -451,7 +451,7 @@ const ServiceAnalytics = () => {
                                                         {pkg}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-gray-400 text-xs">—</span>
+                                                    <span className="text-gray-400 text-xs">-</span>
                                                 )}
                                             </td>
                                             <td className="py-3 pr-4 font-semibold text-emerald-600 dark:text-emerald-400 text-sm">

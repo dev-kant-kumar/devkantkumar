@@ -38,7 +38,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title="Dev Kant Kumar Marketplace — React Templates & Dev Services"
+        title="Dev Kant Kumar Marketplace - React Templates & Dev Services"
         description="Buy premium React templates, Next.js boilerplates, MERN stack kits, and hire full-stack developer services. Instant digital download from ₹999."
         keywords={[
           "React templates",
@@ -59,7 +59,7 @@ const Home = () => {
           ...featuredServices.map((s) => ({ ...s, type: "service" })),
           ...featuredProducts.map((p) => ({ ...p, type: "product" })),
         ]}
-        listName="Dev Kant Kumar Marketplace — Featured Services & Products"
+        listName="Dev Kant Kumar Marketplace - Featured Services & Products"
         listUrl="https://www.devkantkumar.com/marketplace"
       />
       {/* Hero Section */}

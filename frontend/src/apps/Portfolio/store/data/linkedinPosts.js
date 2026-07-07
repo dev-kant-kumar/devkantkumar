@@ -26,7 +26,7 @@ const linkedinPosts = [
     url: "https://www.linkedin.com/posts/devkantkumar_python-recursion-generators-activity-7395510591085359104-tM9b?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEKa7t8Ba5Beoekei9nrp5EpJX241t86c5o",
     title:
       "Day 2 of mastering Python functions - tackled the two most mind-bending concepts back-to-back!",
-    description: `Mastered two Python brain-twisters today — Recursion and Generators!
+    description: `Mastered two Python brain-twisters today - Recursion and Generators!
 
 🔁 Recursion:
 Built recursive functions (sum, factorial, list prints), hit Python’s recursion limit, and learned how to extend it. Biggest lesson: no base case = recursion explosion 😅
@@ -39,7 +39,7 @@ Recursion = calls itself ↩️
 Generators = pause & continue ⏯️
 Both help solve repetitive problems elegantly.
 
-Loving this journey — one mind-bend at a time!
+Loving this journey - one mind-bend at a time!
 Has your brain ever melted learning these? 😄🔥`,
   },
   {

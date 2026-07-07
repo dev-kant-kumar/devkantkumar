@@ -1,5 +1,5 @@
 /**
- * UrgencyBadge — lightweight social-proof + scarcity nudges
+ * UrgencyBadge - lightweight social-proof + scarcity nudges
  *
  * Shows one of several urgency / FOMO signals below the Add-to-Cart CTA
  * to nudge visitors to buy.  All signals rotate automatically every
@@ -15,13 +15,13 @@ import { useEffect, useState } from 'react';
 import { Eye, Flame, ShoppingBag, Star, Zap } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
-// Deterministic "random" helpers — seeded by productId so the same product
+// Deterministic "random" helpers - seeded by productId so the same product
 // always shows the same numbers within a session (avoids jarring changes on
 // React re-renders), but varies across products.
 // ---------------------------------------------------------------------------
 
 function seededRandom(seed, min, max) {
-  // Simple, fast hash — good enough for display-only numbers
+  // Simple, fast hash - good enough for display-only numbers
   let h = 0;
   for (let i = 0; i < seed.length; i++) {
     h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
@@ -80,7 +80,7 @@ const SIGNALS = [
     icon: Zap,
     color: 'text-purple-600',
     bg: 'bg-purple-50',
-    build: () => 'Instant digital delivery — available right after payment',
+    build: () => 'Instant digital delivery - available right after payment',
   },
 ];
 
@@ -130,7 +130,7 @@ const UrgencyBadge = ({ productId, type = 'product' }) => {
         <span>
           {type === 'service'
             ? 'Only a few service slots available this month'
-            : 'Limited-time digital product — price may increase'}
+            : 'Limited-time digital product - price may increase'}
         </span>
       </div>
     </div>

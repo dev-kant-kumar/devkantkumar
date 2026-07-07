@@ -9,7 +9,7 @@ import {
   Shield,
   ShoppingBag,
   Truck,
-  Twitter
+  Twitter,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -20,11 +20,14 @@ const Footer = () => {
     {
       title: "Services",
       links: [
-        { name: "Web Development", path: "/marketplace/services/web-development" },
+        {
+          name: "Web Development",
+          path: "/marketplace/services/web-development",
+        },
         { name: "Mobile Apps", path: "/marketplace/services/mobile-apps" },
         { name: "Consulting", path: "/marketplace/services/consulting" },
         { name: "Maintenance", path: "/marketplace/services/maintenance" },
-      ]
+      ],
     },
     {
       title: "Products",
@@ -33,7 +36,7 @@ const Footer = () => {
         { name: "Components", path: "/marketplace/products/components" },
         { name: "Tools", path: "/marketplace/products/tools" },
         { name: "Courses", path: "/marketplace/products/courses" },
-      ]
+      ],
     },
     {
       title: "Support",
@@ -42,7 +45,7 @@ const Footer = () => {
         { name: "Documentation", path: "/marketplace/docs" },
         { name: "Contact Us", path: "/marketplace/contact" },
         { name: "FAQ", path: "/marketplace/faq" },
-      ]
+      ],
     },
     {
       title: "Legal",
@@ -51,14 +54,26 @@ const Footer = () => {
         { name: "Privacy Policy", path: "/marketplace/privacy" },
         { name: "Refund Policy", path: "/marketplace/refunds" },
         { name: "License", path: "/marketplace/license" },
-      ]
-    }
+      ],
+    },
   ];
 
   const socialLinks = [
-    { icon: Github, href: "https://github.com/dev-kant-kumar", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com/in/devkantkumar", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com/dev_kant_kumar", label: "Twitter" },
+    {
+      icon: Github,
+      href: "https://github.com/dev-kant-kumar",
+      label: "GitHub",
+    },
+    {
+      icon: Linkedin,
+      href: "https://linkedin.com/in/devkantkumar",
+      label: "LinkedIn",
+    },
+    {
+      icon: Twitter,
+      href: "https://twitter.com/dev_kant_kumar",
+      label: "Twitter",
+    },
   ];
 
   const trustBadges = [
@@ -86,7 +101,9 @@ const Footer = () => {
                   <badge.icon className="h-8 w-8 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-300">{badge.text}</p>
+                  <p className="text-sm font-medium text-gray-300">
+                    {badge.text}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -104,7 +121,10 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Link to="/marketplace" className="flex items-center space-x-2 mb-4">
+              <Link
+                to="/marketplace"
+                className="flex items-center space-x-2 mb-4"
+              >
                 <div className="text-2xl font-bold">
                   <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
                     Market
@@ -209,13 +229,6 @@ const Footer = () => {
                 className="text-gray-400 hover:text-green-400 transition-colors duration-200"
               >
                 Portfolio
-              </Link>
-              <span className="text-gray-600">•</span>
-              <Link
-                to="/admin"
-                className="text-gray-400 hover:text-green-400 transition-colors duration-200"
-              >
-                Admin
               </Link>
             </motion.div>
           </div>

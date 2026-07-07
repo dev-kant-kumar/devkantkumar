@@ -14,6 +14,10 @@ const MetaTagGenerator = React.lazy(() => import('./tools/MetaTagGenerator'));
 const MarkdownPreviewer = React.lazy(() => import('./tools/MarkdownPreviewer'));
 const OgPreviewTool = React.lazy(() => import('./tools/OgPreviewTool'));
 const TypingSpeedTest = React.lazy(() => import('./tools/TypingSpeedTest/components/TypingSpeedTest'));
+const JwtToolkit = React.lazy(() => import('./tools/JwtToolkit'));
+const HashGenerator = React.lazy(() => import('./tools/HashGenerator'));
+const TimestampConverter = React.lazy(() => import('./tools/TimestampConverter'));
+const UrlEncoderDecoder = React.lazy(() => import('./tools/UrlEncoderDecoder'));
 
 // Tool mapping
 const toolComponents = {
@@ -28,7 +32,11 @@ const toolComponents = {
   'meta-tag-generator': MetaTagGenerator,
   'markdown-previewer': MarkdownPreviewer,
   'og-preview': OgPreviewTool,
-  'typing-speed-test': TypingSpeedTest
+  'typing-speed-test': TypingSpeedTest,
+  'jwt-decoder': JwtToolkit,
+  'hash-generator': HashGenerator,
+  'timestamp-converter': TimestampConverter,
+  'url-encoder-decoder': UrlEncoderDecoder
 };
 
 const ToolPage = () => {
