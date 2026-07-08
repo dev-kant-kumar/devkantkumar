@@ -85,10 +85,30 @@ const SEOHead = ({
     return `${baseUrl}${path}`;
   };
 
-  const canonicalHref =
+  // Normalize the canonical URL: drop hash + query, and strip any trailing slash
+  // (except root). So /blog/x, /blog/x/, and /blog/x#section all resolve to ONE
+  // canonical. Without this, pages that don't pass an explicit canonical fall back
+  // to window.location.href and self-duplicate (the "/x" vs "/x/" coverage errors).
+  const normalizeCanonical = (u) => {
+    if (!u) return u;
+    try {
+      const parsed = new URL(u);
+      parsed.hash = "";
+      parsed.search = "";
+      if (parsed.pathname !== "/" && parsed.pathname.endsWith("/")) {
+        parsed.pathname = parsed.pathname.replace(/\/+$/, "");
+      }
+      return parsed.toString();
+    } catch {
+      return u;
+    }
+  };
+
+  const canonicalHref = normalizeCanonical(
     getAbsoluteCanonical(canonical) ||
-    getAbsoluteCanonical(canonicalUrl) ||
-    pageUrl;
+      getAbsoluteCanonical(canonicalUrl) ||
+      pageUrl
+  );
 
   return (
     <Helmet>

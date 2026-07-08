@@ -27,7 +27,8 @@
       name="keywords"
       content="Dev Kant Kumar, Full Stack Developer, MERN Stack, React, Node.js, MongoDB, JavaScript, Tailwind CSS, Portfolio, Web Developer, Frontend, Backend, Open Source, React Server Components, Next.js, Web Performance"
     />
-    <meta name="robots" content="index, follow" />
+    <!-- robots is managed per-page by SEOHead.jsx (do not hardcode here: a static
+         index,follow overrides noindex on 404 pages and creates duplicate tags) -->
     <meta name="language" content="English" />
     <meta name="revisit-after" content="7 days" />
 
@@ -44,8 +45,9 @@
       content="1R7-ajqFcl9Qoi6f1TmmrJvhRyWjxRmGORdmYQyrnfw"
     />
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.devkantkumar.com/" />
+    <!-- Canonical URL is set per-page by SEOHead.jsx. Do NOT hardcode one here:
+         a static home canonical ships on every page and conflicts with the correct
+         per-page canonical, causing "Duplicate without user-selected canonical". -->
 
     <!-- Sitemap -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />

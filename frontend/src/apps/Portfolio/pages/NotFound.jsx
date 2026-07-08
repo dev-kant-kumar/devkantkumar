@@ -2,10 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle, ArrowRight } from "lucide-react";
+import SEOHead from "../../../components/SEO/SEOHead";
 
 const NotFound = () => {
   return (
     <div className="bg-slate-950 min-h-screen text-slate-100 relative overflow-hidden flex items-center justify-center flex-col select-none">
+      {/* Tell Google this is a not-found page so unknown URLs are dropped from the
+          index instead of being flagged as Soft 404 (they're served as 200 by the
+          SPA fallback, so noindex is how we signal "not a real page"). */}
+      <SEOHead title="Page Not Found" noindex={true} />
       {/* Cyber Grid Background */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />

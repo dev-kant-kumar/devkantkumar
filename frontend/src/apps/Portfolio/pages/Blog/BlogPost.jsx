@@ -411,6 +411,9 @@ const BlogPost = () => {
   if (error || !blogPost) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        {/* noindex: a missing blog slug returns 200 via the SPA fallback, so signal
+            not-found to Google to avoid a Soft 404 (e.g. /blog/building-portfolio-marketplace). */}
+        <SEOHead title="Article Not Found" noindex={true} />
         <div className="text-center max-w-md px-0">
           <div className="mb-8">
             <div className="w-24 h-24 mx-auto bg-slate-800 rounded-full flex items-center justify-center mb-6">

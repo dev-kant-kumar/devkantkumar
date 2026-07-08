@@ -148,6 +148,9 @@ const ServiceDetail = () => {
   if (!service) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        {/* noindex: an unknown service slug returns 200 via the SPA fallback, so
+            signal not-found to avoid a Soft 404 (e.g. /marketplace/services/maintenance). */}
+        <MarketPlaceSEO title="Service Not Found" noindex={true} />
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Service Not Found

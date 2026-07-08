@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion';
 import { AlertCircle, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SEOHead from '../../../../components/SEO/SEOHead';
 
 const NotFound = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      {/* noindex so unknown marketplace URLs are dropped, not flagged Soft 404 */}
+      <SEOHead title="Page Not Found" noindex={true} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

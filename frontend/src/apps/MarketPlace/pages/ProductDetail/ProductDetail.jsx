@@ -150,6 +150,9 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        {/* noindex: an unknown product slug returns 200 via the SPA fallback, so
+            signal not-found to avoid a Soft 404. */}
+        <MarketPlaceSEO title="Product Not Found" noindex={true} />
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Product Not Found

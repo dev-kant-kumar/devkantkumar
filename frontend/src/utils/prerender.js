@@ -234,13 +234,20 @@ async function prerender() {
       // Get the HTML
       const html = await page.content();
 
-      // Determine where to save the file
-      // e.g. /blog -> dist/blog/index.html
-      const routePath = route === "/" ? "/index.html" : route;
-      const filePath = path.join(
-        distPath,
-        routePath.endsWith(".html") ? routePath : `${routePath}/index.html`
-      );
+      // Determine where to save the file.
+      // Write FLAT files (e.g. /blog/x -> dist/blog/x.html), NOT /blog/x/index.html.
+      // On Cloudflare Pages a flat file makes the no-trailing-slash URL the one served
+      // with 200, and the /blog/x/ variant 308-redirects to it. That matches our sitemap
+      // and <link rel="canonical">, which both use the no-slash form — eliminating the
+      // "Page with redirect" / "Duplicate without canonical" coverage errors that the old
+      // directory layout caused (it forced the opposite: /blog/x -> 308 -> /blog/x/).
+      const routePath =
+        route === "/"
+          ? "/index.html"
+          : route.endsWith(".html")
+          ? route
+          : `${route}.html`;
+      const filePath = path.join(distPath, routePath);
 
       // Ensure directory exists
       const dir = path.dirname(filePath);
