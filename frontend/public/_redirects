@@ -9,3 +9,8 @@
 # Security: redirect /admin paths to /404 (actual panel is elsewhere)
 /admin /404 302
 /admin/* /404 302
+
+# SPA fallback: serve index.html for any unmatched path so React Router
+# can handle client-side routes on a direct load / hard refresh.
+# MUST stay last — Cloudflare serves real static assets before this rule.
+/* /index.html 200

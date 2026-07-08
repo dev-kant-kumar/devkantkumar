@@ -23,6 +23,17 @@
   Cache-Control: public, max-age=86400
   X-Content-Type-Options: nosniff
 
+# Never cache the service worker or app shell.
+# Without this Cloudflare/browser can serve a stale sw.js, so vite-plugin-pwa's
+# autoUpdate never fires and users keep running an old JS bundle (old routes 404,
+# old code hits blocked http:// endpoints). Always revalidate these.
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/registerSW.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # Security headers for all pages
 /*
   X-Frame-Options: DENY
