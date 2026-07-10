@@ -19,6 +19,67 @@ import { Link } from 'react-router-dom';
 import SEOHead from '../../../../../components/SEO/SEOHead';
 import StructuredData from '../../../../../components/SEO/StructuredData';
 
+// Add a cache-buster so public proxies do not hand back a stale cached copy.
+const withCacheBuster = (u) => {
+  try {
+    const url = new URL(u);
+    url.searchParams.set('_ogp', Date.now().toString());
+    return url.toString();
+  } catch {
+    return u;
+  }
+};
+
+// Fetch sources tried in order. The same-origin Cloudflare Function is first
+// (robust, always fresh, no CORS). The public CORS proxies are fallbacks so the
+// tool still works in local dev where the function is not running.
+const FETCH_SOURCES = [
+  {
+    name: 'same-origin',
+    build: (u) => `/api/og?url=${encodeURIComponent(u)}`,
+    extract: async (res) => {
+      const j = await res.json();
+      if (j.error) throw new Error(j.error);
+      return j.contents;
+    },
+  },
+  {
+    name: 'allorigins',
+    build: (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(withCacheBuster(u))}`,
+    extract: async (res) => (await res.json()).contents,
+  },
+  {
+    name: 'corsproxy',
+    build: (u) => `https://corsproxy.io/?url=${encodeURIComponent(withCacheBuster(u))}`,
+    extract: (res) => res.text(),
+  },
+  {
+    name: 'codetabs',
+    build: (u) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(withCacheBuster(u))}`,
+    extract: (res) => res.text(),
+  },
+];
+
+const fetchWithTimeout = async (url, ms = 12000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+// Accept HTML only if it actually carries usable meta. This rejects the stale
+// SPA shell that some proxies cache (no <title>, no OG tags) so we try the next
+// source instead of showing empty results.
+const looksLikeRealPage = (html) =>
+  !!html &&
+  html.length > 50 &&
+  (/<meta[^>]+(?:property|name)=["'](?:og:|twitter:)/i.test(html) ||
+    /<title>[^<]{1,}<\/title>/i.test(html) ||
+    /<meta[^>]+name=["']description["']/i.test(html));
+
 const OgPreviewTool = () => {
   // Mode: 'url' for fetch mode, 'manual' for manual input
   const [mode, setMode] = useState('url');
@@ -40,59 +101,88 @@ const OgPreviewTool = () => {
     setData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Fetch OG tags from URL using a CORS proxy
+  // Fetch OG tags. Tries the same-origin function first, then public proxies,
+  // with a cache-buster and stale-shell detection so results are reliable.
   const fetchOgTags = async () => {
-    if (!fetchUrl.trim() || !fetchUrl.startsWith('http')) {
-      setFetchError('Please enter a valid URL starting with http:// or https://');
+    let target = fetchUrl.trim();
+    if (!target) {
+      setFetchError('Please enter a URL.');
+      return;
+    }
+    // Be forgiving: accept "example.com/page" and add the scheme.
+    if (!/^https?:\/\//i.test(target)) target = `https://${target}`;
+    try {
+      target = new URL(target).toString();
+    } catch {
+      setFetchError('Please enter a valid URL, e.g. https://example.com/page');
       return;
     }
 
     setIsLoading(true);
     setFetchError('');
 
-    try {
-      // Using allorigins.win as CORS proxy
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fetchUrl)}`;
-      const response = await fetch(proxyUrl);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch the URL');
+    // Try each source until one returns a real page.
+    let html = null;
+    for (const source of FETCH_SOURCES) {
+      try {
+        const res = await fetchWithTimeout(source.build(target));
+        if (!res.ok) continue;
+        const text = await source.extract(res);
+        if (looksLikeRealPage(text)) {
+          html = text;
+          break;
+        }
+      } catch {
+        // Source failed or timed out; fall through to the next one.
       }
+    }
 
-      const result = await response.json();
-      const html = result.contents;
+    if (!html) {
+      setIsLoading(false);
+      setFetchError(
+        'Could not read this URL right now. The page may be blocking automated requests, or the fetch services are temporarily down. You can switch to Manual Input to preview tags directly.'
+      );
+      return;
+    }
 
-      // Parse HTML to extract OG tags
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-
-      // Extract meta tags
+    try {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
       const getMetaContent = (property) => {
-        const meta = doc.querySelector(`meta[property="${property}"]`) ||
-                     doc.querySelector(`meta[name="${property}"]`);
-        return meta?.getAttribute('content') || '';
+        const meta =
+          doc.querySelector(`meta[property="${property}"]`) ||
+          doc.querySelector(`meta[name="${property}"]`);
+        return meta?.getAttribute('content')?.trim() || '';
       };
 
-      const ogTitle = getMetaContent('og:title') || doc.querySelector('title')?.textContent || '';
+      const ogTitle = getMetaContent('og:title') || doc.querySelector('title')?.textContent?.trim() || '';
       const ogDescription = getMetaContent('og:description') || getMetaContent('description') || '';
-      const ogImage = getMetaContent('og:image') || '';
-      const ogUrl = getMetaContent('og:url') || fetchUrl;
+      let ogImage = getMetaContent('og:image') || getMetaContent('twitter:image') || '';
+      // Resolve a relative og:image (e.g. "/og.png") against the page URL.
+      if (ogImage && !/^https?:\/\//i.test(ogImage)) {
+        try {
+          ogImage = new URL(ogImage, target).href;
+        } catch {
+          // leave as-is
+        }
+      }
+      const ogUrl = getMetaContent('og:url') || target;
       const ogSiteName = getMetaContent('og:site_name') || '';
       const twitterHandle = getMetaContent('twitter:site') || getMetaContent('twitter:creator') || '';
 
       setData({
         title: ogTitle,
         description: ogDescription,
-        ogImage: ogImage,
+        ogImage,
         url: ogUrl,
         siteName: ogSiteName,
-        twitterHandle: twitterHandle,
+        twitterHandle,
       });
 
-      setFetchError('');
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setFetchError('Failed to fetch OG tags. The website may be blocking requests or the URL is invalid.');
+      if (!ogTitle && !ogDescription && !ogImage) {
+        setFetchError('Fetched the page, but it has no Open Graph or meta tags to preview.');
+      }
+    } catch {
+      setFetchError('Fetched the page but could not parse its HTML.');
     } finally {
       setIsLoading(false);
     }
