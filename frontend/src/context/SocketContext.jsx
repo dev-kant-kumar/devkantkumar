@@ -65,12 +65,12 @@ export const SocketProvider = ({ children }) => {
     });
 
     socketRef.current.on("connect", () => {
-      console.log("🔌 Socket connected:", socketRef.current.id);
+      if (import.meta.env.DEV) console.log("🔌 Socket connected:", socketRef.current.id);
       dispatch(setSocketConnected(true));
     });
 
     socketRef.current.on("disconnect", (reason) => {
-      console.log("🔌 Socket disconnected:", reason);
+      if (import.meta.env.DEV) console.log("🔌 Socket disconnected:", reason);
       dispatch(setSocketConnected(false));
     });
 
@@ -81,7 +81,7 @@ export const SocketProvider = ({ children }) => {
 
     // Handle new notification
     socketRef.current.on("notification:new", (notification) => {
-      console.log("📬 New notification received:", notification);
+      if (import.meta.env.DEV) console.log("📬 New notification received:", notification);
 
       // Add to Redux store
       dispatch(addNotification(notification));
@@ -97,12 +97,13 @@ export const SocketProvider = ({ children }) => {
         audio.volume = 0.5;
         audio
           .play()
-          .catch((e) =>
-            console.log(
-              "Sound play prevented by browser policy/missing asset:",
-              e,
-            ),
-          );
+          .catch((e) => {
+            if (import.meta.env.DEV)
+              console.log(
+                "Sound play prevented by browser policy/missing asset:",
+                e,
+              );
+          });
       } catch (err) {
         console.error("Error playing notification sound:", err);
       }
