@@ -1358,7 +1358,7 @@ ReactNativeVsFlutterPost.info = {
   modifiedDate: "2026-01-07",
   readTime: "25 min read",
   featured: true,
-  image: "/images/blog/react-native-vs-flutter.jpg",
+  image: "/images/blog/react-native-roadmap-2026.png",
   keywords: "react native vs flutter 2026, flutter vs react native performance, which is better flutter or react native, react native or flutter 2026, cross-platform mobile development, flutter impeller, react native new architecture, mobile app framework comparison",
   faqs: [
     {

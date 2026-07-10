@@ -159,8 +159,8 @@ ReactStateManagement2026.info = {
   category: "React",
   author: "Dev Kant Kumar",
   readTime: "20 min read",
-  image: "/images/blog/react-state-management.png", // Placeholder image path
-  featuredImage: "/images/blog/react-state-management.png",
+  image: "/images/blog/react-server-components.png", // Placeholder image path
+  featuredImage: "/images/blog/react-server-components.png",
   featured: true,
   publishDate: "2026-01-26", // Current date as per metadata
   modifiedDate: "2026-01-26",

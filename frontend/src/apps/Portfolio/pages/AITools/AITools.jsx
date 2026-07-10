@@ -47,6 +47,7 @@ const AITools = () => {
           "ai coding assistant",
           "ai image generator",
         ]}
+        image="/images/pages/ai-tools.png"
       />
       <StructuredData
         type="itemList"

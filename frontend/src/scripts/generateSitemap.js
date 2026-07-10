@@ -171,13 +171,42 @@ ${sitemapItems.map(item => `  <url>
   </url>`).join('\n')}
 </urlset>`;
 
-    const publicPath = path.resolve(__dirname, '../../public');
-    if (!fs.existsSync(publicPath)) {
-        fs.mkdirSync(publicPath, { recursive: true });
-    }
+    // Blog-only sitemap, kept in sync so /sitemap-blog.xml is never stale.
+    const blogItems = [
+        { url: blogUrl, lastModified: currentDate, changeFrequency: 'daily', priority: '0.9' },
+        ...blogData.map((post) => ({
+            url: `${blogUrl}/${post.slug}`,
+            lastModified: post.modifiedDate || post.publishDate || currentDate,
+            changeFrequency: 'weekly',
+            priority: '0.8',
+        })),
+    ];
+    const blogSitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${blogItems.map(item => `  <url>
+    <loc>${item.url}</loc>
+    <lastmod>${item.lastModified}</lastmod>
+    <changefreq>${item.changeFrequency}</changefreq>
+    <priority>${item.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
 
-    fs.writeFileSync(path.join(publicPath, 'sitemap.xml'), sitemapXml);
-    console.log(`✅ Sitemap generated successfully with ${sitemapItems.length} URLs!`);
+    // Write sitemaps to BOTH public/ (source) and dist/ (deployed output).
+    // The build runs `vite build` (which copies public/ -> dist/) BEFORE this
+    // script, so writing only to public/ left the DEPLOYED dist/ sitemap stale.
+    // Writing to dist/ as well keeps the live sitemap in sync on every build.
+    const publicPath = path.resolve(__dirname, '../../public');
+    const distPath = path.resolve(__dirname, '../../dist');
+    const targets = [publicPath, ...(fs.existsSync(distPath) ? [distPath] : [])];
+    for (const dir of targets) {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(path.join(dir, 'sitemap.xml'), sitemapXml);
+        fs.writeFileSync(path.join(dir, 'sitemap-blog.xml'), blogSitemapXml);
+    }
+    console.log(`✅ Sitemaps generated: sitemap.xml (${sitemapItems.length} URLs), sitemap-blog.xml (${blogItems.length} URLs) written to ${targets.length} location(s).`);
 };
 
 // Run when executed directly (cross-platform: pathToFileURL handles Windows drive paths).

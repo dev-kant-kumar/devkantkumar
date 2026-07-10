@@ -178,7 +178,7 @@ export const blogData = [
     author: "Dev Kant Kumar",
     readTime: "25 min read",
     publishDate: "2024-12-29",
-    image: "/images/blog/react-native-vs-flutter.jpg",
+    image: "/images/blog/react-native-roadmap-2026.png",
     featured: true,
     tags: ["React Native", "Flutter", "Mobile Development", "Cross-Platform", "JavaScript", "Dart", "2026"]
   },
@@ -218,7 +218,7 @@ export const blogData = [
     author: "Dev Kant Kumar",
     readTime: "55 min read",
     publishDate: "2026-02-20",
-    image: "/images/blog/js-internals-2026.png",
+    image: "/images/blog/JavaScriptInterviewQuestions2026.png",
     featured: true,
     tags: ["JavaScript", "V8 Engine", "Event Loop", "Closures", "Hoisting", "Execution Context", "Async/Await", "Interview Preparation"]
   },
@@ -232,7 +232,7 @@ export const blogData = [
     readTime: "55 min read",
     publishDate: "2026-03-04",
     modifiedDate: "2026-03-04",
-    image: "/images/blog/api-guide.png",
+    image: "/images/blog/system-design-2026.jpg",
     featured: true,
     tags: ["Node.js", "REST API", "GraphQL", "gRPC", "WebSockets", "API Security", "Express.js", "Microservices"]
   },

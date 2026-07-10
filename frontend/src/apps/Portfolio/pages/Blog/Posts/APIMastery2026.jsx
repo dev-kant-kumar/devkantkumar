@@ -124,7 +124,7 @@ export const info = {
   category: "Backend & Tools",
   author: "Dev Kant Kumar",
   readTime: "55 min read",
-  image: "/images/blog/api-guide.png",
+  image: "/images/blog/system-design-2026.jpg",
   featured: true,
   publishDate: "2026-03-04",
   modifiedDate: "2026-03-04",
