@@ -484,7 +484,7 @@ AntiGravityPost.info = {
   title: "Google Anti Gravity: The Future of Agentic Coding",
   excerpt:
     "Discover Google's revolutionary AI code editor that defies the laws of legacy development. Experience true agentic workflows, deep context mastery, and a weightless coding experience.",
-  category: "AI & Future",
+  category: "AI Engineering",
   author: "Dev Kant Kumar",
   readTime: "25 min read",
   image: "/images/blog/antigravity-ai-v2.png",

@@ -575,7 +575,7 @@ GitSurvivalGuide.info = {
   title: "Git Basics: Essential Commands for Everyday Work",
   excerpt:
     "Learn the most useful Git commands to manage your code effectively.",
-  category: "Version Control",
+  category: "Backend & Tools",
   author: "Dev Kant Kumar",
   readTime: "6 min read",
   image: "/images/blog/git-guide.png",
@@ -598,7 +598,7 @@ GitSurvivalGuide.info = {
   title: "Git Survival Guide: 12 Real Scenarios for Devs",
   excerpt:
     "Scenario-based cheatsheet for fixing wrong branches, merge conflicts, and Git disasters. Interactive, copy-paste solutions for developers.",
-  category: "Version Control",
+  category: "Backend & Tools",
   author: "Dev Kant Kumar",
   readTime: "8 min read",
   image: "/images/blog/git-guide.png",

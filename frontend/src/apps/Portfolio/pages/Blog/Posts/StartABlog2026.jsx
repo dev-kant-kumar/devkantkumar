@@ -42,7 +42,7 @@ export const info = {
     excerpt: "Start a blog and earn $5K+/month. Step-by-step WordPress setup, hosting deals, and proven monetization strategies.",
     publishDate: "2026-01-07",
     modifiedDate: "2026-01-07",
-    category: "Tutorials",
+    category: "Career & Growth",
     featured: true,
     readTime: "25 min read",
     author: "Dev Kant Kumar",

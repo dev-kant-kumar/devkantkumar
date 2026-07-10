@@ -29,7 +29,7 @@ export const info = {
     excerpt: "Most \"free\" AI video tools are lying. Here are 5 that genuinely give you unlimited generations - no credit card, no watermark, no catch.",
     publishDate: "2026-03-21",
     modifiedDate: "2026-03-21",
-    category: "Tools",
+    category: "AI Tools",
     featured: true,
     readTime: "7 min read",
     author: "Dev Kant Kumar",

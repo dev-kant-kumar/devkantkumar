@@ -496,7 +496,7 @@ export const info = {
   publishDate: "2026-01-25",
   modifiedDate: "2026-01-25",
 
-  category: "System Design",
+  category: "Computer Science",
 
   tags: [
     "System Design",

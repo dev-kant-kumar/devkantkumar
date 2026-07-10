@@ -856,7 +856,7 @@ BuildMCPServer2026.info = {
     "A hands on guide to building a Model Context Protocol server in Python and TypeScript, testing it with the MCP Inspector, and connecting it to Claude, Cursor, and Copilot. No fluff, real code.",
   description:
     "Learn how to build an MCP server in 2026 step by step. Full Python and TypeScript code, test with the MCP Inspector, and connect to Claude Desktop, Cursor, and Copilot.",
-  category: "AI Tools",
+  category: "AI Engineering",
   author: "Dev Kant Kumar",
   readTime: "16 min read",
   image: "/images/blog/how-to-build-mcp-server-2026.png",

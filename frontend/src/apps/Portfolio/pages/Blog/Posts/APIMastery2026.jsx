@@ -121,7 +121,7 @@ export const info = {
   title: "Node.js API Guide 2026: REST, GraphQL, gRPC & WebSockets Mastery",
   excerpt: "The complete Node.js API reference. Build REST, GraphQL, gRPC, and WebSocket APIs. Production code, security, and deployment with 100+ examples.",
   keywords: "node.js api tutorial 2026, rest api node.js, graphql node.js, grpc node.js, websocket node.js, api security best practices, api design patterns, express api, fastify api, node.js backend guide, api caching redis, webhook node.js, sse server sent events, trpc tutorial, api rate limiting, jwt authentication node.js, api testing supertest, api gateway nginx, microservices node.js, api versioning, owasp api security, bullmq kafka, socket.io, api documentation openapi, docker node.js, graceful shutdown",
-  category: "Tutorials",
+  category: "Backend & Tools",
   author: "Dev Kant Kumar",
   readTime: "55 min read",
   image: "/images/blog/api-guide.png",

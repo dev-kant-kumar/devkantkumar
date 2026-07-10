@@ -2297,7 +2297,7 @@ YtDlpUltimateGuide.info = {
   excerpt: "Master yt-dlp in 2026. Download videos from YouTube, TikTok and 1800+ sites. Fix bot detection errors and speed up downloads with aria2c. 100+ commands.",
   // SEO keywords based on actual GSC search queries
   keywords: "yt-dlp 2026, yt-dlp not working, yt-dlp not working 2026, does yt-dlp still work, yt-dlp still working 2026, yt-dlp stopped working, yt-dlp netflix, yt-dlp netflix support 2026, yt-dlp widevine l3, yt-dlp drm, yt-dlp sign in to confirm you're not a bot, yt-dlp cookies from browser, yt-dlp age restricted, yt-dlp n challenge solving failed, yt-dlp requested format not available, yt-dlp installation guide 2026, yt-dlp supported sites, yt-dlp tutorial 2026, yt-dlp instagram 2026, yt-dlp tiktok 2026, yt-dlp rumble 2026, yt-dlp patreon 2026, yt-dlp pornhub not working 2026, yt-dlp safe 2026, yt-dlp status 2026, yt-dlp aria2c, yt-dlp ffmpeg",
-  category: "Tutorials",
+  category: "Backend & Tools",
   author: "Dev Kant Kumar",
   readTime: "45 min read",
   image: "/images/blog/yt-dlp-guide.png",

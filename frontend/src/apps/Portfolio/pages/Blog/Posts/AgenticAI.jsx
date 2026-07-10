@@ -117,7 +117,7 @@ export const info = {
     description: "Master agentic AI. Learn to build autonomous AI agents using LangChain, CrewAI, and AutoGen. Covers ReAct pattern, RAG, and production deployment.",
     excerpt: "Build production-ready AI agents in 2026. Step-by-step tutorials with LangChain, CrewAI & AutoGen. Build autonomous systems today.",
     publishDate: "2026-01-07",
-    category: "AI Resources",
+    category: "AI Engineering",
     // SEO-optimized tags based on real search volume data
     tags: [
         "Agentic AI",

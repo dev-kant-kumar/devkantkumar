@@ -1793,7 +1793,7 @@ AssembliesPost.info = {
   title: ".NET Assemblies Explained: Private vs Shared + GAC Tutorial (2026)",
   excerpt:
     "Master .NET assemblies: private vs shared, GAC management, side-by-side execution. Step-by-step Visual Studio 2026 tutorials.",
-  category: ".NET & C#",
+  category: "Backend & Tools",
   author: "Dev Kant Kumar",
   readTime: "35 min read",
   image: "/images/blog/dotnet-assemblies.png",

@@ -603,7 +603,7 @@ OllamaGuidePost.info = {
   title: "Run Llama 3 Locally with Ollama: The Complete 2025 Guide",
   excerpt:
     "Learn to run powerful AI models like Llama 3 on your laptop. No subscription fees, total privacy, and offline access using Ollama.",
-  category: "AI & ML",
+  category: "AI Engineering",
   author: "Dev Kant Kumar",
   readTime: "20 min read",
   image: "/images/blog/ollama-guide.png",

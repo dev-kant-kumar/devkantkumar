@@ -29,7 +29,7 @@ export const info = {
     "Is AWeber the right email marketing platform for you in 2026? This review covers pricing, features, and how it compares to Mailchimp. Start free today.",
   publishDate: "2026-01-07",
   modifiedDate: "2026-01-07",
-  category: "Tools",
+  category: "Career & Growth",
   featured: true,
   readTime: "12 min read",
   author: "Dev Kant Kumar",

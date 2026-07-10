@@ -33,7 +33,7 @@ export const info = {
     excerpt: "75+ best affiliate programs for 2026 with verified commissions up to $2,500. Verified payouts, cookie durations, and strategies.",
     publishDate: "2026-01-07",
     modifiedDate: "2026-01-07",
-    category: "Resources",
+    category: "Career & Growth",
     featured: true,
     readTime: "25 min read",
     author: "Dev Kant Kumar",

@@ -38,7 +38,7 @@ SearchingSortingAlgorithms2026.info = {
     slug: "searching-sorting-algorithms-guide",
     title: "Searching & Sorting Algorithms: Complete Guide with Code in 5 Languages",
     excerpt: "Master Linear Search, Binary Search, Bubble Sort, Merge Sort, Quick Sort & more. Code in Python, Java, C++, JavaScript, C.",
-    category: "Data Structures & Algorithms",
+    category: "Computer Science",
     author: "Dev Kant Kumar",
     readTime: "45 min read",
     publishDate: "2026-02-09",

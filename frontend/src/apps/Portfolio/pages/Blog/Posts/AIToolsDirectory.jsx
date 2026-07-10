@@ -64,7 +64,7 @@ export const info = {
     excerpt: "100 AI tools for 2026: free ChatGPT alternatives, AI image generators, coding assistants. Categories, pricing & real recommendations.",
     publishDate: "2024-12-26",
     modifiedDate: "2026-01-07",
-    category: "AI Resources",
+    category: "AI Tools",
     tags: ["AI Tools", "ChatGPT", "Midjourney", "Claude", "AI Directory", "2026", "Productivity", "Free AI"],
     image: "/images/blog/ai-tools.png",
     featured: true,
