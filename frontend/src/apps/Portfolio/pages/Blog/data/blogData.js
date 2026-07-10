@@ -1,5 +1,18 @@
 export const blogData = [
   {
+    id: "how-to-build-mcp-server-2026",
+    slug: "how-to-build-mcp-server-2026",
+    title: "How to Build Your First MCP Server in 2026 (Step by Step)",
+    excerpt: "A hands on guide to building a Model Context Protocol server in Python and TypeScript, testing it with the MCP Inspector, and connecting it to Claude, Cursor, and Copilot. No fluff, real code.",
+    category: "AI Tools",
+    author: "Dev Kant Kumar",
+    readTime: "16 min read",
+    publishDate: "2026-07-10",
+    image: "/images/blog/how-to-build-mcp-server-2026.png",
+    featured: true,
+    tags: ["MCP", "Model Context Protocol", "AI Tools", "Claude", "Python", "TypeScript", "AI Agents", "Developer Tools"]
+  },
+  {
     id: "best-ai-coding-tools-2026",
     slug: "best-ai-coding-tools-2026",
     title: "Best AI Coding Tools in 2026: Claude Code vs Cursor vs Copilot",
