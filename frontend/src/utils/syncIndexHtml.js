@@ -36,9 +36,14 @@ export const syncIndexHtml = () => {
     <title>${personalInfo.name} | ${personalInfo.title} Portfolio</title>
     <meta name="description" content="${personalInfo.name} – ${personalInfo.title}. ${professionalSummary.overview.slice(0, 150)}..." />
     <meta name="author" content="${personalInfo.name}" />
-    <meta name="robots" content="index, follow" />
+    <!-- robots is managed per-page by SEOHead.jsx (do NOT hardcode here: a static
+         index,follow overrides noindex on 404 pages and creates duplicate tags) -->
     <meta name="keywords" content="${personalInfo.name}, Full Stack Developer, MERN Stack, React, Node.js, MongoDB, JavaScript, Tailwind CSS, Portfolio, Web Developer, Frontend, Backend" />
-    <link rel="canonical" href="https://www.devkantkumar.com/" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <!-- Canonical URL is set per-page by SEOHead.jsx. Do NOT hardcode one here:
+         a static home canonical ships on every page and conflicts with the correct
+         per-page canonical, causing "Duplicate without user-selected canonical". -->
 
     <!-- Open Graph defaults -->
     <meta property="og:site_name" content="${personalInfo.name} Portfolio" />
@@ -51,6 +56,11 @@ export const syncIndexHtml = () => {
     <!-- Preload Fonts & Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
@@ -72,6 +82,7 @@ export const syncIndexHtml = () => {
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
     <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="#0f172a" />
   </head>
   <body>
     <div id="root"></div>

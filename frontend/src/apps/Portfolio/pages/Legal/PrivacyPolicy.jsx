@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { Calendar, Eye, Globe, Lock, Mail, Shield, Users } from 'lucide-react';
+import { Calendar, Eye, Globe, Lock, Mail, Megaphone, Shield, Users } from 'lucide-react';
 import SEOHead from '../../../../components/SEO/SEOHead';
 import StructuredData from '../../../../components/SEO/StructuredData';
 
 const PrivacyPolicy = () => {
-  const lastUpdated = "October 1, 2025";
+  const lastUpdated = "July 10, 2026";
 
   const sections = [
     {
@@ -61,6 +61,25 @@ const PrivacyPolicy = () => {
         {
           subtitle: "No Sale of Data",
           text: "We do not sell, trade, or rent your personal information to third parties for marketing purposes."
+        }
+      ]
+    },
+    {
+      id: "advertising",
+      title: "Advertising & Google AdSense",
+      icon: Megaphone,
+      content: [
+        {
+          subtitle: "Third-Party Advertising",
+          text: "This website uses Google AdSense, a third-party advertising service provided by Google, to display advertisements. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website and other websites across the internet."
+        },
+        {
+          subtitle: "Advertising Cookies",
+          text: "Google's use of advertising cookies (including the DoubleClick DART cookie) enables it and its partners to serve ads to you based on your visits to this site and/or other sites on the internet. These cookies do not collect personally identifiable information."
+        },
+        {
+          subtitle: "How to Opt Out",
+          text: "You may opt out of personalized advertising by visiting Google Ads Settings at https://adssettings.google.com. You can also opt out of third-party vendors' use of cookies for personalized ads by visiting https://www.aboutads.info. For more details, see Google's Privacy & Terms at https://policies.google.com/technologies/ads."
         }
       ]
     },
