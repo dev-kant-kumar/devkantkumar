@@ -1,5 +1,18 @@
 export const blogData = [
   {
+    id: "best-ai-coding-tools-2026",
+    slug: "best-ai-coding-tools-2026",
+    title: "Best AI Coding Tools in 2026: Claude Code vs Cursor vs Copilot",
+    excerpt: "I paid for the top AI coding tools and used each one on real production work. Here is an honest 2026 comparison of Claude Code, Cursor, and GitHub Copilot, plus which one you should actually pick.",
+    category: "AI Tools",
+    author: "Dev Kant Kumar",
+    readTime: "18 min read",
+    publishDate: "2026-07-10",
+    image: "/images/blog/best-ai-coding-tools-2026.png",
+    featured: true,
+    tags: ["AI Tools", "Claude Code", "Cursor", "GitHub Copilot", "AI Coding", "Developer Tools", "Productivity", "2026"]
+  },
+  {
     id: "react-native-roadmap-2026",
     slug: "react-native-roadmap-2026",
     title: "React Native Job-Ready Roadmap 2026",
