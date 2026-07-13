@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run prerender && npm run generate-sitemap && npm run generate-rss && npm run seo-audit",
+    "build": "vite build && npm run prerender && npm run generate-sitemap && npm run generate-rss && npm run generate-llms && npm run seo-audit",
     "generate-rss": "node src/utils/generateRss.js",
     "generate-sitemap": "node src/scripts/generateSitemap.js",
+    "generate-llms": "node src/scripts/generateLlmsTxt.js",
     "prerender": "node src/utils/prerender.js",
     "seo-audit": "node src/utils/seoAudit.js",
     "lint": "eslint .",

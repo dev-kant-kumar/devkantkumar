@@ -10,6 +10,16 @@
 /admin /404 302
 /admin/* /404 302
 
+# Return REAL 404s for machine/agent probe paths that are not real routes.
+# Without these, the SPA catch-all below served them as 200 + the app shell
+# (soft-404s), which hurts SEO and agent-readiness scans. Cloudflare serves
+# real static assets before these rules, so if a genuine file is ever added
+# at one of these paths it is still served normally.
+# Keep ABOVE the catch-all so they win.
+/.well-known/* /404.html 404
+/openapi.json /404.html 404
+/auth.md /404.html 404
+
 # SPA fallback: serve index.html for any unmatched path so React Router
 # can handle client-side routes on a direct load / hard refresh.
 # MUST stay last — Cloudflare serves real static assets before this rule.

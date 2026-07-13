@@ -1,0 +1,64 @@
+# Dev Kant Kumar
+
+> Full-stack (MERN) developer. This site hosts an in-depth technical blog, a curated directory of 100+ AI tools, free browser-based developer utilities, and a digital-products marketplace. The blog covers React, React Native, JavaScript internals, system design, and AI/agent engineering (MCP, agentic AI).
+
+All pages are pre-rendered to static HTML. Content is original and written by Dev Kant Kumar.
+
+## Blog posts
+
+- [How to Build Your First MCP Server in 2026 (Step by Step)](https://www.devkantkumar.com/blog/how-to-build-mcp-server-2026): A hands on guide to building a Model Context Protocol server in Python and TypeScript, testing it with the MCP Inspector, and connecting it to Claude, Cursor, and Copilot. No fluff, real code.
+- [Best AI Coding Tools in 2026: Claude Code vs Cursor vs Copilot](https://www.devkantkumar.com/blog/best-ai-coding-tools-2026): I paid for the top AI coding tools and used each one on real production work. Here is an honest 2026 comparison of Claude Code, Cursor, and GitHub Copilot, plus which one you should actually pick.
+- [React Native Job-Ready Roadmap 2026](https://www.devkantkumar.com/blog/react-native-roadmap-2026): The complete 14-week interactive roadmap to land high-paying remote React Native roles in 2026. Focuses on the New Architecture, Expo Router v7, and performance optimization.
+- [React JS Complete Guide 2026: Beginner to Master](https://www.devkantkumar.com/blog/react-js-complete-guide-2026): The only React JS guide you need in 2026. Master components, hooks, state management, performance, React 19, and more - with 200+ interview questions and real code examples.
+- [Golpo AI Review 2026: Is This Video Tool Worth It?](https://www.devkantkumar.com/blog/golpo-ai-review-2026): Genuinely impressive whiteboard explainer videos from text prompts. Is Golpo AI worth $39/month? Read our full 2026 review.
+- [Build AI Agents That Work: Complete 2026 Guide](https://www.devkantkumar.com/blog/agentic-ai-guide): Build production-ready AI agents in 2026. Step-by-step tutorials with LangChain, CrewAI & AutoGen. Build autonomous systems today.
+- [Complete yt-dlp Guide 2026: Download Videos from 1800+ Sites](https://www.devkantkumar.com/blog/yt-dlp-ultimate-guide-2026): Master yt-dlp in 2026. Download videos from YouTube, TikTok and 1800+ sites. Fix bot detection errors and speed up downloads with aria2c. 100+ commands.
+- [React Server Components: The Complete 2025 Guide](https://www.devkantkumar.com/blog/react-server-components-2025): Master React Server Components with this guide covering architecture, performance, and production best practices.
+- [Google Anti Gravity: The Future of Agentic Coding](https://www.devkantkumar.com/blog/google-anti-gravity-ai): Discover Google's revolutionary AI code editor that defies the laws of legacy development. Experience pure agentic workflows and deep context mastery.
+- [Mastering .NET Assemblies: Complete Guide to Private & Shared Assemblies](https://www.devkantkumar.com/blog/dotnet-assemblies-complete-guide): A complete guide to understanding .NET assemblies, including private and shared assemblies, side-by-side execution, and GAC management for Visual Studio.
+- [Git Commands Survival Guide: 12 Real Scenarios Every Developer Faces](https://www.devkantkumar.com/blog/git-survival-guide): Stop Googling 'git undo commit' at 2 AM. A scenario-based cheatsheet for fixing wrong branches, merge conflicts, and Git disasters with copy-paste solutions.
+- [Run Llama 3 Locally with Ollama (2025 Guide)](https://www.devkantkumar.com/blog/local-llm-ollama-guide-2025): Run powerful AI models like Llama 3 locally. Total privacy, offline access, and no subscription fees using Ollama.
+- [React Native CLI vs Expo in 2026: The Final Verdict](https://www.devkantkumar.com/blog/react-native-cli-vs-expo-2026): Stop wondering which tool to use. In 2026, the choice between React Native CLI and Expo has changed dramatically. Here is everything you need to know.
+- [React Native vs Flutter in 2026: The Ultimate Comparison Guide](https://www.devkantkumar.com/blog/react-native-vs-flutter-2026): The definitive 2026 comparison between React Native and Flutter. We cover performance benchmarks, developer experience, market trends, and a decision helper.
+- [100+ AI Tools That Replace $10K/Month in Software (2026 Directory)](https://www.devkantkumar.com/blog/ultimate-ai-tools-directory-2026): 100 AI tools for 2026: free ChatGPT alternatives, AI image generators, coding assistants. Categories, pricing & real recommendations.
+- [100+ JavaScript Interview Questions & Answers for 2026](https://www.devkantkumar.com/blog/javascript-interview-questions-2026): The ultimate guide to acing your JavaScript interviews. Covers closures, promises, event loop, hoisting, and modern ES6+ features with real-world examples.
+- [JS Internals 2026: V8, Event Loop & Closures](https://www.devkantkumar.com/blog/javascript-internals-2026): Master the V8 engine, event loop, and closures. The definitive guide to how JavaScript works under the hood with diagrams.
+- [Node.js API Guide 2026: REST, GraphQL & gRPC](https://www.devkantkumar.com/blog/nodejs-api-guide-2026): Complete Node.js API reference. Learn to build REST, GraphQL, gRPC, and WebSocket APIs with production code examples.
+- [Complete System Design Roadmap 2026](https://www.devkantkumar.com/blog/complete-system-design-roadmap-2026): Master system design in 2026. Learn scalability, distributed systems, and FAANG interview preparation with this comprehensive roadmap.
+- [AWeber Review 2026: Best Email Marketing Platform?](https://www.devkantkumar.com/blog/aweber-review-2026): Is AWeber the right email marketing platform for you in 2026? This review covers pricing, features, and how it compares to Mailchimp. Start free today.
+- [75+ Best Affiliate Programs 2026: Earn Up to $2,500/Sale (Real Commission Data)](https://www.devkantkumar.com/blog/best-affiliate-programs-2026): 75+ affiliate programs with verified commissions up to $2,500/sale. Recurring income programs, real cookie durations & payout thresholds.
+- [How to Start a Blog in 2026: Complete Guide to Make $5K+/Month](https://www.devkantkumar.com/blog/how-to-start-a-blog-2026): Start a blog and earn $5K+/month. Step-by-step WordPress setup, hosting deals, and proven monetization strategies.
+
+## Key pages
+
+- [About](https://www.devkantkumar.com/about): About Dev Kant Kumar — background, experience, and stack
+- [Projects](https://www.devkantkumar.com/projects): Portfolio projects with descriptions and links
+- [Skills](https://www.devkantkumar.com/skills): Technical skills and expertise
+- [AI Tools](https://www.devkantkumar.com/ai-tools): Curated directory of 100+ AI tools with filtering
+- [Tools](https://www.devkantkumar.com/tools): Free browser-based developer utilities
+- [Blog](https://www.devkantkumar.com/blog): All articles on web development, React, and AI engineering
+- [Contact](https://www.devkantkumar.com/contact): Contact and hiring information
+
+## Developer tools
+
+- [JSON Formatter](https://www.devkantkumar.com/tools/json-formatter)
+- [Base64 Encoder Decoder](https://www.devkantkumar.com/tools/base64-encoder-decoder)
+- [Password Generator](https://www.devkantkumar.com/tools/password-generator)
+- [Lorem Ipsum Generator](https://www.devkantkumar.com/tools/lorem-ipsum-generator)
+- [Color Palette Generator](https://www.devkantkumar.com/tools/color-palette-generator)
+- [QR Code Generator](https://www.devkantkumar.com/tools/qr-code-generator)
+- [UUID Generator](https://www.devkantkumar.com/tools/uuid-generator)
+- [CSS Gradient Generator](https://www.devkantkumar.com/tools/css-gradient-generator)
+- [Meta Tag Generator](https://www.devkantkumar.com/tools/meta-tag-generator)
+- [Markdown Previewer](https://www.devkantkumar.com/tools/markdown-previewer)
+- [OG Preview](https://www.devkantkumar.com/tools/og-preview)
+- [JWT Decoder](https://www.devkantkumar.com/tools/jwt-decoder)
+- [Hash Generator](https://www.devkantkumar.com/tools/hash-generator)
+- [Timestamp Converter](https://www.devkantkumar.com/tools/timestamp-converter)
+- [URL Encoder Decoder](https://www.devkantkumar.com/tools/url-encoder-decoder)
+
+## Optional
+
+- [RSS feed](https://www.devkantkumar.com/rss.xml): Blog feed
+- [Sitemap](https://www.devkantkumar.com/sitemap.xml): Full URL index
+- [Marketplace](https://www.devkantkumar.com/marketplace): Digital products and services
