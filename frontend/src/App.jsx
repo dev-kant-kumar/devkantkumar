@@ -23,7 +23,7 @@ function App() {
   const MarketPlaceRoutes = React.lazy(
     () => import("./apps/MarketPlace/MarketPlaceRoutes"),
   );
-  const NotFound = React.lazy(() => import("./Pages/NotFound"));
+  const ComingSoon = React.lazy(() => import("./Pages/ComingSoon"));
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -38,10 +38,7 @@ function App() {
           <Suspense fallback={<Loader />}>
             <ErrorBoundary>
               <Routes>
-                <Route path="/__dx9k_ctrl/*" element={<AdminPanelRoutes />} />
-                <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
-                <Route path="/*" element={<PortfolioRoutes />} />
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<ComingSoon />} />
               </Routes>
             </ErrorBoundary>
 
