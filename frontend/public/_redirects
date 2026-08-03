@@ -6,9 +6,9 @@
 # Fix broken resume URL: Google crawled /resume.pdf but actual file is /devkantkumar-resume.pdf
 /resume.pdf /devkantkumar-resume.pdf 301
 
-# Security: redirect /admin paths to /404 (actual panel is elsewhere)
-/admin /404 302
-/admin/* /404 302
+# Security: redirect /admin paths to /404.html (actual panel is elsewhere)
+/admin /404.html 302
+/admin/* /404.html 302
 
 # Return REAL 404s for machine/agent probe paths that are not real routes.
 # Without these, the SPA catch-all below served them as 200 + the app shell
@@ -20,7 +20,7 @@
 /openapi.json /404.html 404
 /auth.md /404.html 404
 
-# SPA fallback: serve index.html for any unmatched path so React Router
+# SPA fallback: serve index.html with FORCED 200 for any unmatched path so React Router
 # can handle client-side routes on a direct load / hard refresh.
 # MUST stay last — Cloudflare serves real static assets before this rule.
-/* /index.html 200
+/* /index.html 200!
