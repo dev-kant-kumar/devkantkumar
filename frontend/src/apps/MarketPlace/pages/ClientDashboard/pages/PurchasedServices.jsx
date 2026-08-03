@@ -35,6 +35,13 @@ const PurchasedServices = () => {
     const orders = Array.isArray(ordersData) ? ordersData : ordersData.orders || [];
 
     orders.forEach(order => {
+      // Only include services from paid or active orders
+      const isPaid =
+        order.payment?.status === 'completed' ||
+        ['confirmed', 'in_progress', 'revising', 'delivered', 'completed'].includes(order.status);
+
+      if (!isPaid) return;
+
       // Find service items in order
       const serviceItems = order.items?.filter(item => item.itemType === 'service') || [];
 

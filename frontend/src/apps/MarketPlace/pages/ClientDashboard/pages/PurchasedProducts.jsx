@@ -22,12 +22,12 @@ const PurchasedProducts = () => {
     const orders = Array.isArray(ordersData) ? ordersData : ordersData.orders || [];
 
     orders.forEach(order => {
-      // Show products from orders where payment is completed or order is processed
-      const validStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'delivered'];
-      const hasValidStatus = validStatuses.includes(order.status);
-      const hasCompletedPayment = order.payment?.status === 'completed';
+      // Only show products from orders where payment is completed or order status is confirmed/completed
+      const isPaid =
+        order.payment?.status === 'completed' ||
+        ['confirmed', 'in_progress', 'revising', 'delivered', 'completed'].includes(order.status);
 
-      if (!hasValidStatus && !hasCompletedPayment) return;
+      if (!isPaid) return;
 
       order.items?.forEach(item => {
         if (item.itemType === 'product') {
