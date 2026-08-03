@@ -179,7 +179,10 @@ const ProductDetail = () => {
       <MarketPlaceSEO
         title={cleanSeoTitle}
         description={cleanSeoDesc}
-        image={product.images?.[0]?.url}
+        image={product.images?.[0]?.url?.replace(
+          '/upload/',
+          '/upload/w_1200,h_630,c_fill,g_auto,f_jpg,q_auto/'
+        )}
         type="product"
         canonical={`https://www.devkantkumar.com/marketplace/products/${product.slug || product._id}`}
         keywords={product.seo?.keywords?.length > 0 ? product.seo.keywords : [
