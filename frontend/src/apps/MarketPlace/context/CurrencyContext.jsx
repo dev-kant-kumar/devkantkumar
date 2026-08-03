@@ -92,14 +92,14 @@ export const CurrencyProvider = ({ children }) => {
 
     /**
      * Calculates the Final Billing Price in INR.
-     * Applies the global surcharge/tax rate.
+     * Applies the global surcharge/tax rate with exact 2-decimal precision (paise).
      * @param {number} basePrice - The base price in INR
      * @returns {number} Final price in INR
      */
     const getFinalPrice = (basePrice) => {
         if (!basePrice || isNaN(basePrice)) return 0;
         const multiplier = 1 + (surchargeRate / 100);
-        return Math.round(basePrice * multiplier);
+        return Math.round(basePrice * multiplier * 100) / 100;
     };
 
     /**
@@ -110,13 +110,14 @@ export const CurrencyProvider = ({ children }) => {
      */
     const getPriceDisplayInfo = (basePrice) => {
         const finalInr = getFinalPrice(basePrice);
+        const hasDecimals = finalInr % 1 !== 0;
 
-        // Formatter for INR
+        // Formatter for INR - show 2 decimal places if paise exist
         const inrFormatter = new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: 'INR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
+            minimumFractionDigits: hasDecimals ? 2 : 0,
+            maximumFractionDigits: 2
         });
 
         const finalInrString = inrFormatter.format(finalInr);
