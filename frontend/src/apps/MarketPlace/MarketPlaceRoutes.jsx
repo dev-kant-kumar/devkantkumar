@@ -68,6 +68,7 @@ const MarketPlaceRoutes = () => {
                 <Route path="products/components" element={<DigitalProducts category="components" />} />
                 <Route path="products/tools" element={<DigitalProducts category="tools" />} />
                 <Route path="products/courses" element={<DigitalProducts category="courses" />} />
+                <Route path="products/notes" element={<DigitalProducts category="notes" />} />
                 <Route path="products/:productId" element={<ProductDetail />} />
                 <Route path="custom-solutions" element={<CustomSolutions />} />
                 <Route path="support" element={<Support />} />

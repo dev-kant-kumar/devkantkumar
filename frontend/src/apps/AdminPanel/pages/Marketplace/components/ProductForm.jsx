@@ -37,6 +37,7 @@ const CATEGORIES = [
   { value: "fonts", label: "Fonts", icon: "🔤" },
   { value: "courses", label: "Courses", icon: "📚" },
   { value: "ebooks", label: "Ebooks", icon: "📖" },
+  { value: "notes", label: "Notes", icon: "📝" },
 ];
 
 const MAX_DESC_CHARS = 5000;

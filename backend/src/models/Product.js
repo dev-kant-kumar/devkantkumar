@@ -50,6 +50,7 @@ const productSchema = new mongoose.Schema(
         "fonts",
         "courses",
         "ebooks",
+        "notes",
       ],
     },
     subcategory: {

@@ -143,6 +143,7 @@ const DigitalProducts = ({ category: propCategory }) => {
     { id: "graphics", name: "Graphics" },
     { id: "fonts", name: "Fonts" },
     { id: "courses", name: "Courses" },
+    { id: "notes", name: "Notes" },
   ];
 
   const priceRanges = [
