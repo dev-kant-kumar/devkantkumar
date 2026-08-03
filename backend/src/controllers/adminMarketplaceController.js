@@ -1862,7 +1862,7 @@ exports.getMarketplaceAnalytics = async (req, res) => {
             as: "product",
           },
         },
-        { $unwind: { path: "$product", preserveNullAndEmpty: true } },
+        { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
         {
           $project: {
             title: 1,
@@ -1908,7 +1908,7 @@ exports.getMarketplaceAnalytics = async (req, res) => {
             as: "service",
           },
         },
-        { $unwind: { path: "$service", preserveNullAndEmpty: true } },
+        { $unwind: { path: "$service", preserveNullAndEmptyArrays: true } },
         {
           $project: {
             title: 1,
