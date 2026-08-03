@@ -38,7 +38,9 @@ function App() {
           <Suspense fallback={<Loader />}>
             <ErrorBoundary>
               <Routes>
-                <Route path="*" element={<ComingSoon />} />
+                <Route path="/marketplace/*" element={<MarketPlaceRoutes />} />
+                <Route path="/__dx9k_ctrl/*" element={<AdminPanelRoutes />} />
+                <Route path="/*" element={<PortfolioRoutes />} />
               </Routes>
             </ErrorBoundary>
 
