@@ -994,6 +994,42 @@ const verifyRazorpayPayment = async (req, res) => {
   }
 };
 
+// Cancel / Fail a pending order (e.g. when user closes payment modal or payment fails)
+const cancelOrder = async (req, res) => {
+  try {
+    const { orderId, reason } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ message: "orderId is required" });
+    }
+
+    const order = await Order.findOne({
+      _id: String(orderId),
+      user: req.user.id,
+      status: "pending",
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "Pending order not found or already processed" });
+    }
+
+    order.status = "cancelled";
+    order.payment.status = "cancelled";
+    order.timeline.push({
+      status: "cancelled",
+      message: reason || "Payment cancelled or abandoned by user",
+      timestamp: new Date(),
+    });
+
+    await order.save();
+    logger.info(`Order ${order._id} cancelled: ${reason || "User cancelled payment"}`);
+
+    res.json({ success: true, message: "Order status updated to cancelled" });
+  } catch (error) {
+    logger.error("Cancel order error:", error);
+    res.status(500).json({ message: "Server error updating order status" });
+  }
+};
+
 // --- DIGITAL DOWNLOADS ---
 /**
  * Download Purchased Item - Industry-grade implementation
@@ -2941,6 +2977,7 @@ module.exports = {
   getOrderById,
   createRazorpayOrder,
   verifyRazorpayPayment,
+  cancelOrder,
   downloadPurchasedItem,
   regenerateDownloadLinks,
   addOrderMessage,

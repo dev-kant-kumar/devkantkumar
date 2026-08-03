@@ -349,9 +349,49 @@ const Checkout = () => {
         theme: {
           color: "#2563EB",
         },
+        modal: {
+          ondismiss: async function () {
+            toast.error("Payment cancelled");
+            try {
+              await fetch(`${API_URL}/marketplace/orders/cancel`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  orderId: orderData.orderId,
+                  reason: "User closed payment modal",
+                }),
+              });
+            } catch (e) {
+              console.warn("Failed to notify server of order cancellation", e);
+            }
+          },
+        },
       };
 
       const paymentObject = new window.Razorpay(options);
+
+      paymentObject.on("payment.failed", async function (response) {
+        toast.error(response.error?.description || "Payment failed");
+        try {
+          await fetch(`${API_URL}/marketplace/orders/cancel`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              orderId: orderData.orderId,
+              reason: response.error?.description || "Payment failed",
+            }),
+          });
+        } catch (e) {
+          console.warn("Failed to notify server of failed payment", e);
+        }
+      });
+
       paymentObject.open();
       dispatch(setIsSubmitting(false)); // Modal opened, stop loader
     } catch (err) {

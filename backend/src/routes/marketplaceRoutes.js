@@ -101,6 +101,10 @@ router.post(
   paymentLimiter,
   marketplaceController.verifyRazorpayPayment,
 );
+router.post(
+  "/orders/cancel",
+  marketplaceController.cancelOrder,
+);
 
 // Download routes
 router.get(
