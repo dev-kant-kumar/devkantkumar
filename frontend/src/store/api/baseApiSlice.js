@@ -26,12 +26,14 @@ const baseQuery = fetchBaseQuery({
     let token;
     const isWindowAdmin =
       typeof window !== "undefined" &&
-      window.location.pathname.startsWith("/admin");
+      (window.location.pathname.startsWith("/admin") ||
+        window.location.pathname.startsWith("/__dx9k_ctrl"));
     const isAdminRequest =
       isWindowAdmin ||
       endpoint?.startsWith("admin") ||
       endpoint?.startsWith("getAdmin") ||
-      endpoint?.includes("Admin");
+      endpoint?.includes("Admin") ||
+      endpoint?.includes("Marketplace");
 
     if (isAdminRequest) {
       token = adminToken || marketplaceToken || portfolioToken;
