@@ -25,9 +25,9 @@ export async function onRequest(context) {
 
   // Build backend API URL for product meta
   const origin = new URL(request.url).origin;
-  const apiBase = origin.includes("localhost")
-    ? "http://localhost:5000"
-    : origin;
+  const apiBase =
+    context.env?.VITE_API_BASE_URL ||
+    (origin.includes("localhost") ? "http://localhost:5000" : origin);
 
   try {
     // 2. Fetch product metadata from backend

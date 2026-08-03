@@ -13,9 +13,9 @@ export async function onRequest(context) {
   }
 
   const origin = new URL(request.url).origin;
-  const apiBase = origin.includes("localhost")
-    ? "http://localhost:5000"
-    : origin;
+  const apiBase =
+    context.env?.VITE_API_BASE_URL ||
+    (origin.includes("localhost") ? "http://localhost:5000" : origin);
 
   try {
     const metaRes = await fetch(`${apiBase}/api/v1/marketplace/services/${slug}/meta`, {
