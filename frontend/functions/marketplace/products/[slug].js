@@ -139,7 +139,27 @@ export async function onRequest(context) {
     return new HTMLRewriter()
       .on("title", {
         element(el) {
-          el.remove(); // Remove default title, edge tag replaces it
+          el.remove(); // Remove default title
+        },
+      })
+      .on('meta[name="description"]', {
+        element(el) {
+          el.remove(); // Remove default meta description to avoid duplicates
+        },
+      })
+      .on('link[rel="canonical"]', {
+        element(el) {
+          el.remove(); // Remove default canonical to avoid duplicates
+        },
+      })
+      .on('meta[property^="og:"]', {
+        element(el) {
+          el.remove(); // Remove default Open Graph tags
+        },
+      })
+      .on('meta[name^="twitter:"]', {
+        element(el) {
+          el.remove(); // Remove default Twitter tags
         },
       })
       .on("head", {

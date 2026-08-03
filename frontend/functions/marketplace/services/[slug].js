@@ -113,6 +113,26 @@ export async function onRequest(context) {
           el.remove();
         },
       })
+      .on('meta[name="description"]', {
+        element(el) {
+          el.remove();
+        },
+      })
+      .on('link[rel="canonical"]', {
+        element(el) {
+          el.remove();
+        },
+      })
+      .on('meta[property^="og:"]', {
+        element(el) {
+          el.remove();
+        },
+      })
+      .on('meta[name^="twitter:"]', {
+        element(el) {
+          el.remove();
+        },
+      })
       .on("head", {
         element(el) {
           el.append(injectedHead, { html: true });

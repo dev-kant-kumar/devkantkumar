@@ -98,6 +98,13 @@ const getServiceById = async (req, res) => {
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
+
+    // Asynchronously increment view count in MongoDB
+    Service.findByIdAndUpdate(service._id, { $inc: { views: 1 } }).exec().catch((err) => {
+      logger.warn(`Failed to increment service views for ${service._id}: ${err.message}`);
+    });
+
+    service.views = (service.views || 0) + 1;
     res.json(service);
   } catch (error) {
     logger.error("Get service by ID error:", error);
@@ -176,6 +183,13 @@ const getProductById = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    // Asynchronously increment view count in MongoDB
+    Product.findByIdAndUpdate(product._id, { $inc: { views: 1 } }).exec().catch((err) => {
+      logger.warn(`Failed to increment product views for ${product._id}: ${err.message}`);
+    });
+
+    product.views = (product.views || 0) + 1;
     res.json(product);
   } catch (error) {
     logger.error("Get product by ID error:", error);
