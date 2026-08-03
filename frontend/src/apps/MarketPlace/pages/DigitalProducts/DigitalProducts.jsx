@@ -35,6 +35,128 @@ import {
 import { selectIsAuthenticated } from "../../store/auth/authSlice";
 import { addToCart } from "../../store/cart/cartSlice";
 
+// Per-category SEO data — each route gets unique meta to avoid duplicate-content penalties
+const CATEGORY_SEO = {
+  all: {
+    title: "React Templates & Digital Products | Marketplace",
+    description:
+      "Download premium React dashboards, Next.js templates, Tailwind CSS UI kits, and MERN boilerplates. One-time payment, instant digital download from ₹999.",
+    keywords: [
+      "buy React template",
+      "Next.js starter template download",
+      "React admin dashboard template",
+      "Tailwind CSS UI kit",
+      "MERN boilerplate",
+      "React component library",
+      "premium website template India",
+    ],
+  },
+  templates: {
+    title: "Premium Website Templates | React, Next.js & HTML",
+    description:
+      "Buy production-ready website templates built with React, Next.js, and Tailwind CSS. Instantly downloadable, fully customizable. Starting from ₹999.",
+    keywords: [
+      "website templates download",
+      "React website template",
+      "Next.js template buy",
+      "HTML CSS template",
+      "landing page template India",
+      "portfolio template React",
+      "Tailwind CSS template",
+    ],
+  },
+  themes: {
+    title: "Premium UI Themes | Dark & Light Design Systems",
+    description:
+      "Explore professional dark and light UI themes for React and Next.js apps. Beautiful design systems with instant download and free updates.",
+    keywords: [
+      "React UI theme",
+      "dark mode theme",
+      "Next.js theme download",
+      "design system template",
+      "UI theme India",
+      "Tailwind dark theme",
+    ],
+  },
+  plugins: {
+    title: "React Plugins & Extensions | Ready-to-Use Components",
+    description:
+      "Drop-in React plugins for auth, payments, charts, tables, and more. Save weeks of development time with our battle-tested code packages.",
+    keywords: [
+      "React plugin",
+      "React extension",
+      "React component library buy",
+      "auth plugin React",
+      "payment plugin React India",
+      "chart component React",
+    ],
+  },
+  graphics: {
+    title: "Digital Graphics & Design Assets | SVG, Icons & Illustrations",
+    description:
+      "Download premium SVG illustrations, icon sets, and UI graphics for your web projects. Commercial license included. Instant delivery.",
+    keywords: [
+      "buy SVG illustration",
+      "icon set download",
+      "UI graphics assets",
+      "web design assets India",
+      "React icon library",
+      "digital graphics download",
+    ],
+  },
+  fonts: {
+    title: "Premium Web Fonts & Typography Kits",
+    description:
+      "Download premium web font bundles and typography kits optimized for React and Next.js. Commercial-use license included.",
+    keywords: [
+      "web font download",
+      "typography kit",
+      "premium font commercial license",
+      "Google Fonts alternative",
+      "web typography India",
+    ],
+  },
+  courses: {
+    title: "Web Development Courses | React, MERN & Full Stack",
+    description:
+      "Learn React, Node.js, MongoDB, and full-stack web development with practical, project-based online courses. One-time purchase, lifetime access.",
+    keywords: [
+      "React course India",
+      "MERN stack course",
+      "full stack course buy",
+      "Node.js tutorial",
+      "web development course online",
+      "JavaScript course India",
+    ],
+  },
+  notes: {
+    title: "Study Notes & Developer Reference Guides | Buy & Download",
+    description:
+      "Download concise, well-structured study notes and developer reference guides for React, JavaScript, DSA, system design, and more. One-time buy, instant access.",
+    keywords: [
+      "developer notes download",
+      "React notes PDF",
+      "JavaScript cheat sheet",
+      "DSA notes India",
+      "system design notes",
+      "programming notes buy",
+      "coding study material",
+    ],
+  },
+  ebooks: {
+    title: "Programming eBooks | React, JavaScript & Web Dev",
+    description:
+      "Buy premium programming eBooks on React, JavaScript, Node.js, and web development. Deep-dive guides written by experienced developers.",
+    keywords: [
+      "programming ebook buy",
+      "React ebook download",
+      "JavaScript ebook India",
+      "web development book PDF",
+      "Node.js ebook",
+    ],
+  },
+};
+
 const DigitalProducts = ({ category: propCategory }) => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -195,28 +317,31 @@ const DigitalProducts = ({ category: propCategory }) => {
   // Get featured product (first one)
   const featuredProduct = products[0];
 
+  // Resolve SEO config — fall back to "all" if no matching category entry
+  const catKey = propCategory && CATEGORY_SEO[propCategory] ? propCategory : "all";
+  const catSEO = CATEGORY_SEO[catKey];
+  const canonicalBase = "https://www.devkantkumar.com/marketplace/products";
+  const canonicalUrl =
+    catKey === "all" ? canonicalBase : `${canonicalBase}/${catKey}`;
+  const listName =
+    catKey === "all"
+      ? "Digital Products - Dev Kant Kumar Marketplace"
+      : `${catSEO.title} - Dev Kant Kumar Marketplace`;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <MarketPlaceSEO
-        title="React Templates & Digital Products | Marketplace"
-        description="Download premium React dashboards, Next.js templates, Tailwind CSS UI kits, and MERN boilerplates. One-time payment, instant download from ₹999."
-        keywords={[
-          "buy React template",
-          "Next.js starter template download",
-          "React admin dashboard template",
-          "Tailwind CSS UI kit",
-          "MERN boilerplate",
-          "React component library",
-          "premium website template India",
-        ]}
-        url="https://www.devkantkumar.com/marketplace/products"
-        canonical="https://www.devkantkumar.com/marketplace/products"
+        title={catSEO.title}
+        description={catSEO.description}
+        keywords={catSEO.keywords}
+        url={canonicalUrl}
+        canonical={canonicalUrl}
         type="website"
       />
       <ItemListSchema
         items={products.map((p) => ({ ...p, type: "product" }))}
-        listName="React Templates & Digital Products - Dev Kant Kumar Marketplace"
-        listUrl="https://www.devkantkumar.com/marketplace/products"
+        listName={listName}
+        listUrl={canonicalUrl}
       />
       {/* Featured Product Hero Section */}
       <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white overflow-hidden relative">

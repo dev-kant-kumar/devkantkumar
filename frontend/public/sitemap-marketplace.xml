@@ -9,28 +9,102 @@
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/products</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/services</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/custom-solutions</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ============================================ -->
+  <!-- PRODUCT CATEGORY PAGES -->
+  <!-- ============================================ -->
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/templates</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/components</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/themes</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/plugins</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/graphics</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/fonts</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/courses</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/notes</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/ebooks</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/products/tools</loc>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -41,22 +115,43 @@
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/support</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/contact</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/faq</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/tutorials</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/kb</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.devkantkumar.com/marketplace/community</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
@@ -66,42 +161,35 @@
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/terms</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/privacy</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/refunds</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://www.devkantkumar.com/marketplace/license</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-08-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- ============================================ -->
-  <!-- PRODUCT PAGES (0 products) -->
-  <!-- Auto-generated by generateMarketplaceSitemap.js on 2026-05-31 -->
+  <!-- PRODUCT PAGES (dynamic — regenerated at build time) -->
+  <!-- Run: npm run generate-sitemap to populate individual product URLs -->
   <!-- ============================================ -->
-
-
-  <!-- ============================================ -->
-  <!-- SERVICE PAGES (0 services) -->
-  <!-- Auto-generated by generateMarketplaceSitemap.js on 2026-05-31 -->
-  <!-- ============================================ -->
-
 
 </urlset>

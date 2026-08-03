@@ -248,7 +248,7 @@ const ProductDetail = () => {
                     >
                       <img
                         src={img.url}
-                        alt=""
+                        alt={`${product.title} — preview image ${idx + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </button>

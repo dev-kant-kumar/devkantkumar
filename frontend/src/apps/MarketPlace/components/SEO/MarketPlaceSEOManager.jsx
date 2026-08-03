@@ -18,10 +18,56 @@ const routeSeoMap = {
     description:
       "Save hundreds of hours with our premium web templates, UI components, and software solutions.",
   },
-  "/marketplace/products/templates": { title: "Website Templates" },
-  "/marketplace/products/components": { title: "UI Components" },
-  "/marketplace/products/tools": { title: "Developer Tools" },
-  "/marketplace/products/courses": { title: "Educational Courses" },
+  "/marketplace/products/templates": {
+    title: "Premium Website Templates | React, Next.js & HTML",
+    description:
+      "Buy production-ready website templates built with React, Next.js, and Tailwind CSS. Instantly downloadable, fully customizable. Starting from ₹999.",
+  },
+  "/marketplace/products/components": {
+    title: "React UI Components & Libraries | Ready-to-Use",
+    description:
+      "Drop-in React UI components, design systems, and component libraries. Save development time with production-ready code.",
+  },
+  "/marketplace/products/tools": {
+    title: "Developer Tools & Utilities | Productivity Boosters",
+    description:
+      "Premium developer tools, CLI utilities, and productivity scripts to speed up your workflow. Instant download.",
+  },
+  "/marketplace/products/courses": {
+    title: "Web Development Courses | React, MERN & Full Stack",
+    description:
+      "Learn React, Node.js, MongoDB, and full-stack web development with project-based online courses. One-time purchase, lifetime access.",
+  },
+  "/marketplace/products/notes": {
+    title: "Study Notes & Developer Reference Guides | Buy & Download",
+    description:
+      "Download concise, well-structured study notes and developer reference guides for React, JavaScript, DSA, system design, and more. Instant access.",
+  },
+  "/marketplace/products/ebooks": {
+    title: "Programming eBooks | React, JavaScript & Web Dev",
+    description:
+      "Buy premium programming eBooks on React, JavaScript, Node.js, and web development. Deep-dive guides written by experienced developers.",
+  },
+  "/marketplace/products/themes": {
+    title: "Premium UI Themes | Dark & Light Design Systems",
+    description:
+      "Professional dark and light UI themes for React and Next.js. Beautiful design systems with instant download and free updates.",
+  },
+  "/marketplace/products/plugins": {
+    title: "React Plugins & Extensions | Ready-to-Use Code Packages",
+    description:
+      "Drop-in React plugins for auth, payments, charts, and tables. Save weeks of development with our battle-tested packages.",
+  },
+  "/marketplace/products/graphics": {
+    title: "Digital Graphics & Design Assets | SVG & Illustrations",
+    description:
+      "Download premium SVG illustrations, icon sets, and UI graphics for your web projects. Commercial license included.",
+  },
+  "/marketplace/products/fonts": {
+    title: "Premium Web Fonts & Typography Kits",
+    description:
+      "Download premium web font bundles and typography kits optimized for React and Next.js. Commercial-use license included.",
+  },
   "/marketplace/custom-solutions": {
     title: "Request Custom Solutions",
     description:

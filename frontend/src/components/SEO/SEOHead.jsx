@@ -142,6 +142,9 @@ const SEOHead = ({
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDescription} />
       <meta property="og:image" content={pageImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:type" content="image/jpeg" />
       <meta property="og:site_name" content="Dev Kant Kumar Marketplace" />
       <meta property="og:locale" content="en_US" />
 
