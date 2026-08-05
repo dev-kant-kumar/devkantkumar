@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Download, Lock, RefreshCw, Shield } from 'lucide-react';
+import { CreditCard, Download, Lock, RefreshCw, Rocket, Search, Shield } from 'lucide-react';
 
 /**
  * TrustSignals Component - Displays trust badges and security information
@@ -133,19 +133,19 @@ export const HowItWorks = () => {
       step: '01',
       title: 'Browse & Select',
       description: 'Find the perfect digital product or service for your project',
-      icon: '🔍'
+      icon: Search
     },
     {
       step: '02',
       title: 'Secure Checkout',
       description: 'Pay securely with Razorpay - cards, UPI, netbanking supported',
-      icon: '💳'
+      icon: CreditCard
     },
     {
       step: '03',
       title: 'Instant Access',
       description: 'Download your files immediately or start your service',
-      icon: '🚀'
+      icon: Rocket
     }
   ];
 
@@ -176,13 +176,15 @@ export const HowItWorks = () => {
             >
               {/* Connector line */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-blue-200 to-transparent" />
+                <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-emerald-200 to-transparent" />
               )}
 
               {/* Step number bubble */}
               <div className="relative inline-block mb-6">
-                <div className="text-4xl mb-2">{step.icon}</div>
-                <span className="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 text-white text-sm font-bold rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+                  <step.icon className="h-7 w-7 text-emerald-600" />
+                </div>
+                <span className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-600 text-white text-sm font-bold rounded-full flex items-center justify-center shadow-xs">
                   {step.step}
                 </span>
               </div>

@@ -126,63 +126,40 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-          <p className="text-gray-600 mt-2">
-            {cartItems.length} items in your cart
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-slate-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-8">Shopping Cart</h1>
 
-        {cartItems.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
+          </div>
+        ) : cartItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16 bg-white rounded-2xl shadow-sm p-10"
+            className="bg-white rounded-3xl p-12 shadow-xs border border-slate-200/80 text-center max-w-xl mx-auto"
           >
-            {/* Animated Shopping Bag */}
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200 }}
-              className="relative mb-8 inline-block"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-2xl opacity-20 scale-150"></div>
-              <div className="relative w-28 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-auto">
-                <ShoppingBag className="h-14 w-14 text-white" strokeWidth={1.5} />
-              </div>
-              <motion.div
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-gray-900"
-              >
-                0
-              </motion.div>
-            </motion.div>
+            <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shadow-xs mx-auto mb-6">
+              <ShoppingBag className="h-10 w-10" />
+            </div>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              Your cart is empty
-            </h2>
-            <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-              Looks like you haven't added anything to your cart yet. Start exploring our products and services!
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Your cart is empty</h2>
+            <p className="text-slate-600 text-sm mb-8 max-w-md mx-auto leading-relaxed">
+              Explore our marketplace for premium website templates, BCA/MCA study notes, and developer services.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 to="/marketplace/products"
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 inline-flex items-center justify-center"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-500/20 hover:from-emerald-600 hover:to-green-700 transition-all inline-flex items-center justify-center"
               >
                 Browse Products
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
               <Link
                 to="/marketplace/services"
-                className="px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all duration-300"
+                className="px-6 py-3 bg-white border border-gray-300 text-slate-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all"
               >
                 Explore Services
               </Link>
@@ -192,7 +169,7 @@ const Cart = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-md">
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
                 {cartItems.map((item, index) => {
                   const displayItem = item.product || item.service;
 
@@ -316,39 +293,36 @@ const Cart = () => {
                   );
                 })}
               </div>
-            </div>
-
-            {/* Order Summary */}
+            </div>            {/* Order Summary */}
             <div className="lg:col-span-1">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-white rounded-lg shadow-md p-6 sticky top-24"
+                className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sticky top-24"
               >
-                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                <h2 className="text-xl font-extrabold text-slate-900 mb-6">
                   Order Summary
                 </h2>
 
-                <div className="space-y-4 mb-6">
-
+                <div className="space-y-3.5 mb-6 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-slate-600">Subtotal</span>
+                    <span className="font-semibold text-slate-900">
                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Surcharge ({surchargeRate}%)</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-slate-600">Surcharge ({surchargeRate}%)</span>
+                    <span className="font-semibold text-slate-900">
                        {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(surchargeAmount)}
                     </span>
                   </div>
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-lg font-bold text-gray-900">
+                  <div className="border-t border-slate-100 pt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-base font-bold text-slate-900">
                         Total
                       </span>
-                      <span className="text-lg font-bold text-blue-600">
+                      <span className="text-2xl font-extrabold text-emerald-600">
                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total)}
                       </span>
                     </div>
@@ -357,7 +331,7 @@ const Cart = () => {
 
                 <Link
                   to="/marketplace/checkout"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center mb-4 shadow-lg shadow-blue-200"
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center mb-3 cursor-pointer"
                 >
                   Proceed to Checkout
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -365,7 +339,7 @@ const Cart = () => {
 
                 <Link
                   to="/marketplace/products"
-                  className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center"
+                  className="w-full border border-gray-200 text-slate-700 py-3 px-4 rounded-xl font-semibold text-xs hover:bg-gray-50 transition-colors flex items-center justify-center"
                 >
                   Continue Shopping
                 </Link>

@@ -194,8 +194,8 @@ const Header = () => {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg"
-          : "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
+          ? "bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-xl shadow-black/40"
+          : "bg-slate-950 border-b border-slate-800/60"
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -208,12 +208,12 @@ const Header = () => {
               transition={{ duration: 0.2 }}
             >
               <div className="text-2xl font-bold">
-                <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
                   Market
                 </span>
-                <span className="text-gray-900 dark:text-white ml-1">Place</span>
+                <span className="text-white ml-1">Place</span>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider group-hover:text-green-500 transition-colors duration-300">
+              <div className="text-xs text-gray-400 uppercase tracking-wider group-hover:text-emerald-400 transition-colors duration-300">
                 Digital Services & Products
               </div>
             </motion.div>
@@ -232,19 +232,19 @@ const Header = () => {
                   to={item.path}
                   className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg group ${
                     isActive(item.path)
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      ? "text-emerald-400 font-semibold"
+                      : "text-gray-300 hover:text-white"
                   }`}
                 >
                   <span className="relative z-10">{item.name}</span>
                   {isActive(item.path) && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30"
+                      className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-lg border border-emerald-500/30 shadow-xs shadow-emerald-500/10"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
               </motion.div>
             ))}
@@ -256,10 +256,10 @@ const Header = () => {
 
 
 
-            {/* Search Button - Opens modal */}
+            {/* Search Button */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              className="p-2 text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
               title="Search (⌘K)"
             >
               <Search size={20} />
@@ -268,11 +268,11 @@ const Header = () => {
             {/* Cart */}
             <Link
               to="/marketplace/cart"
-              className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+              className="relative p-2 text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
             >
               <ShoppingCart size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-xs">
                   {cartCount}
                 </span>
               )}
@@ -285,7 +285,7 @@ const Header = () => {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center space-x-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
                 >
-                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
+                  <div className="h-8 w-8 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center justify-center">
                     {(user?.firstName || user?.name || 'U').charAt(0).toUpperCase()}
                   </div>
                 </button>
@@ -344,16 +344,16 @@ const Header = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <Link
                   to="/marketplace/auth/signin"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/marketplace/auth/signup"
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-sm"
+                  className="px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 rounded-xl transition-all shadow-md shadow-emerald-500/20 active:scale-95"
                 >
                   Sign Up
                 </Link>

@@ -17,7 +17,13 @@ import {
  * @param {string} type     - 'product' | 'service'
  * @param {string} className - Extra Tailwind classes for positioning
  */
-const WishlistButton = ({ itemId, type = 'product', className = '' }) => {
+const WishlistButton = ({
+  itemId,
+  type = 'product',
+  className = '',
+  showText = false,
+  text,
+}) => {
   const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
@@ -63,18 +69,27 @@ const WishlistButton = ({ itemId, type = 'product', className = '' }) => {
     }
   };
 
+  const defaultClass = showText
+    ? 'py-3.5 px-4 bg-white border-2 border-gray-200 hover:border-red-500 text-gray-700 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer'
+    : 'flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border border-gray-200 hover:border-red-300 transition-all cursor-pointer';
+
   return (
     <button
       onClick={handleToggle}
       disabled={isLoading}
       title={isSaved ? 'Remove from wishlist' : 'Save to wishlist'}
-      className={`flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm border border-gray-200 hover:border-red-300 transition-all cursor-pointer disabled:opacity-50 ${className}`}
+      className={`${defaultClass} ${className}`}
     >
       <Heart
         className={`h-5 w-5 transition-colors ${
-          isSaved ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'
+          isSaved ? 'fill-red-500 text-red-500' : 'text-gray-500 hover:text-red-500'
         }`}
       />
+      {showText && (
+        <span className={isSaved ? 'text-red-500' : 'text-gray-700'}>
+          {text || (isSaved ? 'Saved to Wishlist' : 'Add to Wishlist')}
+        </span>
+      )}
     </button>
   );
 };

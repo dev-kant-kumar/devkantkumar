@@ -222,7 +222,9 @@ const CustomSolutions = () => {
         }}
       />
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white py-20 relative overflow-hidden">
+      <section className="bg-slate-950 text-white py-20 relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
@@ -231,20 +233,20 @@ const CustomSolutions = () => {
             transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-800/50 text-blue-200 text-sm font-bold mb-6 border border-blue-700">
-              <FaRocket className="mr-2" /> ENTERPRISE GRADE SOLUTIONS
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-sm font-bold mb-6 border border-emerald-400/30 shadow-lg shadow-emerald-500/10">
+              <FaRocket className="mr-2 text-yellow-400" /> ENTERPRISE GRADE SOLUTIONS
             </div>
             <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
               Custom Software
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400">
                 Built for Scale
               </span>
             </h1>
-            <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-blue-100 leading-relaxed">
+            <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-gray-300 leading-relaxed">
               Transform your business with tailored software solutions designed specifically for your unique challenges and goals.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button onClick={() => document.getElementById('quote-form').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-500/30">
+              <button onClick={() => document.getElementById('quote-form').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-emerald-500/30 cursor-pointer">
                 Get a Free Quote
               </button>
               <button className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-lg transition-all backdrop-blur-sm border border-white/10">

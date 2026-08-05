@@ -3,14 +3,18 @@ import {
   ArrowLeft,
   Calendar,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
+  Maximize2,
   RefreshCw,
   Share2,
   ShoppingCart,
   Star,
   User,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
@@ -39,6 +43,9 @@ const ServiceDetail = () => {
   const dispatch = useDispatch();
   const [selectedPackage, setSelectedPackage] = useState(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
 
   // Fetch real service data
   const {
@@ -52,6 +59,18 @@ const ServiceDetail = () => {
   });
 
   const service = serviceData?.service || serviceData;
+
+  // Auto-scroll service images when not interacted with
+  useEffect(() => {
+    const imageCount = service?.images?.length || 0;
+    if (!isAutoScrolling || isLightboxOpen || imageCount <= 1) return;
+
+    const timer = setInterval(() => {
+      setSelectedImageIndex((prev) => (prev + 1) % imageCount);
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [isAutoScrolling, isLightboxOpen, service?.images?.length]);
 
   // Handle add to cart
   // Handle add to cart
@@ -249,15 +268,143 @@ const ServiceDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Gallery Section */}
-            <div className="bg-white rounded-lg p-2 shadow-sm border border-gray-200 overflow-hidden mb-8">
-              <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+            <div
+              className="bg-white rounded-lg p-2 shadow-sm border border-gray-200 overflow-hidden mb-8"
+              onMouseEnter={() => setIsAutoScrolling(false)}
+              onMouseLeave={() => setIsAutoScrolling(true)}
+            >
+              <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 relative group">
                 <img
-                  src={service.images?.[0]?.url || "/api/placeholder/800/400"}
+                  src={
+                    service.images?.[selectedImageIndex]?.url ||
+                    service.images?.[0]?.url ||
+                    "/api/placeholder/800/400"
+                  }
                   alt={service.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover cursor-pointer hover:scale-[1.01] transition-all duration-300"
+                  onClick={() => setIsLightboxOpen(true)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsLightboxOpen(true)}
+                  className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white p-2 rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-1 text-xs font-medium"
+                  title="View full screen"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </button>
+                {service.images?.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImageIndex((prev) =>
+                          prev === 0 ? service.images.length - 1 : prev - 1
+                        );
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImageIndex((prev) =>
+                          prev === service.images.length - 1 ? 0 : prev + 1
+                        );
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
               </div>
+
+              {service.images?.length > 1 && (
+                <div className="flex gap-2 mt-2 px-2 pb-2 overflow-x-auto">
+                  {service.images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedImageIndex(idx)}
+                      className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
+                        selectedImageIndex === idx
+                          ? "border-blue-600 ring-2 ring-blue-600/30 shadow-sm"
+                          : "border-gray-200 hover:border-blue-400 opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${service.title} — preview image ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Lightbox Modal */}
+            {isLightboxOpen && (
+              <div
+                className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+                onClick={() => setIsLightboxOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                <div
+                  className="relative max-w-5xl max-h-[90vh] flex items-center justify-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <img
+                    src={
+                      service.images?.[selectedImageIndex]?.url ||
+                      service.images?.[0]?.url
+                    }
+                    alt={service.title}
+                    className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                  />
+                  {service.images?.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectedImageIndex((prev) =>
+                            prev === 0 ? service.images.length - 1 : prev - 1
+                          )
+                        }
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-3 rounded-full backdrop-blur-sm cursor-pointer"
+                        aria-label="Previous image"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSelectedImageIndex((prev) =>
+                            prev === service.images.length - 1 ? 0 : prev + 1
+                          )
+                        }
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-3 rounded-full backdrop-blur-sm cursor-pointer"
+                        aria-label="Next image"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Service Info */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:p-8 mb-8">

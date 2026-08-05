@@ -20,7 +20,7 @@ const MarketPlaceLayout = () => {
       <MarketPlaceSEOManager />
       {/* SEO: Organization Schema for Google rich results */}
       <OrganizationSchema />
-      <div className="relative min-h-screen bg-white dark:bg-gray-900">
+      <div className="relative min-h-screen bg-slate-950 text-slate-900">
         {/* Performance Monitor (Development Only) */}
         {isDevelopment && <PerformanceMonitor showStats={false} />}
 

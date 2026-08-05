@@ -84,9 +84,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-slate-950 text-white border-t border-slate-800">
       {/* Trust Badges */}
-      <div className="border-b border-gray-800">
+      <div className="border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {trustBadges.map((badge, index) => (
@@ -98,10 +98,10 @@ const Footer = () => {
                 className="flex items-center space-x-3 text-center md:text-left"
               >
                 <div className="flex-shrink-0">
-                  <badge.icon className="h-8 w-8 text-green-400" />
+                  <badge.icon className="h-7 w-7 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-300">
+                  <p className="text-sm font-semibold text-gray-200">
                     {badge.text}
                   </p>
                 </div>
@@ -126,7 +126,7 @@ const Footer = () => {
                 className="flex items-center space-x-2 mb-4"
               >
                 <div className="text-2xl font-bold">
-                  <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
                     Market
                   </span>
                   <span className="text-white ml-1">Place</span>
@@ -170,7 +170,7 @@ const Footer = () => {
                   <li key={link.name}>
                     <Link
                       to={link.path}
-                      className="text-gray-400 hover:text-green-400 transition-colors duration-200 text-sm"
+                      className="text-gray-400 hover:text-emerald-400 transition-colors duration-200 text-sm font-medium"
                     >
                       {link.name}
                     </Link>
@@ -183,7 +183,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Footer */}
-      <div className="border-t border-gray-800">
+      <div className="border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
@@ -209,7 +209,7 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-green-400 transition-colors duration-200"
+                  className="text-gray-400 hover:text-emerald-400 transition-colors duration-200"
                   aria-label={social.label}
                 >
                   <social.icon className="h-5 w-5" />
@@ -226,7 +226,7 @@ const Footer = () => {
             >
               <Link
                 to="/"
-                className="text-gray-400 hover:text-green-400 transition-colors duration-200"
+                className="text-gray-400 hover:text-emerald-400 transition-colors duration-200"
               >
                 Portfolio
               </Link>

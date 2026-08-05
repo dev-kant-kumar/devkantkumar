@@ -5,22 +5,28 @@ import {
   CheckCircle,
   Clock,
   Code,
+  CreditCard,
   Database,
   Globe,
   Loader2,
+  Mail,
   Palette,
+  Rocket,
   Search,
   Shield,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   Star,
   User,
+  Wrench,
+  X,
   Zap,
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import FormattedText from "../../../../components/FormattedText";
 import { ItemListSchema } from "../../../../components/SEO/SchemaMarkup";
 import PriceDisplay from "../../../../components/common/PriceDisplay";
@@ -39,13 +45,14 @@ import web from "./Assets/Images/Products/web_development.png";
 
 const Services = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Debounce search
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
     }, 300);
@@ -102,18 +109,28 @@ const Services = () => {
     toast.success("Added to cart!");
   };
 
+  const handleBookNow = (service) => {
+    handleAddToCart(service);
+    navigate("/marketplace/checkout");
+  };
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+    setPriceRange("all");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <MarketPlaceSEO
-        title="Web Development Services | Marketplace"
-        description="Hire an expert full-stack developer for React apps, Node.js APIs, MERN stack development, SaaS MVPs, and more. Professional packages starting from ₹4,999."
+        title="Web Development & Full-Stack Services | Marketplace"
+        description="Hire an expert full-stack developer for React apps, Node.js APIs, MERN stack development, SaaS MVPs, and custom web solutions."
         keywords={[
           "hire React developer",
           "web development services India",
           "Node.js developer for hire",
           "MERN stack development service",
           "SaaS MVP development",
-          "API development service",
           "custom web app development",
         ]}
         url="https://www.devkantkumar.com/marketplace/services"
@@ -125,381 +142,276 @@ const Services = () => {
         listName="Web Development Services - Dev Kant Kumar Marketplace"
         listUrl="https://www.devkantkumar.com/marketplace/services"
       />
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white overflow-hidden relative">
+
+      {/* ───────────────────────── 1. Ultra-Modern Hero Section ───────────────────────── */}
+      <section className="relative bg-slate-950 text-white overflow-hidden pt-12 pb-20 lg:pt-16 lg:pb-28">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-10">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-800/50 text-blue-200 text-sm font-bold mb-6 border border-blue-700">
-                <Award className="mr-2 h-4 w-4" /> PREMIUM DEVELOPMENT SERVICES
-              </div>
-              <h1 className="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">
-                Expert Solutions for <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                  Digital Growth
+              <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-semibold mb-6 shadow-lg shadow-emerald-500/10">
+                <Sparkles className="h-4 w-4 text-yellow-400" />
+                Verified Pro Full-Stack Developer Services
+              </span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+                Expert Development & <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400">
+                  Custom Software Solutions
                 </span>
               </h1>
-              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                From custom web applications to enterprise solutions. Hire top
-                talent to build your next project.
+              <p className="text-base sm:text-lg text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+                From full-stack web applications to API integrations & SaaS MVPs. Work directly with a senior full-stack developer to launch your project.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("services-grid")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-lg transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center"
-                >
-                  Explore Services
-                </button>
-                <Link
-                  to="/marketplace/custom-solutions"
-                  className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold text-lg transition-all backdrop-blur-sm flex items-center justify-center border border-white/10"
-                >
-                  Custom Quote
-                </Link>
-              </div>
-              <div className="mt-8 flex items-center text-sm text-gray-400 space-x-6">
-                <div className="flex items-center">
-                  <CheckCircle className="text-green-400 mr-2 h-5 w-5" />{" "}
-                  {services.length}+ Services
-                </div>
-                <div className="flex items-center">
-                  <Star className="text-yellow-400 mr-2 h-5 w-5" /> 4.9/5 Rating
-                </div>
-              </div>
             </motion.div>
+
+            {/* Live Search Input */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative hidden lg:block"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="max-w-2xl mx-auto relative shadow-2xl rounded-2xl"
             >
-              <div className="absolute -inset-4 bg-blue-500/30 rounded-full blur-3xl"></div>
-              <div className="relative grid grid-cols-2 gap-4">
-                <img
-                  src={web}
-                  alt="Web Development"
-                  className="rounded-2xl shadow-2xl border border-white/10 transform translate-y-8"
+              <div className="relative flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-500/20 transition-all">
+                <Search className="h-5 w-5 text-gray-300 ml-4 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search services (e.g. MERN, React, Mobile Apps, Consulting)..."
+                  className="w-full py-4 pl-3 pr-10 text-white placeholder-gray-400 bg-transparent focus:outline-none text-base"
                 />
-                <img
-                  src={mobile}
-                  alt="Mobile Development"
-                  className="rounded-2xl shadow-2xl border border-white/10 transform -translate-y-8"
-                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="mr-3 text-gray-400 hover:text-white p-1 rounded-full cursor-pointer"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>
-        </div>
-      </div>
 
-      {/* Trust Signals */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-sm font-medium text-gray-500">
-            <div className="flex items-center">
-              <CheckCircle className="text-green-500 mr-2 text-lg" />
-              <span>Verified Pro Sellers</span>
+          {/* Category Chips Bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-wrap items-center justify-center gap-2.5 max-w-4xl mx-auto"
+          >
+            {categories.map((cat) => {
+              const IconComponent = cat.icon;
+              const isSelected = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 scale-105"
+                      : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white border border-white/10"
+                  }`}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Trust Badges Strip */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-sm font-medium text-gray-600">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="text-emerald-500 h-5 w-5" />
+              <span>Verified Senior Developer</span>
             </div>
-            <div className="flex items-center">
-              <ShieldCheck className="text-blue-500 mr-2 text-lg" />
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="text-emerald-600 h-5 w-5" />
               <span>100% Satisfaction Guarantee</span>
             </div>
-            <div className="flex items-center">
-              <Zap className="text-yellow-500 mr-2 text-lg" />
-              <span>Fast Turnaround Time</span>
+            <div className="flex items-center gap-2">
+              <Zap className="text-amber-500 h-5 w-5" />
+              <span>Fast 7-Day Turnaround</span>
             </div>
           </div>
         </div>
       </div>
 
-      <WhyChooseUs />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <div className="lg:w-1/4">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Filters
-              </h3>
-
-              {/* Search */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search Services
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400 transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Categories */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
-                </label>
-                <div className="space-y-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full flex items-center px-3 py-2 rounded-lg text-left transition-colors ${
-                        selectedCategory === category.id
-                          ? "bg-blue-100 text-blue-700"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <category.icon className="h-4 w-4 mr-2" />
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price Range
-                </label>
-                <MarketplaceDropdown
-                  value={priceRange}
-                  onChange={setPriceRange}
-                  options={[
-                    { value: "all", label: "All Prices" },
-                    { value: "low", label: "Under $1,000" },
-                    { value: "medium", label: "$1,000 - $2,000" },
-                    { value: "high", label: "$2,000+" },
-                  ]}
-                  placeholder="All Prices"
-                  className="w-full"
-                />
-              </div>
+      {/* ───────────────────────── 2. Services Grid Section ───────────────────────── */}
+      <section className="bg-slate-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Developer Services</h2>
+              <p className="text-sm font-medium text-slate-600 mt-1">Showing {services.length} active service packages</p>
             </div>
+          {(selectedCategory !== "all" || debouncedSearch) && (
+            <button
+              onClick={resetFilters}
+              className="text-xs font-semibold text-emerald-600 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <X className="h-3 w-3" /> Clear filters
+            </button>
+          )}
+        </div>
+
+        {isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 shadow-xs border border-gray-200 animate-pulse space-y-4">
+                <div className="h-48 bg-gray-200 rounded-xl"></div>
+                <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-10 bg-gray-200 rounded-xl"></div>
+              </div>
+            ))}
           </div>
+        )}
 
-          {/* Services Grid */}
-          <div id="services-grid" className="lg:w-3/4">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600">{services.length} services found</p>
-            </div>
+        {error && (
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+            <div className="text-red-500 text-5xl mb-4">⚠️</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Failed to load services</h3>
+            <p className="text-gray-500">Please try refreshing or check back later.</p>
+          </div>
+        )}
 
-            {isLoading && (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-              </div>
-            )}
+        {!isLoading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service, index) => {
+              const defaultPkg = service.packages?.[0] || { price: service.startingPrice || 0, deliveryTime: 7 };
+              const mainImg = service.images?.[0]?.url || "/api/placeholder/400/250";
 
-            {error && (
-              <div className="text-center py-12 bg-white rounded-xl">
-                <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">
-                  Failed to load services
-                </h3>
-                <p className="text-gray-600">Please try again later</p>
-              </div>
-            )}
-
-            {!isLoading && !error && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {services.map((service, index) => (
-                  <motion.div
-                    key={service._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative"
-                  >
+              return (
+                <motion.div
+                  key={service._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(index * 0.08, 0.3) }}
+                  className="bg-white rounded-2xl shadow-xs hover:shadow-xl border border-gray-200 hover:border-emerald-300 transition-all duration-300 overflow-hidden flex flex-col group relative"
+                >
+                  <div className="relative aspect-video bg-gray-100 overflow-hidden">
                     <img
-                      src={
-                        service.images?.[0]?.url || "/api/placeholder/400/250"
-                      }
+                      src={mainImg}
                       alt={service.title}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium capitalize">
-                          {service.category?.replace(/-/g, " ") || "Service"}
-                        </span>
-                        <div className="flex items-center text-yellow-500">
-                          <Star className="h-4 w-4 fill-current" />
-                          <span className="ml-1 text-sm text-gray-600">
-                            {service.rating?.average || 0} (
-                            {service.rating?.count || 0})
-                          </span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40"></div>
+
+                    {/* Category Pill */}
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-semibold uppercase">
+                        {service.category?.replace(/-/g, " ") || "Service"}
+                      </span>
+                    </div>
+
+                    {/* Wishlist Button Overlay */}
+                    <div className="absolute top-3 right-3 z-10">
+                      <WishlistButton itemId={service._id} type="service" />
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex flex-col flex-grow justify-between">
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <div className="flex items-center">
+                          <Star className="text-yellow-400 h-4 w-4 fill-yellow-400 mr-1" />
+                          <span className="font-bold text-gray-900">{service.rating?.average || 0}</span>
+                          <span className="text-gray-400 ml-1">({service.rating?.count || 0})</span>
                         </div>
+                        <span className="flex items-center text-gray-500">
+                          <Clock className="h-3.5 w-3.5 text-emerald-600 mr-1" />
+                          {defaultPkg.deliveryTime || 7} Days Delivery
+                        </span>
                       </div>
 
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      <Link
+                        to={`/marketplace/services/${service._id}`}
+                        className="text-lg font-bold text-gray-900 hover:text-emerald-600 transition-colors line-clamp-2 mb-3 block"
+                      >
                         {service.title}
-                      </h3>
-                      <div className="text-gray-600 mb-4 line-clamp-2">
-                        <FormattedText
-                          text={service.description}
-                          variant="card"
-                          truncate={120}
-                        />
-                      </div>
+                      </Link>
 
-                      {service.features && (
-                        <div className="mb-4 space-y-1">
+                      <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-4">
+                        {service.description}
+                      </p>
+
+                      {service.features?.length > 0 && (
+                        <div className="mb-4 space-y-1.5">
                           {service.features.slice(0, 3).map((feature, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center text-sm text-gray-500"
-                            >
-                              <CheckCircle className="h-3 w-3 text-green-500 mr-2" />
-                              {typeof feature === "string"
-                                ? feature
-                                : feature.name}
+                            <div key={idx} className="flex items-center text-xs text-gray-600">
+                              <CheckCircle className="h-3.5 w-3.5 text-emerald-500 mr-2 flex-shrink-0" />
+                              <span className="truncate">{typeof feature === "string" ? feature : feature.name}</span>
                             </div>
                           ))}
                         </div>
                       )}
+                    </div>
 
-                      <div className="flex items-center text-sm text-gray-500 mb-4 pt-4 border-t border-gray-100">
-                        <User className="h-4 w-4 mr-1" />
-                        <span className="mr-4 flex items-center">
-                          Dev Kant Kumar
-                          <CheckCircle className="h-3 w-3 text-blue-500 ml-1" />
-                        </span>
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>
-                          {service.packages?.[0]?.deliveryTime || 7} days
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-4">
-                        {(() => {
-                          const defaultPkg = service.packages?.[0] || {
-                            price: service.startingPrice || 0,
-                          };
-                          return (
-                            <PriceDisplay
-                              price={defaultPkg.price}
-                              className="text-2xl"
-                              textClass="text-blue-600"
-                            />
-                          );
-                        })()}
-                        <div className="flex items-center gap-2">
-                          <Link
-                            to={`/marketplace/services/${service.slug || service._id}`}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center font-medium"
-                          >
-                            View Offer
-                            <ArrowRight className="ml-1 h-4 w-4" />
-                          </Link>
-                          <WishlistButton itemId={service._id} type="service" />
+                    <div className="pt-4 border-t border-gray-100 mt-auto">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">STARTING FROM</span>
+                          <PriceDisplay
+                            price={defaultPkg.price}
+                            className="text-2xl"
+                            textClass="text-gray-900 font-bold"
+                          />
                         </div>
                       </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          to={`/marketplace/services/${service._id}`}
+                          className="py-2.5 px-3 bg-white border border-gray-200 hover:border-emerald-500 text-gray-800 hover:text-emerald-600 font-bold text-xs rounded-xl text-center transition-all flex items-center justify-center"
+                        >
+                          Details
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleBookNow(service)}
+                          className="py-2.5 px-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Zap className="h-3.5 w-3.5" /> Book Now
+                        </button>
+                      </div>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-
-            {!isLoading && !error && services.length === 0 && (
-              <EmptyState
-                variant="services"
-                title="No services found"
-                description="Try adjusting your filters or check back later for new services."
-                actionLabel="Clear All Filters"
-                onAction={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("all");
-                  setPriceRange("all");
-                }}
-                showNewsletter={true}
-              />
-            )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
+        )}
+
+        {!isLoading && !error && services.length === 0 && (
+          <EmptyState
+            variant="services"
+            title="No services found"
+            description="Try modifying your search terms or category selection."
+            actionLabel="Clear Filters"
+            onAction={resetFilters}
+          />
+        )}
         </div>
-      </div>
+      </section>
 
-      {/* How It Works */}
-      <div className="bg-white py-16 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
-              How It Works
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Simple, transparent, and efficient.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              {
-                step: "01",
-                title: "Select Service",
-                desc: "Choose the package that fits your needs.",
-              },
-              {
-                step: "02",
-                title: "Briefing",
-                desc: "Share your requirements and details.",
-              },
-              {
-                step: "03",
-                title: "Development",
-                desc: "We build with regular updates.",
-              },
-              {
-                step: "04",
-                title: "Delivery",
-                desc: "Receive your project with source code.",
-              },
-            ].map((item, index) => (
-              <div key={index} className="text-center relative">
-                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                  {item.step}
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-gray-600">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
+      {/* Why Choose Us & FAQs */}
+      <WhyChooseUs />
       <Testimonials />
       <FAQ />
-
-      {/* CTA */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-extrabold text-white mb-4">
-            Can't Find What You're Looking For?
-          </h2>
-          <p className="text-blue-100 text-xl mb-8 max-w-2xl mx-auto">
-            We specialize in custom software solutions tailored to your needs.
-          </p>
-          <Link
-            to="/marketplace/custom-solutions"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg"
-          >
-            Get a Custom Quote <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </div>
-      </div>
     </div>
   );
 };

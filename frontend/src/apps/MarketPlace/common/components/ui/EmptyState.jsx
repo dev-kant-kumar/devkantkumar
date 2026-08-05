@@ -44,7 +44,12 @@ const EmptyState = ({
     }
   };
 
-  const config = variants[variant] || variants.default;
+  const baseConfig = variants[variant] || variants.default;
+  const config = {
+    ...baseConfig,
+    title: title !== 'Coming Soon!' ? title : baseConfig.title,
+    description: description !== "We're adding exciting new content. Stay tuned!" ? description : baseConfig.description,
+  };
   const DisplayIcon = Icon !== Package ? Icon : config.icon;
 
   return (

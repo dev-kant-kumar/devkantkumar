@@ -455,28 +455,28 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Progress Steps */}
         <div className="mb-12">
           <div className="flex items-center justify-center space-x-4">
             <div
               className={`flex items-center ${
-                step >= 1 ? "text-blue-600" : "text-gray-400"
+                step >= 1 ? "text-emerald-600" : "text-gray-400"
               }`}
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                  step >= 1 ? "border-blue-600 bg-blue-50" : "border-gray-300"
+                  step >= 1 ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-gray-300"
                 } font-bold mr-2`}
               >
                 1
               </div>
-              <span className="font-medium">Billing</span>
+              <span className="font-semibold text-slate-900">Billing</span>
             </div>
             <div
               className={`w-16 h-0.5 ${
-                step >= 2 ? "bg-blue-600" : "bg-gray-300"
+                step >= 2 ? "bg-emerald-600" : "bg-gray-300"
               }`}
             ></div>
             <div

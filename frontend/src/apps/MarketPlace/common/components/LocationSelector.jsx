@@ -312,53 +312,56 @@ const LocationSelector = () => {
             {/* Modal */}
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             ref={modalRef}
-                            className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-gray-200 dark:border-gray-700"
+                            className="bg-slate-950 text-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-800"
                         >
                             {/* Header */}
-                            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                                    Choose your location
-                                </h3>
+                            <div className="flex items-center justify-between p-6 border-b border-slate-800 bg-slate-900/60">
+                                <div className="flex items-center gap-2">
+                                    <Globe className="h-5 w-5 text-emerald-400" />
+                                    <h3 className="text-lg font-extrabold text-white">
+                                        Choose Your Location
+                                    </h3>
+                                </div>
                                 <button
+                                    type="button"
                                     onClick={() => setIsOpen(false)}
-                                    className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                    className="p-2 hover:bg-slate-800 rounded-full transition-colors text-gray-400 hover:text-white cursor-pointer"
                                 >
-                                    <X size={20} className="text-gray-500" />
+                                    <X size={18} />
                                 </button>
                             </div>
 
                             {/* Body */}
                             <div className="p-6 space-y-6">
                                 <div className="space-y-4">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Product pricing and availability may vary based on your location and currency preference.
+                                    <p className="text-xs text-gray-300 leading-relaxed">
+                                        Product pricing and availability will automatically adjust based on your selected region and currency.
                                     </p>
 
                                     {/* Country Selector */}
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            Manage Region/Country
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-emerald-400">
+                                            Region / Country
                                         </label>
                                         <div className="relative">
                                             <select
                                                 value={selectedCountry}
                                                 onChange={handleCountryChange}
-                                                className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl border border-slate-800 bg-slate-900 text-white focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 outline-none text-sm cursor-pointer"
                                             >
                                                 {COUNTRIES.map(c => (
-                                                    <option key={c.code} value={c.code} className="bg-white dark:bg-gray-800">
+                                                    <option key={c.code} value={c.code} className="bg-slate-900 text-white">
                                                         {c.name} ({c.code})
                                                     </option>
                                                 ))}
-                                                {/* Fallback if user's country isn't in common list */}
                                                 {!COUNTRIES.find(c => c.code === selectedCountry) && (
-                                                    <option value={selectedCountry} className="bg-white dark:bg-gray-800">
+                                                    <option value={selectedCountry} className="bg-slate-900 text-white">
                                                         {selectedCountry}
                                                     </option>
                                                 )}
@@ -369,21 +372,21 @@ const LocationSelector = () => {
 
                                     {/* Currency Selector */}
                                     <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                            Currency
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-emerald-400">
+                                            Currency Preference
                                         </label>
                                         <div className="relative">
                                              <select
                                                 value={selectedCurrency}
                                                 onChange={(e) => setSelectedCurrency(e.target.value)}
-                                                className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full appearance-none pl-4 pr-10 py-3 rounded-xl border border-slate-800 bg-slate-900 text-white focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 outline-none text-sm cursor-pointer"
                                             >
                                                 {(supportedCurrencies || []).map(c => (
-                                                    <option key={c} value={c} className="bg-white dark:bg-gray-800">
+                                                    <option key={c} value={c} className="bg-slate-900 text-white">
                                                         {c}
                                                     </option>
                                                 ))}
-                                            </select>
+                                             </select>
                                              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
                                         </div>
                                     </div>
@@ -394,9 +397,9 @@ const LocationSelector = () => {
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={handleSave}
-                                    className="w-full py-3 px-4 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-bold rounded-xl shadow-lg shadow-yellow-500/20 transition-all"
+                                    className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
                                 >
-                                    Done
+                                    Done & Save Preferences
                                 </motion.button>
                             </div>
                         </motion.div>
