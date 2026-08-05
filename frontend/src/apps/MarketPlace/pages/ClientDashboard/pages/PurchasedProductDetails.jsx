@@ -251,15 +251,15 @@ const PurchasedProductDetails = () => {
              )}
           </div>
 
-          <div className="flex-1">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">{item.title}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-bold text-gray-900 mb-1 break-words">{item.title}</h1>
                 <p className="text-sm text-gray-500 mb-4">
                   Version {product?.version || '1.0.0'} • Purchased on {new Date(order.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <div className="text-right">
+              <div className="flex-shrink-0">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   {item.licenseType || 'Standard License'}
                 </span>
@@ -322,14 +322,16 @@ const PurchasedProductDetails = () => {
                                const isExhausted = link.downloadCount >= link.maxDownloads;
 
                                return (
-                                 <div key={idx} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between hover:border-gray-300 transition-colors">
-                                    <div className="flex items-center gap-3">
-                                       <div className="h-10 w-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                                 <div key={idx} className="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-gray-300 transition-colors">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                       <div className="h-10 w-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 flex-shrink-0">
                                           <FileText className="h-5 w-5" />
                                        </div>
-                                       <div>
-                                          <p className="font-medium text-gray-900">{link.name || `File ${idx + 1}`}</p>
-                                          <p className="text-xs text-gray-500">
+                                       <div className="min-w-0 flex-1">
+                                          <p className="font-medium text-gray-900 truncate" title={link.name || `File ${idx + 1}`}>
+                                             {link.name || `File ${idx + 1}`}
+                                          </p>
+                                          <p className="text-xs text-gray-500 truncate">
                                             {isExpired ? (
                                                 <span className="text-red-600">Expired</span>
                                             ) : isExhausted ? (
@@ -341,8 +343,8 @@ const PurchasedProductDetails = () => {
                                        </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4">
-                                       <div className="text-right hidden sm:block">
+                                    <div className="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0">
+                                       <div className="text-left sm:text-right">
                                           <p className="text-xs text-gray-500">Downloads</p>
                                           <p className="text-sm font-medium text-gray-900">{link.downloadCount} / {link.maxDownloads}</p>
                                        </div>
@@ -618,9 +620,11 @@ const PurchasedProductDetails = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="font-bold text-gray-900 mb-4">Order Summary</h3>
                 <div className="space-y-3 text-sm">
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-500">Order Ref</span>
-                        <span className="font-medium text-gray-900">{order.orderNumber}</span>
+                    <div className="py-2 border-b border-gray-100 min-w-0">
+                        <span className="text-gray-500 block text-xs font-medium mb-1">Order Ref</span>
+                        <span className="font-medium text-gray-900 block truncate" title={order.orderNumber}>
+                            {order.orderNumber}
+                        </span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
                         <span className="text-gray-500">Date</span>
